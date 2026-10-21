@@ -1,0 +1,3163 @@
+{
+  "startsAt": "2026-05-25T03:40:00Z",
+  "currentUserId": "p-as",
+  "event": {
+    "id": "ev-E12347",
+    "number": "E12347",
+    "name": "Weekend Payroll Cutover (late)",
+    "state": "active",
+    "owner": "Cutover Manager Team",
+    "window": {
+      "start": "2026-05-24T22:00:00Z",
+      "end": "2026-05-25T06:00:00Z"
+    },
+    "programme": "Q4 Data Centre Migration"
+  },
+  "people": [
+    {
+      "id": "p-as",
+      "name": "Andy Smith"
+    },
+    {
+      "id": "p-tb",
+      "name": "Tom Baker"
+    },
+    {
+      "id": "p-kw",
+      "name": "Karen Wells"
+    },
+    {
+      "id": "p-rp",
+      "name": "Raj Patel"
+    },
+    {
+      "id": "p-jn",
+      "name": "Jo Nash"
+    },
+    {
+      "id": "p-sd",
+      "name": "Sam Dee"
+    },
+    {
+      "id": "p-mo",
+      "name": "Mary O’Neill"
+    },
+    {
+      "id": "p-lc",
+      "name": "Lin Chen"
+    }
+  ],
+  "runbooks": [
+    {
+      "id": "rb-1",
+      "number": "RBK0000001",
+      "wbs": "1",
+      "name": "Payroll cutover",
+      "plannedEnd": "2026-05-25T06:00:00Z"
+    },
+    {
+      "id": "rb-2",
+      "number": "RBK0000002",
+      "wbs": "2",
+      "name": "Interfaces",
+      "plannedEnd": "2026-05-25T05:00:00Z"
+    },
+    {
+      "id": "rb-3",
+      "number": "RBK0000003",
+      "wbs": "3",
+      "name": "Reporting",
+      "plannedEnd": "2026-05-25T05:40:00Z"
+    }
+  ],
+  "stages": [
+    {
+      "id": "st-1.1",
+      "runbookId": "rb-1",
+      "wbs": "1.1",
+      "name": "Prepare"
+    },
+    {
+      "id": "st-1.2",
+      "runbookId": "rb-1",
+      "wbs": "1.2",
+      "name": "Extract and stop"
+    },
+    {
+      "id": "st-1.3",
+      "runbookId": "rb-1",
+      "wbs": "1.3",
+      "name": "Application failover"
+    },
+    {
+      "id": "st-1.4",
+      "runbookId": "rb-1",
+      "wbs": "1.4",
+      "name": "Verify"
+    },
+    {
+      "id": "st-1.5",
+      "runbookId": "rb-1",
+      "wbs": "1.5",
+      "name": "Hand over"
+    },
+    {
+      "id": "st-2.1",
+      "runbookId": "rb-2",
+      "wbs": "2.1",
+      "name": "Switch interfaces"
+    },
+    {
+      "id": "st-3.1",
+      "runbookId": "rb-3",
+      "wbs": "3.1",
+      "name": "Rebuild reporting"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t-1.1.1",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.1",
+      "title": "Freeze payroll changes",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:00:00Z",
+        "end": "2026-05-24T22:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [],
+      "constraints": {
+        "notBefore": "2026-05-24T22:00:00Z"
+      },
+      "actual": {
+        "start": "2026-05-24T22:00:00Z",
+        "end": "2026-05-24T22:15:00Z"
+      },
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.1.5",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.5",
+      "title": "Confirm change window",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:15:00Z",
+        "end": "2026-05-24T22:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.1",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:15:00Z",
+        "end": "2026-05-24T22:30:00Z"
+      },
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.1.9",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.9",
+      "title": "Brief the bridge",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:30:00Z",
+        "end": "2026-05-24T22:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.5",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:30:00Z",
+        "end": "2026-05-24T22:45:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.1.13",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.13",
+      "title": "Check vendor contacts",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:45:00Z",
+        "end": "2026-05-24T23:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.9",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:45:00Z",
+        "end": "2026-05-24T23:00:00Z"
+      },
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.1.17",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.17",
+      "title": "Snapshot payroll servers",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:00:00Z",
+        "end": "2026-05-24T23:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.13",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:00:00Z",
+        "end": "2026-05-24T23:15:00Z"
+      },
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.1.21",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.21",
+      "title": "Confirm rollback plan",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:15:00Z",
+        "end": "2026-05-24T23:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.17",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:15:00Z",
+        "end": "2026-05-24T23:30:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.1.2",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.2",
+      "title": "Verify access accounts",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:00:00Z",
+        "end": "2026-05-24T22:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [],
+      "constraints": {
+        "notBefore": "2026-05-24T22:00:00Z"
+      },
+      "actual": {
+        "start": "2026-05-24T22:00:00Z",
+        "end": "2026-05-24T22:15:00Z"
+      },
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.1.6",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.6",
+      "title": "Freeze payroll changes",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:15:00Z",
+        "end": "2026-05-24T22:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.2",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:15:00Z",
+        "end": "2026-05-24T22:30:00Z"
+      },
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.1.10",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.10",
+      "title": "Confirm change window",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:30:00Z",
+        "end": "2026-05-24T22:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.6",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:30:00Z",
+        "end": "2026-05-24T22:45:00Z"
+      },
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.1.14",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.14",
+      "title": "Brief the bridge",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:45:00Z",
+        "end": "2026-05-24T23:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.10",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:45:00Z",
+        "end": "2026-05-24T23:00:00Z"
+      },
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.1.18",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.18",
+      "title": "Check vendor contacts",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:00:00Z",
+        "end": "2026-05-24T23:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.14",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:00:00Z",
+        "end": "2026-05-24T23:15:00Z"
+      },
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.1.22",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.22",
+      "title": "Snapshot payroll servers",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:15:00Z",
+        "end": "2026-05-24T23:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.18",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:15:00Z",
+        "end": "2026-05-24T23:30:00Z"
+      },
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.1.3",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.3",
+      "title": "Confirm rollback plan",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:00:00Z",
+        "end": "2026-05-24T22:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [],
+      "constraints": {
+        "notBefore": "2026-05-24T22:00:00Z"
+      },
+      "actual": {
+        "start": "2026-05-24T22:00:00Z",
+        "end": "2026-05-24T22:15:00Z"
+      },
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.1.7",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.7",
+      "title": "Verify access accounts",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:15:00Z",
+        "end": "2026-05-24T22:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.3",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:15:00Z",
+        "end": "2026-05-24T22:30:00Z"
+      },
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.1.11",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.11",
+      "title": "Freeze payroll changes",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:30:00Z",
+        "end": "2026-05-24T22:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.7",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:30:00Z",
+        "end": "2026-05-24T22:45:00Z"
+      },
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.1.15",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.15",
+      "title": "Confirm change window",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:45:00Z",
+        "end": "2026-05-24T23:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.11",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:45:00Z",
+        "end": "2026-05-24T23:00:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.1.19",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.19",
+      "title": "Brief the bridge",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:00:00Z",
+        "end": "2026-05-24T23:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.15",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:00:00Z",
+        "end": "2026-05-24T23:15:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.1.23",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.23",
+      "title": "Check vendor contacts",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:15:00Z",
+        "end": "2026-05-24T23:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.19",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:15:00Z",
+        "end": "2026-05-24T23:30:00Z"
+      },
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.1.4",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.4",
+      "title": "Snapshot payroll servers",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:00:00Z",
+        "end": "2026-05-24T22:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [],
+      "constraints": {
+        "notBefore": "2026-05-24T22:00:00Z"
+      },
+      "actual": {
+        "start": "2026-05-24T22:00:00Z",
+        "end": "2026-05-24T22:15:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.1.8",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.8",
+      "title": "Confirm rollback plan",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:15:00Z",
+        "end": "2026-05-24T22:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.4",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:15:00Z",
+        "end": "2026-05-24T22:30:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.1.12",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.12",
+      "title": "Verify access accounts",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:30:00Z",
+        "end": "2026-05-24T22:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.8",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:30:00Z",
+        "end": "2026-05-24T22:45:00Z"
+      },
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.1.16",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.16",
+      "title": "Freeze payroll changes",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T22:45:00Z",
+        "end": "2026-05-24T23:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.12",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T22:45:00Z",
+        "end": "2026-05-24T23:00:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.1.20",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.20",
+      "title": "Confirm change window",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:00:00Z",
+        "end": "2026-05-24T23:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.16",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:00:00Z",
+        "end": "2026-05-24T23:15:00Z"
+      },
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.1.24",
+      "runbookId": "rb-1",
+      "stageId": "st-1.1",
+      "wbs": "1.1.24",
+      "title": "Brief the bridge",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:15:00Z",
+        "end": "2026-05-24T23:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.20",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:15:00Z",
+        "end": "2026-05-24T23:30:00Z"
+      },
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.2.1",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.1",
+      "title": "Stop batch jobs",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:30:00Z",
+        "end": "2026-05-24T23:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.21",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.1.22",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.1.23",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.1.24",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:30:00Z",
+        "end": "2026-05-24T23:45:00Z"
+      },
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.2.4",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.4",
+      "title": "Stop legacy jobs",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:45:00Z",
+        "end": "2026-05-25T00:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.1",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:45:00Z",
+        "end": "2026-05-25T00:00:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.2.7",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.7",
+      "title": "Export payroll data",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:00:00Z",
+        "end": "2026-05-25T00:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.4",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:00:00Z",
+        "end": "2026-05-25T00:15:00Z"
+      },
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.2.10",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.10",
+      "title": "Checksum exports",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:15:00Z",
+        "end": "2026-05-25T00:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.7",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:15:00Z",
+        "end": "2026-05-25T00:30:00Z"
+      },
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.2.13",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.13",
+      "title": "Archive interface files",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:30:00Z",
+        "end": "2026-05-25T00:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.10",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:30:00Z",
+        "end": "2026-05-25T00:45:00Z"
+      },
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.2.16",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.16",
+      "title": "Stop scheduler",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:45:00Z",
+        "end": "2026-05-25T01:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.13",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:45:00Z",
+        "end": "2026-05-25T01:00:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.2.19",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.19",
+      "title": "Disable integrations",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T01:00:00Z",
+        "end": "2026-05-25T01:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.16",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T01:00:00Z",
+        "end": "2026-05-25T01:15:00Z"
+      },
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.2.22",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.22",
+      "title": "Stop batch jobs",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T01:15:00Z",
+        "end": "2026-05-25T01:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.19",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T01:15:00Z",
+        "end": "2026-05-25T01:30:00Z"
+      },
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.2.25",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.25",
+      "title": "Stop legacy jobs",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T01:30:00Z",
+        "end": "2026-05-25T01:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.22",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T01:30:00Z",
+        "end": "2026-05-25T01:45:00Z"
+      },
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.2.28",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.28",
+      "title": "Export payroll data",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T01:45:00Z",
+        "end": "2026-05-25T02:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.25",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T01:45:00Z",
+        "end": "2026-05-25T02:00:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.2.2",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.2",
+      "title": "Checksum exports",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:30:00Z",
+        "end": "2026-05-24T23:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.21",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.1.22",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.1.23",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.1.24",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:30:00Z",
+        "end": "2026-05-24T23:45:00Z"
+      },
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.2.5",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.5",
+      "title": "Archive interface files",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:45:00Z",
+        "end": "2026-05-25T00:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.2",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:45:00Z",
+        "end": "2026-05-25T00:00:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.2.8",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.8",
+      "title": "Stop scheduler",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:00:00Z",
+        "end": "2026-05-25T00:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.5",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:00:00Z",
+        "end": "2026-05-25T00:15:00Z"
+      },
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.2.11",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.11",
+      "title": "Disable integrations",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:15:00Z",
+        "end": "2026-05-25T00:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.8",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:15:00Z",
+        "end": "2026-05-25T00:30:00Z"
+      },
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.2.14",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.14",
+      "title": "Stop batch jobs",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:30:00Z",
+        "end": "2026-05-25T00:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.11",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:30:00Z",
+        "end": "2026-05-25T00:45:00Z"
+      },
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.2.17",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.17",
+      "title": "Stop legacy jobs",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:45:00Z",
+        "end": "2026-05-25T01:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.14",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:45:00Z",
+        "end": "2026-05-25T01:00:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.2.20",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.20",
+      "title": "Export payroll data",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T01:00:00Z",
+        "end": "2026-05-25T01:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.17",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T01:00:00Z",
+        "end": "2026-05-25T01:15:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.2.23",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.23",
+      "title": "Checksum exports",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T01:15:00Z",
+        "end": "2026-05-25T01:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.20",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T01:15:00Z",
+        "end": "2026-05-25T01:30:00Z"
+      },
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.2.26",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.26",
+      "title": "Archive interface files",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T01:30:00Z",
+        "end": "2026-05-25T01:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.23",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T01:30:00Z",
+        "end": "2026-05-25T01:45:00Z"
+      },
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.2.29",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.29",
+      "title": "Stop scheduler",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T01:45:00Z",
+        "end": "2026-05-25T02:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.26",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T01:45:00Z",
+        "end": "2026-05-25T02:00:00Z"
+      },
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.2.3",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.3",
+      "title": "Disable integrations",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:30:00Z",
+        "end": "2026-05-24T23:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.1.21",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.1.22",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.1.23",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.1.24",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:30:00Z",
+        "end": "2026-05-24T23:45:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.2.6",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.6",
+      "title": "Stop batch jobs",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-24T23:45:00Z",
+        "end": "2026-05-25T00:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.3",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-24T23:45:00Z",
+        "end": "2026-05-25T00:00:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.2.9",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.9",
+      "title": "Stop legacy jobs",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:00:00Z",
+        "end": "2026-05-25T00:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.6",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:00:00Z",
+        "end": "2026-05-25T00:15:00Z"
+      },
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.2.12",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.12",
+      "title": "Export payroll data",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:15:00Z",
+        "end": "2026-05-25T00:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.9",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:15:00Z",
+        "end": "2026-05-25T00:30:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.2.15",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.15",
+      "title": "Checksum exports",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:30:00Z",
+        "end": "2026-05-25T00:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.12",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:30:00Z",
+        "end": "2026-05-25T00:45:00Z"
+      },
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.2.18",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.18",
+      "title": "Archive interface files",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T00:45:00Z",
+        "end": "2026-05-25T01:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.15",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T00:45:00Z",
+        "end": "2026-05-25T01:00:00Z"
+      },
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.2.21",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.21",
+      "title": "Stop scheduler",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T01:00:00Z",
+        "end": "2026-05-25T01:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.18",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T01:00:00Z",
+        "end": "2026-05-25T01:15:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.2.24",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.24",
+      "title": "Disable integrations",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T01:15:00Z",
+        "end": "2026-05-25T01:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.21",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T01:15:00Z",
+        "end": "2026-05-25T01:30:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.2.27",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.27",
+      "title": "Stop batch jobs",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T01:30:00Z",
+        "end": "2026-05-25T01:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.24",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T01:30:00Z",
+        "end": "2026-05-25T01:45:00Z"
+      },
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.2.30",
+      "runbookId": "rb-1",
+      "stageId": "st-1.2",
+      "wbs": "1.2.30",
+      "title": "Data extracted",
+      "kind": "milestone",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:00:00Z",
+        "end": "2026-05-25T02:00:00Z"
+      },
+      "durationMinutes": 0,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.28",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.2.29",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.2.27",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T02:00:00Z",
+        "end": "2026-05-25T02:00:00Z"
+      }
+    },
+    {
+      "id": "t-1.3.1",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.1",
+      "title": "Reindex payroll database",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:00:00Z",
+        "end": "2026-05-25T02:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.30",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T02:40:00Z",
+        "end": "2026-05-25T02:55:00Z"
+      },
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.3.4",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.4",
+      "title": "Startup application services",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:15:00Z",
+        "end": "2026-05-25T02:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.1",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T02:55:00Z",
+        "end": "2026-05-25T03:10:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.3.7",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.7",
+      "title": "Startup application UI",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:30:00Z",
+        "end": "2026-05-25T02:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.4",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T03:10:00Z",
+        "end": "2026-05-25T03:25:00Z"
+      },
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.3.10",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.10",
+      "title": "Apply configuration patch",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:45:00Z",
+        "end": "2026-05-25T03:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.7",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T03:25:00Z",
+        "end": "2026-05-25T03:40:00Z"
+      },
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.3.13",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.13",
+      "title": "Payroll totals check",
+      "kind": "checkpoint",
+      "state": "active",
+      "planned": {
+        "start": "2026-05-25T03:00:00Z",
+        "end": "2026-05-25T03:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.10",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T03:40:00Z"
+      },
+      "assigneeId": "p-sd",
+      "result": {
+        "value": "fail",
+        "byId": "p-rp",
+        "at": "2026-05-25T03:34:00Z"
+      }
+    },
+    {
+      "id": "t-1.3.16",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.16",
+      "title": "Run smoke tests",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T03:15:00Z",
+        "end": "2026-05-25T03:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.13",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.3.19",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.19",
+      "title": "Notify service desk",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T03:30:00Z",
+        "end": "2026-05-25T03:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.16",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.3.22",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.22",
+      "title": "Switch DNS",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T03:45:00Z",
+        "end": "2026-05-25T04:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.19",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.3.25",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.25",
+      "title": "Warm caches",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:00:00Z",
+        "end": "2026-05-25T04:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.22",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.3.28",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.28",
+      "title": "Reindex payroll database",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:15:00Z",
+        "end": "2026-05-25T04:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.25",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.3.2",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.2",
+      "title": "Startup application services",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:00:00Z",
+        "end": "2026-05-25T02:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.30",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T02:40:00Z",
+        "end": "2026-05-25T02:55:00Z"
+      },
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.3.5",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.5",
+      "title": "Startup application UI",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:15:00Z",
+        "end": "2026-05-25T02:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.2",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T02:55:00Z",
+        "end": "2026-05-25T03:10:00Z"
+      },
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.3.8",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.8",
+      "title": "Apply configuration patch",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:30:00Z",
+        "end": "2026-05-25T02:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.5",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T03:10:00Z",
+        "end": "2026-05-25T03:25:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.3.11",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.11",
+      "title": "Refresh test data",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:45:00Z",
+        "end": "2026-05-25T03:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.8",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T03:25:00Z",
+        "end": "2026-05-25T03:40:00Z"
+      },
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.3.14",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.14",
+      "title": "Run smoke tests",
+      "kind": "task",
+      "state": "paused",
+      "planned": {
+        "start": "2026-05-25T03:00:00Z",
+        "end": "2026-05-25T03:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.11",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T03:40:00Z"
+      },
+      "assigneeId": "p-jn",
+      "paused": {
+        "byId": "p-as",
+        "at": "2026-05-25T03:40:00Z",
+        "reason": "Waiting for DBA"
+      },
+      "workedMinutes": 0
+    },
+    {
+      "id": "t-1.3.17",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.17",
+      "title": "Notify service desk",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T03:15:00Z",
+        "end": "2026-05-25T03:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.14",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.3.20",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.20",
+      "title": "Switch DNS",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T03:30:00Z",
+        "end": "2026-05-25T03:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.17",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.3.23",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.23",
+      "title": "Warm caches",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T03:45:00Z",
+        "end": "2026-05-25T04:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.20",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.3.26",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.26",
+      "title": "Reindex payroll database",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:00:00Z",
+        "end": "2026-05-25T04:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.23",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.3.29",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.29",
+      "title": "Startup application services",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:15:00Z",
+        "end": "2026-05-25T04:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.26",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.3.3",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.3",
+      "title": "Startup application UI",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:00:00Z",
+        "end": "2026-05-25T02:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.2.30",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T02:40:00Z",
+        "end": "2026-05-25T02:55:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.3.6",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.6",
+      "title": "Apply configuration patch",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:15:00Z",
+        "end": "2026-05-25T02:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.3",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T02:55:00Z",
+        "end": "2026-05-25T03:10:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.3.9",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.9",
+      "title": "Refresh test data",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:30:00Z",
+        "end": "2026-05-25T02:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.6",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T03:10:00Z",
+        "end": "2026-05-25T03:25:00Z"
+      },
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.3.12",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.12",
+      "title": "Run smoke tests",
+      "kind": "task",
+      "state": "complete",
+      "planned": {
+        "start": "2026-05-25T02:45:00Z",
+        "end": "2026-05-25T03:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.9",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T03:25:00Z",
+        "end": "2026-05-25T03:40:00Z"
+      },
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.3.15",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.15",
+      "title": "Notify service desk",
+      "kind": "task",
+      "state": "active",
+      "planned": {
+        "start": "2026-05-25T03:00:00Z",
+        "end": "2026-05-25T03:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.12",
+          "type": "finish_to_start"
+        }
+      ],
+      "actual": {
+        "start": "2026-05-25T03:40:00Z"
+      },
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.3.18",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.18",
+      "title": "Switch DNS",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T03:15:00Z",
+        "end": "2026-05-25T03:30:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.15",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.3.21",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.21",
+      "title": "Warm caches",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T03:30:00Z",
+        "end": "2026-05-25T03:45:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.18",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.3.24",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.24",
+      "title": "Reindex payroll database",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T03:45:00Z",
+        "end": "2026-05-25T04:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.21",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.3.27",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.27",
+      "title": "Startup application services",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:00:00Z",
+        "end": "2026-05-25T04:15:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.24",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.3.30",
+      "runbookId": "rb-1",
+      "stageId": "st-1.3",
+      "wbs": "1.3.30",
+      "title": "Application failover",
+      "kind": "milestone",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:30:00Z",
+        "end": "2026-05-25T04:30:00Z"
+      },
+      "durationMinutes": 0,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.28",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.3.29",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.3.27",
+          "type": "finish_to_start"
+        }
+      ]
+    },
+    {
+      "id": "t-1.4.1",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.1",
+      "title": "Account reconciliation",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:30:00Z",
+        "end": "2026-05-25T04:40:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.30",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.4.4",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.4",
+      "title": "Refresh reports",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:40:00Z",
+        "end": "2026-05-25T04:50:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.1",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.4.7",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.7",
+      "title": "Payroll totals check",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:50:00Z",
+        "end": "2026-05-25T05:00:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.4",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.4.10",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.10",
+      "title": "Compare record counts",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:00:00Z",
+        "end": "2026-05-25T05:10:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.7",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.4.13",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.13",
+      "title": "Sample employee records",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:10:00Z",
+        "end": "2026-05-25T05:20:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.10",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.4.16",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.16",
+      "title": "Check tax tables",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:20:00Z",
+        "end": "2026-05-25T05:30:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.13",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.4.2",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.2",
+      "title": "Account reconciliation",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:30:00Z",
+        "end": "2026-05-25T04:40:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.30",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.4.5",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.5",
+      "title": "Refresh reports",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:40:00Z",
+        "end": "2026-05-25T04:50:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.2",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-1.4.8",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.8",
+      "title": "Payroll totals check",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:50:00Z",
+        "end": "2026-05-25T05:00:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.5",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-1.4.11",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.11",
+      "title": "Compare record counts",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:00:00Z",
+        "end": "2026-05-25T05:10:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.8",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.4.14",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.14",
+      "title": "Sample employee records",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:10:00Z",
+        "end": "2026-05-25T05:20:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.11",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.4.17",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.17",
+      "title": "Check tax tables",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:20:00Z",
+        "end": "2026-05-25T05:30:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.14",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.4.3",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.3",
+      "title": "Account reconciliation",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:30:00Z",
+        "end": "2026-05-25T04:40:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.3.30",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.4.6",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.6",
+      "title": "Refresh reports",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:40:00Z",
+        "end": "2026-05-25T04:50:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.3",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.4.9",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.9",
+      "title": "Payroll totals check",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:50:00Z",
+        "end": "2026-05-25T05:00:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.6",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.4.12",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.12",
+      "title": "Compare record counts",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:00:00Z",
+        "end": "2026-05-25T05:10:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.9",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.4.15",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.15",
+      "title": "Sample employee records",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:10:00Z",
+        "end": "2026-05-25T05:20:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.12",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.4.18",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.18",
+      "title": "Check tax tables",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:20:00Z",
+        "end": "2026-05-25T05:30:00Z"
+      },
+      "durationMinutes": 10,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.15",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.4.19",
+      "runbookId": "rb-1",
+      "stageId": "st-1.4",
+      "wbs": "1.4.19",
+      "title": "Validation complete",
+      "kind": "milestone",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:30:00Z",
+        "end": "2026-05-25T05:30:00Z"
+      },
+      "durationMinutes": 0,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.16",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.4.17",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.4.18",
+          "type": "finish_to_start"
+        }
+      ]
+    },
+    {
+      "id": "t-1.5.1",
+      "runbookId": "rb-1",
+      "stageId": "st-1.5",
+      "wbs": "1.5.1",
+      "title": "Confirm readiness",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:30:00Z",
+        "end": "2026-05-25T05:35:00Z"
+      },
+      "durationMinutes": 5,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.19",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.5.4",
+      "runbookId": "rb-1",
+      "stageId": "st-1.5",
+      "wbs": "1.5.4",
+      "title": "Notify service desk",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:35:00Z",
+        "end": "2026-05-25T05:40:00Z"
+      },
+      "durationMinutes": 5,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.5.1",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.5.7",
+      "runbookId": "rb-1",
+      "stageId": "st-1.5",
+      "wbs": "1.5.7",
+      "title": "Run health check",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:40:00Z",
+        "end": "2026-05-25T05:45:00Z"
+      },
+      "durationMinutes": 5,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.5.4",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-1.5.2",
+      "runbookId": "rb-1",
+      "stageId": "st-1.5",
+      "wbs": "1.5.2",
+      "title": "Take snapshot",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:30:00Z",
+        "end": "2026-05-25T05:35:00Z"
+      },
+      "durationMinutes": 5,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.19",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-1.5.5",
+      "runbookId": "rb-1",
+      "stageId": "st-1.5",
+      "wbs": "1.5.5",
+      "title": "Validate configuration",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:35:00Z",
+        "end": "2026-05-25T05:40:00Z"
+      },
+      "durationMinutes": 5,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.5.2",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.5.8",
+      "runbookId": "rb-1",
+      "stageId": "st-1.5",
+      "wbs": "1.5.8",
+      "title": "Update runbook log",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:40:00Z",
+        "end": "2026-05-25T05:45:00Z"
+      },
+      "durationMinutes": 5,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.5.5",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.5.3",
+      "runbookId": "rb-1",
+      "stageId": "st-1.5",
+      "wbs": "1.5.3",
+      "title": "Check monitoring",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:30:00Z",
+        "end": "2026-05-25T05:35:00Z"
+      },
+      "durationMinutes": 5,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.4.19",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-1.5.6",
+      "runbookId": "rb-1",
+      "stageId": "st-1.5",
+      "wbs": "1.5.6",
+      "title": "Confirm with business",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:35:00Z",
+        "end": "2026-05-25T05:40:00Z"
+      },
+      "durationMinutes": 5,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.5.3",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-1.5.9",
+      "runbookId": "rb-1",
+      "stageId": "st-1.5",
+      "wbs": "1.5.9",
+      "title": "Drain connections",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:40:00Z",
+        "end": "2026-05-25T05:45:00Z"
+      },
+      "durationMinutes": 5,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.5.6",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-tb"
+    },
+    {
+      "id": "t-1.5.10",
+      "runbookId": "rb-1",
+      "stageId": "st-1.5",
+      "wbs": "1.5.10",
+      "title": "Go / No-Go",
+      "kind": "checkpoint",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:45:00Z",
+        "end": "2026-05-25T06:00:00Z"
+      },
+      "durationMinutes": 15,
+      "dependencies": [
+        {
+          "predecessorId": "t-1.5.7",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.5.8",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-1.5.9",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-2.1.1",
+      "runbookId": "rb-2",
+      "stageId": "st-2.1",
+      "wbs": "2.1.1",
+      "title": "Switch payroll interface",
+      "kind": "task",
+      "state": "active",
+      "planned": {
+        "start": "2026-05-25T03:00:00Z",
+        "end": "2026-05-25T03:20:00Z"
+      },
+      "durationMinutes": 20,
+      "dependencies": [],
+      "constraints": {
+        "notBefore": "2026-05-25T03:00:00Z"
+      },
+      "actual": {
+        "start": "2026-05-25T03:35:00Z"
+      },
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-2.1.2",
+      "runbookId": "rb-2",
+      "stageId": "st-2.1",
+      "wbs": "2.1.2",
+      "title": "Test payroll interface",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T03:20:00Z",
+        "end": "2026-05-25T03:40:00Z"
+      },
+      "durationMinutes": 20,
+      "dependencies": [
+        {
+          "predecessorId": "t-2.1.1",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-jn"
+    },
+    {
+      "id": "t-2.1.3",
+      "runbookId": "rb-2",
+      "stageId": "st-2.1",
+      "wbs": "2.1.3",
+      "title": "Switch bank interface",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T03:40:00Z",
+        "end": "2026-05-25T04:00:00Z"
+      },
+      "durationMinutes": 20,
+      "dependencies": [
+        {
+          "predecessorId": "t-2.1.2",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-2.1.4",
+      "runbookId": "rb-2",
+      "stageId": "st-2.1",
+      "wbs": "2.1.4",
+      "title": "Test bank file",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:00:00Z",
+        "end": "2026-05-25T04:20:00Z"
+      },
+      "durationMinutes": 20,
+      "dependencies": [
+        {
+          "predecessorId": "t-2.1.3",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-rp"
+    },
+    {
+      "id": "t-2.1.5",
+      "runbookId": "rb-2",
+      "stageId": "st-2.1",
+      "wbs": "2.1.5",
+      "title": "Switch HR feed",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:20:00Z",
+        "end": "2026-05-25T04:40:00Z"
+      },
+      "durationMinutes": 20,
+      "dependencies": [
+        {
+          "predecessorId": "t-2.1.4",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-kw"
+    },
+    {
+      "id": "t-2.1.6",
+      "runbookId": "rb-2",
+      "stageId": "st-2.1",
+      "wbs": "2.1.6",
+      "title": "Confirm feeds",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:40:00Z",
+        "end": "2026-05-25T05:00:00Z"
+      },
+      "durationMinutes": 20,
+      "dependencies": [
+        {
+          "predecessorId": "t-2.1.5",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-3.1.1",
+      "runbookId": "rb-3",
+      "stageId": "st-3.1",
+      "wbs": "3.1.1",
+      "title": "Rebuild reports",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:00:00Z",
+        "end": "2026-05-25T04:20:00Z"
+      },
+      "durationMinutes": 20,
+      "dependencies": [],
+      "constraints": {
+        "notBefore": "2026-05-25T04:00:00Z"
+      },
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-3.1.2",
+      "runbookId": "rb-3",
+      "stageId": "st-3.1",
+      "wbs": "3.1.2",
+      "title": "Refresh dashboards",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:20:00Z",
+        "end": "2026-05-25T04:40:00Z"
+      },
+      "durationMinutes": 20,
+      "dependencies": [
+        {
+          "predecessorId": "t-3.1.1",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-mo"
+    },
+    {
+      "id": "t-3.1.3",
+      "runbookId": "rb-3",
+      "stageId": "st-3.1",
+      "wbs": "3.1.3",
+      "title": "Validate report totals",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T04:40:00Z",
+        "end": "2026-05-25T05:00:00Z"
+      },
+      "durationMinutes": 20,
+      "dependencies": [
+        {
+          "predecessorId": "t-3.1.2",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-sd"
+    },
+    {
+      "id": "t-3.1.4",
+      "runbookId": "rb-3",
+      "stageId": "st-3.1",
+      "wbs": "3.1.4",
+      "title": "Publish reports",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:00:00Z",
+        "end": "2026-05-25T05:20:00Z"
+      },
+      "durationMinutes": 20,
+      "dependencies": [
+        {
+          "predecessorId": "t-3.1.3",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-lc"
+    },
+    {
+      "id": "t-3.1.5",
+      "runbookId": "rb-3",
+      "stageId": "st-3.1",
+      "wbs": "3.1.5",
+      "title": "Notify finance",
+      "kind": "task",
+      "state": "not_started",
+      "planned": {
+        "start": "2026-05-25T05:20:00Z",
+        "end": "2026-05-25T05:40:00Z"
+      },
+      "durationMinutes": 20,
+      "dependencies": [
+        {
+          "predecessorId": "t-3.1.4",
+          "type": "finish_to_start"
+        }
+      ],
+      "assigneeId": "p-sd"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "b-102",
+      "number": "BLK-102",
+      "title": "Waiting on vendor",
+      "severity": "high",
+      "state": "open",
+      "taskIds": [
+        "t-1.4.2"
+      ],
+      "raisedAt": "2026-05-25T03:29:48Z"
+    },
+    {
+      "id": "b-202",
+      "number": "BLK-202",
+      "title": "Network connectivity",
+      "severity": "high",
+      "state": "open",
+      "taskIds": [
+        "t-2.1.3"
+      ],
+      "raisedAt": "2026-05-25T03:19:48Z"
+    },
+    {
+      "id": "b-305",
+      "number": "BLK-305",
+      "title": "Firewall change pending",
+      "severity": "medium",
+      "state": "open",
+      "taskIds": [
+        "t-1.4.5"
+      ],
+      "raisedAt": "2026-05-25T03:09:30Z"
+    },
+    {
+      "id": "b-311",
+      "number": "BLK-311",
+      "title": "Licence key expired",
+      "severity": "low",
+      "state": "open",
+      "taskIds": [
+        "t-3.1.1"
+      ],
+      "raisedAt": "2026-05-25T03:08:54Z"
+    }
+  ],
+  "issues": [
+    {
+      "id": "i-201",
+      "number": "INC-201",
+      "title": "Database failover slow",
+      "severity": "high",
+      "state": "open",
+      "taskIds": [
+        "t-1.3.15"
+      ],
+      "raisedAt": "2026-05-25T03:20:00Z"
+    },
+    {
+      "id": "i-202",
+      "number": "INC-202",
+      "title": "Cache errors",
+      "severity": "medium",
+      "state": "open",
+      "taskIds": [
+        "t-1.3.20"
+      ],
+      "raisedAt": "2026-05-25T03:25:00Z"
+    }
+  ],
+  "calls": [
+    {
+      "id": "call-collab",
+      "open": true,
+      "participantIds": [
+        "p-tb",
+        "p-kw",
+        "p-rp",
+        "p-jn",
+        "p-sd",
+        "p-mo",
+        "p-lc"
+      ]
+    },
+    {
+      "id": "call-gonogo",
+      "checkpointTaskId": "t-1.5.10",
+      "open": false,
+      "opensAt": "2026-05-25T05:30:00Z",
+      "participantIds": []
+    }
+  ],
+  "watchers": [
+    {
+      "id": "w-1",
+      "title": "Payroll Interface Monitoring",
+      "since": "2026-05-25T01:00:00Z"
+    }
+  ],
+  "log": []
+}

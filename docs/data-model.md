@@ -1,6 +1,6 @@
 # Command & Control Centre: data model
 
-Status: **draft for review** (21 Oct 2026). Nothing is built on it yet.
+Status: **agreed** (21 Oct 2026, reviewed by Andy Smith). Decisions are in section 8.
 
 The types are in `src/data/types.ts` and the interfaces in `src/data/interfaces.ts`. This page explains them and sets out the fake engine's rules.
 
@@ -146,11 +146,11 @@ The components built so far each have their own props (`RbmEventVitalsData`, `Rb
 - **Validation:** a schema written to match the TypeScript types is checked against them at compile time. Each fixture is then validated against the schema in `npm run check`, so a mismatched file fails the build.
 - **Large event:** `large-event` is produced by `npm run fixtures` from a fixed seed and is not committed by hand.
 
-## 8. For review
+## 8. Decisions (Andy Smith, 21 Oct 2026)
 
-1. **Read and write split:** is splitting `CommandCentreActions` from `CommandCentreData` acceptable? The brief lists only read and subscribe.
-2. **Ribbon preference:** `LayoutPreference` also holds `ribbonCollapsed`, so the ribbon's choice is remembered in the same place. Agreed?
-3. **At risk:** stored as a person's flag only; the fake engine does not work out "at risk". Agreed?
-4. **RAG thresholds:** Amber up to 15 minutes late, Red beyond. These are my proposal; the real thresholds belong to the planning engine.
-5. **Dependencies:** finish-to-start only, and "not before" as the only constraint. Enough for the prototype?
-6. **Existing components:** the prototype will use the real components from PRs #5–#17 (not stand-ins), on a branch built on top of them. Their props stay as they are and adapters feed them. Agreed?
+1. **Read and write are separate:** `CommandCentreActions` for commands, `CommandCentreData` for reading. Agreed.
+2. **The ribbon's collapsed choice** is kept in `LayoutPreference` with the region order. Agreed.
+3. **At risk is not a real status.** It is stored as a person's flag, and the fake engine does not work it out. Agreed.
+4. **RAG thresholds:** Amber up to 15 minutes late, Red beyond. Agreed as the prototype's proposal; the real thresholds belong to the planning engine.
+5. **Dependencies and constraints:** finish-to-start only, and "not before" only. Agreed for the prototype.
+6. **The real components** from PRs #5–#17 are used (not stand-ins), on a branch built on them, fed by adapters. Agreed.

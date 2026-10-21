@@ -22,3 +22,8 @@ export { RbmEventRibbon, laneSummary, shortGap } from './components/RbmEventRibb
 export type { RbmEventRibbonProps, RbmRibbonRunbook, RbmRibbonStage, RbmRibbonMarker } from './components/RbmEventRibbon/RbmEventRibbon';
 export { packStages, timeScale, laneHeight } from './components/RbmEventRibbon/ribbonLayout';
 export { mockRibbon, mockOverlappingRunbook } from './mocks/eventRibbon';
+export { RbmTaskRow, formatDelta, taskSummary } from './components/RbmTaskRow/RbmTaskRow';
+export type { RbmTaskRowProps, RbmTask } from './components/RbmTaskRow/RbmTaskRow';
+export { RbmTaskAction } from './components/RbmTaskRow/RbmTaskAction';
+export type { RbmTaskActionProps, RbmTaskActionKind, RbmTaskActionEvent, RbmCompleteOption, RbmCheckpointResult } from './components/RbmTaskRow/RbmTaskAction';
+export { mockTaskStates, mockTaskRowExamples } from './mocks/tasks';

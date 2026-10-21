@@ -5,3 +5,5 @@ export { RbmStatusPill } from './components/RbmStatusPill/RbmStatusPill';
 export type { RbmStatusPillProps, RbmStatusPillSize } from './components/RbmStatusPill/RbmStatusPill';
 export { RbmNode, nodeSize } from './components/RbmNode/RbmNode';
 export type { RbmNodeProps, RbmNodeKind, RbmSpine } from './components/RbmNode/RbmNode';
+export { RbmAvatar, initialsOf } from './components/RbmAvatar/RbmAvatar';
+export type { RbmAvatarProps, RbmAvatarSize } from './components/RbmAvatar/RbmAvatar';

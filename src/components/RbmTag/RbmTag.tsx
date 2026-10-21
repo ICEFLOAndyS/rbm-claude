@@ -4,7 +4,8 @@ import { radius } from '../../theme/tokens';
 
 /**
  * Why a task is in focus, as drawn on the Command board ("Task row"). A row has at most one.
- * Not drawn yet: a tag for the reason a task is at risk or paused.
+ * At risk and Paused use the Semantic board's state icons; they are not drawn as tags.
+ * Any kind of item (task, milestone, checkpoint) can carry any tag.
  */
 export type RbmTagKind =
   | 'lateToStart'
@@ -14,7 +15,9 @@ export type RbmTagKind =
   | 'blocked'
   | 'issue'
   | 'needsResult'
-  | 'complete';
+  | 'complete'
+  | 'atRisk'
+  | 'paused';
 
 export interface RbmTagProps {
   kind: RbmTagKind;
@@ -22,7 +25,7 @@ export interface RbmTagProps {
   label?: string;
 }
 
-type Look = 'late' | 'ready' | 'upNext' | 'blocked' | 'issue' | 'complete';
+type Look = 'late' | 'ready' | 'upNext' | 'blocked' | 'issue' | 'complete' | 'atRisk' | 'paused';
 
 const kinds: Record<RbmTagKind, { label: string; look: Look }> = {
   lateToStart: { label: 'Late to start', look: 'late' },
@@ -33,6 +36,8 @@ const kinds: Record<RbmTagKind, { label: string; look: Look }> = {
   issue: { label: 'Issue', look: 'issue' },
   needsResult: { label: 'Needs a result', look: 'ready' },
   complete: { label: 'Complete', look: 'complete' },
+  atRisk: { label: 'At risk', look: 'atRisk' },
+  paused: { label: 'Paused', look: 'paused' },
 };
 
 // 13 px icons on a 24-unit grid, as drawn. They take the label's colour.
@@ -67,6 +72,19 @@ const icons: Partial<Record<Look, ReactNode>> = {
       <path d="M5 12.5l4.5 4.5L19 7" />
     </Icon>
   ),
+  // From the Semantic board's state icons, at tag size.
+  atRisk: (
+    <Icon>
+      <path d="M12 3.5l9.5 16.5h-19L12 3.5z" />
+      <path d="M12 10v4M12 17h.01" />
+    </Icon>
+  ),
+  paused: (
+    <Icon>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M10 9v6M14 9v6" />
+    </Icon>
+  ),
 };
 
 /** A small tag that says why a task needs attention. It always has a label. */
@@ -81,6 +99,8 @@ export function RbmTag({ kind, label }: RbmTagProps) {
     blocked: s.blocked.text,
     issue: s.atRisk.text,
     complete: s.complete.text,
+    atRisk: s.atRisk.text,
+    paused: s.paused.text,
   };
   const dot = look === 'ready' ? s.pending.signal : look === 'blocked' ? s.blocked.signal : undefined;
   return (

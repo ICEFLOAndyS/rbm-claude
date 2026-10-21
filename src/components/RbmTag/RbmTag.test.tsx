@@ -8,7 +8,7 @@ import { colour } from '../../theme/tokens';
 const renderTag = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{ui}</ThemeProvider>);
 
 // As drawn on the Command board: default label, text colour, and the mark before the label.
-const drawn: [RbmTagKind, string, string, 'dot' | 'icon'][] = [
+const drawn: [RbmTagKind, string, string, 'dot' | 'icon' | 'ring'][] = [
   ['lateToStart', 'Late to start', colour.amberDeep, 'icon'],
   ['lateToFinish', 'Late to finish', colour.amberDeep, 'icon'],
   ['readyToStart', 'Ready to start', colour.slate, 'dot'],
@@ -17,9 +17,9 @@ const drawn: [RbmTagKind, string, string, 'dot' | 'icon'][] = [
   ['issue', 'Issue', colour.amberDeep, 'icon'],
   ['needsResult', 'Needs a result', colour.slate, 'dot'],
   ['complete', 'Complete', colour.greenDeep, 'icon'],
-  // Not drawn as tags: the Semantic board's state icons, in Amber Deep.
-  ['atRisk', 'At risk', colour.amberDeep, 'icon'],
-  ['paused', 'Paused', colour.amberDeep, 'icon'],
+  // Drawn in the Command board's rows with an 11 px ringed dot.
+  ['atRisk', 'At risk', colour.amberDeep, 'ring'],
+  ['paused', 'Paused', colour.amberDeep, 'ring'],
 ];
 
 describe('RbmTag', () => {
@@ -28,6 +28,7 @@ describe('RbmTag', () => {
     expect(screen.getByText(label)).toHaveStyle({ color: text, height: '22px', fontSize: '12px', fontWeight: '600' });
     expect(screen.queryByTestId('rbm-tag-dot') !== null).toBe(mark === 'dot');
     expect(container.querySelector('svg') !== null).toBe(mark === 'icon');
+    expect(screen.queryByTestId('rbm-tag-ring') !== null).toBe(mark === 'ring');
   });
 
   it('takes a label that names the record', () => {
@@ -50,6 +51,16 @@ describe('RbmTag', () => {
     renderTag(<RbmTag kind="issue" />);
     expect(screen.getByText('Issue')).toHaveStyle({ border: `1px solid ${colour.rule}` });
   });
+  it.each([
+    ['atRisk', colour.amberInner],
+    ['paused', colour.slate],
+  ] as const)('draws the %s reason with the ringed dot and its own centre', (kind, core) => {
+    renderTag(<RbmTag kind={kind} />);
+    const ring = screen.getByTestId('rbm-tag-ring');
+    expect(ring).toHaveStyle({ width: '11px', backgroundColor: colour.amber });
+    expect(ring.firstElementChild).toHaveStyle({ width: '7px', backgroundColor: core });
+  });
+
 
   it('hides the dot and icon from screen readers, so only the label is read', () => {
     const { container, unmount } = renderTag(<RbmTag kind="lateToStart" />);

@@ -169,7 +169,8 @@ The page template, as drawn on the Command board ("The page", "Layout", "Acting 
 - **Compact event bar:** `RbmEventBar` pins to the top without taking space, and shows only while the Event vitals are off screen (watched with IntersectionObserver). Its chevron scrolls back to the top.
 - **8-row minimum:** the Task Timeline region keeps room for its toolbar, summary line and 8 rows (520 px).
 - **Left to the app shell:** the top bar, the sidebar and the programme selector above the breadcrumb (Shell board).
-- **Not built yet:** the Task Timeline toolbar sticking beneath the compact event bar, and the Hot-topics strip wrapping is by screen width (done in the strip). The vertical budget's "16 px gaps" differ from the page drawing's 24 px; the drawing is followed.
+- **Not built yet:** the Task Timeline toolbar sticking beneath the compact event bar.
+- **Differs from the text:** the vertical budget says 16 px gaps between regions; the page drawing has 24 px, and the drawing is followed.
 
 ## Open questions
 - Should the Hot-topics cards (Blockers, Next checkpoint and so on) also be reorderable in the Layout panel, or only the three regions?

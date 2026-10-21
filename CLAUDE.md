@@ -16,7 +16,7 @@ React, TypeScript, MUI and Storybook components for RBM (Runbook Management), th
 - Record decisions in `docs/parked-decisions.md`, and flag any place where the build differs from the design. Claude Code cannot write to the project note, so the user copies new entries back to it.
 
 ## Setup status
-Verified 21 Oct 2026: React 19, MUI 9, Storybook 9, Vite 7, Vitest 3, Inter in Storybook. `RbmStatusPill` is checked against the board. Continue with the build order in the brief: next is the theme and tokens Storybook page, then `RbmNode`.
+Verified 21 Oct 2026: React 19, MUI 9, Storybook 9, Vite 7, Vitest 3, Inter in Storybook, dnd-kit for the Layout panel. The build order in the brief is complete through `RbmCommandCentre`. Open items are in `docs/parked-decisions.md` (undrawn states, colours not in the palette, virtualisation, live updates, D0 sizes).
 
 ## Commands
 - `npm run dev`: Storybook

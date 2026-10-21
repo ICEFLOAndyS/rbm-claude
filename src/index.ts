@@ -49,3 +49,5 @@ export type { RbmEventBarProps, RbmEventSummary } from './components/RbmEventBar
 export { mockEvent, mockAlerts } from './mocks/event';
 export { RbmLayoutPanel, DEFAULT_LAYOUT, regionInfo } from './components/RbmLayoutPanel/RbmLayoutPanel';
 export type { RbmLayoutPanelProps, RbmRegion } from './components/RbmLayoutPanel/RbmLayoutPanel';
+export { RbmCommandCentre, TIMELINE_MIN_HEIGHT, formatWindow } from './components/RbmCommandCentre/RbmCommandCentre';
+export type { RbmCommandCentreProps, RbmCommandCentreEvent, RbmEventAction } from './components/RbmCommandCentre/RbmCommandCentre';

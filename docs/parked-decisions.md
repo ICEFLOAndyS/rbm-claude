@@ -161,6 +161,16 @@ Built as drawn on the Command board ("Layout"): a 380 px panel with "Layout", th
 - The lifted-row tint #EEF1FF is drawn but not in the brand palette (token `liftTint`, needs sign-off).
 - **Still open:** whether the Hot-topics cards can also be reordered here.
 
+### 21 Oct 2026: `RbmCommandCentre`
+The page template, as drawn on the Command board ("The page", "Layout", "Acting on tasks", "React and MUI"): a Mist content area with 32 px padding and 24 px gaps; the Page header and Event vitals fixed at the top, then the Event ribbon, Task Timeline and Hot-topics strip in the user's order. Typed slots keyed by region name (`vitals`, `ribbon`, `timeline`, `hotTopics`), as the board's sketch shows.
+- **Page header** as drawn: "Run / event name" breadcrumb, the 28 px title "E12345 · Weekend Payroll Cutover" with the state pill and the alert counter, "Owner … · Window Sat 24 May 22:00 – Sun 25 May 06:00", and the 40 px event actions button at the right.
+- **Event actions menu** as drawn, in order: Raise issue, Raise blocker, Add event note, Notify stakeholders, Pause event ("Holds every active task"), Export event log, Layout ("Order the page regions"), Event settings. Only the actions the page passes (the user's permissions) are shown; Layout is always there.
+- **Layout** opens `RbmLayoutPanel` in a small panel beside the menu, not a new page, so the page re-orders in view. `layout` and `onLayoutChange` let the page keep the order in the user's profile.
+- **Compact event bar:** `RbmEventBar` pins to the top without taking space, and shows only while the Event vitals are off screen (watched with IntersectionObserver). Its chevron scrolls back to the top.
+- **8-row minimum:** the Task Timeline region keeps room for its toolbar, summary line and 8 rows (520 px).
+- **Left to the app shell:** the top bar, the sidebar and the programme selector above the breadcrumb (Shell board).
+- **Not built yet:** the Task Timeline toolbar sticking beneath the compact event bar, and the Hot-topics strip wrapping is by screen width (done in the strip). The vertical budget's "16 px gaps" differ from the page drawing's 24 px; the drawing is followed.
+
 ## Open questions
 - Should the Hot-topics cards (Blockers, Next checkpoint and so on) also be reorderable in the Layout panel, or only the three regions?
 - Does the Blockers card "+ Raise" need a different pattern?

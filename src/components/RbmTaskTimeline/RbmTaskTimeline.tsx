@@ -1,5 +1,5 @@
 import { Box, ButtonBase, Snackbar, useTheme } from '@mui/material';
-import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { RbmTaskRow, type RbmTask } from '../RbmTaskRow/RbmTaskRow';
 import type { RbmTaskActionEvent } from '../RbmTaskRow/RbmTaskAction';
 import type { RbmSpine } from '../RbmNode/RbmNode';
@@ -52,6 +52,56 @@ export interface RbmTaskTimelineProps {
   /** A conflict or refusal from the API, for example "1.3.5 was already completed by L. Chen at 03:41". */
   notice?: { message: string; actionLabel?: string; onAction?: () => void };
   onNoticeClose?: () => void;
+  /** When set, the toolbar and summary line stick this far from the top (under the compact event bar). */
+  stickyTop?: number;
+}
+
+/** Above this many tasks in view, rows are drawn only near the screen and quiet runbooks start collapsed. */
+export const LARGE_TIMELINE = 200;
+const ROW = 52;
+
+/**
+ * A stage's rows, drawn only near the screen when the timeline is large. Rows are 52 px, so the
+ * stage keeps its full height and the page scrolls as if every row were there.
+ */
+function StageRows({ count, virtual, render }: { count: number; virtual: boolean; render: (i: number) => ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [range, setRange] = useState<[number, number]>(() => [0, virtual ? Math.min(count, 20) : count]);
+  useEffect(() => {
+    if (!virtual) return;
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      const el = ref.current;
+      if (!el) return;
+      const top = el.getBoundingClientRect().top;
+      const overscan = 8;
+      // Keep the range inside the stage, so its spacers never add up to more than its rows.
+      const from = Math.min(count, Math.max(0, Math.floor(-top / ROW) - overscan));
+      const to = Math.max(from, Math.min(count, Math.ceil((window.innerHeight - top) / ROW) + overscan));
+      setRange((r) => (r[0] === from && r[1] === to ? r : [from, to]));
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(measure);
+    };
+    measure();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => {
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [virtual, count]);
+  if (!virtual) return <>{Array.from({ length: count }, (_, i) => render(i))}</>;
+  const [from, to] = range;
+  return (
+    <Box ref={ref} sx={{ position: 'relative' }}>
+      <Box aria-hidden="true" sx={{ height: from * ROW }} />
+      {Array.from({ length: Math.max(0, to - from) }, (_, k) => render(from + k))}
+      <Box aria-hidden="true" sx={{ height: Math.max(0, count - to) * ROW }} />
+    </Box>
+  );
 }
 
 function timeOf(date: Date, timeZone?: string) {
@@ -112,7 +162,7 @@ function Toast({ tone, message, actionLabel, onAction }: { tone: 'done' | 'warni
  * and Undo for the linger.
  */
 export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
-  const { runbooks, tasks, now, timeZone, lingerSeconds = 60, onAction, onOpen, notice, onNoticeClose } = props;
+  const { runbooks, tasks, now, timeZone, lingerSeconds = 60, onAction, onOpen, notice, onNoticeClose, stickyTop } = props;
   const { palette } = useTheme();
   const [filterState, setFilterState] = useState<string[]>([]);
   const runbookFilter = props.runbookFilter ?? filterState;
@@ -157,23 +207,36 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
   const rowTask = (t: RbmTimelineTask, lingering: boolean): RbmTimelineTask =>
     lingering ? { ...t, tag: { kind: 'complete', label: `Complete · leaves in ${formatLinger(lingerLeft(t, now, lingerSeconds))}` } } : t;
 
+  // Group once by runbook and stage, so a large event is not scanned once per stage.
+  const byStage = new Map<string, typeof shown>();
+  const byRunbook = new Map<string, number>();
+  for (const x of shown) {
+    (byStage.get(x.t.stageId) ?? byStage.set(x.t.stageId, []).get(x.t.stageId)!).push(x);
+    byRunbook.set(x.t.runbookId, (byRunbook.get(x.t.runbookId) ?? 0) + 1);
+  }
+  const large = shown.length > LARGE_TIMELINE;
+  // In a large timeline, runbooks with nothing blocked or late start collapsed, so the trouble stays on screen.
+  const troubled = new Set(shown.filter(({ t }) => matches.blocked(t) || matches.late(t)).map(({ t }) => t.runbookId));
+  const isClosed = (key: string, runbookId?: string) => collapsed.has(key) !== (large && runbookId !== undefined && !troubled.has(runbookId));
+
   const groups = runbooks
     .filter((r) => inFilter(r.id))
     .map((r) => {
-      const rTasks = shown.filter(({ t }) => t.runbookId === r.id);
       const stages = r.stages
         .map((s) => {
-          const sorted = rTasks.filter(({ t }) => t.stageId === s.id).sort((a, b) => byStart(a.t, b.t));
+          const sorted = (byStage.get(s.id) ?? []).slice().sort((a, b) => byStart(a.t, b.t));
           const { shown: capped, more } = capUpNext(sorted.map((x) => x.t), new Set([...upNextOpen].filter((k) => k.startsWith(`${s.id}|`)).map((k) => k.slice(s.id.length + 1))));
           const lingering = new Set(sorted.filter((x) => x.reasons.includes('lingering')).map((x) => x.t.id));
           return { s, rows: capped.map((t) => rowTask(t, lingering.has(t.id))), more };
         })
         .filter((g) => g.rows.length > 0 || g.more.size > 0);
-      return { r, stages, inFocus: rTasks.length };
+      return { r, stages, inFocus: byRunbook.get(r.id) ?? 0 };
     })
     .filter((g) => g.stages.length > 0);
 
-  const allRows = groups.flatMap((g) => (collapsed.has(g.r.id) ? [] : g.stages.flatMap((s) => (collapsed.has(`${g.r.id}/${s.s.id}`) ? [] : s.rows))));
+  const allRows = groups.flatMap((g) => (isClosed(g.r.id, g.r.id) ? [] : g.stages.flatMap((s) => (isClosed(`${g.r.id}/${s.s.id}`) ? [] : s.rows))));
+  const focusCount = new Map<string, number>();
+  for (const t of tasks) if (focusReasons(t, now, lingerSeconds).length > 0) focusCount.set(t.runbookId, (focusCount.get(t.runbookId) ?? 0) + 1);
   const shownCount = groups.reduce((n, g) => n + g.inFocus, 0);
   const consideredRunbooks = runbooks.filter((r) => inFilter(r.id));
   const hiddenComplete = consideredRunbooks.reduce((n, r) => n + r.hidden.complete, 0);
@@ -219,11 +282,13 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
   const ragOnDark: Record<RbmRag, string> = { green: palette.status.complete.signal, amber: palette.status.atRisk.signal, red: palette.status.blocked.signal };
 
   return (
-    <Box component="section" aria-label="Task Timeline" sx={{ position: 'relative', border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', overflow: 'hidden', minWidth: 0, lineHeight: 'normal' }}>
+    // overflow: clip (not hidden) keeps the rounded corners without stopping the toolbar from sticking.
+    <Box component="section" aria-label="Task Timeline" sx={{ position: 'relative', border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', overflow: 'clip', minWidth: 0, lineHeight: 'normal' }}>
+      <Box sx={stickyTop === undefined ? undefined : { position: 'sticky', top: stickyTop, zIndex: 4, bgcolor: 'background.paper' }}>
       {/* Toolbar */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, height: 64, px: 4, borderBottom: 1, borderColor: 'divider', boxSizing: 'border-box' }}>
         <RbmRunbookFilter
-          runbooks={runbooks.map((r) => ({ id: r.id, wbs: r.wbs, name: r.name, recordId: r.recordId, rag: r.rag, inFocus: tasks.filter((t) => t.runbookId === r.id && focusReasons(t, now, lingerSeconds).length > 0).length }))}
+          runbooks={runbooks.map((r) => ({ id: r.id, wbs: r.wbs, name: r.name, recordId: r.recordId, rag: r.rag, inFocus: focusCount.get(r.id) ?? 0 }))}
           selected={runbookFilter}
           onChange={setRunbookFilter}
         />
@@ -264,6 +329,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
           </ButtonBase>
         )}
       </Box>
+      </Box>
 
       {/* Runbook panels */}
       <Box ref={body} onKeyDown={onKeyDown} sx={{ p: 3, bgcolor: hairline, display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -271,7 +337,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
           <Box sx={{ p: 6, textAlign: 'center', fontSize: 14, color: 'text.secondary', bgcolor: 'background.paper', borderRadius: `${radius.control}px` }}>No tasks match.</Box>
         )}
         {groups.map(({ r, stages, inFocus }) => {
-          const rOpen = !collapsed.has(r.id);
+          const rOpen = !isClosed(r.id, r.id);
           return (
             <Box key={r.id} data-runbook={r.id} sx={{ border: `1px solid ${colour.silver}`, borderRadius: `${radius.control}px`, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 2px rgba(31,36,48,0.06)' }}>
               <ButtonBase
@@ -313,7 +379,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
               {rOpen &&
                 stages.map(({ s, rows, more }) => {
                   const key = `${r.id}/${s.id}`;
-                  const sOpen = !collapsed.has(key);
+                  const sOpen = !isClosed(key);
                   return (
                     <Box key={s.id} role="list" aria-label={`Stage ${s.wbs} ${s.name}`}>
                       <ButtonBase
@@ -335,22 +401,30 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
                           {s.complete} of {s.total}
                         </Box>
                       </ButtonBase>
-                      {sOpen &&
-                        rows.map((t, i) => (
-                          <Box key={t.id} role="listitem" onFocusCapture={(e) => (e.target as HTMLElement).dataset.task && setFocusedId(t.id)}>
-                            <RbmTaskRow
-                              task={t}
-                              now={now}
-                              timeZone={timeZone}
-                              spine={spineFor(rows, i)}
-                              tabIndex={t.id === rovingId ? 0 : -1}
-                              selected={selected.has(t.id)}
-                              onSelectedChange={(on) => setSelected(on === selected.has(t.id) ? selected : flip(selected, t.id))}
-                              onAction={act}
-                              onOpen={onOpen}
-                            />
-                          </Box>
-                        ))}
+                      {sOpen && (
+                        <StageRows
+                          count={rows.length}
+                          virtual={large}
+                          render={(i) => {
+                            const t = rows[i]!;
+                            return (
+                              <Box key={t.id} role="listitem" onFocusCapture={(e) => (e.target as HTMLElement).dataset.task && setFocusedId(t.id)}>
+                                <RbmTaskRow
+                                  task={t}
+                                  now={now}
+                                  timeZone={timeZone}
+                                  spine={spineFor(rows, i)}
+                                  tabIndex={t.id === rovingId ? 0 : -1}
+                                  selected={selected.has(t.id)}
+                                  onSelectedChange={(on) => setSelected(on === selected.has(t.id) ? selected : flip(selected, t.id))}
+                                  onAction={act}
+                                  onOpen={onOpen}
+                                />
+                              </Box>
+                            );
+                          }}
+                        />
+                      )}
                       {sOpen &&
                         [...more].map(([after, n]) => (
                           <Box key={after} sx={{ display: 'flex', alignItems: 'center', height: 40, pl: '192px', borderBottom: `1px solid ${hairline}` }}>

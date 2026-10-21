@@ -1,5 +1,5 @@
 import { Box, ButtonBase, Tooltip, useTheme } from '@mui/material';
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type CSSProperties, type FocusEvent, type MouseEvent, type ReactNode } from 'react';
 import { RbmNode } from '../RbmNode/RbmNode';
 import { colour, hairline, radius, type RbmState } from '../../theme/tokens';
 import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
@@ -104,9 +104,9 @@ function Chevron({ up }: { up?: boolean }) {
   );
 }
 
-function ToggleLink({ onClick, children, sx }: { onClick: () => void; children: ReactNode; sx?: object }) {
+function ToggleLink({ onClick, children, sx, style }: { onClick: () => void; children: ReactNode; sx?: object; style?: CSSProperties }) {
   return (
-    <ButtonBase onClick={onClick} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap', borderRadius: 1, ...sx }}>
+    <ButtonBase onClick={onClick} style={style} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap', borderRadius: 1, ...sx }}>
       {children}
     </ButtonBase>
   );
@@ -146,6 +146,15 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
   const [expandedLanes, setExpandedLanes] = useState<ReadonlySet<string>>(new Set());
   // Sub-rows from the last render, so each stage keeps its row as the forecast moves.
   const rowMemory = useRef(new Map<string, ReadonlyMap<string, number>>());
+  // One tooltip for the whole ribbon, following the stage or marker under the pointer or focus.
+  // Hundreds of separate tooltips made every clock tick slow on a large event.
+  const [tip, setTip] = useState<{ el: HTMLElement; text: string } | null>(null);
+  const tipFor = (text: string) => ({
+    onMouseEnter: (e: MouseEvent<HTMLElement>) => setTip({ el: e.currentTarget, text }),
+    onMouseLeave: () => setTip(null),
+    onFocus: (e: FocusEvent<HTMLElement>) => setTip({ el: e.currentTarget, text }),
+    onBlur: () => setTip(null),
+  });
 
   const ragText: Record<RbmRag, string> = { green: palette.status.complete.text, amber: palette.status.atRisk.text, red: palette.status.blocked.text };
   const ragSignal: Record<RbmRag, string> = { green: palette.status.complete.signal, amber: palette.status.atRisk.signal, red: palette.status.blocked.signal };
@@ -231,11 +240,16 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
   return (
     <Box ref={ref} component="section" aria-label="Event ribbon" sx={{ border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', lineHeight: 'normal' }}>
       <Box sx={{ position: 'relative', height }}>
+        {tip && (
+          <Tooltip open title={tip.text} slotProps={{ popper: { anchorEl: tip.el } }}>
+            <Box component="span" aria-hidden="true" sx={{ position: 'absolute', width: 0, height: 0 }} />
+          </Tooltip>
+        )}
         {/* Hour grid */}
         {hourTicks(windowStart, windowEnd, pxPerHour).map((t) => (
           <Box key={t.getTime()} aria-hidden="true">
-            <Box sx={{ position: 'absolute', left: scale(t), top: 60, bottom: 12, width: '1px', bgcolor: hairline }} />
-            <Box sx={{ position: 'absolute', left: scale(t), top: 38, transform: 'translateX(-50%)', fontSize: 11, color: 'text.secondary', fontVariantNumeric: 'tabular-nums', bgcolor: 'background.paper', px: '3px' }}>
+            <Box style={{ left: scale(t) }} sx={{ position: 'absolute', top: 60, bottom: 12, width: '1px', bgcolor: hairline }} />
+            <Box style={{ left: scale(t) }} sx={{ position: 'absolute', top: 38, transform: 'translateX(-50%)', fontSize: 11, color: 'text.secondary', fontVariantNumeric: 'tabular-nums', bgcolor: 'background.paper', px: '3px' }}>
               {timeOf(t, timeZone)}
             </Box>
           </Box>
@@ -251,10 +265,11 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
             const late = r.forecastEnd > r.plannedEnd;
             return (
               <Box component="li" key={r.id} role="group" aria-label={laneSummary(r, timeZone)} data-lane={r.id}>
-                <Box aria-hidden="true" sx={{ position: 'absolute', left: 0, right: 0, top: laneTop, height: '1px', bgcolor: hairline }} />
+                <Box aria-hidden="true" style={{ top: laneTop }} sx={{ position: 'absolute', left: 0, right: 0, height: '1px', bgcolor: hairline }} />
                 <Box
                   aria-hidden="true"
-                  sx={{ position: 'absolute', left: 20, top: laneTop + 2, height: 50, display: 'flex', alignItems: 'center', gap: 2, maxWidth: X0 - 28, fontSize: 12, fontWeight: 800, letterSpacing: '0.02em', textTransform: 'uppercase', color: 'primary.main', whiteSpace: 'nowrap', overflow: 'hidden' }}
+                  style={{ top: laneTop + 2 }}
+                  sx={{ position: 'absolute', left: 20, height: 50, display: 'flex', alignItems: 'center', gap: 2, maxWidth: X0 - 28, fontSize: 12, fontWeight: 800, letterSpacing: '0.02em', textTransform: 'uppercase', color: 'primary.main', whiteSpace: 'nowrap', overflow: 'hidden' }}
                 >
                   <Box component="span" sx={{ fontVariantNumeric: 'tabular-nums', color: 'text.secondary' }}>
                     {r.wbs}
@@ -262,14 +277,14 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                   {r.name}
                 </Box>
                 {(hidden > 0 || expanded) && (
-                  <ToggleLink onClick={() => toggleLane(r.id)} sx={{ position: 'absolute', left: 20, top: laneTop + 44, fontSize: 11 }}>
+                  <ToggleLink onClick={() => toggleLane(r.id)} style={{ top: laneTop + 44 }} sx={{ position: 'absolute', left: 20, fontSize: 11 }}>
                     {expanded ? 'Show fewer stages' : `+${hidden} more ${hidden === 1 ? 'stage' : 'stages'} overlapping`}
                   </ToggleLink>
                 )}
 
                 {/* Milestones and checkpoints sit on a thin line above the stage rows, never on a bar. */}
                 {(r.markers ?? []).length > 0 && (
-                  <Box aria-hidden="true" sx={{ position: 'absolute', left: x(spanStart), width: Math.max(x(r.forecastEnd) - x(spanStart), 0), top: laneTop + lane.markerLine, height: '1px', bgcolor: 'divider' }} />
+                  <Box aria-hidden="true" style={{ left: x(spanStart), width: Math.max(x(r.forecastEnd) - x(spanStart), 0), top: laneTop + lane.markerLine }} sx={{ position: 'absolute', height: '1px', bgcolor: 'divider' }} />
                 )}
 
                 {r.stages
@@ -283,26 +298,24 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                     const label = `Stage ${s.wbs} ${s.name}, ${timeOf(s.start, timeZone)} to ${timeOf(s.end, timeZone)}, ${palette.status[s.state].label}`;
                     return (
                       <Box key={s.id}>
-                        <Box aria-hidden="true" sx={{ position: 'absolute', left: left + 3, top: rowTop(row), fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', color: 'text.secondary', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                        <Box aria-hidden="true" style={{ left: left + 3, top: rowTop(row) }} sx={{ position: 'absolute', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', color: 'text.secondary', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
                           {s.wbs}
                         </Box>
-                        <Tooltip title={label}>
-                          <ButtonBase
-                            aria-label={label}
-                            data-stage={s.id}
-                            data-row={row}
-                            onClick={() => onSelectStage?.(s)}
-                            sx={{
-                              position: 'absolute',
-                              left,
-                              top: barTop(row),
-                              width: barWidth,
-                              height: lane.barHeight,
-                              bgcolor: palette.status[s.state].signal,
-                              borderRadius: `${clippedStart ? 0 : 7}px ${clippedEnd ? 0 : 7}px ${clippedEnd ? 0 : 7}px ${clippedStart ? 0 : 7}px`,
-                            }}
-                          />
-                        </Tooltip>
+                        <ButtonBase
+                          aria-label={label}
+                          data-stage={s.id}
+                          data-row={row}
+                          onClick={() => onSelectStage?.(s)}
+                          {...tipFor(label)}
+                          style={{
+                            left,
+                            top: barTop(row),
+                            width: barWidth,
+                            backgroundColor: palette.status[s.state].signal,
+                            borderRadius: `${clippedStart ? 0 : 7}px ${clippedEnd ? 0 : 7}px ${clippedEnd ? 0 : 7}px ${clippedStart ? 0 : 7}px`,
+                          }}
+                          sx={{ position: 'absolute', height: lane.barHeight }}
+                        />
                       </Box>
                     );
                   })}
@@ -312,13 +325,15 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                   <Box
                     aria-hidden="true"
                     data-testid="rbm-overrun"
-                    sx={{ position: 'absolute', left: x(r.plannedEnd), top: barTop(lastRow), width: Math.max(x(r.forecastEnd) - x(r.plannedEnd), 0), height: lane.barHeight, borderRadius: '0 7px 7px 0', background: hatch(ragSignal[r.rag]), pointerEvents: 'none' }}
+                    style={{ left: x(r.plannedEnd), top: barTop(lastRow), width: Math.max(x(r.forecastEnd) - x(r.plannedEnd), 0), background: hatch(ragSignal[r.rag]) }}
+                    sx={{ position: 'absolute', height: lane.barHeight, borderRadius: '0 7px 7px 0', pointerEvents: 'none' }}
                   />
                 )}
                 <Box
                   aria-hidden="true"
                   data-testid="rbm-planned-end"
-                  sx={{ position: 'absolute', left: x(r.plannedEnd) - 1, top: barTop(0) - 4, height: barTop(Math.max(shownRows - 1, 0)) - barTop(0) + lane.barHeight + 8, width: 2, bgcolor: 'text.primary' }}
+                  style={{ left: x(r.plannedEnd) - 1, top: barTop(0) - 4, height: barTop(Math.max(shownRows - 1, 0)) - barTop(0) + lane.barHeight + 8 }}
+                  sx={{ position: 'absolute', width: 2, bgcolor: 'text.primary' }}
                 />
 
                 {(r.markers ?? [])
@@ -326,20 +341,21 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                   .map((m) => {
                     const label = `${m.kind === 'milestone' ? 'Milestone' : 'Checkpoint'} ${m.wbs} ${m.name}, ${timeOf(m.at, timeZone)}, ${palette.status[m.state].label}`;
                     return (
-                      <Tooltip key={m.id} title={label}>
-                        <ButtonBase
-                          aria-label={label}
-                          data-marker={m.id}
-                          onClick={() => onSelectMarker?.(m)}
-                          sx={{ position: 'absolute', left: scale(m.at), top: laneTop + lane.markerLine, transform: 'translate(-50%, -50%)', borderRadius: 1 }}
-                        >
-                          <RbmNode kind={m.kind} state={m.state} size={18} decorative />
-                        </ButtonBase>
-                      </Tooltip>
+                      <ButtonBase
+                        key={m.id}
+                        aria-label={label}
+                        data-marker={m.id}
+                        onClick={() => onSelectMarker?.(m)}
+                        {...tipFor(label)}
+                        style={{ left: scale(m.at), top: laneTop + lane.markerLine }}
+                        sx={{ position: 'absolute', transform: 'translate(-50%, -50%)', borderRadius: 1 }}
+                      >
+                        <RbmNode kind={m.kind} state={m.state} size={18} decorative />
+                      </ButtonBase>
                     );
                   })}
 
-                <Box sx={{ position: 'absolute', right: 20, top: laneTop + 2, height: 50, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', gap: '1px' }}>
+                <Box style={{ top: laneTop + 2 }} sx={{ position: 'absolute', right: 20, height: 50, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', gap: '1px' }}>
                   <Box component="span" aria-hidden="true" sx={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: 'text.secondary' }}>
                     FORECAST
                   </Box>
@@ -360,8 +376,8 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
 
         {nowShown && (
           <>
-            <Box aria-hidden="true" sx={{ position: 'absolute', left: nowX - 1, top: 30, bottom: 12, width: 2, bgcolor: 'text.primary' }} />
-            <Box sx={{ position: 'absolute', left: nowX, top: 6, transform: 'translateX(-50%)', display: 'inline-flex', alignItems: 'center', height: 22, px: 2.5, borderRadius: `${radius.pill}px`, bgcolor: 'text.primary', color: colour.white, fontSize: 12, fontWeight: 800, whiteSpace: 'nowrap' }}>
+            <Box aria-hidden="true" style={{ left: nowX - 1 }} sx={{ position: 'absolute', top: 30, bottom: 12, width: 2, bgcolor: 'text.primary' }} />
+            <Box style={{ left: nowX }} sx={{ position: 'absolute', top: 6, transform: 'translateX(-50%)', display: 'inline-flex', alignItems: 'center', height: 22, px: 2.5, borderRadius: `${radius.pill}px`, bgcolor: 'text.primary', color: colour.white, fontSize: 12, fontWeight: 800, whiteSpace: 'nowrap' }}>
               NOW {timeOf(now, timeZone)}
             </Box>
           </>

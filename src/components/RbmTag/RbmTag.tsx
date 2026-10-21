@@ -16,7 +16,9 @@ export type RbmTagKind =
   | 'needsResult'
   | 'complete'
   | 'atRisk'
-  | 'paused';
+  | 'paused'
+  /** Not drawn: the focus rule's "Test result: Fail", styled like Blocked. */
+  | 'failedCheck';
 
 export interface RbmTagProps {
   kind: RbmTagKind;
@@ -37,6 +39,7 @@ const kinds: Record<RbmTagKind, { label: string; look: Look }> = {
   complete: { label: 'Complete', look: 'complete' },
   atRisk: { label: 'At risk', look: 'atRisk' },
   paused: { label: 'Paused', look: 'paused' },
+  failedCheck: { label: 'Test result: Fail', look: 'blocked' },
 };
 
 // 13 px icons on a 24-unit grid, as drawn. They take the label's colour.

@@ -44,3 +44,6 @@ export type {
   RbmCollaborationProps, RbmWatcher, RbmWatchersProps, RbmSeverity,
 } from './components/RbmHotTopicsStrip/cards';
 export { mockBlockers, mockNextCheckpoint, mockMilestones, mockPeople, mockWatchers } from './mocks/hotTopics';
+export { RbmEventBar, barGap } from './components/RbmEventBar/RbmEventBar';
+export type { RbmEventBarProps, RbmEventSummary } from './components/RbmEventBar/RbmEventBar';
+export { mockEvent, mockAlerts } from './mocks/event';

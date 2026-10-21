@@ -50,6 +50,6 @@ export const Open: Story = {
   args: { alerts: drawn },
   parameters: { layout: 'padded' },
   play: async ({ canvas, userEvent }) => {
-    await userEvent.click(canvas.getByRole('button', { name: '3 alerts' }));
+    await userEvent.click(canvas.getByRole('button', { name: /^3 alerts,/ }));
   },
 };

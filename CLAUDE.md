@@ -7,7 +7,7 @@ React, TypeScript, MUI and Storybook components for RBM (Runbook Management), th
 2. `docs/parked-decisions.md` (a copy of the project note `claude/rbm-parked-decisions.md`) for agreed rules and open questions.
 
 ## Rules
-- **The design is the source of truth.** The "RBM Design System" canvas artifact: https://claude.ai/artifact/GfR1Zo8xXaj9PuLXRWWaCv (open it with the same claude.ai account as its owner). Build what is drawn. If the design is silent, ask, or propose and flag it. Do not invent visual design.
+- **The design is the source of truth.** The "RBM Design System" canvas artifact: https://claude.ai/artifact/GfR1Zo8xXaj9PuLXRWWaCv (open it with the same claude.ai account as its owner). Build what is drawn. If the design is silent, ask, or propose and flag it. Do not invent visual design. Where the design gives no RBM style or token (for example hover and pressed states), use MUI's defaults and flag the gap.
 - Use the names in the brief exactly (Task Timeline, Hot-topics strip, Event vitals, Collaboration, WBS ids, `Rbm` prefix). Never "War room".
 - Colour is never the only signal: every state has a text label. Brand Green means Complete only.
 - Keep density low and text short and plain.

@@ -73,9 +73,12 @@ Built as drawn in the Command board's task rows: a 22 px pill, Rule border, 12 p
 ### 21 Oct 2026: `RbmAlertCounter`
 Built as drawn on the Command board ("Alert counter"): hidden when healthy; Red Inner with white text when any alert is Red, Amber with Ink text when the only alerts are Amber; a bell and the count in words and digits ("1 alert", "3 alerts"). 30 px in the page header, 24 px (`size="compact"`) in the compact event bar. A click opens a popover: "Alerts" and "Most serious first", then each alert with its mark, title, detail and a link.
 - **Data contract:** `alerts: { id, severity: 'red' | 'amber', title, detail?, action?: { label, onSelect } }[]`. The planning engine sets the severity; the component only sorts and counts.
-- **Order.** Red before Amber, keeping the engine's order within a severity. **Differs from the drawing:** the board's sample lists a late forecast between two Red alerts, which its own "most serious first" rule does not allow.
-- **Shadow.** The popover uses the shadow drawn with it (`0 8px 24px rgba(35,50,111,0.16)`). **It differs from the Proposed menu elevation on the Foundations board**; one of the two should be chosen.
-- **Accessibility.** The counter is a button named by its count, with `aria-haspopup="dialog"` and `aria-expanded`. The popover is a dialog named "Alerts"; Escape closes it and returns focus. Each link is a button that runs its action and closes the popover. **Open question:** Red and Amber counters differ only in colour; the count does not say which. Should the counter's name include the worst alert (for example "3 alerts, 2 blockers")?
+- **Order (decided by Andy Smith: follow the rule).** Red before Amber, keeping the engine's order within a severity. The board's sample, which lists a late forecast between two Red alerts, should be redrawn to match.
+- **Shadow (decided by Andy Smith).** The popover uses the Foundations board menu elevation (`elevation.menu`), not the shadow drawn with the alert popover. The Command board drawing should be updated to match.
+- **Accessibility.** The counter is a button with `aria-haspopup="dialog"` and `aria-expanded`. **Decided by Andy Smith:** its name also says the most serious alert, because Red and Amber differ only in colour, for example "3 alerts, most serious: 2 blockers are holding 3 tasks". The name starts with the visible count. The popover is a dialog named "Alerts"; Escape closes it and returns focus. Each link is a button that runs its action and closes the popover.
+
+### 21 Oct 2026: fallback styles (decided by Andy Smith)
+Where the design gives no RBM style or token (for example hover and pressed states), MUI's defaults are the fallback. Flag the gap, but do not hold the build for it.
 
 ## Open questions
 - Should the Hot-topics cards (Blockers, Next checkpoint and so on) also be reorderable in the Layout panel, or only the three regions?

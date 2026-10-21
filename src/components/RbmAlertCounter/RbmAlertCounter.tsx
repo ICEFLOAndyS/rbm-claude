@@ -1,6 +1,6 @@
 import { Box, ButtonBase, Popover, useTheme } from '@mui/material';
 import { useId, useState } from 'react';
-import { colour, radius } from '../../theme/tokens';
+import { colour, elevation, radius } from '../../theme/tokens';
 
 /**
  * Red: a blocker, a failed check or a Red forecast. Amber: the forecast is late and nothing is blocked.
@@ -87,6 +87,9 @@ export function RbmAlertCounter({ alerts, size = 'normal' }: RbmAlertCounterProp
     <>
       <ButtonBase
         onClick={(e) => setAnchor(e.currentTarget)}
+        // Red and Amber differ only in colour, so the name also says the most serious alert.
+        // It starts with the visible count, so speech commands that use the label still work.
+        aria-label={`${count}, most serious: ${sorted[0]!.title}`}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? popoverId : undefined}
@@ -129,7 +132,7 @@ export function RbmAlertCounter({ alerts, size = 'normal' }: RbmAlertCounterProp
               border: 1,
               borderColor: 'divider',
               borderRadius: `${radius.card}px`,
-              boxShadow: '0 8px 24px rgba(35,50,111,0.16)',
+              boxShadow: elevation.menu,
             },
           },
         }}

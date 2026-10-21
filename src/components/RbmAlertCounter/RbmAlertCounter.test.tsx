@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
 import { RbmAlertCounter, sortAlerts, type RbmAlert } from './RbmAlertCounter';
 import { rbmTheme } from '../../theme/theme';
-import { colour } from '../../theme/tokens';
+import { colour, elevation } from '../../theme/tokens';
 
 const renderCounter = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{ui}</ThemeProvider>);
 
@@ -26,10 +26,24 @@ describe('RbmAlertCounter', () => {
 
   it('says the count in words and digits', () => {
     const { unmount } = renderCounter(<RbmAlertCounter alerts={[late]} />);
-    expect(screen.getByRole('button', { name: '1 alert' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^1 alert,/ })).toBeInTheDocument();
     unmount();
     renderCounter(<RbmAlertCounter alerts={[late, blockers, check]} />);
-    expect(screen.getByRole('button', { name: '3 alerts' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^3 alerts,/ })).toHaveTextContent('3 alerts');
+  });
+
+  it('tells screen readers the most serious alert, since Red and Amber differ only in colour', () => {
+    const { unmount } = renderCounter(<RbmAlertCounter alerts={[late, blockers, check]} />);
+    expect(screen.getByRole('button')).toHaveAccessibleName('3 alerts, most serious: 2 blockers are holding 3 tasks');
+    unmount();
+    renderCounter(<RbmAlertCounter alerts={[late]} />);
+    expect(screen.getByRole('button')).toHaveAccessibleName('1 alert, most serious: Forecast end is 12 minutes late');
+  });
+
+  it('uses the Foundations board menu shadow on the popover', async () => {
+    renderCounter(<RbmAlertCounter alerts={[blockers]} />);
+    await userEvent.click(screen.getByRole('button'));
+    expect(screen.getByRole('dialog')).toHaveStyle({ boxShadow: elevation.menu });
   });
 
   it('is Red with white text when any alert is Red', () => {
@@ -49,7 +63,7 @@ describe('RbmAlertCounter', () => {
 
   it('opens the alerts, most serious first, and says it has a popup', async () => {
     renderCounter(<RbmAlertCounter alerts={[late, blockers, check]} />);
-    const counter = screen.getByRole('button', { name: '3 alerts' });
+    const counter = screen.getByRole('button', { name: /^3 alerts,/ });
     expect(counter).toHaveAttribute('aria-haspopup', 'dialog');
     expect(counter).toHaveAttribute('aria-expanded', 'false');
     await userEvent.click(counter);
@@ -66,7 +80,7 @@ describe('RbmAlertCounter', () => {
   it('opens from the keyboard and closes with Escape, returning focus', async () => {
     renderCounter(<RbmAlertCounter alerts={[blockers]} />);
     await userEvent.tab();
-    const counter = screen.getByRole('button', { name: '1 alert' });
+    const counter = screen.getByRole('button', { name: /^1 alert,/ });
     expect(counter).toHaveFocus();
     await userEvent.keyboard('{Enter}');
     expect(screen.getByRole('dialog', { name: 'Alerts' })).toBeInTheDocument();
@@ -78,7 +92,7 @@ describe('RbmAlertCounter', () => {
   it('runs an alert’s action and closes the popover', async () => {
     const onSelect = vi.fn();
     renderCounter(<RbmAlertCounter alerts={[{ ...blockers, action: { label: 'View blockers', onSelect } }]} />);
-    await userEvent.click(screen.getByRole('button', { name: '1 alert' }));
+    await userEvent.click(screen.getByRole('button', { name: /^1 alert,/ }));
     await userEvent.click(screen.getByRole('button', { name: 'View blockers' }));
     expect(onSelect).toHaveBeenCalledOnce();
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());

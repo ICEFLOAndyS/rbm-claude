@@ -13,3 +13,8 @@ export { RbmTag } from './components/RbmTag/RbmTag';
 export type { RbmTagProps, RbmTagKind } from './components/RbmTag/RbmTag';
 export { RbmAlertCounter, sortAlerts } from './components/RbmAlertCounter/RbmAlertCounter';
 export type { RbmAlertCounterProps, RbmAlert, RbmAlertSeverity } from './components/RbmAlertCounter/RbmAlertCounter';
+export { RbmEventVitals, formatGap, formatDuration } from './components/RbmEventVitals/RbmEventVitals';
+export type { RbmEventVitalsProps, RbmEventVitalsData, RbmRag } from './components/RbmEventVitals/RbmEventVitals';
+export { RbmRing, ringSegments } from './components/RbmEventVitals/RbmRing';
+export type { RbmRingProps, RbmRingSegment } from './components/RbmEventVitals/RbmRing';
+export { mockEventVitals } from './mocks/eventVitals';

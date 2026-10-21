@@ -27,3 +27,10 @@ export type { RbmTaskRowProps, RbmTask } from './components/RbmTaskRow/RbmTaskRo
 export { RbmTaskAction } from './components/RbmTaskRow/RbmTaskAction';
 export type { RbmTaskActionProps, RbmTaskActionKind, RbmTaskActionEvent, RbmCompleteOption, RbmCheckpointResult } from './components/RbmTaskRow/RbmTaskAction';
 export { mockTaskStates, mockTaskRowExamples } from './mocks/tasks';
+export { RbmTaskTimeline } from './components/RbmTaskTimeline/RbmTaskTimeline';
+export type { RbmTaskTimelineProps, RbmTimelineRunbook, RbmTimelineStage, RbmTimelineScope } from './components/RbmTaskTimeline/RbmTaskTimeline';
+export { RbmRunbookFilter } from './components/RbmTaskTimeline/RbmRunbookFilter';
+export type { RbmRunbookFilterProps, RbmRunbookOption } from './components/RbmTaskTimeline/RbmRunbookFilter';
+export { focusReasons, isInFocus, byStart, capUpNext, lingerLeft, UP_NEXT_CAP } from './components/RbmTaskTimeline/focusRule';
+export type { RbmTimelineTask, RbmTaskFlags, RbmFocusReason } from './components/RbmTaskTimeline/focusRule';
+export { mockTimelineRunbooks, mockTimelineTasks, mockManyUpNext } from './mocks/timeline';

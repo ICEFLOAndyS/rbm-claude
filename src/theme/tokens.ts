@@ -35,6 +35,9 @@ export type ColourName = keyof typeof colour;
 /** Drawn on the Command board for gridlines and the "+3" avatar chip, but not in the brand palette. Needs sign-off. */
 export const hairline = '#EEF0F4';
 
+/** Drawn behind the Task Timeline summary line, but not in the brand palette. Needs sign-off. */
+export const surfaceTint = '#FBFCFE';
+
 export const radius = { control: 12, card: 14, pill: 999 } as const;
 
 /** Proposed. Rule borders first; shadow only for overlays. */

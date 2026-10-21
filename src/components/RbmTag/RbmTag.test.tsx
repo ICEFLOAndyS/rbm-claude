@@ -17,6 +17,9 @@ const drawn: [RbmTagKind, string, string, 'dot' | 'icon'][] = [
   ['issue', 'Issue', colour.amberDeep, 'icon'],
   ['needsResult', 'Needs a result', colour.slate, 'dot'],
   ['complete', 'Complete', colour.greenDeep, 'icon'],
+  // Not drawn as tags: the Semantic board's state icons, in Amber Deep.
+  ['atRisk', 'At risk', colour.amberDeep, 'icon'],
+  ['paused', 'Paused', colour.amberDeep, 'icon'],
 ];
 
 describe('RbmTag', () => {

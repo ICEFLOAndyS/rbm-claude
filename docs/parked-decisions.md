@@ -66,7 +66,8 @@ Buttons are MUI `Button`, styled in the theme as drawn on the Components board (
 
 ### 21 Oct 2026: `RbmTag`
 Built as drawn in the Command board's task rows: a 22 px pill, Rule border, 12 px semibold text, with a 7 px dot or a 13 px icon in the label's colour. One `kind` per reason a task is in focus: Late to start, Late to finish (clock, Amber Deep), Ready to start and Needs a result (Silver dot, Slate), Up next (chevron, dashed Silver border), Blocked (Red dot, Red Inner), Issue (warning, Amber Deep), Complete (tick, Green Deep, shown during the linger). `label` names the record, for example "Blocked by BLK-102".
-- **Not drawn:** a tag for the reason a task is at risk or paused, which the task row rule lists. It is left out until drawn.
+- **At risk and Paused (decided by Andy Smith):** tags are enabled for every task state, even where a row may not use them. The reason a task is at risk or paused is a tag with the Semantic board's At risk (warning) or Paused (pause) icon, in Amber Deep. **Differs from design: not drawn as tags. Needs a drawing.** The At risk warning icon is nearly the same as the Issue tag's; the label tells them apart.
+- Any kind of item (task, milestone, checkpoint) can carry any tag.
 - The 13 px tag icons are copied from the board. They move to the icon suite (`rbmIcons`) when it is built.
 
 ### 21 Oct 2026: `RbmAlertCounter`

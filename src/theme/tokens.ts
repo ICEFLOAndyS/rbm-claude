@@ -13,6 +13,8 @@ export const colour = {
   redInner: '#C61E3A',
   amber: '#FF9F1C',
   amberDeep: '#A45200',
+  /** Proposed: centre of the At risk ringed dot (Foundations and Semantic boards). */
+  amberCore: '#F36C00',
   green: '#84CC16',
   greenDeep: '#3F6B06',
   mist: '#F4F6F9',
@@ -31,26 +33,33 @@ export const fontFamily = '"Inter Variable", "Inter", system-ui, -apple-system, 
 /**
  * Semantic task and event states. Green means Complete only, never "Active".
  * A text label is always shown: colour is never the only signal.
+ * The Semantic board calls Active "inProgress"; the brief and the Command board use Active.
  */
-export type RbmState = 'complete' | 'active' | 'atRisk' | 'paused' | 'blocked' | 'pending';
+export type RbmState = 'complete' | 'active' | 'atRisk' | 'paused' | 'blocked' | 'pending' | 'skipped';
 
-export interface StateStyle {
+export interface StatusToken {
+  /** Default text label. */
   label: string;
-  /** Fill colour of the dot. */
-  dot: string;
-  /** Text colour for the label. */
+  /** The mark: the dot fill, or the outer disc of a ringed dot. */
+  signal: string;
+  /** Text colour for the label. Reaches 4.5:1 on white. */
   text: string;
-  /** Amber ring around the dot (At risk, Paused). */
-  ring?: string;
-  /** Centre colour inside a ring (Paused is Amber ring with Slate centre). */
-  centre?: string;
+  /** Centre of a ringed dot (At risk, Paused). A state with a core is drawn as a ringed dot. */
+  core?: string;
+  /** Signal on a Deep Blue surface, where the default does not show. */
+  onDark?: string;
 }
 
-export const stateStyle: Record<RbmState, StateStyle> = {
-  complete: { label: 'Complete', dot: colour.green, text: colour.greenDeep },
-  active: { label: 'Active', dot: colour.blueDark, text: colour.blueDark },
-  atRisk: { label: 'At risk', dot: colour.amber, text: colour.amberDeep, ring: colour.amber, centre: colour.amberDeep },
-  paused: { label: 'Paused', dot: colour.amber, text: colour.amberDeep, ring: colour.amber, centre: colour.slate },
-  blocked: { label: 'Blocked', dot: colour.red, text: colour.redInner },
-  pending: { label: 'Not started', dot: colour.silver, text: colour.slate },
+/**
+ * The status tokens, as on the Semantic board ("React and MUI"). The theme puts
+ * these in `theme.palette.status`, and components read them from there.
+ */
+export const status: Record<RbmState, StatusToken> = {
+  complete: { label: 'Complete', signal: colour.green, text: colour.greenDeep },
+  active: { label: 'Active', signal: colour.blueDark, text: colour.blueDark, onDark: colour.blueMid },
+  atRisk: { label: 'At risk', signal: colour.amber, text: colour.amberDeep, core: colour.amberCore },
+  blocked: { label: 'Blocked', signal: colour.red, text: colour.redInner },
+  pending: { label: 'Not started', signal: colour.silver, text: colour.slate },
+  paused: { label: 'Paused', signal: colour.amber, text: colour.amberDeep, core: colour.slate },
+  skipped: { label: 'Skipped', signal: colour.slate, text: colour.slate },
 };

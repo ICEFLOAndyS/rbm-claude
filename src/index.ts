@@ -7,3 +7,5 @@ export { RbmNode, nodeSize } from './components/RbmNode/RbmNode';
 export type { RbmNodeProps, RbmNodeKind, RbmSpine } from './components/RbmNode/RbmNode';
 export { RbmAvatar, initialsOf } from './components/RbmAvatar/RbmAvatar';
 export type { RbmAvatarProps, RbmAvatarSize } from './components/RbmAvatar/RbmAvatar';
+export { RbmIconButton } from './components/RbmIconButton/RbmIconButton';
+export type { RbmIconButtonProps } from './components/RbmIconButton/RbmIconButton';

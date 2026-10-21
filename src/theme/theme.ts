@@ -39,7 +39,7 @@ export const rbmTheme = createTheme({
     success: { main: status.complete.text },
     info: { main: status.active.text },
     warning: { main: status.atRisk.text },
-    error: { main: status.blocked.text },
+    error: { main: status.blocked.text, contrastText: colour.white },
     status,
     text: { primary: colour.ink, secondary: colour.slate },
     divider: colour.rule,
@@ -63,7 +63,47 @@ export const rbmTheme = createTheme({
     button: { textTransform: 'none', fontWeight: 700 },
   },
   components: {
-    MuiButton: { defaultProps: { disableElevation: true } },
+    // Proposed on the Foundations board: a 2 px Blue Dark focus ring on everything that takes focus.
+    MuiButtonBase: {
+      styleOverrides: {
+        root: { '&.Mui-focusVisible': { outline: `2px solid ${colour.blueDark}`, outlineOffset: 2 } },
+      },
+    },
+    // Buttons as drawn on the Components board ("Buttons and pills"), at D1.
+    MuiButton: {
+      defaultProps: { disableElevation: true },
+      styleOverrides: {
+        root: {
+          minHeight: 48,
+          padding: '0 24px',
+          borderRadius: radius.control,
+          fontSize: 16,
+          fontWeight: 700,
+          variants: [
+            {
+              props: { variant: 'contained' },
+              style: { '&.Mui-disabled': { backgroundColor: colour.rule, color: colour.slate } },
+            },
+            {
+              props: { variant: 'outlined' },
+              style: { borderWidth: 2, backgroundColor: colour.white, '&:hover': { borderWidth: 2 } },
+            },
+            {
+              props: { variant: 'outlined', color: 'primary' },
+              style: { borderColor: colour.deepBlue },
+            },
+            {
+              props: { variant: 'text' },
+              style: { padding: '0 16px', textDecoration: 'underline', '&:hover': { textDecoration: 'underline' } },
+            },
+            {
+              props: { variant: 'text', color: 'primary' },
+              style: { color: colour.blueDark },
+            },
+          ],
+        },
+      },
+    },
     MuiPaper: { styleOverrides: { rounded: { borderRadius: radius.card } } },
     MuiTypography: {
       defaultProps: {

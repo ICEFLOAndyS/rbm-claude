@@ -22,3 +22,5 @@ Verified 21 Oct 2026: React 19, MUI 9, Storybook 9, Vite 7, Vitest 3, Inter in S
 - `npm run dev`: Storybook
 - `npm run check`: type check and tests
 - `npm run build-storybook`: static Storybook
+- `npm run fixtures`: writes the prototype's JSON fixtures (the 15,000-task one is git-ignored)
+- `npm run demo`: the browser prototype at http://localhost:5173 (see `docs/prototype.md`)

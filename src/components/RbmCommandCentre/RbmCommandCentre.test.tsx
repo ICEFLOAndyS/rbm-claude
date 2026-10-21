@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
@@ -119,6 +119,20 @@ describe('RbmCommandCentre', () => {
     it('appears only once the Event vitals have scrolled away', () => {
       page();
       expect(screen.queryByRole('banner', { name: 'Event summary' })).not.toBeInTheDocument();
+      act(() => trigger(false));
+      expect(screen.getByRole('banner', { name: 'Event summary' })).toBeInTheDocument();
+    });
+
+    it('disappears when the Event vitals come back, so the same facts are never shown twice', async () => {
+      page();
+      act(() => trigger(false));
+      expect(screen.getByRole('banner', { name: 'Event summary' })).toBeInTheDocument();
+      act(() => trigger(true));
+      await waitFor(() => expect(screen.queryByRole('banner', { name: 'Event summary' })).not.toBeInTheDocument());
+    });
+
+    it('stays the same whatever the layout order', () => {
+      page({ layout: ['hotTopics', 'timeline', 'ribbon'] });
       act(() => trigger(false));
       expect(screen.getByRole('banner', { name: 'Event summary' })).toBeInTheDocument();
     });

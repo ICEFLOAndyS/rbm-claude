@@ -169,8 +169,29 @@ The page template, as drawn on the Command board ("The page", "Layout", "Acting 
 - **Compact event bar:** `RbmEventBar` pins to the top without taking space, and shows only while the Event vitals are off screen (watched with IntersectionObserver). Its chevron scrolls back to the top.
 - **8-row minimum:** the Task Timeline region keeps room for its toolbar, summary line and 8 rows (520 px).
 - **Left to the app shell:** the top bar, the sidebar and the programme selector above the breadcrumb (Shell board).
-- **Not built yet:** the Task Timeline toolbar sticking beneath the compact event bar.
+- **Built in the prototype:** the Task Timeline toolbar sticking beneath the compact event bar (`stickyTop`).
 - **Differs from the text:** the vertical budget says 16 px gaps between regions; the page drawing has 24 px, and the drawing is followed.
+
+### 21 Oct 2026: browser prototype (JSON fixtures, fake engine)
+See [prototype.md](prototype.md) and [data-model.md](data-model.md). The data contract was reviewed and agreed by Andy Smith (decisions in data-model.md, section 8).
+- **Contract additions after review:** `Task.completedAt` (the linger and Undo run from the click, because the actual end can be back-dated) and `Task.resumedAt` (with `workedMinutes`, the forecast keeps a pause).
+- **Fake engine** (`src/engine`), clearly a stand-in for the RBM planning engine, with every rule in data-model.md. Milestones finish by themselves; the next checkpoint is the earliest without a result; Amber is up to 15 minutes late.
+- **Real components, not stand-ins** (decision 6), fed by adapters. The connected page shares one runbook filter between the Task Timeline and the Hot-topics strip, and keeps the layout and the ribbon's collapsed state in `LayoutPreferenceStore` (localStorage).
+- **Task tag priority** (ours; the board shows one tag per row): blocked, failed check, issue, paused, at risk (a person's reason), late to finish, late to start, needs a result, ready, up next.
+- **Large event:** Task Timeline rows are virtualised (only rows near the screen are drawn, 52 px each). Above 200 tasks in view, runbooks with nothing blocked or late start collapsed, as the board's scope section says. The Event ribbon now keeps one shared tooltip and uses inline positions, so clock ticks stay fast.
+- **Differs from or extends the design (flagged):**
+  - **Not drawn:** a "Test result: Fail" tag (`failedCheck`), styled like Blocked.
+  - **Prototype stand-ins, not design:**
+    - The inputs behind Complete at…, Complete with note…, Skip task… and Pass with comment use the browser's prompt.
+    - Links that open the slide-in (tasks, blockers, issue list, task list, critical path, calls, event actions) show a short message instead.
+    - The demo's control bar is not part of the design.
+  - **The ribbon's tooltip** uses MUI's default look (the fallback rule).
+  - **Not wired yet:** "Forecast end time filters the Task Timeline to late tasks" (Behaviour section).
+  - **Keyboard on a virtualised timeline:** J and K move between the rows on the page. Rows far off screen are reached by scrolling, not by J and K.
+- **Not verified:**
+  - **Wall display:** the page fits at 3840 by 2160, but at D1 sizes; the D0 (Command) sizes are not built.
+  - **Real ServiceNow data and attribute names.**
+  - **Clock ticks on the large event** cost about 200–250 ms (production build) once a real second. Moving the engine to a Web Worker would free the page if that becomes a problem.
 
 ## Open questions
 - Should the Hot-topics cards (Blockers, Next checkpoint and so on) also be reorderable in the Layout panel, or only the three regions?

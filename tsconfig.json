@@ -24,6 +24,7 @@
   "include": [
     "src",
     ".storybook",
-    "scripts"
+    "scripts",
+    "demo"
   ]
 }

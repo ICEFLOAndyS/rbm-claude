@@ -11,3 +11,5 @@ export { RbmIconButton } from './components/RbmIconButton/RbmIconButton';
 export type { RbmIconButtonProps } from './components/RbmIconButton/RbmIconButton';
 export { RbmTag } from './components/RbmTag/RbmTag';
 export type { RbmTagProps, RbmTagKind } from './components/RbmTag/RbmTag';
+export { RbmAlertCounter, sortAlerts } from './components/RbmAlertCounter/RbmAlertCounter';
+export type { RbmAlertCounterProps, RbmAlert, RbmAlertSeverity } from './components/RbmAlertCounter/RbmAlertCounter';

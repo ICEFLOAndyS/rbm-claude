@@ -69,6 +69,13 @@ Built as drawn in the Command board's task rows: a 22 px pill, Rule border, 12 p
 - **Not drawn:** a tag for the reason a task is at risk or paused, which the task row rule lists. It is left out until drawn.
 - The 13 px tag icons are copied from the board. They move to the icon suite (`rbmIcons`) when it is built.
 
+### 21 Oct 2026: `RbmAlertCounter`
+Built as drawn on the Command board ("Alert counter"): hidden when healthy; Red Inner with white text when any alert is Red, Amber with Ink text when the only alerts are Amber; a bell and the count in words and digits ("1 alert", "3 alerts"). 30 px in the page header, 24 px (`size="compact"`) in the compact event bar. A click opens a popover: "Alerts" and "Most serious first", then each alert with its mark, title, detail and a link.
+- **Data contract:** `alerts: { id, severity: 'red' | 'amber', title, detail?, action?: { label, onSelect } }[]`. The planning engine sets the severity; the component only sorts and counts.
+- **Order.** Red before Amber, keeping the engine's order within a severity. **Differs from the drawing:** the board's sample lists a late forecast between two Red alerts, which its own "most serious first" rule does not allow.
+- **Shadow.** The popover uses the shadow drawn with it (`0 8px 24px rgba(35,50,111,0.16)`). **It differs from the Proposed menu elevation on the Foundations board**; one of the two should be chosen.
+- **Accessibility.** The counter is a button named by its count, with `aria-haspopup="dialog"` and `aria-expanded`. The popover is a dialog named "Alerts"; Escape closes it and returns focus. Each link is a button that runs its action and closes the popover. **Open question:** Red and Amber counters differ only in colour; the count does not say which. Should the counter's name include the worst alert (for example "3 alerts, 2 blockers")?
+
 ## Open questions
 - Should the Hot-topics cards (Blockers, Next checkpoint and so on) also be reorderable in the Layout panel, or only the three regions?
 - Does the Blockers card "+ Raise" need a different pattern?

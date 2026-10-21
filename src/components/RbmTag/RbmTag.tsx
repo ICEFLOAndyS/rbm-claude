@@ -1,11 +1,10 @@
 import { Box, useTheme } from '@mui/material';
 import type { ReactNode } from 'react';
-import { radius } from '../../theme/tokens';
+import { colour, radius } from '../../theme/tokens';
 
 /**
- * Why a task is in focus, as drawn on the Command board ("Task row"). A row has at most one.
- * At risk and Paused use the Semantic board's state icons; they are not drawn as tags.
- * Any kind of item (task, milestone, checkpoint) can carry any tag.
+ * Why a task is in focus, as drawn on the Command board ("Task row", "Acting on tasks").
+ * A row has at most one. Any kind of item (task, milestone, checkpoint) can carry any tag.
  */
 export type RbmTagKind =
   | 'lateToStart'
@@ -72,20 +71,16 @@ const icons: Partial<Record<Look, ReactNode>> = {
       <path d="M5 12.5l4.5 4.5L19 7" />
     </Icon>
   ),
-  // From the Semantic board's state icons, at tag size.
-  atRisk: (
-    <Icon>
-      <path d="M12 3.5l9.5 16.5h-19L12 3.5z" />
-      <path d="M12 10v4M12 17h.01" />
-    </Icon>
-  ),
-  paused: (
-    <Icon>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M10 9v6M14 9v6" />
-    </Icon>
-  ),
 };
+
+/** The 11 px ringed dot drawn on the At risk and Paused reason tags ("Acting on tasks"). */
+function RingedDot({ signal, core }: { signal: string; core: string }) {
+  return (
+    <Box component="span" aria-hidden="true" data-testid="rbm-tag-ring" sx={{ width: 11, height: 11, borderRadius: '50%', bgcolor: signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+      <Box component="span" sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: core, border: `2px solid ${colour.white}`, boxSizing: 'border-box' }} />
+    </Box>
+  );
+}
 
 /** A small tag that says why a task needs attention. It always has a label. */
 export function RbmTag({ kind, label }: RbmTagProps) {
@@ -103,6 +98,7 @@ export function RbmTag({ kind, label }: RbmTagProps) {
     paused: s.paused.text,
   };
   const dot = look === 'ready' ? s.pending.signal : look === 'blocked' ? s.blocked.signal : undefined;
+  const ring = look === 'atRisk' ? s.atRisk : look === 'paused' ? s.paused : undefined;
   return (
     <Box
       component="span"
@@ -110,7 +106,7 @@ export function RbmTag({ kind, label }: RbmTagProps) {
       sx={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: dot ? '6px' : '5px',
+        gap: dot || ring ? '6px' : '5px',
         height: 22,
         px: 2,
         borderRadius: `${radius.pill}px`,
@@ -123,6 +119,8 @@ export function RbmTag({ kind, label }: RbmTagProps) {
     >
       {dot ? (
         <Box component="span" aria-hidden="true" data-testid="rbm-tag-dot" sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: dot, flex: 'none' }} />
+      ) : ring ? (
+        <RingedDot signal={ring.signal} core={ring.core!} />
       ) : (
         icons[look]
       )}

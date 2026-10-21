@@ -43,7 +43,7 @@ const allStates: RbmState[] = ['active', 'complete', 'pending', 'atRisk', 'pause
 /** Every state at both sizes, for review against the board. */
 export const AllStates: Story = {
   render: () => (
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: 2, alignItems: 'center', justifyItems: 'start' }}>
+    <Box sx={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: 4, alignItems: 'center', justifyItems: 'start' }}>
       {allStates.map((state) => (
         <Box key={state} sx={{ display: 'contents' }}>
           <RbmStatusPill state={state} />

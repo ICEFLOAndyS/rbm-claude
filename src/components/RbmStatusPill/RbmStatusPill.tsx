@@ -75,9 +75,9 @@ export function RbmStatusPill({ state, label, size = 'normal' }: RbmStatusPillPr
       sx={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 1,
+        gap: 2,
         height: sizes[size].height,
-        px: 1.75,
+        px: 3.5,
         borderRadius: 999,
         border: `1px solid ${palette.divider}`,
         bgcolor: palette.background.paper,

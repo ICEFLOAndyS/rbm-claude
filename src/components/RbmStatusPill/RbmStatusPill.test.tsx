@@ -33,7 +33,7 @@ describe('RbmStatusPill', () => {
   });
 
   it.each([
-    ['atRisk', colour.amberCore],
+    ['atRisk', colour.amberInner],
     ['paused', colour.slate],
   ] as const)('draws %s as a 16 px Amber ringed dot with its own centre', (state, core) => {
     renderPill(<RbmStatusPill state={state} />);

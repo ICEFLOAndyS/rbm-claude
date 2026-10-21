@@ -23,7 +23,7 @@ Timestamps are ISO 8601 strings in UTC (`"2026-05-25T03:40:00Z"`) so that fixtur
 | `Person` | `name`, `initials?` | Assignees, call participants, who did what. |
 | `Runbook` | `number` (RBK0000001), `wbs` (1), `name`, `plannedEnd` | Its forecast end comes from the engine. |
 | `Stage` | `runbookId`, `wbs` (1.3), `name` | Its times and progress come from its tasks. |
-| `Task` | `wbs` (1.3.5), `kind`, `state`, `planned`, `durationMinutes`, `actual?`, `dependencies`, `constraints?`, `assigneeId?`, `atRisk?`, `paused?`, `skipped?`, `result?` | See below. |
+| `Task` | `wbs` (1.3.5), `kind`, `state`, `planned`, `durationMinutes`, `actual?`, `dependencies`, `constraints?`, `assigneeId?`, `atRisk?`, `paused?`, `workedMinutes?`, `resumedAt?`, `skipped?`, `result?`, `completedAt?` | See below. |
 | `Blocker` | `number` (BLK-102), `title`, `severity`, `state`, `taskIds` | Open blockers block the tasks they hold. |
 | `Issue` | `number` (INC-102), `title`, `severity`, `state`, `taskIds` | Open issues give a task "Has an issue". |
 | `Call` | `checkpointTaskId?`, `opensAt?`, `open`, `participantIds` | A call with a checkpoint id is that checkpoint's Join call; one without is the Collaboration call. |
@@ -33,6 +33,8 @@ Timestamps are ISO 8601 strings in UTC (`"2026-05-25T03:40:00Z"`) so that fixtur
 **Task lifecycle** (`TaskLifecycle`): `not_started`, `active`, `paused`, `complete`, `skipped`. Blocked, ready, late and at risk are **not** lifecycle states. A task that has not started can also be blocked, so these are flags the engine sets. The one exception is **At risk**. The board says "a person or the engine has flagged it", so a person's flag is stored (`atRisk.reason`).
 
 **Dependencies** are finish-to-start only in the prototype. **Constraints** are "not before" only.
+
+**Added during the engine build (21 Oct 2026):** `completedAt` (when the user pressed Complete; the 60-second linger and Undo run from it, because the actual end can be back-dated) and `resumedAt` (when a paused task was resumed; with `workedMinutes` it lets the forecast keep the pause).
 
 A **fixture** (`EventFixture`) is `EventRecords` plus `startsAt` (where the clock starts) and `currentUserId` (for "Mine" and the log).
 
@@ -95,7 +97,7 @@ The components built so far each have their own props (`RbmEventVitalsData`, `Rb
   - active: the later of `now` and actual start + duration, less minutes worked before a pause
   - paused: `now` + remaining minutes (the clock keeps the pause)
   - not started: forecast start + duration
-- Milestones have zero duration.
+- Milestones have zero duration, and **finish by themselves**: once every predecessor has finished, the milestone completes at the latest predecessor's end.
 - A runbook's forecast end is its latest task forecast end; the event's is its latest runbook forecast end.
 
 **Gap and RAG.**
@@ -118,12 +120,12 @@ The components built so far each have their own props (`RbmEventVitalsData`, `Rb
 **Delta.** Actual end (or forecast end) − planned end, in minutes.
 
 **Alerts** (most serious first is the counter's job):
-- One Red alert for open blockers: "2 blockers are holding 3 tasks", plus the forecast effect.
+- One Red alert for open blockers: "2 blockers are holding 4 tasks", where the tasks held are the blocked tasks and their direct successors, plus the forecast effect.
 - One Red alert per failed check: "1.4.2 Payroll totals check needs a decision".
 - One forecast alert when the event's gap > 0, in the event's RAG (Amber or Red): "Forecast end is 12 minutes late", plus the first critical task.
 - No alerts when the event is healthy, so the counter is hidden.
 
-**Next checkpoint.** The earliest-planned checkpoint that has not passed.
+**Next checkpoint.** The earliest-planned checkpoint that has not finished and has no result yet. A failed check is not the next checkpoint; it is an alert. Its forecast compares forecast start with planned start (Go / No-Go planned 05:45, forecast 05:57).
 
 **Commands.**
 - **Start:** a ready, `not_started` task (or a paused one, via Resume) becomes `active`, with the actual start now, or back-dated with `at`. A blocked or not-ready task is refused. There is no "Start early".
@@ -137,6 +139,8 @@ The components built so far each have their own props (`RbmEventVitalsData`, `Rb
   - `fail` keeps it active, with `failedCheck`.
 - **Bulk:** each task is tried in turn. Those that can are applied; the rest come back as conflicts. Nothing is half-applied to a single task.
 - **Event log:** every applied command adds an entry.
+
+**Speed.** The large event (15,000 tasks) takes about 100 ms per snapshot, and a snapshot is worked out each clock tick (once a real second) and after each command.
 
 **What it does not do.** Resource levelling, calendars, other dependency types, lags, partial progress, or what-if planning. The real engine owns all of that.
 

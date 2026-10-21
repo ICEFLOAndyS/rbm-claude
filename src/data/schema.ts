@@ -27,6 +27,8 @@ const task = z.object({
   atRisk: z.object({ reason: z.string() }).optional(),
   paused: z.object({ byId: z.string(), at: iso, reason: z.string().optional() }).optional(),
   workedMinutes: z.number().nonnegative().optional(),
+  resumedAt: iso.optional(),
+  completedAt: iso.optional(),
   skipped: z.object({ byId: z.string(), at: iso, reason: z.string() }).optional(),
   result: z.object({ value: z.enum(['pass', 'fail', 'pass_with_comment']), byId: z.string(), at: iso, comment: z.string().optional() }).optional(),
   completedById: z.string().optional(),

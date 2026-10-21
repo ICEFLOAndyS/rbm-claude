@@ -104,8 +104,12 @@ export interface Task {
   atRisk?: { reason: string };
   /** Who paused it and when, shown as "Paused by A. Smith". */
   paused?: { byId: string; at: IsoTime; reason?: string };
-  /** Minutes already worked before a pause, so the clock keeps the pause. */
+  /** Minutes already worked before the last pause, so the clock keeps the pause. */
   workedMinutes?: number;
+  /** When a paused task was resumed. Work since then counts on top of `workedMinutes`. */
+  resumedAt?: IsoTime;
+  /** When the user completed it (not the actual end, which can be back-dated). The linger and Undo run from here. */
+  completedAt?: IsoTime;
   skipped?: { byId: string; at: IsoTime; reason: string };
   /** Checkpoints only. */
   result?: { value: CheckpointResult; byId: string; at: IsoTime; comment?: string };

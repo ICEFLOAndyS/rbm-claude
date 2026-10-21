@@ -151,14 +151,15 @@ export function planEvent(windowStart: number, specs: RunbookSpec[]): Built {
  * Plays the plan forward to `now`: each task starts at the later of its planned start and its
  * predecessors' actual ends, plus any delay, and runs for its duration. Sets state and actual times.
  */
-export function playTo(tasks: Task[], now: number, delays: Record<string, number> = {}) {
+export function playTo(tasks: Task[], now: number, delays: Record<string, number> = {}, holdBack: string[] = []) {
   const byId = new Map(tasks.map((t) => [t.id, t]));
   const end = new Map<string, number>();
   const visit = (t: Task): number => {
     const known = end.get(t.id);
     if (known !== undefined) return known;
     const ready = Math.max(Date.parse(t.planned.start), ...t.dependencies.map((d) => visit(byId.get(d.predecessorId)!)));
-    const start = ready + (delays[t.wbs] ?? 0) * MIN;
+    // A held-back task is due but nobody has picked it up, so it and its successors have not started.
+    const start = holdBack.includes(t.wbs) ? Infinity : ready + (delays[t.wbs] ?? 0) * MIN;
     const finish = start + t.durationMinutes * MIN;
     end.set(t.id, finish);
     if (finish <= now) {
@@ -253,17 +254,19 @@ export function weekendPayrollCutover(): EventFixture {
   const now = at('03:40');
   const built = planEvent(WINDOW_START, payrollPlan());
   const { tasks } = built;
-  playTo(tasks, now, { ...delayStage(tasks, '1.3', 12), '2.1.1': 27 });
+  // 1.3.18 is due but not picked up: Ready and Late to start. Its lane has 15 minutes of slack, so the forecast holds.
+  playTo(tasks, now, { ...delayStage(tasks, '1.3', 12), '2.1.1': 27 }, ['1.3.18']);
   assign(tasks, people);
   const f = baseFixture('Weekend Payroll Cutover', 'E12345', built, now);
 
   const active = tasks.filter((t) => t.wbs.startsWith('1.3.') && t.state === 'active');
-  const check = active[2]!;
+  const check = active[1]!;
   check.kind = 'checkpoint';
   check.title = 'Payroll totals check';
   check.result = { value: 'fail', byId: 'p-rp', at: iso(now - 4 * MIN), comment: 'Totals differ by 3 records' };
   const next = (t: Task) => tasks.find((x) => x.dependencies.some((d) => d.predecessorId === t.id) && x.stageId === t.stageId)!;
-  next(active[1]!).atRisk = { reason: 'Test data refresh slow' };
+  next(active[0]!).atRisk = { reason: 'Test data refresh slow' };
+  byWbs(tasks, '1.3.18').title = 'Refresh test data';
 
   const blocked1 = byWbs(tasks, '1.4.2');
   blocked1.title = 'Account reconciliation';

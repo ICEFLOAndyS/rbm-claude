@@ -9,3 +9,5 @@ export { RbmAvatar, initialsOf } from './components/RbmAvatar/RbmAvatar';
 export type { RbmAvatarProps, RbmAvatarSize } from './components/RbmAvatar/RbmAvatar';
 export { RbmIconButton } from './components/RbmIconButton/RbmIconButton';
 export type { RbmIconButtonProps } from './components/RbmIconButton/RbmIconButton';
+export { RbmTag } from './components/RbmTag/RbmTag';
+export type { RbmTagProps, RbmTagKind } from './components/RbmTag/RbmTag';

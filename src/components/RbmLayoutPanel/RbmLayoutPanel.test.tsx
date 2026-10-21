@@ -1,0 +1,114 @@
+import { act, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ThemeProvider } from '@mui/material';
+import { useState, type ReactElement } from 'react';
+import { DEFAULT_LAYOUT, RbmLayoutPanel, type RbmRegion } from './RbmLayoutPanel';
+import { rbmTheme } from '../../theme/theme';
+
+const renderUi = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{ui}</ThemeProvider>);
+const movable = () => Array.from(document.querySelectorAll<HTMLElement>('[data-region]')).map((r) => r.dataset.region);
+
+// jsdom has no layout. Give each movable row a box, stacked 64 px apart, so the keyboard sensor can move between them.
+function stackRows() {
+  const original = Element.prototype.getBoundingClientRect;
+  Element.prototype.getBoundingClientRect = function (this: Element) {
+    const region = (this as HTMLElement).closest?.('[data-region]') as HTMLElement | null;
+    if (region) {
+      const i = Array.from(document.querySelectorAll('[data-region]')).indexOf(region);
+      return { x: 0, y: i * 64, top: i * 64, left: 0, width: 348, height: 56, right: 348, bottom: i * 64 + 56, toJSON: () => ({}) } as DOMRect;
+    }
+    return original.call(this);
+  };
+  return () => {
+    Element.prototype.getBoundingClientRect = original;
+  };
+}
+
+function Harness({ onChange }: { onChange?: (o: RbmRegion[]) => void }) {
+  const [order, setOrder] = useState<RbmRegion[]>(DEFAULT_LAYOUT);
+  return (
+    <RbmLayoutPanel
+      order={order}
+      onChange={(o) => {
+        setOrder(o);
+        onChange?.(o);
+      }}
+    />
+  );
+}
+
+describe('RbmLayoutPanel', () => {
+  it('locks the Page header and the Event vitals at the top, marked FIXED', () => {
+    renderUi(<RbmLayoutPanel order={DEFAULT_LAYOUT} onChange={vi.fn()} />);
+    const fixedList = screen.getByRole('list', { name: 'Fixed regions' });
+    expect(within(fixedList).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      'Page headerEvent, state, alerts and actionsFIXED',
+      'Event vitalsProgress, Issues, Start, Forecast endFIXED',
+    ]);
+    expect(within(fixedList).queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('lists the three movable regions in the given order, each with a grip', () => {
+    renderUi(<RbmLayoutPanel order={['timeline', 'ribbon', 'hotTopics']} onChange={vi.fn()} />);
+    expect(movable()).toEqual(['timeline', 'ribbon', 'hotTopics']);
+    expect(screen.getByRole('button', { name: 'Move Task Timeline, position 1 of 3' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Move Hot-topics strip, position 3 of 3' })).toBeInTheDocument();
+  });
+
+  it('moves a region from the keyboard: Space picks it up, arrows move it, Space drops it', async () => {
+    const restore = stackRows();
+    const onChange = vi.fn();
+    try {
+      renderUi(<Harness onChange={onChange} />);
+      const grip = screen.getByRole('button', { name: 'Move Event ribbon, position 1 of 3' });
+      grip.focus();
+      await userEvent.keyboard(' ');
+      await act(async () => {
+        await userEvent.keyboard('{ArrowDown}');
+      });
+      await userEvent.keyboard(' ');
+      expect(onChange).toHaveBeenCalledWith(['timeline', 'ribbon', 'hotTopics']);
+      expect(movable()).toEqual(['timeline', 'ribbon', 'hotTopics']);
+    } finally {
+      restore();
+    }
+  });
+
+  it('cancels a move with Escape', async () => {
+    const restore = stackRows();
+    const onChange = vi.fn();
+    try {
+      renderUi(<Harness onChange={onChange} />);
+      screen.getByRole('button', { name: /^Move Event ribbon/ }).focus();
+      await userEvent.keyboard(' ');
+      await act(async () => {
+        await userEvent.keyboard('{ArrowDown}');
+      });
+      await userEvent.keyboard('{Escape}');
+      expect(onChange).not.toHaveBeenCalled();
+      expect(movable()).toEqual(DEFAULT_LAYOUT);
+    } finally {
+      restore();
+    }
+  });
+
+  it('tells screen readers how to move a region', () => {
+    renderUi(<RbmLayoutPanel order={DEFAULT_LAYOUT} onChange={vi.fn()} />);
+    expect(screen.getByText(/Press Space to pick up the region/)).toBeInTheDocument();
+  });
+
+  it('puts the default order back with Reset to default', async () => {
+    const onChange = vi.fn();
+    renderUi(<RbmLayoutPanel order={['hotTopics', 'timeline', 'ribbon']} onChange={onChange} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Reset to default' }));
+    expect(onChange).toHaveBeenCalledWith(['ribbon', 'timeline', 'hotTopics']);
+  });
+
+  it('closes with Done or the close button', async () => {
+    const onClose = vi.fn();
+    renderUi(<RbmLayoutPanel order={DEFAULT_LAYOUT} onChange={vi.fn()} onClose={onClose} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(onClose).toHaveBeenCalledTimes(2);
+  });
+});

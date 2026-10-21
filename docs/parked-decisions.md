@@ -153,6 +153,14 @@ Built as drawn on the Command board ("Compact event bar and collapsed ribbon"): 
 - Each part is a link (progress, issues, forecast; the counter opens its own popover). `visible` shows it only while the Event vitals are off screen; it slides in and out. The page decides when (it watches the vitals).
 - **Proposed, not drawn:** the open-issues dot follows the worst open issue (Red, the Amber ringed dot, or Silver) and is left out when there are none; the gap reads "On Schedule" when there is none and "−08 min" when ahead.
 
+### 21 Oct 2026: `RbmLayoutPanel`
+Built as drawn on the Command board ("Layout"): a 380 px panel with "Layout", the close button and the line about the profile; the Page header and Event vitals locked at the top (lock icon, FIXED); "Drag to reorder" with the Event ribbon, Task Timeline and Hot-topics strip, each with a grip; Reset to default and Done.
+- **Dragging** with dnd-kit (as the board suggests; `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities` added). Drag from the grip; the row lifts (2 px Blue Dark border, the drawn tint, shadow and slight tilt) and a 4 px Blue Dark line shows where it will land. From the keyboard, Space picks a row up, the arrow keys move it, Space drops it and Escape cancels; a screen reader hears where it is at each step. The new order goes to the page on drop, and the page re-orders at once.
+- The order is the page's preference (`order`, `onChange`), saved to the user's profile by the page. Reset to default puts back Event ribbon, Task Timeline, Hot-topics strip.
+- **Differs from the drawing:** the drop line sits where the row will land (above the Task Timeline when moving up past it); the drawing shows it between the two rows. In a keyboard move the lifted row stays in place; with the pointer it follows the pointer.
+- The lifted-row tint #EEF1FF is drawn but not in the brand palette (token `liftTint`, needs sign-off).
+- **Still open:** whether the Hot-topics cards can also be reordered here.
+
 ## Open questions
 - Should the Hot-topics cards (Blockers, Next checkpoint and so on) also be reorderable in the Layout panel, or only the three regions?
 - Does the Blockers card "+ Raise" need a different pattern?

@@ -38,6 +38,9 @@ export const hairline = '#EEF0F4';
 /** Drawn behind the Task Timeline summary line, but not in the brand palette. Needs sign-off. */
 export const surfaceTint = '#FBFCFE';
 
+/** Drawn behind a row lifted in the Layout panel, but not in the brand palette. Needs sign-off. */
+export const liftTint = '#EEF1FF';
+
 export const radius = { control: 12, card: 14, pill: 999 } as const;
 
 /** Proposed. Rule borders first; shadow only for overlays. */

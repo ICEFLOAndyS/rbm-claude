@@ -47,3 +47,5 @@ export { mockBlockers, mockNextCheckpoint, mockMilestones, mockPeople, mockWatch
 export { RbmEventBar, barGap } from './components/RbmEventBar/RbmEventBar';
 export type { RbmEventBarProps, RbmEventSummary } from './components/RbmEventBar/RbmEventBar';
 export { mockEvent, mockAlerts } from './mocks/event';
+export { RbmLayoutPanel, DEFAULT_LAYOUT, regionInfo } from './components/RbmLayoutPanel/RbmLayoutPanel';
+export type { RbmLayoutPanelProps, RbmRegion } from './components/RbmLayoutPanel/RbmLayoutPanel';

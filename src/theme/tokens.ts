@@ -25,7 +25,8 @@ export const colour = {
 
 export const radius = { control: 12, card: 14 } as const;
 
-export const fontFamily = '"Inter", system-ui, -apple-system, "Segoe UI", sans-serif';
+/** "Inter Variable" is the name @fontsource-variable/inter registers; "Inter" covers the static font. */
+export const fontFamily = '"Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif';
 
 /**
  * Semantic task and event states. Green means Complete only, never "Active".

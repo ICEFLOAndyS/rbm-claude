@@ -34,3 +34,13 @@ export type { RbmRunbookFilterProps, RbmRunbookOption } from './components/RbmTa
 export { focusReasons, isInFocus, byStart, capUpNext, lingerLeft, UP_NEXT_CAP } from './components/RbmTaskTimeline/focusRule';
 export type { RbmTimelineTask, RbmTaskFlags, RbmFocusReason } from './components/RbmTaskTimeline/focusRule';
 export { mockTimelineRunbooks, mockTimelineTasks, mockManyUpNext } from './mocks/timeline';
+export { RbmHotTopicsStrip } from './components/RbmHotTopicsStrip/RbmHotTopicsStrip';
+export type { RbmHotTopicsStripProps } from './components/RbmHotTopicsStrip/RbmHotTopicsStrip';
+export { RbmHotTopicCard } from './components/RbmHotTopicsStrip/RbmHotTopicCard';
+export type { RbmHotTopicCardProps } from './components/RbmHotTopicsStrip/RbmHotTopicCard';
+export { RbmBlockers, RbmNextCheckpoint, RbmMilestones, RbmCollaboration, RbmWatchers, Severity, countdown, CARD_LIMIT } from './components/RbmHotTopicsStrip/cards';
+export type {
+  RbmBlocker, RbmBlockersProps, RbmNextCheckpointData, RbmNextCheckpointProps, RbmMilestoneItem, RbmMilestonesProps,
+  RbmCollaborationProps, RbmWatcher, RbmWatchersProps, RbmSeverity,
+} from './components/RbmHotTopicsStrip/cards';
+export { mockBlockers, mockNextCheckpoint, mockMilestones, mockPeople, mockWatchers } from './mocks/hotTopics';

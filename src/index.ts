@@ -1,5 +1,5 @@
 export { rbmTheme } from './theme/theme';
-export { colour, radius, elevation, spacingUnit, fontFamily, type, status } from './theme/tokens';
+export { colour, hairline, radius, elevation, spacingUnit, fontFamily, type, status } from './theme/tokens';
 export type { ColourName, TypeStyle, RbmState, StatusToken } from './theme/tokens';
 export { RbmStatusPill } from './components/RbmStatusPill/RbmStatusPill';
 export type { RbmStatusPillProps, RbmStatusPillSize } from './components/RbmStatusPill/RbmStatusPill';
@@ -18,3 +18,7 @@ export type { RbmEventVitalsProps, RbmEventVitalsData, RbmRag } from './componen
 export { RbmRing, ringSegments } from './components/RbmEventVitals/RbmRing';
 export type { RbmRingProps, RbmRingSegment } from './components/RbmEventVitals/RbmRing';
 export { mockEventVitals } from './mocks/eventVitals';
+export { RbmEventRibbon, laneSummary, shortGap } from './components/RbmEventRibbon/RbmEventRibbon';
+export type { RbmEventRibbonProps, RbmRibbonRunbook, RbmRibbonStage, RbmRibbonMarker } from './components/RbmEventRibbon/RbmEventRibbon';
+export { packStages, timeScale, laneHeight } from './components/RbmEventRibbon/ribbonLayout';
+export { mockRibbon, mockOverlappingRunbook } from './mocks/eventRibbon';

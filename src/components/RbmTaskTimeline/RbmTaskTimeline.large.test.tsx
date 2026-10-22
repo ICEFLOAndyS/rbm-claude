@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { onTestFinished } from 'vitest';
 import { ThemeProvider } from '@mui/material';
 import { RbmTaskTimeline, LARGE_TIMELINE } from './RbmTaskTimeline';
@@ -52,6 +52,23 @@ describe('RbmTaskTimeline with the large event', { timeout: 20_000 }, () => {
     const band = (id: string) => document.querySelector<HTMLElement>(`[data-runbook="${id}"] > button`);
     for (const id of calm) if (band(id)) expect(band(id)).toHaveAttribute('aria-expanded', 'false');
     expect(band(runbooks[5]!.id)).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('opens quiet runbooks that hold a match while searching, across 15,000 tasks', () => {
+    const calm = runbooks[0]!.id;
+    const quietTasks = tasks.map((t) => (t.runbookId === calm ? { ...t, flags: { ...t.flags, lateToStart: false, lateToFinish: false, blocked: false }, state: t.state === 'blocked' ? ('pending' as const) : t.state } : t));
+    const target = quietTasks.find((t) => t.runbookId === calm && t.title)!;
+    render(
+      <ThemeProvider theme={rbmTheme}>
+        <RbmTaskTimeline runbooks={runbooks} tasks={quietTasks} now={new Date(s.now)} timeZone="UTC" />
+      </ThemeProvider>,
+    );
+    const band = () => document.querySelector<HTMLElement>(`[data-runbook="${calm}"] > button`);
+    if (band()) expect(band()).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.change(screen.getByRole('combobox', { name: 'Search tasks' }), { target: { value: target.title } });
+    if (band()) expect(band()).toHaveAttribute('aria-expanded', 'true');
+    const summary = screen.getAllByRole('status').find((x) => x.textContent?.startsWith('Showing'))!;
+    expect(summary).toHaveTextContent(`matching “${target.title}”`);
   });
 
   it('sticks the toolbar under the compact event bar when asked', () => {

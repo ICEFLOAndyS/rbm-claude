@@ -14,6 +14,112 @@ const timeline = (over: Partial<RbmTaskTimelineProps> = {}) =>
 const rowIds = () => Array.from(document.querySelectorAll<HTMLElement>('[data-task]')).map((r) => r.dataset.task);
 const summary = () => screen.getAllByRole('status').find((s) => s.textContent?.startsWith('Showing'))!;
 
+describe('RbmTaskTimeline search', () => {
+  const search = () => screen.getByRole('combobox', { name: 'Search tasks' });
+
+  it('narrows the timeline as you type, on the task title, within Focus', async () => {
+    timeline();
+    await userEvent.type(search(), 'refresh');
+    expect(rowIds().sort()).toEqual(['1.3.9', '1.4.3']);
+    expect(summary()).toHaveTextContent('Showing 2 tasks matching “refresh” in 1 runbook · Focus');
+  });
+
+  it('counts matches outside Focus, and shows them when asked', async () => {
+    timeline();
+    await userEvent.type(search(), 'payroll');
+    expect(rowIds()).not.toContain('1.3.1'); // complete long ago
+    const more = screen.getByRole('button', { name: /^\d+ more outside Focus$/ });
+    await userEvent.click(more);
+    expect(rowIds()).toContain('1.3.1');
+    expect(screen.queryByRole('button', { name: /more outside Focus/ })).not.toBeInTheDocument();
+  });
+
+  it('combines with the chips, which only ever narrow', async () => {
+    timeline();
+    await userEvent.type(search(), 'refresh');
+    await userEvent.click(screen.getByRole('button', { name: /^Blocked/ }));
+    expect(rowIds()).toEqual([]);
+    expect(screen.getByText('No tasks match “refresh”.')).toBeInTheDocument();
+  });
+
+  it('offers matching tasks; Arrow keys and Enter pick one, which narrows to it and takes focus', async () => {
+    timeline();
+    await userEvent.type(search(), 'refresh');
+    const list = screen.getByRole('listbox', { name: 'Matching tasks' });
+    expect(within(list).getAllByRole('option').map((o) => o.textContent)).toEqual(['1.3.9Refresh test dataPayroll cutover', '1.4.3Refresh reportsPayroll cutover']);
+    expect(search()).toHaveAttribute('aria-expanded', 'true');
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}');
+    expect(search()).toHaveAttribute('aria-activedescendant', within(list).getAllByRole('option')[1]!.id);
+    await userEvent.keyboard('{Enter}');
+    expect(search()).toHaveValue('Refresh reports');
+    expect(rowIds()).toEqual(['1.4.3']);
+    await waitFor(() => expect(document.activeElement).toHaveAttribute('data-task', '1.4.3'));
+  });
+
+  it('Escape closes the suggestions, then clears the search', async () => {
+    timeline();
+    await userEvent.type(search(), 'refresh');
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(search()).toHaveValue('refresh');
+    await userEvent.keyboard('{Escape}');
+    expect(search()).toHaveValue('');
+    expect(rowIds().length).toBeGreaterThan(2);
+  });
+
+  it('clears from the field, and / jumps to it from the timeline', async () => {
+    timeline();
+    await userEvent.type(search(), 'refresh');
+    await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+    expect(search()).toHaveValue('');
+    document.querySelector<HTMLElement>('[data-task]')!.focus();
+    await userEvent.keyboard('/');
+    expect(search()).toHaveFocus();
+  });
+
+  it('searches any fields it is given, and says which one matched', async () => {
+    timeline({ searchFields: [{ key: 'title', label: 'Title', get: (t) => t.title }, { key: 'wbs', label: 'WBS', get: (t) => t.wbs }] });
+    await userEvent.type(search(), '2.1.3');
+    expect(rowIds()).toEqual(['2.1.3']);
+    expect(screen.getByRole('option')).toHaveTextContent('matched wbs');
+  });
+
+  it('shows every match, even ones that "+n more up next" would hide', async () => {
+    timeline({ tasks: [...mockTimelineTasks(), ...mockManyUpNext()] });
+    expect(rowIds()).not.toContain('1.4.16');
+    await userEvent.type(search(), 'verify interface');
+    expect(rowIds()).toContain('1.4.16');
+    expect(screen.queryByRole('button', { name: /more up next/ })).not.toBeInTheDocument();
+  });
+});
+
+describe('RbmTaskTimeline Collapse all and Expand all', () => {
+  const bands = () => Array.from(document.querySelectorAll<HTMLElement>('[data-runbook] > button')).map((b) => b.getAttribute('aria-expanded'));
+
+  it('collapses every runbook band, then expands them again', async () => {
+    timeline();
+    expect(bands().every((x) => x === 'true')).toBe(true);
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse all runbooks' }));
+    expect(bands().every((x) => x === 'false')).toBe(true);
+    expect(rowIds()).toEqual([]);
+    await userEvent.click(screen.getByRole('button', { name: 'Expand all runbooks' }));
+    expect(bands().every((x) => x === 'true')).toBe(true);
+    expect(rowIds().length).toBeGreaterThan(0);
+  });
+
+  it('offers Collapse all while any runbook is open, and leaves stages as they were', async () => {
+    timeline();
+    const stage = screen.getByRole('button', { name: /^Stage 1\.3 / });
+    await userEvent.click(stage);
+    expect(stage).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(document.querySelectorAll<HTMLElement>('[data-runbook] > button')[0]!);
+    expect(screen.getByRole('button', { name: 'Collapse all runbooks' })).toHaveTextContent('Collapse all');
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse all runbooks' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Expand all runbooks' }));
+    expect(screen.getByRole('button', { name: /^Stage 1\.3 / })).toHaveAttribute('aria-expanded', 'false');
+  });
+});
+
 describe('RbmTaskTimeline', () => {
   it('collapses to one line with the focus, late and blocked counts, matching the chips', async () => {
     const onCollapsedChange = vi.fn();

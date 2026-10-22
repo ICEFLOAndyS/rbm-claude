@@ -51,3 +51,25 @@ export const Collapsed: Story = { args: { collapsed: true, onCollapsedChange: fn
 
 /** Collapsed while filtered: the line says how many runbooks the counts cover. */
 export const CollapsedFiltered: Story = { args: { collapsed: true, runbookFilter: ['rb2'], onCollapsedChange: fn() } };
+
+/** Search: typing narrows the timeline at once and offers the first matching tasks. Not drawn on the board. */
+export const Search: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.type(canvas.getByRole('combobox', { name: 'Search tasks' }), 'refresh');
+  },
+};
+
+/** Search with matches outside Focus: they are counted, and one click shows them. */
+export const SearchOutsideFocus: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.type(canvas.getByRole('combobox', { name: 'Search tasks' }), 'payroll');
+    await userEvent.keyboard('{Escape}');
+  },
+};
+
+/** Collapse all: every runbook band folded; Expand all opens them again. */
+export const AllRunbooksCollapsed: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Collapse all runbooks' }));
+  },
+};

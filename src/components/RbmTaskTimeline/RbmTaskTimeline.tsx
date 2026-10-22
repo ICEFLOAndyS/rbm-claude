@@ -1,11 +1,13 @@
 import { Box, ButtonBase, Snackbar, useTheme } from '@mui/material';
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useDeferredValue, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { RbmTaskRow, type RbmTask } from '../RbmTaskRow/RbmTaskRow';
 import type { RbmTaskActionEvent } from '../RbmTaskRow/RbmTaskAction';
 import type { RbmSpine } from '../RbmNode/RbmNode';
 import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
 import { colour, hairline, radius, surfaceTint, type RbmState } from '../../theme/tokens';
 import { RbmRunbookFilter } from './RbmRunbookFilter';
+import { RbmTaskSearch } from './RbmTaskSearch';
+import { DEFAULT_SEARCH_FIELDS, matchesSearch, searchWords, type RbmSearchField } from './taskSearch';
 import { RbmRegionCollapsed, RbmRegionToggle, RbmSummaryChip } from '../RbmRegion/RbmRegion';
 import { byStart, capUpNext, focusReasons, formatLinger, lingerLeft, type RbmTimelineTask } from './focusRule';
 
@@ -55,6 +57,8 @@ export interface RbmTaskTimelineProps {
   onNoticeClose?: () => void;
   /** When set, the toolbar and summary line stick this far from the top (under the compact event bar). */
   stickyTop?: number;
+  /** The fields the search looks in. The task title only by default; add more as they become available. */
+  searchFields?: RbmSearchField[];
   /** Open by default. Collapsed, it is one line with the focus, late and blocked counts. Pass with onCollapsedChange to remember the choice. */
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
@@ -193,6 +197,13 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; undo: RbmTask[] } | null>(null);
   const body = useRef<HTMLDivElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState('');
+  // Typing stays quick on a large event: the list catches up a moment later.
+  const words = searchWords(useDeferredValue(query));
+  const searching = words.length > 0;
+  const searchFields = props.searchFields ?? DEFAULT_SEARCH_FIELDS;
+  const [pendingFocus, setPendingFocus] = useState<string | null>(null);
   const [regionCollapsedState, setRegionCollapsedState] = useState(false);
   const regionCollapsed = props.collapsed ?? regionCollapsedState;
   const setRegionCollapsed = (c: boolean) => {
@@ -209,11 +220,13 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
     return next;
   };
 
-  // The tasks in scope, before Mine, Late and Blocked narrow them.
-  const scoped = tasks
-    .filter((t) => inFilter(t.runbookId) && t.state !== 'skipped')
-    .map((t) => ({ t, reasons: focusReasons(t, now, lingerSeconds) }))
-    .filter(({ reasons }) => scope === 'all' || reasons.length > 0);
+  // The tasks that match the runbook filter and the search, then those in scope, before Mine, Late and Blocked narrow them.
+  // The search narrows like every other filter: matches outside Focus are counted, not shown.
+  const searchable = tasks
+    .filter((t) => inFilter(t.runbookId) && t.state !== 'skipped' && matchesSearch(t, words, searchFields))
+    .map((t) => ({ t, reasons: focusReasons(t, now, lingerSeconds) }));
+  const scoped = searchable.filter(({ reasons }) => scope === 'all' || reasons.length > 0);
+  const outsideFocus = searching && scope === 'focus' ? searchable.length - scoped.length : 0;
   const matches: Record<Narrow, (t: RbmTimelineTask) => boolean> = {
     mine: (t) => !!t.assignedToMe,
     late: (t) => !!(t.flags?.lateToStart || t.flags?.lateToFinish),
@@ -238,7 +251,9 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
   const large = shown.length > LARGE_TIMELINE;
   // In a large timeline, runbooks with nothing blocked or late start collapsed, so the trouble stays on screen.
   const troubled = new Set(shown.filter(({ t }) => matches.blocked(t) || matches.late(t)).map(({ t }) => t.runbookId));
-  const isClosed = (key: string, runbookId?: string) => collapsed.has(key) !== (large && runbookId !== undefined && !troubled.has(runbookId));
+  // While searching, every runbook with a match starts open, so no match is tucked away.
+  const closedByDefault = (runbookId: string) => large && !searching && !troubled.has(runbookId);
+  const isClosed = (key: string, runbookId?: string) => collapsed.has(key) !== (runbookId !== undefined && closedByDefault(runbookId));
 
   const groups = runbooks
     .filter((r) => inFilter(r.id))
@@ -246,7 +261,10 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
       const stages = r.stages
         .map((s) => {
           const sorted = (byStage.get(s.id) ?? []).slice().sort((a, b) => byStart(a.t, b.t));
-          const { shown: capped, more } = capUpNext(sorted.map((x) => x.t), new Set([...upNextOpen].filter((k) => k.startsWith(`${s.id}|`)).map((k) => k.slice(s.id.length + 1))));
+          // A search shows every match: "+n more up next" never hides one.
+          const { shown: capped, more } = searching
+            ? { shown: sorted.map((x) => x.t), more: new Map<string, number>() }
+            : capUpNext(sorted.map((x) => x.t), new Set([...upNextOpen].filter((k) => k.startsWith(`${s.id}|`)).map((k) => k.slice(s.id.length + 1))));
           const lingering = new Set(sorted.filter((x) => x.reasons.includes('lingering')).map((x) => x.t.id));
           return { s, rows: capped.map((t) => rowTask(t, lingering.has(t.id))), more };
         })
@@ -254,6 +272,30 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
       return { r, stages, inFocus: byRunbook.get(r.id) ?? 0 };
     })
     .filter((g) => g.stages.length > 0);
+
+  const anyRunbookOpen = groups.some((g) => !isClosed(g.r.id, g.r.id));
+  // Collapse all or Expand all: every runbook band, leaving each stage as the user set it.
+  const setAllRunbooks = (close: boolean) =>
+    setCollapsed(new Set([...[...collapsed].filter((k) => k.includes('/')), ...runbooks.filter((r) => close !== closedByDefault(r.id)).map((r) => r.id)]));
+  const matchingTasks = groups.flatMap((g) => g.stages.flatMap((s) => s.rows));
+  // A suggestion was chosen: narrow to it, open its runbook and stage, then focus its row.
+  const pickTask = (t: RbmTimelineTask) => {
+    setQuery(t.title);
+    const next = new Set(collapsed);
+    if (closedByDefault(t.runbookId)) next.add(t.runbookId);
+    else next.delete(t.runbookId);
+    next.delete(`${t.runbookId}/${t.stageId}`);
+    setCollapsed(next);
+    setPendingFocus(t.id);
+  };
+  useEffect(() => {
+    if (!pendingFocus) return;
+    const row = body.current?.querySelector<HTMLElement>(`[data-task="${CSS.escape(pendingFocus)}"]`);
+    if (!row) return;
+    row.focus();
+    row.scrollIntoView?.({ block: 'center' });
+    setPendingFocus(null);
+  });
 
   const allRows = groups.flatMap((g) => (isClosed(g.r.id, g.r.id) ? [] : g.stages.flatMap((s) => (isClosed(`${g.r.id}/${s.s.id}`) ? [] : s.rows))));
   const focusCount = new Map<string, number>();
@@ -284,7 +326,10 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
     const rows = Array.from(body.current?.querySelectorAll<HTMLElement>('[data-task]') ?? []);
     const i = rows.indexOf(e.target as HTMLElement);
     const key = e.key.toLowerCase();
-    if ((key === 'j' || key === 'k') && i >= 0) {
+    if (key === '/') {
+      e.preventDefault();
+      searchInput.current?.focus();
+    } else if ((key === 'j' || key === 'k') && i >= 0) {
       e.preventDefault();
       rows[Math.min(Math.max(i + (key === 'j' ? 1 : -1), 0), rows.length - 1)]?.focus();
     } else if (key === 'n' && (i >= 0 || e.target === e.currentTarget)) {
@@ -359,6 +404,17 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
         <Chip label="Mine" count={counts.mine} on={narrow.has('mine')} onClick={() => setNarrow(flip(narrow, 'mine'))} />
         <Chip label="Late" count={counts.late} on={narrow.has('late')} onClick={() => setNarrow(flip(narrow, 'late'))} />
         <Chip label="Blocked" count={counts.blocked} on={narrow.has('blocked')} onClick={() => setNarrow(flip(narrow, 'blocked'))} />
+        <Box sx={{ ml: 1, display: 'flex', minWidth: 0 }}>
+          <RbmTaskSearch
+            ref={searchInput}
+            value={query}
+            onChange={setQuery}
+            suggestions={matchingTasks}
+            fields={searchFields}
+            runbookNames={new Map(runbooks.map((r) => [r.id, r.name]))}
+            onPick={pickTask}
+          />
+        </Box>
         <Box sx={{ flex: 1 }} />
         <Box role="group" aria-label="Scope" sx={{ display: 'inline-flex', gap: '2px', p: '3px', borderRadius: `${radius.pill}px`, bgcolor: hairline }}>
           {(['focus', 'all'] as const).map((sc) => (
@@ -378,16 +434,37 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
       {/* Summary line: nothing is hidden silently */}
       <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: 2, height: 40, px: 5, bgcolor: surfaceTint, borderBottom: 1, borderColor: 'divider', boxSizing: 'border-box', fontSize: 13, color: 'text.secondary' }}>
         <Icon size={16}><path d="M4 6h16M7 12h10M10 18h4" /></Icon>
-        <span>
-          Showing{' '}
-          <Box component="strong" sx={{ color: 'text.primary' }}>
-            {shownCount} of {total} tasks
-          </Box>{' '}
-          in {groups.length}
-          {filtered ? '' : ` of ${runbooks.length}`} {groups.length === 1 && filtered ? 'runbook' : 'runbooks'}
-          {scope === 'focus' && ` · ${hiddenComplete} complete and ${hiddenNotReady} not ready hidden`}
-        </span>
+        {searching ? (
+          <span>
+            Showing{' '}
+            <Box component="strong" sx={{ color: 'text.primary' }}>
+              {shownCount} {shownCount === 1 ? 'task' : 'tasks'}
+            </Box>{' '}
+            matching “{query.trim()}” in {groups.length} {groups.length === 1 ? 'runbook' : 'runbooks'}
+            {scope === 'focus' ? ' · Focus' : ''}
+          </span>
+        ) : (
+          <span>
+            Showing{' '}
+            <Box component="strong" sx={{ color: 'text.primary' }}>
+              {shownCount} of {total} tasks
+            </Box>{' '}
+            in {groups.length}
+            {filtered ? '' : ` of ${runbooks.length}`} {groups.length === 1 && filtered ? 'runbook' : 'runbooks'}
+            {scope === 'focus' && ` · ${hiddenComplete} complete and ${hiddenNotReady} not ready hidden`}
+          </span>
+        )}
+        {outsideFocus > 0 && (
+          <ButtonBase onClick={() => setScope('all')} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
+            {outsideFocus} more outside Focus
+          </ButtonBase>
+        )}
         <Box sx={{ flex: 1 }} />
+        {groups.length > 0 && (
+          <ButtonBase onClick={() => setAllRunbooks(anyRunbookOpen)} aria-label={anyRunbookOpen ? 'Collapse all runbooks' : 'Expand all runbooks'} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
+            {anyRunbookOpen ? 'Collapse all' : 'Expand all'}
+          </ButtonBase>
+        )}
         {(scope === 'focus' || narrow.size > 0) && (
           <ButtonBase onClick={() => { setScope('all'); setNarrow(new Set()); }} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
             Show all
@@ -399,7 +476,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
       {/* Runbook panels */}
       <Box ref={body} onKeyDown={onKeyDown} sx={{ p: 3, bgcolor: hairline, display: 'flex', flexDirection: 'column', gap: 3 }}>
         {groups.length === 0 && (
-          <Box sx={{ p: 6, textAlign: 'center', fontSize: 14, color: 'text.secondary', bgcolor: 'background.paper', borderRadius: `${radius.control}px` }}>No tasks match.</Box>
+          <Box sx={{ p: 6, textAlign: 'center', fontSize: 14, color: 'text.secondary', bgcolor: 'background.paper', borderRadius: `${radius.control}px` }}>{searching ? `No tasks match “${query.trim()}”.` : 'No tasks match.'}</Box>
         )}
         {groups.map(({ r, stages, inFocus }) => {
           const rOpen = !isClosed(r.id, r.id);

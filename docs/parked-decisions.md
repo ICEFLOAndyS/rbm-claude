@@ -259,6 +259,18 @@ The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png
 - **Props:** `view` and `onViewChange` replace `criticalOnly` and `criticalRunbooksOnly` on `RbmEventRibbon`.
 - **Not drawn (flagged):** the ribbon's view control and its menu. Both reuse drawn patterns: the runbook filter pill, and the Event actions menu.
 
+### 22 Oct 2026: Task Timeline search, and Collapse all / Expand all (asked by Andy Smith)
+- **Search:** a typeahead field in the toolbar, after the Mine, Late and Blocked chips ("Search tasks", 220 px, in the toolbar's 32 px pill style).
+  - **Matching:** typing narrows the timeline at once. A task matches when every word appears, in any order, ignoring case, so "data refresh" finds "Refresh test data".
+  - **Suggestions:** the first 8 matches show under the field, with WBS, title (matching words in bold) and runbook, plus "n more in the timeline".
+  - **Keyboard:** Arrow keys and Enter pick a suggestion. Picking narrows to that task, opens its runbook and stage, and focuses its row. Escape closes the list, then clears the search. A clear button sits in the field, and / jumps to the field from the timeline.
+- **Fields:** the task title (the ServiceNow short description) only, as asked. `searchFields` takes a list of fields, so description, record number or assignee can be added when the data carries them. Tasks have no separate description today.
+- **Search narrows like every other filter** (agreed rule: filters only ever narrow). It works within the runbook filter, the scope and the chips. With Focus on, matches outside Focus are counted in the summary line ("6 more outside Focus"), and one click switches to All. Nothing is hidden silently, and the scope never changes by itself.
+- **While searching:** every match is shown (the "+n more up next" cap is lifted), and quiet runbooks on a large event start open if they hold a match. The summary reads "Showing 2 tasks matching “refresh” in 2 runbooks · Focus".
+- **"Show all" is not lazy loading:** it switches the scope to All and clears the chips. The page already holds every task. Above 200 rows, the timeline draws only the rows near the screen. Search filters the whole set before anything is drawn, so the two work together. On the real platform, Focus comes from the server, so searching outside Focus will need a server query (with the planning engine and ServiceNow spike).
+- **Collapse all / Expand all:** a link in the summary line, before Show all. It reads "Collapse all" while any runbook is open, and "Expand all" otherwise. It folds or opens every runbook band, and leaves each stage as the user set it. Its accessible names are "Collapse all runbooks" and "Expand all runbooks".
+- **Not drawn (flagged):** the search field, its suggestion list (Event actions menu style), the outside-Focus count and Collapse all.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

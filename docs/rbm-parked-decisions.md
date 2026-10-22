@@ -510,6 +510,15 @@ Built as drawn on the Page templates board ("1 · List of records", zone 4): the
 - **Proposed (not drawn), needs sign-off:** the panel sits beside the list when there is room for a 640 px list (from 1,120 px for the slide-in, 1,440 px for the wide panel), overlays the list below that, and fills the screen under 640 px (the 640 px is drawn).
 - **Proposed (not drawn):** while a section is open for edit but unchanged, the footer says "Editing Details" with Save disabled.
 
+### 22 Oct 2026: the list states (`RbmListLoading`, `RbmListEmpty`, `RbmListError`, `RbmListNoAccess`)
+Built unattended (Andy Smith asked for work to continue overnight without questions), so every choice below is a recommendation to review.
+- **Not drawn (flagged).** The Page templates board gives the four rules ("States every page covers") but draws none of the states. They are built from the rules, MUI's Skeleton and Button, and the RBM tokens at D2.
+- **Loading:** after 300 ms, a skeleton of the toolbar row and the grid card (header and one row per page row, at the column widths). There is no spinner. A screen reader hears "Loading events" from the start; the skeleton is hidden from it. When only the grid reloads, the toolbar is left out.
+- **Empty:** the object's icon (the Icons board says object icons are used on empty states), a title that says why, one line, and one action. "No events yet" offers New event as the green CTA; "No events match these filters" offers Clear filters, outlined.
+- **Error:** an alert with the Issue icon, "Could not load events.", "Try again. If it keeps happening, give support this reference.", the reference, and Retry. When the server never answered (a network failure), the page makes its own reference, `REF-C-…`, from the time. **Proposed:** that format needs agreeing with support.
+- **No access:** the Lock icon, what the user cannot see, and who to ask (from the server). It has no action, and shows the reference if there is one.
+- **Proposed (not drawn):** the icon at the Icons board's 32 px, the message centred in a card the size of the grid's card, at 48 px top and bottom padding.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

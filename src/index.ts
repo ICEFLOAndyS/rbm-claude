@@ -57,6 +57,8 @@ export { RbmDataGrid, GRID_HEADER_HEIGHT } from './components/RbmDataGrid/RbmDat
 export { RbmListToolbar, downloadCsv } from './components/RbmListToolbar/RbmListToolbar';
 export type { RbmListToolbarProps, RbmToolbarFilter, RbmToolbarView } from './components/RbmListToolbar/RbmListToolbar';
 export { RbmListBulkAction } from './components/RbmListBulkAction/RbmListBulkAction';
+export { RbmPagination, rangeText } from './components/RbmPagination/RbmPagination';
+export type { RbmPaginationProps } from './components/RbmPagination/RbmPagination';
 export type { RbmListBulkActionProps, RbmBulkAction } from './components/RbmListBulkAction/RbmListBulkAction';
 export { RbmDensity, useDensity, densityTheme, densityComponents, densityLineHeight } from './theme/RbmDensity';
 export type { RbmDensityProps, DensityTokens } from './theme/RbmDensity';

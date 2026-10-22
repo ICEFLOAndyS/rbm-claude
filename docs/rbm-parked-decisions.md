@@ -481,6 +481,16 @@ Built from the Page templates board ("1 · List of records", zone 2) at D2 Compa
 ### 22 Oct 2026: tests run four files at a time (decided by Andy Smith: slower but steadier)
 - With one Vitest worker per core (19 on a 20-core machine), heavy jsdom pages ran past the 15 s limit when the machine was busy, including older tests that take under 2 s alone. `vite.config.ts` now sets `maxWorkers: 4`. Two full runs passed (56 s and 69 s, against about 77 s before), so it is steadier and, on this machine, not slower. The 15 s limit is unchanged.
 
+### 22 Oct 2026: `RbmPagination`
+Built as drawn on the Page templates board ("1 · List of records", zone 4): the range on the left ("1 to 25 of 128"), "Rows per page" with the size, and the previous and next chevrons on the right. Server-side with a page size; no infinite scroll (board rule).
+- **Inside the grid's card:** `RbmDataGrid` gains a `footer` slot, drawn under the rows with a Rule line, as on the board.
+- **Arrows as drawn:** Deep Blue when usable, Slate when not (first or last page). Both wait while a page loads (`disabled`).
+- **Sizes from the D2 tokens:** the footer is one row tall (44 px, as drawn), with secondary text (12 px; drawn 13) and the 12 px padding (drawn 16). The arrows are icon buttons at the minimum target (36 px) with 20 px chevrons (drawn 18).
+- **The range:** "0 of 0" when nothing matches; thousands separators ("1,026 to 1,050 of 15,000"). It is announced politely as it changes.
+- **Keyboard and screen readers:** a navigation landmark named "Pages". "Previous page" and "Next page" have names and tooltips, and the size picker is named "Rows per page". A new size goes back to the first page (the page does this).
+- **Not drawn (MUI's default, the agreed fallback):** the page size picker (MUI's standard select, without an underline) and its choices (25, 50, 100).
+- **Grid proof story:** the stand-in pager is replaced by `RbmPagination` in the grid's footer, paging the 128 and 15,000-event lists through the mock server.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

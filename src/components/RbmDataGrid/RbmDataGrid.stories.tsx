@@ -9,6 +9,7 @@ import { EMPTY_EVENT_FILTERS, PAGE_SIZES, type EventColumnField, type EventColum
 import { events128, eventsBoard, eventsLarge } from '../../fixtures/events/build';
 import { colour } from '../../theme/tokens';
 import { RbmDensity } from '../../theme/RbmDensity';
+import { RbmPagination } from '../RbmPagination/RbmPagination';
 
 type Props = RbmDataGridProps<EventRow, EventColumnField>;
 const boardRows = eventsBoard().rows;
@@ -142,9 +143,6 @@ function ServerProof({ initial = 'list128' }: { initial?: FixtureName }) {
     void store.get().then((p) => store.set({ ...p, columns: next }));
   };
 
-  const from = total ? page * pageSize + 1 : 0;
-  const to = Math.min(total, (page + 1) * pageSize);
-  const lastPage = Math.max(0, Math.ceil(total / pageSize) - 1);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -186,21 +184,23 @@ function ServerProof({ initial = 'list128' }: { initial?: FixtureName }) {
         onOpenRow={setOpenRow}
         rowActions={(row) => [{ id: 'open', label: 'Open', onSelect: () => setOpenRow(row) }]}
         noRowsLabel="No events."
+        footer={
+          <RbmPagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            pageSizes={PAGE_SIZES}
+            disabled={loading}
+            onPageChange={setPage}
+            onPageSizeChange={(n) => {
+              const size = n as PageSize;
+              setPageSize(size);
+              setPage(0);
+              void store.get().then((p) => store.set({ ...p, pageSize: size }));
+            }}
+          />
+        }
       />
-
-      {/* A stand-in pager, to prove server paging. The drawn pagination is its own component (later). */}
-      <Box sx={{ display: 'flex', gap: 3, alignItems: 'center', fontSize: 13, color: colour.slate }}>
-        <span>
-          {from.toLocaleString('en-GB')} to {to.toLocaleString('en-GB')} of {total.toLocaleString('en-GB')}
-        </span>
-        <TextField select size="small" label="Rows per page" value={pageSize} onChange={(e) => { const size = Number(e.target.value) as PageSize; setPageSize(size); setPage(0); void store.get().then((p) => store.set({ ...p, pageSize: size })); }} sx={{ minWidth: 120 }}>
-          {PAGE_SIZES.map((n) => (
-            <MenuItem key={n} value={n}>{n}</MenuItem>
-          ))}
-        </TextField>
-        <Button disabled={page === 0} onClick={() => setPage(page - 1)}>Previous</Button>
-        <Button disabled={page >= lastPage} onClick={() => setPage(page + 1)}>Next</Button>
-      </Box>
     </Box>
   );
 }

@@ -1,4 +1,4 @@
-import { useImperativeHandle, useMemo, type Ref } from 'react';
+import { useImperativeHandle, useMemo, type ReactNode, type Ref } from 'react';
 import { Box, useTheme } from '@mui/material';
 import {
   DataGridPro,
@@ -70,6 +70,8 @@ export interface RbmDataGridProps<Row extends { id: string }, F extends string> 
   timeZone?: string;
   /** For tests in jsdom, which has no layout. */
   disableVirtualization?: boolean;
+  /** Drawn inside the grid's card, under the rows: the list page's pagination (RbmPagination). */
+  footer?: ReactNode;
   ref?: Ref<RbmDataGridHandle>;
 }
 
@@ -168,6 +170,7 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
   noRowsLabel = 'Nothing to show.',
   timeZone = 'UTC',
   disableVirtualization,
+  footer,
   ref,
 }: RbmDataGridProps<Row, F>) {
   const apiRef = useGridApiRef();
@@ -286,6 +289,7 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
           '& .MuiDataGrid-row': { cursor: onOpenRow ? 'pointer' : 'default' },
         }}
       />
+      {footer && <Box sx={{ borderTop: `${stroke.thin}px solid ${colour.rule}` }}>{footer}</Box>}
     </Box>
   );
 }

@@ -272,9 +272,9 @@ The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png
 - **Not drawn (flagged):** the search field, its suggestion list (Event actions menu style), the outside-Focus count and Collapse all.
 
 ### 22 Oct 2026: Task Timeline, progress on each runbook band (asked by Andy Smith)
-- **What it shows:** each dark blue runbook band shows the runbook's progress just left of FORECAST END: a PROGRESS eyebrow (10 px Blue Light, like FORECAST END), a 160 × 8 px bar, the percentage in bold, and  (for example "61%  69 of 113").
+- **What it shows:** each dark blue runbook band shows the runbook's progress just left of FORECAST END: a PROGRESS eyebrow (10 px Blue Light, like FORECAST END), a 160 × 8 px bar, the percentage in bold, and the count of tasks complete of the total (for example "61%  69 of 113").
 - **Purpose:** it is most useful with Collapse all, when the bands alone give a read of progress across every runbook.
-- **Data:** worked out from the runbook's stage counts ( and ), so no data change was needed. It counts every task in the runbook, not only those in focus. The percentage rounds down, so a runbook never looks further on than it is.
+- **Data:** worked out from the runbook's stage counts (`complete` and `total`), so no data change was needed. It counts every task in the runbook, not only those in focus. The percentage rounds down, so a runbook never looks further on than it is.
 - **Colour:** a translucent white track, with the completed share in Green, because Green means Complete (as in the Event vitals Progress donut). The percentage and count are written beside the bar, so it never relies on colour alone.
 - **Screen readers:** the band's name gains "61% complete, 69 of 113 tasks".
 - **Alignment:** the forecast block and the count have fixed widths, so the bars line up down the list of bands.

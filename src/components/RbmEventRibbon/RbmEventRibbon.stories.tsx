@@ -73,14 +73,18 @@ export const MilestonesCloseTogether: Story = {
   },
 };
 
-/** The Critical path filter on: only stages on the critical path, every lane kept. Not drawn on the board. */
-export const CriticalPathOnly: Story = {
-  args: { criticalOnly: true, runbooks: [...mockRibbon(), mockOverlappingRunbook()] },
-  parameters: { docs: { description: { story: 'The ribbon filters are not drawn. The chip follows the Task Timeline toolbar chips, at 24 px.' } } },
+/** Critical runbooks: runbooks with no stage on the critical path are hidden, and a line says how many. */
+export const CriticalRunbooks: Story = {
+  args: { view: 'criticalRunbooks' },
+  parameters: { docs: { description: { story: 'The ribbon view control is not drawn. It follows the Task Timeline runbook filter pill.' } } },
 };
 
-/** Critical runbooks: runbooks with no stage on the critical path are hidden, and a line says how many. Not drawn. */
-export const CriticalRunbooksOnly: Story = { args: { criticalRunbooksOnly: true } };
+/** Critical path: only critical stages, milestones and checkpoints, in critical runbooks, repacked. */
+export const CriticalPath: Story = { args: { view: 'criticalPath', runbooks: [...mockRibbon(), mockOverlappingRunbook()] } };
 
-/** Both filters: only the critical stages of the critical runbooks. */
-export const BothCriticalFilters: Story = { args: { criticalOnly: true, criticalRunbooksOnly: true } };
+/** The view menu, open. */
+export const ViewMenuOpen: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: /^Show: / }));
+  },
+};

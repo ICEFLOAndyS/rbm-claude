@@ -121,7 +121,7 @@ export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds =
       onLayoutChange={(order) => savePref((p) => ({ ...p, order }))}
       collapsed={pref.collapsed}
       onCollapsedChange={setCollapsed}
-      onLayoutReset={() => savePref((p) => ({ ...defaultPreference(), ribbonCriticalOnly: p.ribbonCriticalOnly, ribbonCriticalRunbooksOnly: p.ribbonCriticalRunbooksOnly }))}
+      onLayoutReset={() => savePref((p) => ({ ...defaultPreference(), ribbonView: p.ribbonView }))}
       eventActions={{
         raiseIssue: notBuilt('Raise issue'),
         raiseBlocker: notBuilt('Raise blocker'),
@@ -143,7 +143,7 @@ export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds =
           onRaiseIssue={notBuilt('Raise issue')}
         />
       }
-      ribbon={<RbmEventRibbon runbooks={ribbon} now={now} timeZone={timeZone} collapsed={pref.collapsed.ribbon} onCollapsedChange={(c) => setCollapsed('ribbon', c)} criticalOnly={pref.ribbonCriticalOnly} onCriticalOnlyChange={(on) => savePref((p) => ({ ...p, ribbonCriticalOnly: on }))} criticalRunbooksOnly={pref.ribbonCriticalRunbooksOnly} onCriticalRunbooksOnlyChange={(on) => savePref((p) => ({ ...p, ribbonCriticalRunbooksOnly: on }))} />}
+      ribbon={<RbmEventRibbon runbooks={ribbon} now={now} timeZone={timeZone} collapsed={pref.collapsed.ribbon} onCollapsedChange={(c) => setCollapsed('ribbon', c)} view={pref.ribbonView} onViewChange={(v) => savePref((p) => ({ ...p, ribbonView: v }))} />}
       timeline={
         <RbmTaskTimeline
           runbooks={timeline.runbooks}

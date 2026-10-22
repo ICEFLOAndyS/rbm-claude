@@ -56,7 +56,7 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
 
     it('loads a saved order, and keeps a change across a reload', async () => {
       const storage = memoryStorage();
-      await createLocalLayoutStore('test', storage).set({ order: ['hotTopics', 'timeline', 'ribbon'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonCriticalOnly: false, ribbonCriticalRunbooksOnly: false });
+      await createLocalLayoutStore('test', storage).set({ order: ['hotTopics', 'timeline', 'ribbon'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'all' });
       const first = setup(weekendPayrollCutover(), storage);
       await waitFor(() => expect(regionOrder()).toEqual(['hotTopics', 'timeline', 'ribbon']));
       // Reset to default from the Layout panel saves the default.
@@ -98,9 +98,9 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     expect(screen.getByRole('button', { name: 'Expand Hot-topics strip' })).toBeInTheDocument();
   });
 
-  it('Reset to default opens every region and keeps the Critical path filter', async () => {
+  it('Reset to default opens every region and keeps the ribbon view', async () => {
     const storage = memoryStorage();
-    await createLocalLayoutStore('test', storage).set({ order: ['hotTopics', 'timeline', 'ribbon'], collapsed: { ribbon: true, timeline: true, hotTopics: false }, ribbonCriticalOnly: true, ribbonCriticalRunbooksOnly: false });
+    await createLocalLayoutStore('test', storage).set({ order: ['hotTopics', 'timeline', 'ribbon'], collapsed: { ribbon: true, timeline: true, hotTopics: false }, ribbonView: 'criticalPath' });
     setup(weekendPayrollCutover(), storage);
     expect(await screen.findByRole('button', { name: 'Expand Event ribbon' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Event actions' }));
@@ -109,8 +109,8 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     expect(regionOrder()).toEqual(['ribbon', 'timeline', 'hotTopics']);
     await userEvent.click(screen.getByRole('button', { name: 'Done' }));
     expect(screen.getByRole('button', { name: 'Collapse Task Timeline' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Critical path' })).toHaveAttribute('aria-pressed', 'true');
-    await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).ribbonCriticalOnly).toBe(true));
+    expect(screen.getByRole('button', { name: 'Show: Critical path' })).toBeInTheDocument();
+    await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).ribbonView).toBe('criticalPath'));
   });
 
   describe('acting on tasks through the fake engine', () => {
@@ -162,35 +162,28 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     expect(blockers().getByText('BLK-202')).toBeInTheDocument();
   });
 
-  it('filters the ribbon to the critical path set by the engine', async () => {
+  const chooseView = async (name: string) => {
+    await userEvent.click(screen.getByRole('button', { name: /^Show: / }));
+    await userEvent.click(screen.getByRole('menuitemradio', { name: new RegExp(`^${name}`) }));
+  };
+
+  it('shows the critical path set by the engine, across runbooks', async () => {
     setup();
-    await userEvent.click(screen.getByRole('button', { name: 'Critical path' }));
+    await chooseView('Critical path');
     const shown = Array.from(document.querySelectorAll<HTMLElement>('[data-stage]')).map((s) => s.dataset.stage);
     expect(shown).toEqual(['st-1.1', 'st-1.2', 'st-1.3', 'st-1.4', 'st-1.5', 'st-3.1']);
   });
 
-  it('hides runbooks off the critical path, and remembers it for the user', async () => {
+  it('hides runbooks off the critical path, and remembers the view for the user across a reload', async () => {
     const storage = memoryStorage();
     const first = setup(weekendPayrollCutover(), storage);
-    await userEvent.click(screen.getByRole('button', { name: 'Critical runbooks' }));
+    await chooseView('Critical runbooks');
     expect(Array.from(document.querySelectorAll<HTMLElement>('[data-lane]')).map((l) => l.dataset.lane)).toEqual(['rb-1', 'rb-3']);
-    await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).ribbonCriticalRunbooksOnly).toBe(true));
+    await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).ribbonView).toBe('criticalRunbooks'));
     first.unmount();
     first.clock.dispose();
     setup(weekendPayrollCutover(), storage);
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Critical runbooks' })).toHaveAttribute('aria-pressed', 'true'));
-  });
-
-  it('remembers the Critical path filter for the user across a reload', async () => {
-    const storage = memoryStorage();
-    const first = setup(weekendPayrollCutover(), storage);
-    await userEvent.click(screen.getByRole('button', { name: 'Critical path' }));
-    await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).ribbonCriticalOnly).toBe(true));
-    first.unmount();
-    first.clock.dispose();
-    setup(weekendPayrollCutover(), storage);
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Critical path' })).toHaveAttribute('aria-pressed', 'true'));
-    expect(document.querySelectorAll('[data-stage]')).toHaveLength(6);
+    expect(await screen.findByRole('button', { name: 'Show: Critical runbooks' })).toBeInTheDocument();
   });
 
   it('follows the clock: the now marker moves as simulated time passes', () => {

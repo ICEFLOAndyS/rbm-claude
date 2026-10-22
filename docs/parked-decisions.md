@@ -246,6 +246,19 @@ Every fixture now has stages from more than one runbook on the event's critical 
 - **Large event:** stage 6 of each runbook also waits for stage 5 of the runbook before it. With the default seed, two runbooks are on the critical path.
 - **Differs from the board:** in the Weekend fixture, Reporting is planned to end at 05:30 (the board says 05:40), and it is forecast 05:42 +12 Amber (the board says On Schedule). The event figures, Payroll cutover and Interfaces still match the board. The Storybook mocks are unchanged and still match the board.
 
+### 22 Oct 2026: Event ribbon, one view control instead of two stacked chips (asked by Andy Smith)
+The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png`). They are replaced by one control.
+- **The control:** one 32 px pill naming the current view, with a chevron, in the drawn style of the Task Timeline's runbook filter ("All runbooks ⌄"). It sits centred in the header's left column, above the runbook names, where the hour labels and the NOW pill never reach. When a filtered view is chosen, it takes the "on" style (Deep Blue border and tint), as the Task Timeline chips do.
+- **The menu:** three choices, as radio items with a tick and a one-line description, styled like the Event actions menu:
+  - **All stages:** every runbook and stage (the default).
+  - **Critical runbooks:** hides runbooks off the critical path.
+  - **Critical path:** only stages on the critical path.
+- **Dropped combination:** critical stages with every lane kept. That combination drew empty lanes reading "No stages on the critical path". The Critical path view now also hides runbooks with no critical stage.
+- **Nothing hidden silently:** the line under the lanes counts what is hidden, for example "2 runbooks and 4 stages hidden: not on the critical path", with "Show all stages".
+- **Saved per user:** `LayoutPreference.ribbonView` replaces `ribbonCriticalOnly` and `ribbonCriticalRunbooksOnly`. Older saved choices map onto it (both on, or Critical path on, gives Critical path).
+- **Props:** `view` and `onViewChange` replace `criticalOnly` and `criticalRunbooksOnly` on `RbmEventRibbon`.
+- **Not drawn (flagged):** the ribbon's view control and its menu. Both reuse drawn patterns: the runbook filter pill, and the Event actions menu.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

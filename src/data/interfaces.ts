@@ -1,3 +1,4 @@
+import type { RbmRibbonView } from '../components/RbmEventRibbon/RbmEventRibbon';
 import type { CommandCentreSnapshot, CommandResult, TaskCommand } from './types';
 import type { RbmRegion } from '../components/RbmLayoutPanel/RbmLayoutPanel';
 
@@ -34,10 +35,8 @@ export interface LayoutPreference {
   order: RbmRegion[];
   /** Each movable region folded to its 56 px summary line. All open by default. */
   collapsed: Record<RbmRegion, boolean>;
-  /** The Event ribbon's Critical path filter: only stages and markers on the event's critical path. Off by default. */
-  ribbonCriticalOnly: boolean;
-  /** The Event ribbon's Critical runbooks filter: runbooks with no stage on the critical path hidden. Off by default. */
-  ribbonCriticalRunbooksOnly: boolean;
+  /** What the Event ribbon shows: all stages (the default), critical runbooks, or the critical path. */
+  ribbonView: RbmRibbonView;
 }
 
 /** Saved to the user's profile. localStorage in the prototype; a ServiceNow user preference later. */

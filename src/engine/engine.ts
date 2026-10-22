@@ -82,18 +82,21 @@ export function computeSnapshot(records: EventRecords, now: Date, currentUserId:
   // Forward pass: forecast start and end, and which predecessor drives each start.
   const fStart = new Map<string, number>();
   const fEnd = new Map<string, number>();
-  const driver = new Map<string, string>();
+  const drivers = new Map<string, string[]>();
   for (const id of order) {
     const t = byId.get(id)!;
-    // The driving predecessor is the one that finishes last; the critical path follows it back.
+    // The driving predecessors are the ones that finish last. Ties all drive (none has float),
+    // so the critical path follows every one of them back, across runbooks too.
     let latestPred = -Infinity;
+    let driving: string[] = [];
     for (const d of t.dependencies) {
       const e = fEnd.get(d.predecessorId)!;
       if (e > latestPred) {
         latestPred = e;
-        driver.set(id, d.predecessorId);
-      }
+        driving = [d.predecessorId];
+      } else if (e === latestPred) driving.push(d.predecessorId);
     }
+    if (driving.length) drivers.set(id, driving);
     const start = t.actual?.start ? ms(t.actual.start) : Math.max(t0, t.constraints?.notBefore ? ms(t.constraints.notBefore) : -Infinity, latestPred);
     let end: number;
     if (finished(t)) end = ms(t.actual!.end!);
@@ -108,10 +111,12 @@ export function computeSnapshot(records: EventRecords, now: Date, currentUserId:
   const eventEnd = [...fEnd.values()].reduce((a, b) => (b > a ? b : a), -Infinity);
   const forecast = forecastOf(ms(records.event.window.end), eventEnd, s);
   const critical = new Set<string>();
-  let cursor = records.tasks.find((t) => fEnd.get(t.id) === eventEnd)?.id;
-  while (cursor && !critical.has(cursor)) {
-    critical.add(cursor);
-    cursor = driver.get(cursor);
+  const walk = records.tasks.filter((t) => fEnd.get(t.id) === eventEnd).map((t) => t.id);
+  while (walk.length) {
+    const id = walk.pop()!;
+    if (critical.has(id)) continue;
+    critical.add(id);
+    walk.push(...(drivers.get(id) ?? []));
   }
 
   const stateOf = (id: string) => byId.get(id)!.state;

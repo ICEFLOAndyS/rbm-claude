@@ -166,14 +166,14 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     setup();
     await userEvent.click(screen.getByRole('button', { name: 'Critical path' }));
     const shown = Array.from(document.querySelectorAll<HTMLElement>('[data-stage]')).map((s) => s.dataset.stage);
-    expect(shown).toEqual(['st-1.1', 'st-1.2', 'st-1.3', 'st-1.4', 'st-1.5']);
+    expect(shown).toEqual(['st-1.1', 'st-1.2', 'st-1.3', 'st-1.4', 'st-1.5', 'st-3.1']);
   });
 
   it('hides runbooks off the critical path, and remembers it for the user', async () => {
     const storage = memoryStorage();
     const first = setup(weekendPayrollCutover(), storage);
     await userEvent.click(screen.getByRole('button', { name: 'Critical runbooks' }));
-    expect(Array.from(document.querySelectorAll<HTMLElement>('[data-lane]')).map((l) => l.dataset.lane)).toEqual(['rb-1']);
+    expect(Array.from(document.querySelectorAll<HTMLElement>('[data-lane]')).map((l) => l.dataset.lane)).toEqual(['rb-1', 'rb-3']);
     await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).ribbonCriticalRunbooksOnly).toBe(true));
     first.unmount();
     first.clock.dispose();
@@ -190,7 +190,7 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     first.clock.dispose();
     setup(weekendPayrollCutover(), storage);
     await waitFor(() => expect(screen.getByRole('button', { name: 'Critical path' })).toHaveAttribute('aria-pressed', 'true'));
-    expect(document.querySelectorAll('[data-stage]')).toHaveLength(5);
+    expect(document.querySelectorAll('[data-stage]')).toHaveLength(6);
   });
 
   it('follows the clock: the now marker moves as simulated time passes', () => {

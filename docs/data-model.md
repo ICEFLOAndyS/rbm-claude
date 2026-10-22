@@ -108,7 +108,7 @@ The components built so far each have their own props (`RbmEventVitalsData`, `Rb
   - Red: gap > 15 minutes
 - The thresholds are settings. The board's examples (+12 Amber, +27 Red) fit them.
 
-**Critical path.** Walk back from the task with the latest forecast end, through the predecessor whose forecast end sets its start, to the first task. Those tasks are `critical`. **A stage is `critical` when any of its tasks is** (added 22 Oct 2026, for the Event ribbon's Critical path filter). The path is event-wide: the planning engine computes one critical path for the event, and there is no runbook critical path. Stages in runbooks that do not set the event's forecast end are not critical.
+**Critical path.** Walk back from the task with the latest forecast end, through the predecessor whose forecast end sets its start, to the first task. Those tasks are `critical`. When predecessors tie for the latest end, none has float, so the walk follows every one of them (changed 22 Oct 2026; it used to follow only the first). Dependencies can cross runbooks, so the path can run through several runbooks. **A stage is `critical` when any of its tasks is** (added 22 Oct 2026, for the Event ribbon's Critical path filter). The path is event-wide: the planning engine computes one critical path for the event, and there is no runbook critical path. Stages in runbooks that do not set the event's forecast end are not critical.
 
 **Flags.**
 - **Blocked:** the task has an open blocker.

@@ -43,7 +43,7 @@ The data model and every fake-engine rule are in [data-model.md](data-model.md).
 
 ## What it checks
 
-- **Engine:** every rule (ready, up next, forecast, RAG, critical path, flags, alerts, every command, the linger and Undo) and the board's numbers from the Weekend fixture (+12 Amber; 06:12, 05:27 Red, 05:40; three alerts; Go / No-Go 05:45 forecast 05:57).
+- **Engine:** every rule (ready, up next, forecast, RAG, critical path, flags, alerts, every command, the linger and Undo) and the board's numbers from the Weekend fixture (+12 Amber; 06:12, 05:27 Red; three alerts; Go / No-Go 05:45 forecast 05:57). Reporting differs from the board on purpose: it is planned to end 05:30 and forecast 05:42 +12, so it shares the critical path with Payroll cutover.
 - **Fixtures:** each file matches the types and its builder; broken files and dependency loops are rejected; the large event is the same for the same seed.
 - **Layout:** default, change, reset and reload through `LayoutPreferenceStore`, including the collapsed ribbon.
 - **Compact event bar:** appears when the Event vitals leave the screen, disappears when they return, whatever the layout order.

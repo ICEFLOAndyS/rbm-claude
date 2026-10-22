@@ -235,6 +235,17 @@ The Event ribbon's collapse becomes the model for the Event ribbon, Task Timelin
 - **Not drawn (flagged):** the second chip and its wording, and the hidden-runbooks line. The two chips are stacked in the left column above the runbook names (at 6 px and 34 px), where the hour labels and the NOW pill never reach.
 - **Open question (Dave):** should the planning engine write critical-path status on stages and runbooks, or should clients work it out from the tasks? Today the engine sets `StageView.critical` and the ribbon works out the runbook.
 
+### 22 Oct 2026: fixtures put more than one runbook on the critical path (asked by Andy Smith)
+Every fixture now has stages from more than one runbook on the event's critical path.
+- **Hand-offs between runbooks:** the fixture plans can make a stage wait for a stage in another runbook. `StageSpec.waitsFor` plans the hand-off; `waitForStage` adds one to an existing plan, and refuses if the plan would have the stage start first.
+- **Fake engine:** when predecessors tie for the latest end, the critical path now follows all of them, because none has float. Before, it followed only the first.
+- **Payroll scenarios (Weekend, healthy, badly late):** Hand over (1.5) waits for Reporting (3.1) as well as Verify (1.4). Reporting is planned 03:50–05:30, so it ends with Verify and Payroll's plan is unchanged.
+  - **Healthy:** on plan, Verify and Reporting tie at 05:30, so Payroll cutover and Reporting are both critical.
+  - **Weekend:** the reporting server is released 12 minutes late ("not before" 04:02), so Reporting ends 05:42 with Verify. Both are critical, and the event stays at 06:12 +12.
+  - **Badly late:** Reporting cannot start until 04:35, so it ends 06:15 and drives Hand over. The critical path runs through Reporting and Payroll's Hand over, and the forecast is 06:45 +45 Red.
+- **Large event:** stage 6 of each runbook also waits for stage 5 of the runbook before it. With the default seed, two runbooks are on the critical path.
+- **Differs from the board:** in the Weekend fixture, Reporting is planned to end at 05:30 (the board says 05:40), and it is forecast 05:42 +12 Amber (the board says On Schedule). The event figures, Payroll cutover and Interfaces still match the board. The Storybook mocks are unchanged and still match the board.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

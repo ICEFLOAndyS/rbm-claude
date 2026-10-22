@@ -99,6 +99,13 @@ describe('Forecast, gap and RAG', () => {
     expect(s.tasks.filter((t) => t.flags.critical).map((t) => t.id).sort()).toEqual(['A', 'B', 'C', 'M']);
   });
 
+  it('follows every predecessor that finishes last: a tie has no float, so both are critical', () => {
+    // X ends at 10:40 with B, and the milestone waits for both.
+    const tasks = plan().map((t) => (t.id === 'M' ? { ...t, dependencies: [...t.dependencies, { predecessorId: 'X', type: 'finish_to_start' as const }] } : t));
+    const s = snap(event([...tasks, task('X', '10:00', 40, [], { constraints: { notBefore: T('10:00') } })]), '10:00');
+    expect(s.tasks.filter((t) => t.flags.critical).map((t) => t.id).sort()).toEqual(['A', 'B', 'C', 'M', 'X']);
+  });
+
   it('puts a stage on the critical path when any of its tasks is', () => {
     const tasks = [...plan(), task('X', '10:00', 5, [], { stageId: 'st2', wbs: '1.2.X', constraints: { notBefore: T('10:00') } })];
     const r = event(tasks, { stages: [{ id: 'st', runbookId: 'rb', wbs: '1.1', name: 'Stage' }, { id: 'st2', runbookId: 'rb', wbs: '1.2', name: 'Side' }] });
@@ -235,15 +242,15 @@ describe('the fixtures', () => {
     const f = weekendPayrollCutover();
     const s = computeSnapshot(f, new Date(f.startsAt), f.currentUserId);
     expect(s.forecast).toMatchObject({ forecastEnd: '2026-05-25T06:12:00Z', gapMinutes: 12, rag: 'amber' });
-    expect(s.runbooks.map((r) => [r.forecast.forecastEnd.slice(11, 16), r.forecast.rag])).toEqual([['06:12', 'amber'], ['05:27', 'red'], ['05:40', 'green']]);
+    expect(s.runbooks.map((r) => [r.forecast.forecastEnd.slice(11, 16), r.forecast.rag])).toEqual([['06:12', 'amber'], ['05:27', 'red'], ['05:42', 'amber']]);
     expect(s.alerts.map((a) => a.kind)).toEqual(['blockers', 'failed_check', 'forecast']);
     expect(s.alerts.map((a) => a.severity)).toEqual(['red', 'red', 'amber']);
     expect(s.nextCheckpoint!.at).toBe('2026-05-25T05:45:00Z');
     expect(s.nextCheckpoint!.forecast.forecastEnd).toBe('2026-05-25T05:57:00Z');
     expect(s.progress).toMatchObject({ active: 3, blocked: 2, total: 124 });
     expect(s.tasks.find((t) => t.title === 'Application failover')!.forecast.end).toBe('2026-05-25T04:42:00Z');
-    // Payroll cutover sets the forecast end, so its stages are the critical ones.
-    expect(s.stages.filter((st) => st.critical).map((st) => st.wbs)).toEqual(['1.1', '1.2', '1.3', '1.4', '1.5']);
+    // Verify (1.4) and Reporting (3.1) both finish at 05:42 and Hand over waits for both, so both runbooks are critical.
+    expect(s.stages.filter((st) => st.critical).map((st) => st.wbs)).toEqual(['1.1', '1.2', '1.3', '1.4', '1.5', '3.1']);
   });
 
   it('healthy-event has no alerts', () => {

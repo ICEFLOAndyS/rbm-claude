@@ -44,6 +44,8 @@ export interface StageSpec {
   closer?: { title: string; kind: 'milestone' | 'checkpoint'; minutes: number };
   /** Stage indexes (in this runbook) this stage waits for. Defaults to the previous stage. */
   after?: number[];
+  /** Stages in earlier runbooks (by WBS, for example "3.6") this stage also waits for: a hand-off between runbooks. */
+  waitsFor?: string[];
 }
 
 export interface RunbookSpec {
@@ -82,6 +84,9 @@ export function planEvent(windowStart: number, specs: RunbookSpec[]): Built {
   const runbooks: Runbook[] = [];
   const stages: Stage[] = [];
   const tasks: Task[] = [];
+  // Every stage's tails and planned end so far, by WBS, for hand-offs between runbooks.
+  const tailsByWbs = new Map<string, string[]>();
+  const endByWbs = new Map<string, number>();
   for (const rb of specs) {
     const rbId = `rb-${rb.wbs}`;
     const rbStart = windowStart + rb.startOffset * MIN;
@@ -93,8 +98,12 @@ export function planEvent(windowStart: number, specs: RunbookSpec[]): Built {
       const stageId = `st-${stageWbs}`;
       stages.push({ id: stageId, runbookId: rbId, wbs: stageWbs, name: st.name });
       const waitFor = st.after ?? (si > 0 ? [si - 1] : []);
-      const heads = waitFor.flatMap((i) => stageTails[i] ?? []);
-      const startAt = waitFor.length ? Math.max(...waitFor.map((i) => stageEnds[i]!)) : rbStart;
+      const external = (st.waitsFor ?? []).map((w) => {
+        if (!endByWbs.has(w)) throw new Error(`${stageWbs} waits for ${w}, which is not in an earlier runbook`);
+        return w;
+      });
+      const heads = [...waitFor.flatMap((i) => stageTails[i] ?? []), ...external.flatMap((w) => tailsByWbs.get(w)!)];
+      const startAt = Math.max(waitFor.length ? Math.max(...waitFor.map((i) => stageEnds[i]!)) : rbStart, ...external.map((w) => endByWbs.get(w)!));
       // Lay each lane out in order, then number the stage's tasks by planned start.
       const laid: { lane: number; minutes: number; title?: string; kind: TaskKind; start: number }[] = [];
       st.lanes.forEach((lane, li) => {
@@ -140,6 +149,8 @@ export function planEvent(windowStart: number, specs: RunbookSpec[]): Built {
       }
       stageTails[si] = tails;
       stageEnds[si] = end;
+      tailsByWbs.set(stageWbs, tails);
+      endByWbs.set(stageWbs, end);
       rbEnd = Math.max(rbEnd, end);
     });
     runbooks.push({ id: rbId, number: rb.number, wbs: rb.wbs, name: rb.name, plannedEnd: iso(rbEnd) });
@@ -196,6 +207,28 @@ const laneHeads = (tasks: Task[], stageWbs: string) => {
   return tasks.filter((t) => inStage.has(t.id) && !t.dependencies.some((d) => inStage.has(d.predecessorId)));
 };
 
+/** The last task of each lane in a stage (no successor in the same stage). */
+const stageTails = (tasks: Task[], stageWbs: string) => {
+  const inStage = tasks.filter((t) => t.wbs.startsWith(`${stageWbs}.`));
+  const ids = new Set(inStage.map((t) => t.id));
+  const hasSuccessor = new Set(inStage.flatMap((t) => t.dependencies.map((d) => d.predecessorId)).filter((id) => ids.has(id)));
+  return inStage.filter((t) => !hasSuccessor.has(t.id));
+};
+
+/**
+ * Makes a stage wait for a stage in another runbook: every lane head of `stageWbs` gets the
+ * other stage's tails as predecessors. The plan must already allow it (the other stage ends by
+ * the time this one starts), so planned times stay true.
+ */
+export function waitForStage(tasks: Task[], stageWbs: string, predecessorStageWbs: string) {
+  const tails = stageTails(tasks, predecessorStageWbs);
+  const heads = laneHeads(tasks, stageWbs);
+  const tailsEnd = Math.max(...tails.map((t) => Date.parse(t.planned.end)));
+  const headsStart = Math.min(...heads.map((t) => Date.parse(t.planned.start)));
+  if (tailsEnd > headsStart) throw new Error(`${stageWbs} cannot wait for ${predecessorStageWbs}: the plan has it start first`);
+  for (const h of heads) h.dependencies.push(...tails.map((t) => ({ predecessorId: t.id, type: 'finish_to_start' as const })));
+}
+
 // ---- The Weekend Payroll Cutover, as on the Command board ----------------------------
 
 const WINDOW_START = Date.parse('2026-05-24T22:00:00Z');
@@ -219,9 +252,26 @@ function payrollPlan(): RunbookSpec[] {
       ],
     },
     { wbs: '2', number: 'RBK0000002', name: 'Interfaces', startOffset: 300, stages: [{ name: 'Switch interfaces', lanes: lanes([6], 20) }] },
-    { wbs: '3', number: 'RBK0000003', name: 'Reporting', startOffset: 360, stages: [{ name: 'Rebuild reporting', lanes: lanes([5], 20) }] },
+    // Planned to finish at 05:30 with Verify, because Hand over waits for both (see planPayroll).
+    { wbs: '3', number: 'RBK0000003', name: 'Reporting', startOffset: 350, stages: [{ name: 'Rebuild reporting', lanes: lanes([5], 20) }] },
   ];
 }
+
+/**
+ * The payroll plan, with Hand over (1.5) waiting for Reporting (3.1) as well as Verify (1.4).
+ * Both are planned to finish at 05:30, so both are on the critical path until one slips.
+ */
+function planPayroll(): Built {
+  const built = planEvent(WINDOW_START, payrollPlan());
+  waitForStage(built.tasks, '1.5', '3.1');
+  return built;
+}
+
+/** Holds a runbook's first task until a later time ("not before"), as when a server is released late. */
+const notBefore = (tasks: Task[], wbs: string, minutesLate: number) => {
+  const t = byWbs(tasks, wbs);
+  t.constraints = { notBefore: iso(Date.parse(t.planned.start) + minutesLate * MIN) };
+};
 
 function baseFixture(name: string, number: string, built: Built, now: number): EventFixture {
   const end = Math.max(...built.runbooks.map((r) => Date.parse(r.plannedEnd)));
@@ -252,8 +302,11 @@ const delayStage = (tasks: Task[], stageWbs: string, minutes: number) => Object.
 /** The Command board's example: 3 runbooks, 124 tasks, forecast +12 minutes, 2 blockers, 5 issues. */
 export function weekendPayrollCutover(): EventFixture {
   const now = at('03:40');
-  const built = planEvent(WINDOW_START, payrollPlan());
+  const built = planPayroll();
   const { tasks } = built;
+  // The reporting server is released 12 minutes late, so Reporting finishes at 05:42 with Verify:
+  // both Payroll cutover and Reporting are on the event's critical path.
+  notBefore(tasks, '3.1.1', 12);
   // 1.3.18 is due but not picked up: Ready and Late to start. Its lane has 15 minutes of slack, so the forecast holds.
   playTo(tasks, now, { ...delayStage(tasks, '1.3', 12), '2.1.1': 27 }, ['1.3.18']);
   assign(tasks, people);
@@ -288,7 +341,8 @@ export function weekendPayrollCutover(): EventFixture {
 /** On schedule, no alerts: the alert counter is hidden. */
 export function healthyEvent(): EventFixture {
   const now = at('03:40');
-  const built = planEvent(WINDOW_START, payrollPlan());
+  // On plan, Verify and Reporting both finish at 05:30, so both runbooks are on the critical path.
+  const built = planPayroll();
   playTo(built.tasks, now);
   assign(built.tasks, people);
   return { ...baseFixture('Weekend Payroll Cutover (healthy)', 'E12346', built, now), calls: calls(built.tasks, false), watchers };
@@ -297,9 +351,12 @@ export function healthyEvent(): EventFixture {
 /** A Red forecast, several blockers, a failed check and a paused task. */
 export function badlyLateEvent(): EventFixture {
   const now = at('03:40');
-  const built = planEvent(WINDOW_START, payrollPlan());
+  const built = planPayroll();
   const { tasks } = built;
   playTo(tasks, now, { ...delayStage(tasks, '1.3', 40), '2.1.1': 35 });
+  // Reporting cannot start until 04:35, so it now drives Hand over: the critical path runs
+  // through Reporting and the end of Payroll cutover.
+  notBefore(tasks, '3.1.1', 45);
   assign(tasks, people);
   const f = baseFixture('Weekend Payroll Cutover (late)', 'E12347', built, now);
   const active = tasks.filter((t) => t.wbs.startsWith('1.3.') && t.state === 'active');
@@ -347,6 +404,9 @@ export function largeEvent(seed = 20261021): EventFixture {
         closer: { title: `Stage ${r + 1}.${s + 1} complete`, kind: 'milestone' as const, minutes: 0 },
         // Some stages start alongside the one before them, so stages overlap.
         after: s === 0 ? [] : s >= 2 && rng.next() < 0.3 ? [s - 2] : [s - 1],
+        // A hand-off: stage 6 of each runbook also waits for stage 5 of the runbook before it,
+        // so the critical path crosses runbooks.
+        ...(r > 0 && s === 5 ? { waitsFor: [`${r}.5`] } : {}),
       };
     }),
   }));

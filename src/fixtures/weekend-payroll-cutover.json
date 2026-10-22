@@ -67,7 +67,7 @@
       "number": "RBK0000003",
       "wbs": "3",
       "name": "Reporting",
-      "plannedEnd": "2026-05-25T05:40:00Z"
+      "plannedEnd": "2026-05-25T05:30:00Z"
     }
   ],
   "stages": [
@@ -2635,6 +2635,10 @@
         {
           "predecessorId": "t-1.4.19",
           "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-3.1.5",
+          "type": "finish_to_start"
         }
       ],
       "assigneeId": "p-mo"
@@ -2698,6 +2702,10 @@
         {
           "predecessorId": "t-1.4.19",
           "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-3.1.5",
+          "type": "finish_to_start"
         }
       ],
       "assigneeId": "p-lc"
@@ -2760,6 +2768,10 @@
       "dependencies": [
         {
           "predecessorId": "t-1.4.19",
+          "type": "finish_to_start"
+        },
+        {
+          "predecessorId": "t-3.1.5",
           "type": "finish_to_start"
         }
       ],
@@ -2972,13 +2984,13 @@
       "kind": "task",
       "state": "not_started",
       "planned": {
-        "start": "2026-05-25T04:00:00Z",
-        "end": "2026-05-25T04:20:00Z"
+        "start": "2026-05-25T03:50:00Z",
+        "end": "2026-05-25T04:10:00Z"
       },
       "durationMinutes": 20,
       "dependencies": [],
       "constraints": {
-        "notBefore": "2026-05-25T04:00:00Z"
+        "notBefore": "2026-05-25T04:02:00Z"
       },
       "assigneeId": "p-lc"
     },
@@ -2991,8 +3003,8 @@
       "kind": "task",
       "state": "not_started",
       "planned": {
-        "start": "2026-05-25T04:20:00Z",
-        "end": "2026-05-25T04:40:00Z"
+        "start": "2026-05-25T04:10:00Z",
+        "end": "2026-05-25T04:30:00Z"
       },
       "durationMinutes": 20,
       "dependencies": [
@@ -3012,8 +3024,8 @@
       "kind": "task",
       "state": "not_started",
       "planned": {
-        "start": "2026-05-25T04:40:00Z",
-        "end": "2026-05-25T05:00:00Z"
+        "start": "2026-05-25T04:30:00Z",
+        "end": "2026-05-25T04:50:00Z"
       },
       "durationMinutes": 20,
       "dependencies": [
@@ -3033,8 +3045,8 @@
       "kind": "task",
       "state": "not_started",
       "planned": {
-        "start": "2026-05-25T05:00:00Z",
-        "end": "2026-05-25T05:20:00Z"
+        "start": "2026-05-25T04:50:00Z",
+        "end": "2026-05-25T05:10:00Z"
       },
       "durationMinutes": 20,
       "dependencies": [
@@ -3054,8 +3066,8 @@
       "kind": "task",
       "state": "not_started",
       "planned": {
-        "start": "2026-05-25T05:20:00Z",
-        "end": "2026-05-25T05:40:00Z"
+        "start": "2026-05-25T05:10:00Z",
+        "end": "2026-05-25T05:30:00Z"
       },
       "durationMinutes": 20,
       "dependencies": [

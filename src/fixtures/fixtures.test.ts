@@ -1,5 +1,6 @@
 import { validateFixture } from '../data/schema';
-import { badlyLateEvent, healthyEvent, largeEvent, weekendPayrollCutover } from './build';
+import { badlyLateEvent, healthyEvent, largeEvent, planEvent, waitForStage, weekendPayrollCutover } from './build';
+import { computeSnapshot } from '../engine/engine';
 import weekend from './weekend-payroll-cutover.json';
 import healthy from './healthy-event.json';
 import late from './badly-late-event.json';
@@ -56,8 +57,10 @@ describe('weekend-payroll-cutover', () => {
     expect(f.issues.map((i) => i.severity).sort()).toEqual(['high', 'low', 'medium', 'medium', 'medium']);
   });
 
-  it('plans to the board’s times: Payroll cutover ends 06:00, Interfaces 05:00, Reporting 05:40', () => {
-    expect(f.runbooks.map((r) => r.plannedEnd.slice(11, 16))).toEqual(['06:00', '05:00', '05:40']);
+  it('plans to the board’s times for Payroll cutover (06:00) and Interfaces (05:00); Reporting ends 05:30 with Verify, which Hand over waits for', () => {
+    expect(f.runbooks.map((r) => r.plannedEnd.slice(11, 16))).toEqual(['06:00', '05:00', '05:30']);
+    const handOverHead = f.tasks.find((t) => t.wbs === '1.5.1')!;
+    expect(handOverHead.dependencies.map((d) => d.predecessorId)).toEqual(['t-1.4.19', 't-3.1.5']);
     expect(f.event.window).toEqual({ start: '2026-05-24T22:00:00Z', end: '2026-05-25T06:00:00Z' });
   });
 
@@ -108,5 +111,44 @@ describe('large-event', () => {
   it('is the same for the same seed, and different for another', () => {
     expect(largeEvent(1).tasks.slice(0, 50)).toEqual(largeEvent(1).tasks.slice(0, 50));
     expect(largeEvent(2).runbooks.map((r) => r.name)).not.toEqual(largeEvent(1).runbooks.map((r) => r.name));
+  });
+});
+
+describe('the critical path crosses runbooks in every fixture', () => {
+  const criticalRunbooks = (build: () => ReturnType<typeof weekendPayrollCutover>) => {
+    const f = build();
+    const s = computeSnapshot(f, new Date(f.startsAt), f.currentUserId);
+    return [...new Set(s.stages.filter((st) => st.critical).map((st) => st.runbookId))];
+  };
+
+  it.each([
+    ['weekend-payroll-cutover', weekendPayrollCutover, ['rb-1', 'rb-3']],
+    ['healthy-event', healthyEvent, ['rb-1', 'rb-3']],
+    ['badly-late-event', badlyLateEvent, ['rb-1', 'rb-3']],
+  ] as const)('%s has Payroll cutover and Reporting on the critical path', (_, build, expected) => {
+    expect(criticalRunbooks(build)).toEqual(expected);
+  });
+
+  it('large-event has more than one runbook on the critical path', () => {
+    expect(criticalRunbooks(() => largeEvent()).length).toBeGreaterThan(1);
+  }, 30_000);
+
+  it('plans a hand-off between runbooks: the stage starts when the stage in the other runbook ends', () => {
+    const built = planEvent(Date.parse('2026-05-24T22:00:00Z'), [
+      { wbs: '1', number: 'R1', name: 'First', startOffset: 0, stages: [{ name: 'A', lanes: [[60]] }] },
+      { wbs: '2', number: 'R2', name: 'Second', startOffset: 0, stages: [{ name: 'B', lanes: [[10]] }, { name: 'C', lanes: [[10]], waitsFor: ['1.1'] }] },
+    ]);
+    const c = built.tasks.find((t) => t.wbs === '2.2.1')!;
+    expect(c.planned.start).toBe('2026-05-24T23:00:00Z');
+    expect(c.dependencies.map((d) => d.predecessorId)).toEqual(['t-2.1.1', 't-1.1.1']);
+    expect(() => planEvent(0, [{ wbs: '1', number: 'R1', name: 'First', startOffset: 0, stages: [{ name: 'A', lanes: [[5]], waitsFor: ['2.1'] }] }])).toThrow(/not in an earlier runbook/);
+  });
+
+  it('refuses a hand-off the plan does not allow', () => {
+    const built = planEvent(Date.parse('2026-05-24T22:00:00Z'), [
+      { wbs: '1', number: 'R1', name: 'First', startOffset: 0, stages: [{ name: 'A', lanes: [[60]] }] },
+      { wbs: '2', number: 'R2', name: 'Second', startOffset: 0, stages: [{ name: 'B', lanes: [[10]] }] },
+    ]);
+    expect(() => waitForStage(built.tasks, '2.1', '1.1')).toThrow(/plan has it start first/);
   });
 });

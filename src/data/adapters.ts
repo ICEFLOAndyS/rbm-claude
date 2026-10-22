@@ -71,10 +71,10 @@ export function toRibbon(s: CommandCentreSnapshot): RbmRibbonRunbook[] {
     forecastEnd: d(r.forecast.forecastEnd),
     rag: r.forecast.rag,
     gapMinutes: r.forecast.gapMinutes,
-    stages: s.stages.filter((st) => st.runbookId === r.id).map((st) => ({ id: st.id, wbs: st.wbs, name: st.name, start: d(st.forecast.start), end: d(st.forecast.end), state: stageState(st) })),
+    stages: s.stages.filter((st) => st.runbookId === r.id).map((st) => ({ id: st.id, wbs: st.wbs, name: st.name, start: d(st.forecast.start), end: d(st.forecast.end), state: stageState(st), critical: st.critical })),
     markers: s.tasks
       .filter((t) => t.runbookId === r.id && (t.kind === 'milestone' || t.kind === 'checkpoint'))
-      .map((t) => ({ id: t.id, kind: t.kind as 'milestone' | 'checkpoint', wbs: t.wbs, name: t.title, at: d(t.kind === 'milestone' ? t.forecast.end : t.forecast.start), state: displayState(t) })),
+      .map((t) => ({ id: t.id, kind: t.kind as 'milestone' | 'checkpoint', wbs: t.wbs, name: t.title, at: d(t.kind === 'milestone' ? t.forecast.end : t.forecast.start), state: displayState(t), critical: t.flags.critical })),
   }));
 }
 

@@ -168,4 +168,47 @@ describe('RbmEventRibbon', () => {
     renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" collapsed />);
     expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument();
   });
+
+  describe('the Critical path filter', () => {
+    it('is off by default and shows every stage', () => {
+      renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" />);
+      expect(screen.getByRole('button', { name: 'Critical path' })).toHaveAttribute('aria-pressed', 'false');
+      expect(document.querySelectorAll('[data-stage]')).toHaveLength(7);
+    });
+
+    it('shows only stages and markers on the critical path, and keeps every lane', async () => {
+      renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" />);
+      await userEvent.click(screen.getByRole('button', { name: 'Critical path' }));
+      expect(screen.getByRole('button', { name: 'Critical path' })).toHaveAttribute('aria-pressed', 'true');
+      expect(Array.from(document.querySelectorAll<HTMLElement>('[data-stage]')).map((s) => s.dataset.stage)).toEqual(['1.1', '1.2', '1.3', '1.4', '1.5']);
+      expect(document.querySelectorAll('[data-marker]')).toHaveLength(4);
+      expect(screen.getAllByRole('group')).toHaveLength(3);
+      expect(within(lane(/^Interfaces/)).getByText('No stages on the critical path')).toBeInTheDocument();
+      expect(within(lane(/^Interfaces/)).getByText('+27m')).toBeInTheDocument(); // its forecast stays
+      expect(within(lane(/^Interfaces/)).queryByTestId('rbm-overrun')).not.toBeInTheDocument(); // no floating overrun
+      expect(within(lane(/^Interfaces/)).queryByTestId('rbm-planned-end')).not.toBeInTheDocument();
+      expect(within(lane(/^Payroll/)).getByTestId('rbm-overrun')).toBeInTheDocument();
+    });
+
+    it('repacks the critical stages, so the lane needs fewer sub-rows', async () => {
+      renderRibbon(<RbmEventRibbon runbooks={[mockOverlappingRunbook()]} now={ribbonNow} timeZone="UTC" />);
+      expect(screen.getByRole('button', { name: /more stages overlapping/ })).toBeInTheDocument();
+      await userEvent.click(screen.getByRole('button', { name: 'Critical path' }));
+      expect(Array.from(document.querySelectorAll<HTMLElement>('[data-stage]')).map((s) => [s.dataset.stage, s.dataset.row])).toEqual([['4.1', '0'], ['4.3', '0'], ['4.10', '0']]);
+      expect(screen.queryByRole('button', { name: /more stages overlapping/ })).not.toBeInTheDocument();
+    });
+
+    it('can be held by the page', async () => {
+      const onCriticalOnlyChange = vi.fn();
+      renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" criticalOnly onCriticalOnlyChange={onCriticalOnlyChange} />);
+      expect(document.querySelectorAll('[data-stage]')).toHaveLength(5);
+      await userEvent.click(screen.getByRole('button', { name: 'Critical path' }));
+      expect(onCriticalOnlyChange).toHaveBeenCalledWith(false);
+    });
+
+    it('is not offered on the collapsed ribbon', () => {
+      renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" collapsed />);
+      expect(screen.queryByRole('button', { name: 'Critical path' })).not.toBeInTheDocument();
+    });
+  });
 });

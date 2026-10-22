@@ -133,6 +133,13 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     expect(blockers().getByText('BLK-202')).toBeInTheDocument();
   });
 
+  it('filters the ribbon to the critical path set by the engine', async () => {
+    setup();
+    await userEvent.click(screen.getByRole('button', { name: 'Critical path' }));
+    const shown = Array.from(document.querySelectorAll<HTMLElement>('[data-stage]')).map((s) => s.dataset.stage);
+    expect(shown).toEqual(['st-1.1', 'st-1.2', 'st-1.3', 'st-1.4', 'st-1.5']);
+  });
+
   it('follows the clock: the now marker moves as simulated time passes', () => {
     vi.useFakeTimers();
     const f = weekendPayrollCutover();

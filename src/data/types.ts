@@ -233,6 +233,8 @@ export interface StageView extends Stage {
   state: 'not_started' | 'active' | 'complete';
   complete: number;
   total: number;
+  /** Set by the planning engine: true when any of the stage's tasks is on the critical path. */
+  critical: boolean;
 }
 
 export type AlertKind = 'blockers' | 'failed_check' | 'forecast';

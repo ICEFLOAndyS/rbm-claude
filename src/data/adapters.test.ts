@@ -50,6 +50,9 @@ describe('adapters', () => {
     const lanes = toRibbon(s);
     expect(lanes.map((l) => l.name)).toEqual(['Payroll cutover', 'Interfaces', 'Reporting']);
     expect(lanes[0]!.markers!.find((m) => m.name === 'Application failover')!.at.toISOString()).toBe('2026-05-25T04:42:00.000Z');
+    expect(lanes[0]!.stages.every((st) => st.critical)).toBe(true);
+    expect(lanes[1]!.stages.some((st) => st.critical)).toBe(false);
+    expect(lanes[0]!.markers!.find((m) => m.name === 'Go / No-Go')!.critical).toBe(true);
   });
 
   it('fills the Hot-topics strip, and follows the runbook filter', () => {

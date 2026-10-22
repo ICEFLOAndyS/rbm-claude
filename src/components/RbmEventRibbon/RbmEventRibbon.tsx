@@ -15,6 +15,8 @@ export interface RbmRibbonStage {
   end: Date;
   /** Complete (Green), Active (Blue Dark, the current stage) or Not started (Silver), as drawn. */
   state: RbmState;
+  /** Set by the planning engine: true when any of the stage's tasks is on the critical path. */
+  critical?: boolean;
 }
 
 export interface RbmRibbonMarker {
@@ -24,6 +26,8 @@ export interface RbmRibbonMarker {
   name: string;
   at: Date;
   state: RbmState;
+  /** On the critical path, from the planning engine. */
+  critical?: boolean;
 }
 
 export interface RbmRibbonRunbook {
@@ -53,6 +57,12 @@ export interface RbmEventRibbonProps {
   onCollapsedChange?: (collapsed: boolean) => void;
   onSelectStage?: (stage: RbmRibbonStage) => void;
   onSelectMarker?: (marker: RbmRibbonMarker) => void;
+  /**
+   * The Critical path filter: when on, only stages (and milestones and checkpoints) on the critical
+   * path are shown. Every lane stays. Pass with onCriticalOnlyChange to control it from the page.
+   */
+  criticalOnly?: boolean;
+  onCriticalOnlyChange?: (criticalOnly: boolean) => void;
 }
 
 // Horizontal geometry at the board's 1136 px: names to the left of 188 px, forecasts in the right 125 px.
@@ -135,6 +145,12 @@ const hatch = (c: string) => `repeating-linear-gradient(135deg,${c} 0,${c} 3px,$
  */
 export function RbmEventRibbon(props: RbmEventRibbonProps) {
   const { runbooks, now, timeZone, collapsed: collapsedProp, onCollapsedChange, onSelectStage, onSelectMarker } = props;
+  const [criticalState, setCriticalState] = useState(false);
+  const criticalOnly = props.criticalOnly ?? criticalState;
+  const setCriticalOnly = (on: boolean) => {
+    setCriticalState(on);
+    props.onCriticalOnlyChange?.(on);
+  };
   const { palette } = useTheme();
   const [ref, width] = useWidth();
   const [collapsedState, setCollapsedState] = useState(false);
@@ -212,9 +228,12 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
   const pxPerHour = (x1 - X0) / ((windowEnd.getTime() - windowStart.getTime()) / 3_600_000);
 
   // Pack each lane once, remembering rows between renders.
-  const lanes = runbooks.map((r) => {
-    const packed = packStages(r.stages, rowMemory.current.get(r.id));
-    rowMemory.current.set(r.id, packed.rows);
+  const lanes = runbooks.map((all) => {
+    // With the Critical path filter on, a lane keeps only its critical stages and markers.
+    const r = criticalOnly ? { ...all, stages: all.stages.filter((s) => s.critical), markers: (all.markers ?? []).filter((m) => m.critical) } : all;
+    const memoryKey = `${r.id}|${criticalOnly ? 'critical' : 'all'}`;
+    const packed = packStages(r.stages, rowMemory.current.get(memoryKey));
+    rowMemory.current.set(memoryKey, packed.rows);
     const expanded = expandedLanes.has(r.id);
     const shownRows = expanded ? packed.count : Math.min(packed.count, lane.maxRows);
     const hidden = r.stages.filter((s) => (packed.rows.get(s.id) ?? 0) >= shownRows).length;
@@ -263,6 +282,8 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
             const lastRow = lastStage ? Math.min(packed.rows.get(lastStage.id) ?? 0, shownRows - 1) : 0;
             const spanStart = r.stages.length ? new Date(Math.min(...r.stages.map((s) => s.start.getTime()))) : r.plannedEnd;
             const late = r.forecastEnd > r.plannedEnd;
+            // A filtered lane with no stages left shows only its forecast at the right, not a floating overrun.
+            const showEnd = !criticalOnly || r.stages.length > 0;
             return (
               <Box component="li" key={r.id} role="group" aria-label={laneSummary(r, timeZone)} data-lane={r.id}>
                 <Box aria-hidden="true" style={{ top: laneTop }} sx={{ position: 'absolute', left: 0, right: 0, height: '1px', bgcolor: hairline }} />
@@ -280,6 +301,12 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                   <ToggleLink onClick={() => toggleLane(r.id)} style={{ top: laneTop + 44 }} sx={{ position: 'absolute', left: 20, fontSize: 11 }}>
                     {expanded ? 'Show fewer stages' : `+${hidden} more ${hidden === 1 ? 'stage' : 'stages'} overlapping`}
                   </ToggleLink>
+                )}
+
+                {criticalOnly && r.stages.length === 0 && (
+                  <Box style={{ top: laneTop + lane.firstRow + lane.labelHeight - 2 }} sx={{ position: 'absolute', left: X0 + 8, fontSize: 12, color: 'text.secondary' }}>
+                    No stages on the critical path
+                  </Box>
                 )}
 
                 {/* Milestones and checkpoints sit on a thin line above the stage rows, never on a bar. */}
@@ -321,7 +348,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                   })}
 
                 {/* A late finish is a shape: the overrun hatched in the lane's RAG colour, then the planned end tick. */}
-                {late && (
+                {late && showEnd && (
                   <Box
                     aria-hidden="true"
                     data-testid="rbm-overrun"
@@ -329,12 +356,14 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                     sx={{ position: 'absolute', height: lane.barHeight, borderRadius: '0 7px 7px 0', pointerEvents: 'none' }}
                   />
                 )}
+                {showEnd && (
                 <Box
                   aria-hidden="true"
                   data-testid="rbm-planned-end"
                   style={{ left: x(r.plannedEnd) - 1, top: barTop(0) - 4, height: barTop(Math.max(shownRows - 1, 0)) - barTop(0) + lane.barHeight + 8 }}
                   sx={{ position: 'absolute', width: 2, bgcolor: 'text.primary' }}
                 />
+                )}
 
                 {(r.markers ?? [])
                   .filter((m) => m.at >= windowStart && m.at <= windowEnd)
@@ -383,6 +412,19 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
           </>
         )}
 
+        {/* Not drawn: the ribbon's filters, in the Task Timeline toolbar's chip style at 24 px. */}
+        <ButtonBase
+          onClick={() => setCriticalOnly(!criticalOnly)}
+          aria-pressed={criticalOnly}
+          sx={{ position: 'absolute', left: 20, top: 6, display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 24, px: 2.5, borderRadius: `${radius.pill}px`, border: `1px solid ${criticalOnly ? colour.deepBlue : colour.silver}`, bgcolor: criticalOnly ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: 12, fontWeight: 600, color: 'primary.main', whiteSpace: 'nowrap' }}
+        >
+          {criticalOnly && (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
+              <path d="M5 12.5l4.5 4.5L19 7" />
+            </svg>
+          )}
+          Critical path
+        </ButtonBase>
         <ToggleLink onClick={() => setCollapsed(true)} sx={{ position: 'absolute', right: 16, top: 8 }}>
           Collapse
           <Chevron up />

@@ -72,3 +72,9 @@ export const MilestonesCloseTogether: Story = {
     ],
   },
 };
+
+/** The Critical path filter on: only stages on the critical path, every lane kept. Not drawn on the board. */
+export const CriticalPathOnly: Story = {
+  args: { criticalOnly: true, runbooks: [...mockRibbon(), mockOverlappingRunbook()] },
+  parameters: { docs: { description: { story: 'The ribbon filters are not drawn. The chip follows the Task Timeline toolbar chips, at 24 px.' } } },
+};

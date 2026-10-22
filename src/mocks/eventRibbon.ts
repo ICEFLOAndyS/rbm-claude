@@ -10,7 +10,8 @@ export const at = (hhmm: string) => {
 export const ribbonNow = at('03:40');
 
 /**
- * Mock planning-engine data for the Event ribbon, as drawn on the Command board. Stage times
+ * Mock planning-engine data for the Event ribbon, as drawn on the Command board. Payroll cutover's
+ * stages and markers are on the critical path, because it sets the event's forecast end (06:12). Stage times
  * are forecast times, so the last stage of a late runbook runs to its forecast end.
  */
 export function mockRibbon(): RbmRibbonRunbook[] {
@@ -24,17 +25,17 @@ export function mockRibbon(): RbmRibbonRunbook[] {
       rag: 'amber',
       gapMinutes: 12,
       stages: [
-        { id: '1.1', wbs: '1.1', name: 'Prepare', start: at('22:00'), end: at('23:30'), state: 'complete' },
-        { id: '1.2', wbs: '1.2', name: 'Extract and stop', start: at('23:30'), end: at('02:00'), state: 'complete' },
-        { id: '1.3', wbs: '1.3', name: 'Migrate and start up', start: at('02:00'), end: at('04:30'), state: 'active' },
-        { id: '1.4', wbs: '1.4', name: 'Verify', start: at('04:30'), end: at('05:30'), state: 'pending' },
-        { id: '1.5', wbs: '1.5', name: 'Hand over', start: at('05:30'), end: at('06:12'), state: 'pending' },
+        { id: '1.1', wbs: '1.1', name: 'Prepare', start: at('22:00'), end: at('23:30'), state: 'complete', critical: true },
+        { id: '1.2', wbs: '1.2', name: 'Extract and stop', start: at('23:30'), end: at('02:00'), state: 'complete', critical: true },
+        { id: '1.3', wbs: '1.3', name: 'Migrate and start up', start: at('02:00'), end: at('04:30'), state: 'active', critical: true },
+        { id: '1.4', wbs: '1.4', name: 'Verify', start: at('04:30'), end: at('05:30'), state: 'pending', critical: true },
+        { id: '1.5', wbs: '1.5', name: 'Hand over', start: at('05:30'), end: at('06:12'), state: 'pending', critical: true },
       ],
       markers: [
-        { id: 'm1', kind: 'milestone', wbs: '1.2.9', name: 'Data extracted', at: at('02:00'), state: 'complete' },
-        { id: 'm2', kind: 'milestone', wbs: '1.3.9', name: 'Services started', at: at('04:30'), state: 'pending' },
-        { id: 'm3', kind: 'milestone', wbs: '1.4.9', name: 'Verified', at: at('05:30'), state: 'pending' },
-        { id: 'c1', kind: 'checkpoint', wbs: '1.5.2', name: 'Go / No-Go', at: at('05:45'), state: 'pending' },
+        { id: 'm1', kind: 'milestone', wbs: '1.2.9', name: 'Data extracted', at: at('02:00'), state: 'complete', critical: true },
+        { id: 'm2', kind: 'milestone', wbs: '1.3.9', name: 'Services started', at: at('04:30'), state: 'pending', critical: true },
+        { id: 'm3', kind: 'milestone', wbs: '1.4.9', name: 'Verified', at: at('05:30'), state: 'pending', critical: true },
+        { id: 'c1', kind: 'checkpoint', wbs: '1.5.2', name: 'Go / No-Go', at: at('05:45'), state: 'pending', critical: true },
       ],
     },
     {
@@ -71,16 +72,16 @@ export function mockOverlappingRunbook(): RbmRibbonRunbook {
     rag: 'amber',
     gapMinutes: 15,
     stages: [
-      { id: '4.1', wbs: '4.1', name: 'Shut down rack A', start: at('22:00'), end: at('23:30'), state: 'complete' },
+      { id: '4.1', wbs: '4.1', name: 'Shut down rack A', start: at('22:00'), end: at('23:30'), state: 'complete', critical: true },
       { id: '4.2', wbs: '4.2', name: 'Shut down rack B', start: at('22:30'), end: at('23:45'), state: 'complete' },
-      { id: '4.3', wbs: '4.3', name: 'Move storage', start: at('00:00'), end: at('01:30'), state: 'complete' },
+      { id: '4.3', wbs: '4.3', name: 'Move storage', start: at('00:00'), end: at('01:30'), state: 'complete', critical: true },
       { id: '4.4', wbs: '4.4', name: 'Move network', start: at('00:15'), end: at('01:15'), state: 'complete' },
       { id: '4.5', wbs: '4.5', name: 'Move compute', start: at('00:30'), end: at('01:45'), state: 'complete' },
       { id: '4.6', wbs: '4.6', name: 'Cable rack A', start: at('02:00'), end: at('03:30'), state: 'complete' },
       { id: '4.7', wbs: '4.7', name: 'Cable rack B', start: at('02:00'), end: at('04:00'), state: 'active' },
       { id: '4.8', wbs: '4.8', name: 'Power on storage', start: at('02:15'), end: at('03:45'), state: 'active' },
       { id: '4.9', wbs: '4.9', name: 'Power on network', start: at('02:30'), end: at('04:15'), state: 'active' },
-      { id: '4.10', wbs: '4.10', name: 'Power on compute', start: at('02:45'), end: at('05:15'), state: 'pending' },
+      { id: '4.10', wbs: '4.10', name: 'Power on compute', start: at('02:45'), end: at('05:15'), state: 'pending', critical: true },
     ],
     markers: [{ id: 'm4', kind: 'milestone', wbs: '4.5.9', name: 'Kit moved', at: at('01:45'), state: 'complete' }],
   };

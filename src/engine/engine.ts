@@ -167,6 +167,8 @@ export function computeSnapshot(records: EventRecords, now: Date, currentUserId:
       state: done === own.length ? 'complete' : own.some((t) => t.state !== 'not_started') ? 'active' : 'not_started',
       complete: own.filter((t) => t.state === 'complete').length,
       total: own.length,
+      // A stage is on the critical path when any of its tasks is.
+      critical: own.some((t) => critical.has(t.id)),
     };
   });
 

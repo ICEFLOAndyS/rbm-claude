@@ -98,6 +98,13 @@ describe('Forecast, gap and RAG', () => {
     const s = snap(event(plan()), '10:00');
     expect(s.tasks.filter((t) => t.flags.critical).map((t) => t.id).sort()).toEqual(['A', 'B', 'C', 'M']);
   });
+
+  it('puts a stage on the critical path when any of its tasks is', () => {
+    const tasks = [...plan(), task('X', '10:00', 5, [], { stageId: 'st2', wbs: '1.2.X', constraints: { notBefore: T('10:00') } })];
+    const r = event(tasks, { stages: [{ id: 'st', runbookId: 'rb', wbs: '1.1', name: 'Stage' }, { id: 'st2', runbookId: 'rb', wbs: '1.2', name: 'Side' }] });
+    const s = snap(r, '10:00');
+    expect(s.stages.map((st) => [st.wbs, st.critical])).toEqual([['1.1', true], ['1.2', false]]);
+  });
 });
 
 describe('Flags', () => {
@@ -235,6 +242,8 @@ describe('the fixtures', () => {
     expect(s.nextCheckpoint!.forecast.forecastEnd).toBe('2026-05-25T05:57:00Z');
     expect(s.progress).toMatchObject({ active: 3, blocked: 2, total: 124 });
     expect(s.tasks.find((t) => t.title === 'Application failover')!.forecast.end).toBe('2026-05-25T04:42:00Z');
+    // Payroll cutover sets the forecast end, so its stages are the critical ones.
+    expect(s.stages.filter((st) => st.critical).map((st) => st.wbs)).toEqual(['1.1', '1.2', '1.3', '1.4', '1.5']);
   });
 
   it('healthy-event has no alerts', () => {

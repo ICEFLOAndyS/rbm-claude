@@ -193,6 +193,18 @@ See [prototype.md](prototype.md) and [data-model.md](data-model.md). The data co
   - **Real ServiceNow data and attribute names.**
   - **Clock ticks on the large event** cost about 200–250 ms (production build) once a real second. Moving the engine to a Web Worker would free the page if that becomes a problem.
 
+### 22 Oct 2026: Event ribbon filters, starting with Critical path (asked by Andy Smith)
+- **Planning engine:** every stage carries `critical`, true when any of its tasks is on the critical path. The fake engine sets it from the event-wide critical path. In the Weekend fixture that is all five Payroll cutover stages; in the large event, the ten stages of the runbook with the latest forecast end.
+- **Ribbon:** a Critical path filter, off by default. When on, the ribbon shows only critical stages, and milestones and checkpoints on the critical path. Critical stages are packed again, so lanes need fewer sub-rows.
+  - Every lane stays, because the ribbon always shows every runbook.
+  - A lane with no critical stages says "No stages on the critical path" and keeps its forecast, without a floating overrun or planned-end tick.
+  - The page holds the setting; it is not remembered between visits.
+- **Not drawn:** the ribbon's filters. The control is a chip in the Task Timeline toolbar's style at 24 px, at the top left of the ribbon, with a tick when on. It is not shown on the collapsed ribbon.
+- **Open questions:**
+  - Should the critical path be event-wide (as built) or per runbook?
+  - Should the filter be remembered with the layout?
+  - Should critical stages also be marked when the filter is off?
+
 ## Open questions
 - Should the Hot-topics cards (Blockers, Next checkpoint and so on) also be reorderable in the Layout panel, or only the three regions?
 - Does the Blockers card "+ Raise" need a different pattern?

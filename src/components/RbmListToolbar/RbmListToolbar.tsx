@@ -316,8 +316,9 @@ function ToolButton({ label, onClick, disabled, children }: { label: string; onC
 export function RbmListToolbar(props: RbmListToolbarProps) {
   const { noun, search, onSearchChange, filters, onOpenColumns, onExport, exporting = false } = props;
   const d = useDensity();
+  // One row tall, so the bulk action bar can swap in without moving the grid.
   return (
-    <Box role="group" aria-label={`Find ${noun}`} sx={{ display: 'flex', alignItems: 'center', gap: `${d.gap}px`, flexWrap: 'nowrap', minWidth: 0, overflowX: 'auto' }}>
+    <Box role="group" aria-label={`Find ${noun}`} sx={{ display: 'flex', alignItems: 'center', gap: `${d.gap}px`, flexWrap: 'nowrap', height: d.row, minWidth: 0, overflowX: 'auto' }}>
       {/* Search: 260 px, as drawn, at the control height. */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, height: d.control, width: 260, flex: 'none', px: 3, border: `${stroke.thin}px solid ${colour.silver}`, borderRadius: `${d.radius}px`, bgcolor: colour.white, boxSizing: 'border-box', '&:focus-within': { outline: `${stroke.thick}px solid ${colour.blueDark}`, outlineOffset: 2 } }}>
         <Glyph size={18}>{magnifier}</Glyph>

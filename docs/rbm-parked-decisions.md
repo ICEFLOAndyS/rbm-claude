@@ -465,6 +465,19 @@ Built from the Page templates board ("1 · List of records", zone 2) at D2 Compa
   - The focus ring around the search field (the Proposed 2 px Blue Dark).
 - **Tests:** the toolbar's parts and sizes, search, filters, views, columns and export. The proof story is also run as a test: the toolbar driving the grid through the mock server.
 
+### 22 Oct 2026: `RbmListBulkAction` (decided by Andy Smith)
+- **Why not the Task Timeline's bulk bar:** Andy Smith was not convinced it is a helpful bulk action interface. The list uses a new component instead: MUI's selection toolbar (the "n selected" toolbar of MUI's table examples) for function and layout, styled with the RBM tokens.
+- **What it is:** an MUI `Toolbar` that replaces the list toolbar while rows are selected (board rule). It shows:
+  - "3 events selected" (singular for one), announced politely to screen readers;
+  - the list's actions, as MUI outlined buttons, with an action that removes things in the error colour (Red Inner);
+  - a Clear selection button (× with a tooltip).
+  A disabled action carries its reason in a tooltip. The toolbar is named for its count ("Actions for 3 events selected").
+- **Styled with the tokens:** D2 control height (36 px) for the actions and Clear, body text, padding, gap and radius. The tint and border are the Deep Blue "on" style of the toolbar's filters.
+- **One row tall:** the bar, and now the list toolbar too, are the D2 row height (44 px). The bar swaps in without moving the grid, and its 36 px actions meet the minimum target.
+- **Generic:** each list passes its own actions, and the page runs them on the selected rows. Selection across pages is kept by `RbmDataGrid`.
+- **Open: which bulk actions the Events list offers.** The stories use examples (Export, Change owner…, Delete…). Change owner, Change environment and Delete would need additions to the data contract (a bulk save with a result per event, a delete with a permission check). Export of the selection would need `exportCsv` to take ids.
+- **Tests:** the count and its wording, actions, danger tone, disabled reason, Clear, the D2 sizes of the bar and the toolbar, and the swap with the toolbar (the story, run as a test).
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?
@@ -490,3 +503,4 @@ Built from the Page templates board ("1 · List of records", zone 2) at D2 Compa
 - **Command board:** redraw the page header and the compact event bar with REV000009 instead of E12345, and every region at its density (D1 header and vitals, D2 elsewhere).
 - **Compact event bar forecast time:** a KPI figure that does not fit the 48 px bar at the D2 figure size. Grow the bar, or treat it as text?
 - **MUI X licence.** A real Pro key is needed before release (D4).
+- **Bulk actions for the Events list:** which ones (Export selected, Change owner, Change environment, Delete)? Each but export needs a data contract addition.

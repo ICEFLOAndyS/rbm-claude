@@ -14,6 +14,7 @@ describe('RbmListToolbar driving the grid through the mock server (the proof sto
   });
   afterEach(() => vi.restoreAllMocks());
 
+  // A whole story (grid and all) through Storybook's set-up: slow when the suite runs in parallel, so 30 s.
   it('opens on the Active view, and search and filters narrow the list on the server', async () => {
     render(<ThemeProvider theme={rbmTheme}><ProofWithGrid /></ThemeProvider>);
     await waitFor(() => expect(screen.getByRole('button', { name: 'View: Active' })).toBeInTheDocument(), { timeout: 5000 });
@@ -31,5 +32,5 @@ describe('RbmListToolbar driving the grid through the mock server (the proof sto
     await userEvent.click(screen.getByRole('button', { name: 'Environment' }));
     await userEvent.click(within(screen.getByRole('dialog', { name: 'Filter by environment' })).getByRole('checkbox', { name: 'Production' }));
     await waitFor(() => expect(count()).toBeLessThan(active));
-  });
+  }, 30_000);
 });

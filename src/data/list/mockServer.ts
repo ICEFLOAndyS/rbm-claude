@@ -264,7 +264,7 @@ export function createMockEventServer(fixture: EventListFixture, options: MockSe
 
     async deleteRows(ids, opts) {
       await serve('deleteRows', opts);
-      // Proposed rule (not decided): an event that has started is part of the audit trail and stays.
+      // Confirmed by Andy Smith (22 Oct 2026): only events that have not started may be deleted; the rest are the audit trail.
       const result: DeleteResult = { deleted: [], refused: [] };
       for (const id of ids) {
         const row = rowById.get(id);

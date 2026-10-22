@@ -495,7 +495,7 @@ Built as drawn on the Page templates board ("1 · List of records", zone 4): the
 - **Data contract:**
   - `exportCsv` takes the selected ids and exports exactly those rows, whatever the filters (rows stay selected across pages).
   - `deleteRows(ids)` is new. It returns the rows deleted, and for each row refused, its number and the reason.
-- **Which events may be deleted (proposed, not decided):** the mock refuses any event that has started (active, paused or complete): "It has started, so it is part of the audit trail." Events that have not started are deleted. The real rule belongs to the server.
+- **Which events may be deleted (confirmed by Andy Smith, 22 Oct 2026):** only events that have not started. Any event that has started (active, paused or complete) is refused: "It has started, so it is part of the audit trail." The server applies the rule; the mock follows it.
 - **Bulk bar:** an action can ask first (`confirm`), in MUI's default dialog, with Cancel focused. Delete asks: "Delete 2 events?", "They are removed for everyone. Events that have started stay, as part of the audit trail.", then Delete in the error colour.
 - **Feedback:** `src/app/eventBulkActions.ts` builds the two actions for a list page. After an action it says what happened, in a short message for the page. Examples: "2 events exported." or "1 event deleted. 1 not deleted. REV000001: It has started, so it is part of the audit trail." Deleted rows leave the selection. The story shows the message in MUI's default snackbar; the list page will do the same.
 - **Not drawn (flagged):** the confirmation dialog, the messages and the snackbar.
@@ -525,4 +525,3 @@ Built as drawn on the Page templates board ("1 · List of records", zone 4): the
 - **Command board:** redraw the page header and the compact event bar with REV000009 instead of E12345, and every region at its density (D1 header and vitals, D2 elsewhere).
 - **Compact event bar at 56 px** (22 Oct 2026): assess the visual impact of the larger forecast time.
 - **MUI X licence.** A real Pro key is needed before release (D4).
-- **Which events may be deleted?** The mock refuses any event that has started (active, paused or complete), as part of the audit trail. Proposed; the real rule belongs to the server.

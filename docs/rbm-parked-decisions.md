@@ -478,6 +478,9 @@ Built from the Page templates board ("1 · List of records", zone 2) at D2 Compa
 - **Open: which bulk actions the Events list offers.** The stories use examples (Export, Change owner…, Delete…). Change owner, Change environment and Delete would need additions to the data contract (a bulk save with a result per event, a delete with a permission check). Export of the selection would need `exportCsv` to take ids.
 - **Tests:** the count and its wording, actions, danger tone, disabled reason, Clear, the D2 sizes of the bar and the toolbar, and the swap with the toolbar (the story, run as a test).
 
+### 22 Oct 2026: tests run four files at a time (decided by Andy Smith: slower but steadier)
+- With one Vitest worker per core (19 on a 20-core machine), heavy jsdom pages ran past the 15 s limit when the machine was busy, including older tests that take under 2 s alone. `vite.config.ts` now sets `maxWorkers: 4`. Two full runs passed (56 s and 69 s, against about 77 s before), so it is steadier and, on this machine, not slower. The 15 s limit is unchanged.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

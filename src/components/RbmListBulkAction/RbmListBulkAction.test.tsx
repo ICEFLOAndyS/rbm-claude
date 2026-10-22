@@ -67,7 +67,6 @@ describe('RbmListBulkAction', () => {
 });
 
 describe('RbmListBulkAction swapping with the list toolbar (the story)', () => {
-  // A whole story (grid and all) through Storybook's set-up: slow when the suite runs in parallel, so 30 s.
   it('replaces the toolbar while rows are selected, in the same place, and Clear brings the toolbar back', async () => {
     const { composeStories } = await import('@storybook/react-vite');
     const stories = await import('./RbmListBulkAction.stories');
@@ -84,5 +83,5 @@ describe('RbmListBulkAction swapping with the list toolbar (the story)', () => {
     expect(screen.getByRole('group', { name: 'Find events' })).toBeInTheDocument();
     expect(screen.getAllByRole('checkbox', { name: /select row/i }).every((c) => !(c as HTMLInputElement).checked)).toBe(true);
     vi.restoreAllMocks();
-  }, 30_000);
+  });
 });

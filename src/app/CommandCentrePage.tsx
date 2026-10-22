@@ -19,6 +19,11 @@ export interface CommandCentrePageProps {
   timeZone?: string;
   lingerSeconds?: number;
   /**
+   * Prototype only: how long "load every task" takes, standing in for the server query that Show all
+   * and Expand all will run on the platform. 0 (the default) means no wait.
+   */
+  loadAllDelayMs?: number;
+  /**
    * Asks the user for the extra input some actions need (time, note, reason, comment). The real
    * page will use the slide-in; the prototype defaults to the browser's prompt.
    */
@@ -31,7 +36,17 @@ const browserPrompt = (q: string, initial?: string) => (typeof window !== 'undef
  * The Command & Control Centre, connected: it reads a CommandCentreSnapshot, sends commands, and
  * keeps the user's layout. It does not know whether the data comes from a fixture or ServiceNow.
  */
-export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds = 60, ask = browserPrompt }: CommandCentrePageProps) {
+/** Waits, or stops early when cancelled: the prototype's stand-in for a server query. */
+const wait = (ms: number, signal: AbortSignal) =>
+  new Promise<void>((resolve, reject) => {
+    const t = setTimeout(resolve, ms);
+    signal.addEventListener('abort', () => {
+      clearTimeout(t);
+      reject(new DOMException('Cancelled', 'AbortError'));
+    });
+  });
+
+export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds = 60, ask = browserPrompt, loadAllDelayMs = 0 }: CommandCentrePageProps) {
   const snapshot = useSyncExternalStore(data.subscribe, data.getSnapshot);
   const [pref, setPref] = useState<LayoutPreference>(DEFAULT_PREFERENCE);
   const [runbookFilter, setRunbookFilter] = useState<string[]>([]);
@@ -158,6 +173,7 @@ export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds =
           notice={notice}
           onNoticeClose={() => setNotice(undefined)}
           stickyTop={48}
+          onLoadAll={loadAllDelayMs > 0 ? (signal) => wait(loadAllDelayMs, signal) : undefined}
           collapsed={pref.collapsed.timeline}
           onCollapsedChange={(c) => setCollapsed('timeline', c)}
         />

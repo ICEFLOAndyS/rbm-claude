@@ -1,4 +1,4 @@
-import { render, screen, within, waitFor } from '@testing-library/react';
+import { act, render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
@@ -30,7 +30,7 @@ describe('RbmTaskTimeline search', () => {
     expect(rowIds()).not.toContain('1.3.1'); // complete long ago
     const more = screen.getByRole('button', { name: /^\d+ more outside Focus$/ });
     await userEvent.click(more);
-    expect(rowIds()).toContain('1.3.1');
+    await waitFor(() => expect(rowIds()).toContain('1.3.1'));
     expect(screen.queryByRole('button', { name: /more outside Focus/ })).not.toBeInTheDocument();
   });
 
@@ -93,6 +93,44 @@ describe('RbmTaskTimeline search', () => {
   });
 });
 
+describe('RbmTaskTimeline feedback while loading all tasks', () => {
+  const instant = { delayMs: 0, minVisibleMs: 0 };
+
+  it('says "Loading all tasks" over the timeline while Show all queries, then shows every task', async () => {
+    let finish!: () => void;
+    const onLoadAll = vi.fn(() => new Promise<void>((r) => (finish = r)));
+    timeline({ onLoadAll, busyOptions: instant });
+    await userEvent.click(screen.getByRole('button', { name: 'Show all' }));
+    expect(await screen.findByTestId('rbm-busy')).toHaveTextContent('Loading all tasks…This can take a moment on a large event.Cancel');
+    expect(onLoadAll).toHaveBeenCalledWith(expect.any(AbortSignal));
+    expect(rowIds()).not.toContain('1.3.1');
+    await act(async () => finish());
+    await waitFor(() => expect(rowIds()).toContain('1.3.1'));
+    await waitFor(() => expect(screen.queryByTestId('rbm-busy')).not.toBeInTheDocument());
+  });
+
+  it('uses the same feedback for All, "more outside Focus" and Expand all, but not for Collapse all', async () => {
+    const onLoadAll = vi.fn(() => Promise.resolve());
+    timeline({ onLoadAll, busyOptions: instant });
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse all runbooks' }));
+    expect(onLoadAll).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Expand all runbooks' }));
+    await waitFor(() => expect(onLoadAll).toHaveBeenCalledTimes(1));
+    await userEvent.click(screen.getByRole('button', { name: 'All' }));
+    await waitFor(() => expect(onLoadAll).toHaveBeenCalledTimes(2));
+  });
+
+  it('cancelling leaves the timeline as it was', async () => {
+    const onLoadAll = vi.fn((signal: AbortSignal) => new Promise<void>((_, reject) => signal.addEventListener('abort', () => reject(new Error('cancelled')))));
+    timeline({ onLoadAll, busyOptions: instant });
+    const before = rowIds();
+    await userEvent.click(screen.getByRole('button', { name: 'Show all' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(screen.queryByTestId('rbm-busy')).not.toBeInTheDocument());
+    expect(rowIds()).toEqual(before);
+  });
+});
+
 describe('RbmTaskTimeline runbook progress', () => {
   it('works out the progress of a runbook from its stages, rounding down', () => {
     const stage = (complete: number, total: number) => ({ complete, total }) as RbmTaskTimelineProps['runbooks'][number]['stages'][number];
@@ -130,7 +168,7 @@ describe('RbmTaskTimeline Collapse all and Expand all', () => {
     expect(bands().every((x) => x === 'false')).toBe(true);
     expect(rowIds()).toEqual([]);
     await userEvent.click(screen.getByRole('button', { name: 'Expand all runbooks' }));
-    expect(bands().every((x) => x === 'true')).toBe(true);
+    await waitFor(() => expect(bands().every((x) => x === 'true')).toBe(true));
     expect(rowIds().length).toBeGreaterThan(0);
   });
 
@@ -143,7 +181,7 @@ describe('RbmTaskTimeline Collapse all and Expand all', () => {
     expect(screen.getByRole('button', { name: 'Collapse all runbooks' })).toHaveTextContent('Collapse all');
     await userEvent.click(screen.getByRole('button', { name: 'Collapse all runbooks' }));
     await userEvent.click(screen.getByRole('button', { name: 'Expand all runbooks' }));
-    expect(screen.getByRole('button', { name: /^Stage 1\.3 / })).toHaveAttribute('aria-expanded', 'false');
+    expect(await screen.findByRole('button', { name: /^Stage 1\.3 / })).toHaveAttribute('aria-expanded', 'false');
   });
 });
 
@@ -236,7 +274,7 @@ describe('RbmTaskTimeline', () => {
   it('shows every task in the All scope', async () => {
     timeline();
     await userEvent.click(screen.getByRole('button', { name: 'All' }));
-    expect(rowIds()).toEqual(expect.arrayContaining(['1.3.1', '1.4.5', '3.1.1']));
+    await waitFor(() => expect(rowIds()).toEqual(expect.arrayContaining(['1.3.1', '1.4.5', '3.1.1'])));
   });
 
   it('follows the runbook filter, and says so in the summary', () => {

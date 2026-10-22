@@ -13,14 +13,14 @@ function memoryStorage() {
   return { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), removeItem: (k: string) => void m.delete(k) };
 }
 
-function setup(fixture: EventFixture = weekendPayrollCutover(), storage = memoryStorage()) {
+function setup(fixture: EventFixture = weekendPayrollCutover(), storage = memoryStorage(), loadAllDelayMs = 0) {
   const clock = createSimClock(new Date(fixture.startsAt), { speed: 0 });
   const source = createFixtureSource(fixture, clock);
   const store = createLocalLayoutStore('test', storage);
   const ask = vi.fn<(q: string, initial?: string) => string | null>(() => null);
   const utils = render(
     <ThemeProvider theme={rbmTheme}>
-      <CommandCentrePage data={source} layoutStore={store} timeZone="UTC" ask={ask} />
+      <CommandCentrePage data={source} layoutStore={store} timeZone="UTC" ask={ask} loadAllDelayMs={loadAllDelayMs} />
     </ThemeProvider>,
   );
   return { ...utils, clock, source, store, storage, ask };
@@ -111,6 +111,14 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     expect(screen.getByRole('button', { name: 'Collapse Task Timeline' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Show: Critical path' })).toBeInTheDocument();
     await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).ribbonView).toBe('criticalPath'));
+  });
+
+  it('shows "Loading all tasks" while the pretend server query behind Show all runs', async () => {
+    setup(weekendPayrollCutover(), memoryStorage(), 600);
+    await userEvent.click(screen.getByRole('button', { name: 'Show all' }));
+    expect(await screen.findByText('Loading all tasks…')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText('Loading all tasks…')).not.toBeInTheDocument(), { timeout: 3000 });
+    expect(screen.getAllByRole('status').find((s) => s.textContent?.startsWith('Showing'))).toHaveTextContent('Showing 124 of 124 tasks');
   });
 
   describe('acting on tasks through the fake engine', () => {

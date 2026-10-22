@@ -280,6 +280,20 @@ The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png
 - **Alignment:** the forecast block and the count have fixed widths, so the bars line up down the list of bands.
 - **Not drawn (flagged):** the band progress.
 
+### 22 Oct 2026: feedback while a large request runs, a generic pattern (asked by Andy Smith)
+- **The pattern, `RbmBusy`:** the `useRbmBusy` hook and `RbmBusyOverlay`, for any action that may run a large query. Show all, the All scope, "more outside Focus" and Expand all in the Task Timeline use it first.
+- **What the user sees:** a light scrim over the affected region, and a card held in the middle of the screen with a spinner, "Loading all tasks…" and "This can take a moment on a large event". The card offers Cancel while a query runs. It is not a full-page modal: the rest of the page stays readable. The region underneath is marked `aria-busy` and made inert, so no one acts on stale rows. The card is announced as a status.
+- **Timing:**
+  - The card shows only if the request takes longer than 250 ms, so quick actions never flash.
+  - Once shown, it stays at least 400 ms, so it never flickers.
+  - When the caller knows the result is large to draw (`heavy`, more than 200 rows), it shows at once.
+- **Order of steps:** run the query, make sure the card has painted, apply the result, then hide the card once React has drawn it. A cancelled or replaced request stops being waited for at once, even if the query ignores the cancel signal.
+- **Errors:** a failed query shows "Could not load all tasks. Try again." with Close, and leaves the region as it was.
+- **Why not a React transition:** a large render in a transition restarts whenever anything else updates. On the 15,000-task event, it was starved and never finished.
+- **Performance fix found along the way:** with virtual rows, each stage drew its first 20 rows before measuring where it was. With 300 stages, that was about 6,000 rows, and Show all on the large event took about 27 s in the development build. Stages now measure before the first paint and draw only the rows on screen. Show all now takes about 1.9 s.
+- **Prototype:** `CommandCentrePage` takes `loadAllDelayMs`, a pretend server query behind those actions. The demo sets it from `?latency=` (1,500 ms by default; `?latency=0` turns it off). On ServiceNow, `onLoadAll` will run the real query.
+- **Not drawn (flagged):** the busy card and scrim. MUI's spinner is used because there is no RBM style for one.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

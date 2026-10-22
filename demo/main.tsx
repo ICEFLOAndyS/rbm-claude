@@ -46,6 +46,8 @@ function Demo() {
   const route = useHashRoute();
   const [name, setName] = useState(() => new URLSearchParams(window.location.search).get('fixture') ?? 'weekend-payroll-cutover');
   const [speed, setSpeed] = useState(() => Number(new URLSearchParams(window.location.search).get('speed') ?? 1));
+  // ?latency=0 turns off the pretend server wait behind Show all and Expand all (1.5 s by default).
+  const latency = Number(new URLSearchParams(window.location.search).get('latency') ?? 1500);
   const [fixture, setFixture] = useState<EventFixture | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [run, setRun] = useState(0);
@@ -126,7 +128,7 @@ function Demo() {
       ) : !live ? (
         <Box sx={{ p: 8, color: 'text.secondary' }}>Loading {fixtures[name]!.label}…</Box>
       ) : (
-        <CommandCentrePage key={`${name}-${run}`} data={live.source} layoutStore={layoutStore} timeZone="UTC" />
+        <CommandCentrePage key={`${name}-${run}`} data={live.source} layoutStore={layoutStore} timeZone="UTC" loadAllDelayMs={latency} />
       )}
     </Box>
   );

@@ -1,5 +1,5 @@
 import { Box, ButtonBase, Snackbar, useTheme } from '@mui/material';
-import { useDeferredValue, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useDeferredValue, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { RbmTaskRow, type RbmTask } from '../RbmTaskRow/RbmTaskRow';
 import type { RbmTaskActionEvent } from '../RbmTaskRow/RbmTaskAction';
 import type { RbmSpine } from '../RbmNode/RbmNode';
@@ -7,6 +7,7 @@ import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
 import { colour, hairline, radius, surfaceTint, type RbmState } from '../../theme/tokens';
 import { RbmRunbookFilter } from './RbmRunbookFilter';
 import { RbmTaskSearch } from './RbmTaskSearch';
+import { RbmBusyOverlay, useRbmBusy, type RbmBusyOptions } from '../RbmBusy/RbmBusy';
 import { DEFAULT_SEARCH_FIELDS, matchesSearch, searchWords, type RbmSearchField } from './taskSearch';
 import { RbmRegionCollapsed, RbmRegionToggle, RbmSummaryChip } from '../RbmRegion/RbmRegion';
 import { byStart, capUpNext, focusReasons, formatLinger, lingerLeft, type RbmTimelineTask } from './focusRule';
@@ -57,6 +58,14 @@ export interface RbmTaskTimelineProps {
   onNoticeClose?: () => void;
   /** When set, the toolbar and summary line stick this far from the top (under the compact event bar). */
   stickyTop?: number;
+  /**
+   * Fetches every task before Show all, All, "more outside Focus" or Expand all applies: a server
+   * query on the platform. While it runs (and while the rows are drawn), "Loading all tasks" shows
+   * over the timeline, with Cancel.
+   */
+  onLoadAll?: (signal: AbortSignal) => Promise<void>;
+  /** Timing of that feedback; tests set it to 0. */
+  busyOptions?: RbmBusyOptions;
   /** The fields the search looks in. The task title only by default; add more as they become available. */
   searchFields?: RbmSearchField[];
   /** Open by default. Collapsed, it is one line with the focus, late and blocked counts. Pass with onCollapsedChange to remember the choice. */
@@ -81,8 +90,10 @@ const ROW = 52;
  */
 function StageRows({ count, virtual, render }: { count: number; virtual: boolean; render: (i: number) => ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [range, setRange] = useState<[number, number]>(() => [0, virtual ? Math.min(count, 20) : count]);
-  useEffect(() => {
+  // Nothing is drawn until the stage has measured where it is (before the first paint): drawing 20 rows
+  // in each of hundreds of stages first made showing every task on a large event take many seconds.
+  const [range, setRange] = useState<[number, number]>(() => [0, virtual ? 0 : count]);
+  useLayoutEffect(() => {
     if (!virtual) return;
     let frame = 0;
     const measure = () => {
@@ -211,6 +222,10 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
   const searching = words.length > 0;
   const searchFields = props.searchFields ?? DEFAULT_SEARCH_FIELDS;
   const [pendingFocus, setPendingFocus] = useState<string | null>(null);
+  const busy = useRbmBusy(props.busyOptions);
+  // Everything that widens the timeline to all tasks can mean a large query, so it says so while it runs.
+  // heavy: the result will be large to draw, so the feedback shows at once.
+  const loadAll = (label: string, apply: () => void, heavy: boolean) => busy.run({ label, detail: 'This can take a moment on a large event.', load: props.onLoadAll, apply, heavy, errorText: 'Could not load all tasks. Try again.' });
   const [regionCollapsedState, setRegionCollapsedState] = useState(false);
   const regionCollapsed = props.collapsed ?? regionCollapsedState;
   const setRegionCollapsed = (c: boolean) => {
@@ -400,7 +415,8 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
   return (
     // overflow: clip (not hidden) keeps the rounded corners without stopping the toolbar from sticking.
     <Box component="section" aria-label="Task Timeline" sx={{ position: 'relative', border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', overflow: 'clip', minWidth: 0, lineHeight: 'normal' }}>
-      <Box sx={stickyTop === undefined ? undefined : { position: 'sticky', top: stickyTop, zIndex: 4, bgcolor: 'background.paper' }}>
+      <RbmBusyOverlay busy={busy} />
+      <Box {...busy.contentProps} sx={stickyTop === undefined ? undefined : { position: 'sticky', top: stickyTop, zIndex: 4, bgcolor: 'background.paper' }}>
       {/* Toolbar */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, height: 64, px: 4, borderBottom: 1, borderColor: 'divider', boxSizing: 'border-box' }}>
         <RbmRunbookFilter
@@ -428,7 +444,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
             <ButtonBase
               key={sc}
               aria-pressed={scope === sc}
-              onClick={() => setScope(sc)}
+              onClick={() => (sc === 'all' && scope !== 'all' ? loadAll('Loading all tasks', () => setScope('all'), tasks.length > LARGE_TIMELINE) : setScope(sc))}
               sx={{ height: 32, px: 3, borderRadius: `${radius.pill}px`, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: scope === sc ? 'primary.main' : 'text.secondary', bgcolor: scope === sc ? colour.white : 'transparent', boxShadow: scope === sc ? '0 1px 3px rgba(31,36,48,0.18)' : 'none' }}
             >
               {sc === 'focus' ? 'Focus' : 'All'}
@@ -462,18 +478,18 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
           </span>
         )}
         {outsideFocus > 0 && (
-          <ButtonBase onClick={() => setScope('all')} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
+          <ButtonBase onClick={() => loadAll('Loading all tasks', () => setScope('all'), tasks.length > LARGE_TIMELINE)} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
             {outsideFocus} more outside Focus
           </ButtonBase>
         )}
         <Box sx={{ flex: 1 }} />
         {groups.length > 0 && (
-          <ButtonBase onClick={() => setAllRunbooks(anyRunbookOpen)} aria-label={anyRunbookOpen ? 'Collapse all runbooks' : 'Expand all runbooks'} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
+          <ButtonBase onClick={() => (anyRunbookOpen ? setAllRunbooks(true) : loadAll('Expanding all runbooks', () => setAllRunbooks(false), shown.length > LARGE_TIMELINE))} aria-label={anyRunbookOpen ? 'Collapse all runbooks' : 'Expand all runbooks'} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
             {anyRunbookOpen ? 'Collapse all' : 'Expand all'}
           </ButtonBase>
         )}
         {(scope === 'focus' || narrow.size > 0) && (
-          <ButtonBase onClick={() => { setScope('all'); setNarrow(new Set()); }} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
+          <ButtonBase onClick={() => loadAll('Loading all tasks', () => { setScope('all'); setNarrow(new Set()); }, tasks.length > LARGE_TIMELINE)} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
             Show all
           </ButtonBase>
         )}
@@ -481,7 +497,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
       </Box>
 
       {/* Runbook panels */}
-      <Box ref={body} onKeyDown={onKeyDown} sx={{ p: 3, bgcolor: hairline, display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box ref={body} {...busy.contentProps} onKeyDown={onKeyDown} sx={{ p: 3, bgcolor: hairline, display: 'flex', flexDirection: 'column', gap: 3 }}>
         {groups.length === 0 && (
           <Box sx={{ p: 6, textAlign: 'center', fontSize: 14, color: 'text.secondary', bgcolor: 'background.paper', borderRadius: `${radius.control}px` }}>{searching ? `No tasks match “${query.trim()}”.` : 'No tasks match.'}</Box>
         )}

@@ -73,3 +73,11 @@ export const AllRunbooksCollapsed: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Collapse all runbooks' }));
   },
 };
+
+/** Show all, All, "more outside Focus" and Expand all with a slow server: "Loading all tasks" over the timeline, with Cancel. */
+export const LoadingAllTasks: Story = {
+  args: { onLoadAll: (signal: AbortSignal) => new Promise<void>((resolve) => { const t = setTimeout(resolve, 3000); signal.addEventListener('abort', () => clearTimeout(t)); }) },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Show all' }));
+  },
+};

@@ -9,6 +9,7 @@ import { RbmRunbookFilter } from './RbmRunbookFilter';
 import { RbmTaskSearch } from './RbmTaskSearch';
 import { RbmBusyOverlay, useRbmBusy, type RbmBusyOptions } from '../RbmBusy/RbmBusy';
 import { DEFAULT_SEARCH_FIELDS, matchesSearch, searchWords, type RbmSearchField } from './taskSearch';
+import { hitTarget, ringSize, useDensity } from '../../theme/RbmDensity';
 import { RbmRegionCollapsed, RbmRegionToggle, RbmSummaryChip } from '../RbmRegion/RbmRegion';
 import { byStart, capUpNext, focusReasons, formatLinger, lingerLeft, type RbmTimelineTask } from './focusRule';
 
@@ -92,7 +93,8 @@ type Tone = 'dark' | 'light';
 
 // The summaries are plain elements with inline styles, not MUI sx: with hundreds of stages open,
 // each styled element costs a generated class, and Show all on a large event slowed by seconds.
-const eyebrow = (dark: boolean): CSSProperties => ({ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: dark ? colour.blueLight : colour.slate });
+// Drawn at 10 px; the Density board's floor is 12 px, so eyebrows take the secondary size.
+const eyebrow = (dark: boolean, size: number): CSSProperties => ({ fontSize: size, fontWeight: 800, letterSpacing: '0.08em', color: dark ? colour.blueLight : colour.slate });
 const column: CSSProperties = { display: 'flex', flexDirection: 'column' };
 const row: CSSProperties = { display: 'inline-flex', alignItems: 'center', fontVariantNumeric: 'tabular-nums' };
 
@@ -102,16 +104,17 @@ const row: CSSProperties = { display: 'inline-flex', alignItems: 'center', fontV
  */
 function ProgressSummary({ complete, total, percent, tone }: { complete: number; total: number; percent: number; tone: Tone }) {
   const { palette } = useTheme();
+  const d = useDensity();
   const dark = tone === 'dark';
   return (
     <span aria-hidden="true" data-testid={dark ? 'rbm-runbook-progress' : 'rbm-stage-progress'} style={{ ...column, gap: 3, marginRight: 32, flex: 'none' }}>
-      <span style={eyebrow(dark)}>PROGRESS</span>
+      <span style={eyebrow(dark, d.caption)}>PROGRESS</span>
       <span style={{ ...row, gap: 10 }}>
         <span style={{ width: 160, height: dark ? 8 : 6, borderRadius: 4, background: dark ? 'rgba(255,255,255,0.22)' : palette.divider, overflow: 'hidden', display: 'inline-block' }}>
           <span style={{ display: 'block', width: `${percent}%`, height: '100%', borderRadius: 4, background: palette.status.complete.signal }} />
         </span>
-        <span style={{ fontSize: dark ? 16 : 14, fontWeight: 800, minWidth: 44, textAlign: 'right', color: dark ? colour.white : palette.text.primary }}>{percent}%</span>
-        <span style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,0.72)' : palette.text.secondary, whiteSpace: 'nowrap', minWidth: 76 }}>
+        <span style={{ fontSize: dark ? 16 : d.body, fontWeight: 800, minWidth: 44, textAlign: 'right', color: dark ? colour.white : palette.text.primary }}>{percent}%</span>
+        <span style={{ fontSize: d.caption, color: dark ? 'rgba(255,255,255,0.72)' : palette.text.secondary, whiteSpace: 'nowrap', minWidth: 76 }}>
           {complete} of {total}
         </span>
       </span>
@@ -122,22 +125,23 @@ function ProgressSummary({ complete, total, percent, tone }: { complete: number;
 /** FORECAST END: the time, the RAG mark and the gap, on the dark band or the light stage row. */
 function ForecastSummary({ end, rag, gapMinutes, tone, timeZone }: { end: Date; rag?: RbmRag; gapMinutes?: number; tone: Tone; timeZone?: string }) {
   const { palette } = useTheme();
+  const d = useDensity();
   const dark = tone === 'dark';
   const signal: Record<RbmRag, string> = { green: palette.status.complete.signal, amber: palette.status.atRisk.signal, red: palette.status.blocked.signal };
   // On white, the gap is written in the darker text colours, which are easier to read.
   const text: Record<RbmRag, string> = dark ? signal : { green: palette.status.complete.text, amber: palette.status.atRisk.text, red: palette.status.blocked.text };
   return (
     <span aria-hidden="true" style={{ ...column, alignItems: 'flex-end', gap: 1, minWidth: 124 }}>
-      <span style={eyebrow(dark)}>FORECAST END</span>
+      <span style={eyebrow(dark, d.caption)}>FORECAST END</span>
       <span style={{ ...row, gap: 7 }}>
-        <span style={{ fontSize: dark ? 16 : 14, fontWeight: 800, color: dark ? colour.white : palette.text.primary }}>{timeOf(end, timeZone)}</span>
+        <span style={{ fontSize: dark ? 16 : d.body, fontWeight: 800, color: dark ? colour.white : palette.text.primary }}>{timeOf(end, timeZone)}</span>
         {rag === 'amber' && (
-          <span style={{ width: 14, height: 14, borderRadius: '50%', background: palette.status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ width: 9, height: 9, borderRadius: '50%', background: palette.status.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
+          <span style={{ width: ringSize(d.dot), height: ringSize(d.dot), borderRadius: '50%', background: palette.status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ width: d.dot, height: d.dot, borderRadius: '50%', background: palette.status.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
           </span>
         )}
-        {rag && rag !== 'amber' && <span style={{ width: 9, height: 9, borderRadius: '50%', background: signal[rag] }} />}
-        {rag && gapMinutes !== undefined && <span style={{ fontSize: 12, fontWeight: 700, color: text[rag] }}>{shortGap(gapMinutes)}</span>}
+        {rag && rag !== 'amber' && <span style={{ width: d.dot, height: d.dot, borderRadius: '50%', background: signal[rag] }} />}
+        {rag && gapMinutes !== undefined && <span style={{ fontSize: d.caption, fontWeight: 700, color: text[rag] }}>{shortGap(gapMinutes)}</span>}
       </span>
     </span>
   );
@@ -152,13 +156,12 @@ const NO_TOOLS: RunbookTools = { query: '', narrow: new Set() };
 
 /** Above this many tasks in view, rows are drawn only near the screen and quiet runbooks start collapsed. */
 export const LARGE_TIMELINE = 200;
-const ROW = 52;
-
 /**
- * A stage's rows, drawn only near the screen when the timeline is large. Rows are 52 px, so the
- * stage keeps its full height and the page scrolls as if every row were there.
+ * A stage's rows, drawn only near the screen when the timeline is large. Every row is the density's
+ * row height, so the stage keeps its full height and the page scrolls as if every row were there.
  */
 function StageRows({ count, virtual, render }: { count: number; virtual: boolean; render: (i: number) => ReactNode }) {
+  const ROW = useDensity().row;
   const ref = useRef<HTMLDivElement>(null);
   // Nothing is drawn until the stage has measured where it is (before the first paint): drawing 20 rows
   // in each of hundreds of stages first made showing every task on a large event take many seconds.
@@ -188,7 +191,7 @@ function StageRows({ count, virtual, render }: { count: number; virtual: boolean
       window.removeEventListener('resize', schedule);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, [virtual, count]);
+  }, [virtual, count, ROW]);
   if (!virtual) return <>{Array.from({ length: count }, (_, i) => render(i))}</>;
   const [from, to] = range;
   return (
@@ -207,7 +210,9 @@ function timeOf(date: Date, timeZone?: string) {
 const pad = (n: number) => String(n).padStart(2, '0');
 const shortGap = (m: number) => (m === 0 ? 'On Schedule' : m > 0 ? `+${pad(m)}m` : `−${pad(-m)}m`);
 
-function Icon({ size = 18, stroke = 'currentColor', width = 1.75, children }: { size?: number; stroke?: string; width?: number; children: ReactNode }) {
+function Icon({ size: sizeProp, stroke = 'currentColor', width = 1.75, children }: { size?: number; stroke?: string; width?: number; children: ReactNode }) {
+  const { icon } = useDensity();
+  const size = sizeProp ?? icon;
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={width} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
       {children}
@@ -218,16 +223,17 @@ function Icon({ size = 18, stroke = 'currentColor', width = 1.75, children }: { 
 const chevron = (open: boolean) => <path d={open ? 'M6 9l6 6 6-6' : 'M9 6l6 6-6 6'} />;
 
 function Chip({ label, count, on, onClick, small, ariaLabel }: { label: string; count: number; on: boolean; onClick: () => void; small?: boolean; ariaLabel?: string }) {
+  const d = useDensity();
   return (
     <ButtonBase
       onClick={onClick}
       aria-pressed={on}
       aria-label={ariaLabel}
-      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: small ? 28 : 32, px: small ? 2.5 : 3, borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid ${on ? colour.deepBlue : colour.silver}`, bgcolor: on ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: small ? 12 : 13, fontWeight: 600, color: 'primary.main', whiteSpace: 'nowrap' }}
+      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: d.control, px: small ? 2.5 : 3, borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid ${on ? colour.deepBlue : colour.silver}`, bgcolor: on ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: d.body, fontWeight: 600, color: 'primary.main', whiteSpace: 'nowrap' }}
     >
       {label}
       {count > 0 && (
-        <Box component="span" sx={{ fontSize: 11, fontWeight: 800, bgcolor: 'primary.main', color: colour.white, borderRadius: `${radius.pill}px`, px: '7px', py: '1px' }}>
+        <Box component="span" sx={{ fontSize: d.caption, fontWeight: 800, bgcolor: 'primary.main', color: colour.white, borderRadius: `${radius.pill}px`, px: '7px', py: '1px' }}>
           {count}
         </Box>
       )}
@@ -247,8 +253,9 @@ function SummaryCount({ n, text }: { n: number; text: string }) {
 }
 
 function Toast({ tone, message, actionLabel, onAction }: { tone: 'done' | 'warning'; message: string; actionLabel?: string; onAction?: () => void }) {
+  const d = useDensity();
   return (
-    <Box role="status" sx={{ bgcolor: 'text.primary', color: colour.white, borderRadius: `${radius.control}px`, px: 4, py: 3, display: 'flex', alignItems: 'center', gap: 3, fontSize: 13, minWidth: 320, maxWidth: 520 }}>
+    <Box role="status" sx={{ bgcolor: 'text.primary', color: colour.white, borderRadius: `${d.radius}px`, px: `${d.padX}px`, py: 3, display: 'flex', alignItems: 'center', gap: `${d.gap}px`, fontSize: d.body, minWidth: 320, maxWidth: 520 }}>
       {tone === 'done' ? (
         <Icon stroke={colour.green} width={3}><path d="M5 12.5l4.5 4.5L19 7" /></Icon>
       ) : (
@@ -256,7 +263,7 @@ function Toast({ tone, message, actionLabel, onAction }: { tone: 'done' | 'warni
       )}
       <Box component="span" sx={{ flex: 1 }}>{message}</Box>
       {actionLabel && onAction && (
-        <ButtonBase onClick={onAction} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 800, color: colour.blueLight, borderRadius: 1, px: 0.5 }}>
+        <ButtonBase onClick={onAction} sx={{ fontFamily: 'inherit', fontSize: d.body, fontWeight: 800, color: colour.blueLight, borderRadius: 1, px: 0.5, ...hitTarget(d.target) }}>
           {actionLabel}
         </ButtonBase>
       )}
@@ -272,6 +279,7 @@ function Toast({ tone, message, actionLabel, onAction }: { tone: 'done' | 'warni
 export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
   const { runbooks, tasks, now, timeZone, lingerSeconds = 60, onAction, onOpen, notice, onNoticeClose, stickyTop } = props;
   const { palette } = useTheme();
+  const d = useDensity();
   const [filterState, setFilterState] = useState<string[]>([]);
   const runbookFilter = props.runbookFilter ?? filterState;
   const setRunbookFilter = (ids: string[]) => {
@@ -511,7 +519,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
       <RbmBusyOverlay busy={busy} />
       <Box {...busy.contentProps} sx={stickyTop === undefined ? undefined : { position: 'sticky', top: stickyTop, zIndex: 4, bgcolor: 'background.paper' }}>
       {/* Toolbar */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, height: 64, px: 4, borderBottom: 1, borderColor: 'divider', boxSizing: 'border-box' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: `${d.gap}px`, height: 64, px: `${d.padX}px`, borderBottom: 1, borderColor: 'divider', boxSizing: 'border-box' }}>
         <RbmRunbookFilter
           runbooks={runbooks.map((r) => ({ id: r.id, wbs: r.wbs, name: r.name, recordId: r.recordId, rag: r.rag, inFocus: focusCount.get(r.id) ?? 0 }))}
           selected={runbookFilter}
@@ -538,7 +546,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
               key={sc}
               aria-pressed={scope === sc}
               onClick={() => (sc === 'all' && scope !== 'all' ? loadAll('Loading all tasks', () => setScope('all'), tasks.length > LARGE_TIMELINE) : setScope(sc))}
-              sx={{ height: 32, px: 3, borderRadius: `${radius.pill}px`, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: scope === sc ? 'primary.main' : 'text.secondary', bgcolor: scope === sc ? colour.white : 'transparent', boxShadow: scope === sc ? '0 1px 3px rgba(31,36,48,0.18)' : 'none' }}
+              sx={{ height: d.control, px: 3, borderRadius: `${radius.pill}px`, fontFamily: 'inherit', fontSize: d.body, fontWeight: 700, color: scope === sc ? 'primary.main' : 'text.secondary', bgcolor: scope === sc ? colour.white : 'transparent', boxShadow: scope === sc ? '0 1px 3px rgba(31,36,48,0.18)' : 'none' }}
             >
               {sc === 'focus' ? 'Focus' : 'All'}
             </ButtonBase>
@@ -548,8 +556,8 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
       </Box>
 
       {/* Summary line: nothing is hidden silently */}
-      <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: 2, height: 40, px: 5, bgcolor: surfaceTint, borderBottom: 1, borderColor: 'divider', boxSizing: 'border-box', fontSize: 13, color: 'text.secondary' }}>
-        <Icon size={16}><path d="M4 6h16M7 12h10M10 18h4" /></Icon>
+      <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: `${d.gap}px`, height: 40, px: `${d.padX}px`, bgcolor: surfaceTint, borderBottom: 1, borderColor: 'divider', boxSizing: 'border-box', fontSize: d.caption, color: 'text.secondary' }}>
+        <Icon><path d="M4 6h16M7 12h10M10 18h4" /></Icon>
         {searching ? (
           <span>
             Showing{' '}
@@ -571,18 +579,18 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
           </span>
         )}
         {outsideFocus > 0 && (
-          <ButtonBase onClick={() => loadAll('Loading all tasks', () => setScope('all'), tasks.length > LARGE_TIMELINE)} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
+          <ButtonBase onClick={() => loadAll('Loading all tasks', () => setScope('all'), tasks.length > LARGE_TIMELINE)} sx={{ fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap', ...hitTarget(d.target) }}>
             {outsideFocus} more outside Focus
           </ButtonBase>
         )}
         <Box sx={{ flex: 1 }} />
         {groups.length > 0 && (
-          <ButtonBase onClick={() => (anyRunbookOpen ? setAllRunbooks(true) : loadAll('Expanding all runbooks', () => setAllRunbooks(false), shown.length > LARGE_TIMELINE))} aria-label={anyRunbookOpen ? 'Collapse all runbooks' : 'Expand all runbooks'} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
+          <ButtonBase onClick={() => (anyRunbookOpen ? setAllRunbooks(true) : loadAll('Expanding all runbooks', () => setAllRunbooks(false), shown.length > LARGE_TIMELINE))} aria-label={anyRunbookOpen ? 'Collapse all runbooks' : 'Expand all runbooks'} sx={{ fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap', ...hitTarget(d.target) }}>
             {anyRunbookOpen ? 'Collapse all' : 'Expand all'}
           </ButtonBase>
         )}
         {(scope === 'focus' || narrow.size > 0) && (
-          <ButtonBase onClick={() => loadAll('Loading all tasks', () => { setScope('all'); setNarrow(new Set()); }, tasks.length > LARGE_TIMELINE)} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}>
+          <ButtonBase onClick={() => loadAll('Loading all tasks', () => { setScope('all'); setNarrow(new Set()); }, tasks.length > LARGE_TIMELINE)} sx={{ fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap', ...hitTarget(d.target) }}>
             Show all
           </ButtonBase>
         )}
@@ -592,7 +600,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
       {/* Runbook panels */}
       <Box ref={body} {...busy.contentProps} onKeyDown={onKeyDown} sx={{ p: 3, bgcolor: hairline, display: 'flex', flexDirection: 'column', gap: 3 }}>
         {groups.length === 0 && (
-          <Box sx={{ p: 6, textAlign: 'center', fontSize: 14, color: 'text.secondary', bgcolor: 'background.paper', borderRadius: `${radius.control}px` }}>{searching ? `No tasks match “${query.trim()}”.` : 'No tasks match.'}</Box>
+          <Box sx={{ p: 6, textAlign: 'center', fontSize: d.body, color: 'text.secondary', bgcolor: 'background.paper', borderRadius: `${radius.control}px` }}>{searching ? `No tasks match “${query.trim()}”.` : 'No tasks match.'}</Box>
         )}
         {groups.map(({ r, stages, inFocus, own, ownFiltered, ownCounts, ownShown, ownTotal }) => {
           const rOpen = !isClosed(r.id, r.id);
@@ -604,16 +612,16 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
                 onClick={() => setCollapsed(flip(collapsed, r.id))}
                 aria-expanded={rOpen}
                 aria-label={`${r.wbs} ${r.name}, ${r.recordId}, ${inFocus} in focus${progress.total ? `, ${progress.percent}% complete, ${progress.complete} of ${progress.total} tasks` : ''}, forecast end ${timeOf(r.forecastEnd, timeZone)}, ${shortGap(r.gapMinutes)}`}
-                sx={{ width: '100%', display: 'flex', alignItems: 'center', gap: 3, height: 60, px: 5, bgcolor: 'primary.main', color: colour.white, textAlign: 'left', fontFamily: 'inherit', '&.Mui-focusVisible': { outlineOffset: -4, outlineColor: colour.white } }}
+                sx={{ width: '100%', display: 'flex', alignItems: 'center', gap: `${d.gap}px`, height: 60, px: `${d.padX}px`, bgcolor: 'primary.main', color: colour.white, textAlign: 'left', fontFamily: 'inherit', '&.Mui-focusVisible': { outlineOffset: -4, outlineColor: colour.white } }}
               >
                 <Icon stroke={colour.white}>{chevron(rOpen)}</Icon>
                 <Box component="span" sx={{ fontSize: 14, fontWeight: 800, color: colour.blueLight, fontVariantNumeric: 'tabular-nums', minWidth: 20 }}>{r.wbs}</Box>
                 <Box component="span" sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0 }}>
                   <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 2.5, fontSize: 14, fontWeight: 800, letterSpacing: '0.02em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                     {r.name}
-                    <Box component="span" sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', px: 2, py: 0.5, borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid rgba(255,255,255,0.35)`, fontVariantNumeric: 'tabular-nums' }}>{r.recordId}</Box>
+                    <Box component="span" sx={{ fontSize: d.caption, fontWeight: 700, letterSpacing: '0.06em', px: 2, py: 0.5, borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid rgba(255,255,255,0.35)`, fontVariantNumeric: 'tabular-nums' }}>{r.recordId}</Box>
                   </Box>
-                  <Box component="span" sx={{ fontSize: 12, color: 'rgba(255,255,255,0.72)', whiteSpace: 'nowrap' }}>
+                  <Box component="span" sx={{ fontSize: d.caption, color: 'rgba(255,255,255,0.72)', whiteSpace: 'nowrap' }}>
                     {inFocus} in focus
                     {scope === 'focus' && (r.hidden.complete > 0 || r.hidden.notAvailable > 0) &&
                       ` · ${[r.hidden.complete > 0 ? `${r.hidden.complete} complete` : '', r.hidden.notAvailable > 0 ? `${r.hidden.notAvailable} not yet available` : ''].filter(Boolean).join(' and ')} hidden`}
@@ -627,7 +635,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
 
               {rOpen && (
                 // Not drawn (flagged): the runbook's own filters, which narrow only this runbook.
-                <Box role="group" aria-label={`Filter ${r.name}`} sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, minHeight: 48, px: 5, py: 1.5, boxSizing: 'border-box', bgcolor: surfaceTint, borderBottom: 1, borderColor: 'divider', fontSize: 12, color: 'text.secondary' }}>
+                <Box role="group" aria-label={`Filter ${r.name}`} sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: `${d.gap}px`, minHeight: 48, px: `${d.padX}px`, py: 1.5, boxSizing: 'border-box', bgcolor: surfaceTint, borderBottom: 1, borderColor: 'divider', fontSize: d.caption, color: 'text.secondary' }}>
                   <RbmTaskSearch
                     size="small"
                     label={`Search tasks in ${r.name}`}
@@ -658,7 +666,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
                       <span>
                         Showing <Box component="strong" sx={{ color: 'text.primary' }}>{ownShown} of {ownTotal}</Box> in this runbook
                       </span>
-                      <ButtonBase onClick={() => changeTools(r.id, { query: '', narrow: new Set() })} aria-label={`Clear filters in ${r.name}`} sx={{ fontFamily: 'inherit', fontSize: 12, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5 }}>
+                      <ButtonBase onClick={() => changeTools(r.id, { query: '', narrow: new Set() })} aria-label={`Clear filters in ${r.name}`} sx={{ fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, ...hitTarget(d.target) }}>
                         Clear
                       </ButtonBase>
                     </>
@@ -668,7 +676,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
                     <ButtonBase
                       onClick={() => setAllStages(r, anyStageOpen)}
                       aria-label={`${anyStageOpen ? 'Collapse' : 'Expand'} all stages in ${r.name}`}
-                      sx={{ fontFamily: 'inherit', fontSize: 12, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}
+                      sx={{ fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap', ...hitTarget(d.target) }}
                     >
                       {anyStageOpen ? 'Collapse all stages' : 'Expand all stages'}
                     </ButtonBase>
@@ -676,7 +684,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
                 </Box>
               )}
               {rOpen && ownFiltered && stages.length === 0 && (
-                <Box sx={{ px: 5, py: 4, fontSize: 13, color: 'text.secondary' }}>No tasks in this runbook match.</Box>
+                <Box sx={{ px: `${d.padX}px`, py: 4, fontSize: d.body, color: 'text.secondary' }}>No tasks in this runbook match.</Box>
               )}
               {rOpen &&
                 stages.map(({ s, rows, more, inFocus: stageInFocus }) => {
@@ -689,15 +697,15 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
                         onClick={() => setCollapsed(flip(collapsed, key))}
                         aria-expanded={sOpen}
                         aria-label={`Stage ${s.wbs} ${s.name}, ${timeOf(s.start, timeZone)} to ${timeOf(s.end, timeZone)}, ${stageInFocus} in focus, ${sp.percent}% complete, ${s.complete} of ${s.total} tasks, forecast end ${timeOf(s.end, timeZone)}${s.gapMinutes !== undefined ? `, ${shortGap(s.gapMinutes)}` : ''}`}
-                        sx={{ width: '100%', display: 'flex', alignItems: 'center', gap: 3, height: 52, px: 5, bgcolor: 'grey.100', borderTop: 1, borderBottom: 1, borderColor: 'divider', boxSizing: 'border-box', textAlign: 'left', fontFamily: 'inherit', '&.Mui-focusVisible': { outlineOffset: -2 } }}
+                        sx={{ width: '100%', display: 'flex', alignItems: 'center', gap: `${d.gap}px`, height: d.row, px: `${d.padX}px`, bgcolor: 'grey.100', borderTop: 1, borderBottom: 1, borderColor: 'divider', boxSizing: 'border-box', textAlign: 'left', fontFamily: 'inherit', '&.Mui-focusVisible': { outlineOffset: -2 } }}
                       >
                         <Icon stroke={colour.slate}>{chevron(sOpen)}</Icon>
                         {/* Inline styles: one stage row per stage, hundreds on a large event. */}
-                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: palette.status[s.state].signal, flex: 'none' }} />
-                        <span style={{ fontSize: 13, fontWeight: 700, color: palette.text.secondary, fontVariantNumeric: 'tabular-nums', minWidth: 28 }}>{s.wbs}</span>
+                        <span style={{ width: d.dot, height: d.dot, borderRadius: '50%', background: palette.status[s.state].signal, flex: 'none' }} />
+                        <span style={{ fontSize: d.caption, fontWeight: 700, color: palette.text.secondary, fontVariantNumeric: 'tabular-nums', minWidth: 28 }}>{s.wbs}</span>
                         <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-                          <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.02em', color: palette.primary.main, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{s.name}</span>
-                          <span style={{ fontSize: 12, color: palette.text.secondary, whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: d.body, fontWeight: 800, letterSpacing: '0.02em', color: palette.primary.main, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{s.name}</span>
+                          <span style={{ fontSize: d.caption, color: palette.text.secondary, whiteSpace: 'nowrap' }}>
                             {timeOf(s.start, timeZone)} – {timeOf(s.end, timeZone)} · {stageInFocus} in focus
                           </span>
                         </span>
@@ -732,8 +740,8 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
                       )}
                       {sOpen &&
                         [...more].map(([after, n]) => (
-                          <Box key={after} sx={{ display: 'flex', alignItems: 'center', height: 40, pl: '192px', borderBottom: `${stroke.thin}px solid ${hairline}` }}>
-                            <ButtonBase onClick={() => setUpNextOpen(new Set(upNextOpen).add(`${s.id}|${after}`))} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5 }}>
+                          <Box key={after} sx={{ display: 'flex', alignItems: 'center', height: d.row, pl: '192px', borderBottom: `${stroke.thin}px solid ${hairline}` }}>
+                            <ButtonBase onClick={() => setUpNextOpen(new Set(upNextOpen).add(`${s.id}|${after}`))} sx={{ fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, ...hitTarget(d.target) }}>
                               +{n} more up next after {after}
                             </ButtonBase>
                           </Box>
@@ -748,20 +756,20 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
 
       {/* Bulk bar: only actions valid for every selected row are enabled */}
       {selectedTasks.length > 0 && (
-        <Box sx={{ position: 'sticky', bottom: 16, mx: 4, mb: 4, bgcolor: 'primary.main', borderRadius: `${radius.card}px`, px: 3.5, py: 2.5, display: 'flex', alignItems: 'center', gap: 2.5, color: colour.white, fontSize: 13, fontWeight: 700, boxShadow: '0 8px 24px rgba(31,36,48,0.25)' }}>
+        <Box sx={{ position: 'sticky', bottom: 16, mx: 4, mb: 4, bgcolor: 'primary.main', borderRadius: `${radius.card}px`, px: `${d.padX}px`, py: 2.5, display: 'flex', alignItems: 'center', gap: `${d.gap}px`, color: colour.white, fontSize: d.body, fontWeight: 700, boxShadow: '0 8px 24px rgba(31,36,48,0.25)' }}>
           <Box component="span" aria-live="polite" sx={{ bgcolor: 'rgba(255,255,255,0.16)', borderRadius: `${radius.pill}px`, px: 2.5, py: '3px' }}>
             {selectedTasks.length} selected
           </Box>
           <Box sx={{ flex: 1 }} />
-          <ButtonBase disabled={!canBulk('start')} onClick={() => bulk('start')} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 32, px: 3, borderRadius: `${radius.control}px`, border: `${stroke.thin}px solid rgba(255,255,255,0.45)`, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: colour.white, '&.Mui-disabled': { opacity: 0.45 } }}>
+          <ButtonBase disabled={!canBulk('start')} onClick={() => bulk('start')} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: d.control, px: 3, borderRadius: `${d.radius}px`, border: `${stroke.thin}px solid rgba(255,255,255,0.45)`, fontFamily: 'inherit', fontSize: d.body, fontWeight: 700, color: colour.white, '&.Mui-disabled': { opacity: 0.45 } }}>
             <Icon size={14} stroke={colour.white} width={2.5}><path d="M8 5l11 7-11 7z" /></Icon>
             Start
           </ButtonBase>
-          <ButtonBase disabled={!canBulk('complete')} onClick={() => bulk('complete')} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 32, px: 3, borderRadius: `${radius.control}px`, bgcolor: colour.green, fontFamily: 'inherit', fontSize: 13, fontWeight: 800, color: colour.deepBlue, '&.Mui-disabled': { opacity: 0.45 } }}>
+          <ButtonBase disabled={!canBulk('complete')} onClick={() => bulk('complete')} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: d.control, px: 3, borderRadius: `${d.radius}px`, bgcolor: colour.green, fontFamily: 'inherit', fontSize: d.body, fontWeight: 800, color: colour.deepBlue, '&.Mui-disabled': { opacity: 0.45 } }}>
             <Icon size={15} stroke={colour.deepBlue} width={3}><path d="M5 12.5l4.5 4.5L19 7" /></Icon>
             Complete
           </ButtonBase>
-          <ButtonBase onClick={() => setSelected(new Set())} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: colour.blueLight, borderRadius: 1, px: 0.5 }}>
+          <ButtonBase onClick={() => setSelected(new Set())} sx={{ fontFamily: 'inherit', fontSize: d.body, fontWeight: 700, color: colour.blueLight, borderRadius: 1, px: 0.5, ...hitTarget(d.target) }}>
             Clear
           </ButtonBase>
         </Box>

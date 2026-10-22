@@ -1,6 +1,7 @@
 import { Box, ButtonBase, FormControlLabel, Menu, MenuItem, Popover, Radio, RadioGroup, useTheme } from '@mui/material';
 import { useId, useRef, useState, type ReactNode } from 'react';
 import { colour, elevation, hairline, radius, stroke } from '../../theme/tokens';
+import { useDensity, type DensityTokens } from '../../theme/RbmDensity';
 
 /** The one next step a row offers. The page shows it only when the API says the user may use it. */
 export type RbmTaskActionKind = 'start' | 'complete' | 'result' | 'resume' | 'view' | 'undo';
@@ -52,22 +53,23 @@ const note = (
   </>
 );
 
-// Every action button is 120 by 32 px whatever the label; a long label is cut, never widened.
-const shell = {
+// Every action button is 120 px wide whatever the label; a long label is cut, never widened. Its height is the
+// density's control height (36 px at D2; drawn 32 before density was mandatory), with body text.
+const shellOf = (d: DensityTokens) => ({
   width: 120,
-  height: 32,
-  borderRadius: `${radius.control}px`,
+  height: d.control,
+  borderRadius: `${d.radius}px`,
   fontFamily: 'inherit',
-  fontSize: 13,
+  fontSize: d.body,
   whiteSpace: 'nowrap',
   boxSizing: 'border-box',
   overflow: 'hidden',
   flex: 'none',
-} as const;
+}) as const;
 
 function Label({ icon, text }: { icon?: ReactNode; text: string }) {
   return (
-    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, minWidth: 0, maxWidth: '100%', px: 0.5 }}>
+    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, minWidth: 0, maxWidth: '100%' }}>
       {icon}
       <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
         {text}
@@ -92,6 +94,8 @@ function timeOf(date: Date, timeZone?: string) {
 /** The row's action button, as drawn on the Command board ("Acting on tasks"). */
 export function RbmTaskAction({ action, wbs, title, kind = 'task', completeOptions = allOptions, now, timeZone, onAction }: RbmTaskActionProps) {
   const { palette } = useTheme();
+  const d = useDensity();
+  const shell = shellOf(d);
   const anchor = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [resultOpen, setResultOpen] = useState(false);
@@ -161,7 +165,7 @@ export function RbmTaskAction({ action, wbs, title, kind = 'task', completeOptio
   return (
     <>
       <Box ref={anchor} sx={{ ...shell, display: 'inline-flex', alignItems: 'stretch', bgcolor: colour.green, border: `${stroke.thin}px solid ${colour.green}`, color: colour.deepBlue, fontWeight: 800 }}>
-        <ButtonBase aria-label={mainLabel} onClick={() => (isResult ? openResult() : onAction({ type: 'complete' }))} sx={{ flex: 1, minWidth: 0, height: '100%', fontFamily: 'inherit', fontSize: 13, fontWeight: 800, color: 'inherit' }}>
+        <ButtonBase aria-label={mainLabel} onClick={() => (isResult ? openResult() : onAction({ type: 'complete' }))} sx={{ flex: 1, minWidth: 0, height: '100%', fontFamily: 'inherit', fontSize: d.body, fontWeight: 800, color: 'inherit' }}>
           <Label icon={<Icon size={15} width={3}>{tick}</Icon>} text={isResult ? 'Result' : 'Complete'} />
         </ButtonBase>
         <ButtonBase
@@ -191,12 +195,12 @@ export function RbmTaskAction({ action, wbs, title, kind = 'task', completeOptio
                 setMenuOpen(false);
                 onAction({ type: i.type });
               }}
-              sx={{ gap: 3, minHeight: 40, px: 4, py: 1.5, fontSize: 13, fontWeight: 600, color: i.quiet ? 'text.secondary' : 'text.primary', borderTop: n > 0 ? `${stroke.thin}px solid ${hairline}` : 0, '&.Mui-focusVisible': { outlineOffset: -2 } }}
+              sx={{ gap: `${d.gap}px`, minHeight: d.target, px: `${d.padX}px`, py: 1.5, fontSize: d.body, fontWeight: 600, color: i.quiet ? 'text.secondary' : 'text.primary', borderTop: n > 0 ? `${stroke.thin}px solid ${hairline}` : 0, '&.Mui-focusVisible': { outlineOffset: -2 } }}
             >
-              <Icon size={18} width={1.75}>{i.icon}</Icon>
+              <Icon size={d.icon} width={1.75}>{i.icon}</Icon>
               <Box component="span" sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
                 <span>{i.text}</span>
-                {i.sub && <Box component="span" sx={{ fontSize: 12, fontWeight: 400, color: 'text.secondary' }}>{i.sub}</Box>}
+                {i.sub && <Box component="span" sx={{ fontSize: d.caption, fontWeight: 400, color: 'text.secondary' }}>{i.sub}</Box>}
               </Box>
             </MenuItem>
           ))}
@@ -212,7 +216,7 @@ export function RbmTaskAction({ action, wbs, title, kind = 'task', completeOptio
           transformOrigin={{ vertical: 'top', horizontal: 'left' }}
           slotProps={{ paper: { role: 'dialog', 'aria-labelledby': titleId, sx: { ...menuPaper, mt: 1.5 } } }}
         >
-          <Box id={titleId} sx={{ px: 4, py: 3.5, fontSize: 13, fontWeight: 800, color: 'primary.main' }}>
+          <Box id={titleId} sx={{ px: `${d.padX}px`, py: 3.5, fontSize: d.body, fontWeight: 800, color: 'primary.main' }}>
             Result for {wbs} · {title}
           </Box>
           <RadioGroup aria-labelledby={titleId} value={result ?? ''} onChange={(e) => setResult(e.target.value as RbmCheckpointResult)}>
@@ -239,17 +243,17 @@ export function RbmTaskAction({ action, wbs, title, kind = 'task', completeOptio
                   />
                 }
                 label={
-                  <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 14, fontWeight: 600 }}>
+                  <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: `${d.gap}px`, fontSize: d.body, fontWeight: 600 }}>
                     <Box component="span" sx={{ color: iconColour, display: 'inline-flex' }}>{icon}</Box>
                     {text}
                   </Box>
                 }
-                sx={{ m: 0, gap: 3, height: 40, px: 4, borderTop: `${stroke.thin}px solid ${hairline}` }}
+                sx={{ m: 0, gap: `${d.gap}px`, minHeight: d.target, px: `${d.padX}px`, borderTop: `${stroke.thin}px solid ${hairline}` }}
               />
             ))}
           </RadioGroup>
           <Box sx={{ px: 4, py: 3, borderTop: `${stroke.thin}px solid ${hairline}`, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-            <ButtonBase onClick={() => setResultOpen(false)} sx={{ height: 36, px: 4.5, borderRadius: `${radius.control}px`, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: colour.deepBlue, bgcolor: colour.white, border: `${stroke.thin}px solid ${colour.silver}` }}>
+            <ButtonBase onClick={() => setResultOpen(false)} sx={{ height: d.control, px: 4.5, borderRadius: `${d.radius}px`, fontFamily: 'inherit', fontSize: d.body, fontWeight: 700, color: colour.deepBlue, bgcolor: colour.white, border: `${stroke.thin}px solid ${colour.silver}` }}>
               Cancel
             </ButtonBase>
             <ButtonBase
@@ -258,7 +262,7 @@ export function RbmTaskAction({ action, wbs, title, kind = 'task', completeOptio
                 setResultOpen(false);
                 if (result) onAction({ type: 'result', result });
               }}
-              sx={{ height: 36, px: 4.5, borderRadius: `${radius.control}px`, fontFamily: 'inherit', fontSize: 13, fontWeight: 800, color: colour.deepBlue, bgcolor: colour.green, border: `${stroke.thin}px solid ${colour.green}`, '&.Mui-disabled': { bgcolor: colour.rule, borderColor: colour.rule, color: colour.slate } }}
+              sx={{ height: d.control, px: 4.5, borderRadius: `${d.radius}px`, fontFamily: 'inherit', fontSize: d.body, fontWeight: 800, color: colour.deepBlue, bgcolor: colour.green, border: `${stroke.thin}px solid ${colour.green}`, '&.Mui-disabled': { bgcolor: colour.rule, borderColor: colour.rule, color: colour.slate } }}
             >
               Confirm
             </ButtonBase>

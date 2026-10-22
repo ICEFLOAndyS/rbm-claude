@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { RbmDensity } from '../../theme/RbmDensity';
 import { Box } from '@mui/material';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
@@ -6,6 +7,8 @@ import { DEFAULT_LAYOUT, RbmLayoutPanel, regionInfo, type RbmMovableRegion, type
 
 const meta: Meta<typeof RbmLayoutPanel> = {
   title: 'Command/RbmLayoutPanel',
+  // A D2 Compact region of the Command Centre (mixed by region, 22 Oct 2026).
+  decorators: [(Story) => <RbmDensity level="compact"><Story /></RbmDensity>],
   component: RbmLayoutPanel,
   args: { order: DEFAULT_LAYOUT, onChange: fn(), onClose: fn() },
 };

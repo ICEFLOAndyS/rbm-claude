@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { RbmDensity } from '../../theme/RbmDensity';
 import { Box } from '@mui/material';
 import { fn } from 'storybook/test';
 import { RbmEventBar } from './RbmEventBar';
@@ -9,7 +10,8 @@ const meta: Meta<typeof RbmEventBar> = {
   title: 'Command/RbmEventBar',
   component: RbmEventBar,
   parameters: { layout: 'padded' },
-  decorators: [(Story) => <Box sx={{ maxWidth: 1136, border: 1, borderColor: 'divider', borderRadius: '14px', overflow: 'hidden' }}><Story /></Box>],
+  // A D2 Compact region of the Command Centre (mixed by region, 22 Oct 2026).
+  decorators: [(Story) => <Box sx={{ maxWidth: 1136, border: 1, borderColor: 'divider', borderRadius: '14px', overflow: 'hidden' }}><Story /></Box>, (Story) => <RbmDensity level="compact"><Story /></RbmDensity>],
   args: { event: mockEvent(), vitals: mockEventVitals(), alerts: mockAlerts(), visible: true, timeZone: 'UTC', onOpenProgress: fn(), onOpenIssues: fn(), onOpenForecast: fn(), onBackToTop: fn() },
 };
 export default meta;

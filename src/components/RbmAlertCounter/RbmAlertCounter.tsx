@@ -1,6 +1,7 @@
 import { Box, ButtonBase, Popover, useTheme } from '@mui/material';
 import { useId, useState } from 'react';
 import { colour, elevation, radius, stroke } from '../../theme/tokens';
+import { hitTarget, ringSize, useDensity } from '../../theme/RbmDensity';
 
 /**
  * Red: a blocker, a failed check or a Red forecast. Amber: the forecast is late and nothing is blocked.
@@ -26,8 +27,8 @@ export interface RbmAlertCounterProps {
 }
 
 const sizes = {
-  normal: { height: 30, fontSize: 15 },
-  compact: { height: 24, fontSize: 12 },
+  normal: { height: 30 },
+  compact: { height: 24 },
 } as const;
 
 const rank: Record<RbmAlertSeverity, number> = { red: 0, amber: 1 };
@@ -56,12 +57,13 @@ function Chevron() {
 /** The alert's mark: a Red dot, or the small At risk ringed dot for a late forecast. */
 function Mark({ severity }: { severity: RbmAlertSeverity }) {
   const { status } = useTheme().palette;
+  const { dot } = useDensity();
   if (severity === 'red') {
-    return <Box component="span" aria-hidden="true" data-testid="rbm-alert-mark" sx={{ width: 10, height: 10, mt: 1, borderRadius: '50%', bgcolor: status.blocked.signal, flex: 'none' }} />;
+    return <Box component="span" aria-hidden="true" data-testid="rbm-alert-mark" sx={{ width: dot, height: dot, mt: 1, borderRadius: '50%', bgcolor: status.blocked.signal, flex: 'none' }} />;
   }
   return (
-    <Box component="span" aria-hidden="true" data-testid="rbm-alert-mark" sx={{ width: 12, height: 12, mt: 0.75, borderRadius: '50%', bgcolor: status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-      <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: status.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
+    <Box component="span" aria-hidden="true" data-testid="rbm-alert-mark" sx={{ width: ringSize(dot), height: ringSize(dot), mt: 0.5, borderRadius: '50%', bgcolor: status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+      <Box component="span" sx={{ width: dot, height: dot, borderRadius: '50%', bgcolor: status.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
     </Box>
   );
 }
@@ -72,6 +74,7 @@ function Mark({ severity }: { severity: RbmAlertSeverity }) {
  * words and digits. A click opens the alerts, most serious first.
  */
 export function RbmAlertCounter({ alerts, size = 'normal' }: RbmAlertCounterProps) {
+  const d = useDensity();
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const popoverId = useId();
   if (alerts.length === 0) return null;
@@ -99,13 +102,15 @@ export function RbmAlertCounter({ alerts, size = 'normal' }: RbmAlertCounterProp
           alignItems: 'center',
           gap: '7px',
           height: sizes[size].height,
+          // Drawn as a pill smaller than the minimum target: the hit area reaches the target.
+          ...hitTarget(d.target),
           pl: '11px',
           pr: '14px',
           borderRadius: `${radius.pill}px`,
           bgcolor: fill,
           color: ink,
           fontFamily: 'inherit',
-          fontSize: sizes[size].fontSize,
+          fontSize: size === 'compact' ? d.caption : d.body,
           fontWeight: 800,
           whiteSpace: 'nowrap',
           verticalAlign: 'middle',
@@ -141,20 +146,20 @@ export function RbmAlertCounter({ alerts, size = 'normal' }: RbmAlertCounterProp
           <Box component="span" sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'text.secondary' }}>
             Alerts
           </Box>
-          <Box component="span" sx={{ fontSize: 12, color: 'text.secondary' }}>
+          <Box component="span" sx={{ fontSize: d.caption, color: 'text.secondary' }}>
             Most serious first
           </Box>
         </Box>
         <Box component="ul" sx={{ m: 0, p: 0, listStyle: 'none' }}>
           {sorted.map((a) => (
-            <Box component="li" key={a.id} data-severity={a.severity} sx={{ display: 'flex', alignItems: 'flex-start', gap: 3, px: 4, py: 3, borderTop: 1, borderColor: 'divider' }}>
+            <Box component="li" key={a.id} data-severity={a.severity} sx={{ display: 'flex', alignItems: 'flex-start', gap: `${d.gap}px`, px: `${d.padX}px`, py: 3, borderTop: 1, borderColor: 'divider' }}>
               <Mark severity={a.severity} />
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, flex: 1, minWidth: 0, lineHeight: 'normal' }}>
-                <Box component="span" sx={{ fontSize: 14, fontWeight: 800, color: 'text.primary' }}>
+                <Box component="span" sx={{ fontSize: d.body, fontWeight: 800, color: 'text.primary' }}>
                   {a.title}
                 </Box>
                 {a.detail && (
-                  <Box component="span" sx={{ fontSize: 13, color: 'text.secondary' }}>
+                  <Box component="span" sx={{ fontSize: d.caption, color: 'text.secondary' }}>
                     {a.detail}
                   </Box>
                 )}
@@ -165,7 +170,7 @@ export function RbmAlertCounter({ alerts, size = 'normal' }: RbmAlertCounterProp
                     setAnchor(null);
                     a.action!.onSelect();
                   }}
-                  sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap', borderRadius: 1 }}
+                  sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap', borderRadius: 1, ...hitTarget(d.target) }}
                 >
                   {a.action.label}
                   <Chevron />

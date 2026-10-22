@@ -4,6 +4,7 @@ import { RbmAvatar } from '../RbmAvatar/RbmAvatar';
 import { RbmNode, type RbmNodeKind, type RbmSpine } from '../RbmNode/RbmNode';
 import { RbmTag, type RbmTagKind } from '../RbmTag/RbmTag';
 import { hairline, type RbmState, stroke } from '../../theme/tokens';
+import { hitTarget, useDensity } from '../../theme/RbmDensity';
 import { RbmTaskAction, type RbmCompleteOption, type RbmTaskActionEvent, type RbmTaskActionKind } from './RbmTaskAction';
 
 /** A task as the Task Timeline shows it. Data from the RBM planning engine; actions from the API. */
@@ -65,10 +66,12 @@ export function taskSummary(t: RbmTask, statusLabel: string, timeZone?: string) 
 /**
  * A row in the Task Timeline, as drawn on the Command board ("Task row", "Acting on tasks"):
  * time, node, WBS, title, tag, assignee, duration and delta, and one action. Active rows are the
- * only ones with a tint.
+ * only ones with a tint. Row height, padding, gaps and text sizes come from the region's density
+ * (D2 Compact in the Command Centre); the column widths are as drawn.
  */
 export function RbmTaskRow({ task, now, timeZone, spine, selected = false, onSelectedChange, onAction, onOpen, tabIndex = 0 }: RbmTaskRowProps) {
   const { palette } = useTheme();
+  const d = useDensity();
   const active = task.state === 'active';
   const done = task.state === 'complete' || task.state === 'skipped';
   const statusLabel = palette.status[task.state].label;
@@ -103,10 +106,10 @@ export function RbmTaskRow({ task, now, timeZone, spine, selected = false, onSel
         position: 'relative',
         display: 'grid',
         gridTemplateColumns: '52px 28px 56px minmax(0, 1fr) auto 28px 56px 120px',
-        gap: 3,
+        gap: `${d.gap}px`,
         alignItems: 'center',
-        height: 52,
-        px: 5,
+        height: d.row,
+        px: `${d.padX}px`,
         borderBottom: `${stroke.thin}px solid ${hairline}`,
         boxSizing: 'border-box',
         lineHeight: 'normal',
@@ -127,19 +130,20 @@ export function RbmTaskRow({ task, now, timeZone, spine, selected = false, onSel
             checked={selected}
             onChange={(e) => onSelectedChange(e.target.checked)}
             slotProps={{ input: { 'aria-label': `Select ${task.wbs} ${task.title}` } }}
-            sx={{ position: 'absolute', left: -14, p: 0.5 }}
+            sx={{ ...hitTarget(d.target), position: 'absolute', left: -14, p: 0.5 }}
           />
         )}
         {task.startIsActual ? (
-          <Box component="span" sx={{ fontSize: 13, fontWeight: active ? 800 : 600, color: active ? palette.status.active.text : 'text.primary', fontVariantNumeric: 'tabular-nums' }}>
+          <Box component="span" sx={{ fontSize: d.caption, fontWeight: active ? 800 : 600, color: active ? palette.status.active.text : 'text.primary', fontVariantNumeric: 'tabular-nums' }}>
             {timeOf(task.start, timeZone)}
           </Box>
         ) : (
           <Box component="span" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: 1.1 }}>
-            <Box component="span" sx={{ fontSize: 13, fontWeight: 600, fontStyle: 'italic', color: 'text.secondary', fontVariantNumeric: 'tabular-nums' }}>
+            <Box component="span" sx={{ fontSize: d.caption, fontWeight: 600, fontStyle: 'italic', color: 'text.secondary', fontVariantNumeric: 'tabular-nums' }}>
               {timeOf(task.start, timeZone)}
             </Box>
-            <Box component="span" aria-label="forecast" sx={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.08em', color: 'text.secondary' }}>
+            {/* Drawn at 9 px; the Density board's floor is 12 px, so it takes the secondary size. */}
+            <Box component="span" aria-label="forecast" sx={{ fontSize: d.caption, fontWeight: 800, letterSpacing: '0.08em', color: 'text.secondary' }}>
               FC
             </Box>
           </Box>
@@ -148,16 +152,16 @@ export function RbmTaskRow({ task, now, timeZone, spine, selected = false, onSel
 
       <RbmNode kind={task.kind} state={task.state} spine={spine} decorative />
 
-      <Box component="span" sx={{ fontSize: 13, color: active ? palette.status.active.text : 'text.secondary', fontVariantNumeric: 'tabular-nums' }}>
+      <Box component="span" sx={{ fontSize: d.caption, color: active ? palette.status.active.text : 'text.secondary', fontVariantNumeric: 'tabular-nums' }}>
         {task.wbs}
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <Box component="span" sx={{ fontSize: 15, fontWeight: active ? 800 : 600, color: done ? 'text.secondary' : 'text.primary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <Box component="span" sx={{ fontSize: d.body, fontWeight: active ? 800 : 600, color: done ? 'text.secondary' : 'text.primary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {task.title}
         </Box>
         {active && task.startIsActual && (!now || now >= task.start) && (
-          <Box component="span" sx={{ fontSize: 12, color: 'text.secondary', lineHeight: 1.3 }}>
+          <Box component="span" sx={{ fontSize: d.caption, color: 'text.secondary', lineHeight: 1.3 }}>
             Started {timeOf(task.start, timeZone)} · {elapsed !== undefined ? `${elapsed}m elapsed of ${task.plannedMinutes}m planned` : `${task.plannedMinutes}m planned`}
           </Box>
         )}
@@ -168,11 +172,11 @@ export function RbmTaskRow({ task, now, timeZone, spine, selected = false, onSel
       <Box>{task.assignee && <RbmAvatar name={task.assignee.name} initials={task.assignee.initials} />}</Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1px', lineHeight: 1.2 }}>
-        <Box component="span" sx={{ fontSize: 13, color: 'text.secondary', fontVariantNumeric: 'tabular-nums' }}>
+        <Box component="span" sx={{ fontSize: d.caption, color: 'text.secondary', fontVariantNumeric: 'tabular-nums' }}>
           {task.plannedMinutes}m
         </Box>
         {task.deltaMinutes ? (
-          <Box component="span" sx={{ fontSize: 13, fontWeight: 700, color: task.deltaMinutes > 0 ? palette.status.atRisk.text : palette.status.complete.text, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+          <Box component="span" sx={{ fontSize: d.caption, fontWeight: 700, color: task.deltaMinutes > 0 ? palette.status.atRisk.text : palette.status.complete.text, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
             {formatDelta(task.deltaMinutes, task.deltaIsForecast)}
           </Box>
         ) : null}

@@ -1,6 +1,7 @@
 import { Box, ButtonBase, useTheme } from '@mui/material';
 import { useId, type ReactNode } from 'react';
 import { colour, radius, stroke } from '../../theme/tokens';
+import { hitTarget, ringSize, useDensity } from '../../theme/RbmDensity';
 import { RbmRing } from './RbmRing';
 
 /** The event RAG status. The RBM planning engine sets it; the page displays it and never works it out. */
@@ -61,17 +62,20 @@ function Eyebrow({ id, children }: { id?: string; children: ReactNode }) {
   );
 }
 
-function Figure({ children, size = 32 }: { children: ReactNode; size?: number }) {
+/** A KPI figure, at the density's figure size (40 px at D1; drawn 32 and 36). */
+function Figure({ children }: { children: ReactNode }) {
+  const { figure } = useDensity();
   return (
-    <Box component="span" sx={{ fontSize: size, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.05, fontVariantNumeric: 'tabular-nums', color: 'text.primary' }}>
+    <Box component="span" sx={{ fontSize: figure, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.05, fontVariantNumeric: 'tabular-nums', color: 'text.primary' }}>
       {children}
     </Box>
   );
 }
 
 function Footnote({ children }: { children: ReactNode }) {
+  const { caption } = useDensity();
   return (
-    <Box component="span" sx={{ fontSize: 13, color: 'text.secondary', '& strong': { color: 'text.primary' } }}>
+    <Box component="span" sx={{ fontSize: caption, color: 'text.secondary', '& strong': { color: 'text.primary' } }}>
       {children}
     </Box>
   );
@@ -83,11 +87,12 @@ function Footnote({ children }: { children: ReactNode }) {
  */
 function Card({ label, action, onOpen, openLabel, children }: { label: string; action?: ReactNode; onOpen?: () => void; openLabel: string; children: ReactNode }) {
   const id = useId();
+  const d = useDensity();
   return (
     <Box
       component="section"
       aria-labelledby={id}
-      sx={{ position: 'relative', border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', px: 4.5, py: 4, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, lineHeight: 'normal' }}
+      sx={{ position: 'relative', border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', px: `${d.padX}px`, py: 4, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, lineHeight: 'normal' }}
     >
       {onOpen && <ButtonBase aria-label={openLabel} onClick={onOpen} sx={{ position: 'absolute', inset: 0, borderRadius: `${radius.card}px` }} />}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
@@ -100,10 +105,11 @@ function Card({ label, action, onOpen, openLabel, children }: { label: string; a
 }
 
 function Legend({ rows }: { rows: { mark: ReactNode; label: string; value: number; colour: string }[] }) {
+  const { caption } = useDensity();
   return (
     <Box component="dl" sx={{ m: 0, display: 'flex', flexDirection: 'column', gap: '3px', flex: 1, minWidth: 0 }}>
       {rows.map((r) => (
-        <Box key={r.label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2.5, fontSize: 13 }}>
+        <Box key={r.label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2.5, fontSize: caption }}>
           <Box component="dt" sx={{ display: 'inline-flex', alignItems: 'center', gap: '7px', color: r.colour }}>
             {r.mark}
             {r.label}
@@ -117,7 +123,12 @@ function Legend({ rows }: { rows: { mark: ReactNode; label: string; value: numbe
   );
 }
 
-const dot = (bg: string) => <Box component="span" aria-hidden="true" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: bg, flex: 'none' }} />;
+/** A status dot at the density's dot size. */
+function Dot({ bg }: { bg: string }) {
+  const { dot: size } = useDensity();
+  return <Box component="span" aria-hidden="true" sx={{ width: size, height: size, borderRadius: '50%', bgcolor: bg, flex: 'none' }} />;
+}
+const dot = (bg: string) => <Dot bg={bg} />;
 
 function Icon({ d, size, stroke, width }: { d: ReactNode; size: number; stroke: string; width: number }) {
   return (
@@ -140,6 +151,8 @@ const discTint: Record<RbmRag, string> = {
  */
 export function RbmEventVitals({ data, timeZone, onOpenProgress, onOpenIssues, onOpenStart, onOpenForecast, onRaiseIssue }: RbmEventVitalsProps) {
   const { palette } = useTheme();
+  // The Event vitals are a D1 Comfortable region of the Command Centre.
+  const d = useDensity();
   const s = palette.status;
   const { progress, issues, start, forecast } = data;
   const percent = progress.total > 0 ? Math.round((progress.complete / progress.total) * 100) : 0;
@@ -189,7 +202,7 @@ export function RbmEventVitals({ data, timeZone, onOpenProgress, onOpenIssues, o
         openLabel="Open the issue list"
         action={
           onRaiseIssue && (
-            <ButtonBase onClick={onRaiseIssue} sx={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center', gap: 1, fontFamily: 'inherit', fontSize: 12, fontWeight: 700, color: 'primary.light', whiteSpace: 'nowrap', borderRadius: 1 }}>
+            <ButtonBase onClick={onRaiseIssue} sx={{ ...hitTarget(d.target), position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center', gap: 1, fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.light', whiteSpace: 'nowrap', borderRadius: 1 }}>
               <Icon d={<path d="M12 5v14M5 12h14" />} size={14} stroke="currentColor" width={2.5} />
               Raise issue
             </ButtonBase>
@@ -211,8 +224,8 @@ export function RbmEventVitals({ data, timeZone, onOpenProgress, onOpenIssues, o
               { mark: dot(s.blocked.signal), label: 'High', value: issues.high, colour: s.blocked.text },
               {
                 mark: (
-                  <Box component="span" aria-hidden="true" sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: s.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-                    <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: s.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
+                  <Box component="span" aria-hidden="true" sx={{ width: ringSize(d.dot), height: ringSize(d.dot), borderRadius: '50%', bgcolor: s.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+                    <Box component="span" sx={{ width: d.dot, height: d.dot, borderRadius: '50%', bgcolor: s.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
                   </Box>
                 ),
                 label: 'Medium',
@@ -229,7 +242,7 @@ export function RbmEventVitals({ data, timeZone, onOpenProgress, onOpenIssues, o
       <Card label="Start of event" onOpen={onOpenStart} openLabel="Open the event start">
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
           <Box component="span" aria-hidden="true" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 42, border: `${stroke.thin}px solid ${colour.silver}`, borderRadius: '10px', overflow: 'hidden', flex: 'none' }}>
-            <Box component="span" sx={{ width: '100%', textAlign: 'center', bgcolor: 'primary.main', color: colour.white, fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', py: 0.5 }}>
+            <Box component="span" sx={{ width: '100%', textAlign: 'center', bgcolor: 'primary.main', color: colour.white, fontSize: d.caption, fontWeight: 800, letterSpacing: '0.08em', py: 0.5 }}>
               {month}
             </Box>
             <Box component="span" sx={{ fontSize: 17, fontWeight: 800, color: 'primary.main', lineHeight: 1.3 }}>
@@ -252,8 +265,8 @@ export function RbmEventVitals({ data, timeZone, onOpenProgress, onOpenIssues, o
             <Icon d={<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>} size={30} stroke={rag} width={2} />
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: 0 }}>
-            <Figure size={36}>{timeOf(forecast.end, timeZone)}</Figure>
-            <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: 13, fontWeight: 700, color: rag, whiteSpace: 'nowrap' }}>
+            <Figure>{timeOf(forecast.end, timeZone)}</Figure>
+            <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: d.caption, fontWeight: 700, color: rag, whiteSpace: 'nowrap' }}>
               <Icon d={gapIcon} size={16} stroke={rag} width={2.5} />
               {formatGap(forecast.gapMinutes)}
             </Box>

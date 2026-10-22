@@ -6,9 +6,11 @@ import { RbmTaskRow, formatDelta, type RbmTask } from './RbmTaskRow';
 import { RbmTaskAction } from './RbmTaskAction';
 import { mockTaskRowExamples, mockTaskStates, tasksNow } from '../../mocks/tasks';
 import { rbmTheme } from '../../theme/theme';
-import { colour } from '../../theme/tokens';
+import { colour, density } from '../../theme/tokens';
+import { RbmDensity } from '../../theme/RbmDensity';
 
-const renderUi = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{ui}</ThemeProvider>);
+// Task rows live in the Task Timeline, a D2 Compact region.
+const renderUi = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}><RbmDensity level="compact">{ui}</RbmDensity></ThemeProvider>);
 const task = (id: string) => mockTaskStates().find((t) => t.id === id)!;
 const row = () => screen.getByRole('group');
 
@@ -92,9 +94,9 @@ describe('RbmTaskRow', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('keeps every action button 120 by 32 px, whatever the label', () => {
+  it('keeps every action button 120 px wide whatever the label, at the D2 control height', () => {
     renderUi(<RbmTaskRow task={{ ...task('1.3.9'), title: 'A very long title that would never fit' }} timeZone="UTC" />);
-    expect(screen.getByRole('button', { name: /^Start/ })).toHaveStyle({ width: '120px', height: '32px', borderRadius: '12px' });
+    expect(screen.getByRole('button', { name: /^Start/ })).toHaveStyle({ width: '120px', height: `${density.compact.control}px`, borderRadius: '12px' });
   });
 
   it('draws Start in a Blue Dark outline and Complete in Green with Deep Blue text', () => {
@@ -214,5 +216,22 @@ describe('the board rows', () => {
     expect(screen.getAllByRole('group')).toHaveLength(7);
     // Six rows have an action; Complete and Result are split, so they have two buttons each.
     expect(screen.getAllByRole('button')).toHaveLength(8);
+  });
+});
+
+describe('RbmTaskRow density', () => {
+  it.each(['compact', 'comfortable'] as const)('takes its height, title and secondary text from the %s tokens', (level) => {
+    const d = density[level];
+    const task = mockTaskRowExamples()[0]!;
+    render(
+      <ThemeProvider theme={rbmTheme}>
+        <RbmDensity level={level}>
+          <RbmTaskRow task={task} now={tasksNow} timeZone="UTC" />
+        </RbmDensity>
+      </ThemeProvider>,
+    );
+    expect(screen.getByRole('group')).toHaveStyle({ height: `${d.row}px` });
+    expect(screen.getByText(task.title)).toHaveStyle({ fontSize: `${d.body}px` });
+    expect(screen.getByText(task.wbs)).toHaveStyle({ fontSize: `${d.caption}px` });
   });
 });

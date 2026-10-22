@@ -1,6 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import type { RbmState, StatusToken } from '../../theme/tokens';
 import { stroke } from '../../theme/tokens';
+import { ringSize, useDensity } from '../../theme/RbmDensity';
 
 export type RbmStatusPillSize = 'normal' | 'compact';
 
@@ -8,25 +9,24 @@ export interface RbmStatusPillProps {
   state: RbmState;
   /** Overrides the default label for the state. The label is always shown. */
   label?: string;
-  /** Normal for the page header; compact (24 px) for the sticky event bar. */
+  /** Normal for the page header; compact (24 px) for the sticky event bar. Text and dot follow the region's density. */
   size?: RbmStatusPillSize;
 }
 
-const sizes = {
-  normal: { height: 30, fontSize: 15 },
-  compact: { height: 24, fontSize: 12 },
-} as const;
+/** Pill heights as drawn (not on the density scale). Text is the density's body text, or its secondary text when compact. */
+const heights = { normal: 30, compact: 24 } as const;
 
-/** The state mark: a 10 px dot, or a 16 px ringed dot when the state has a core. */
+/** The state mark: the density's dot, or a ringed dot when the state has a core. */
 function StatusDot({ token }: { token: StatusToken }) {
   const { palette } = useTheme();
+  const { dot } = useDensity();
   if (!token.core) {
     return (
       <Box
         component="span"
         aria-hidden="true"
         data-testid="rbm-status-dot"
-        sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: token.signal, flex: 'none' }}
+        sx={{ width: dot, height: dot, borderRadius: '50%', bgcolor: token.signal, flex: 'none' }}
       />
     );
   }
@@ -36,8 +36,8 @@ function StatusDot({ token }: { token: StatusToken }) {
       aria-hidden="true"
       data-testid="rbm-status-dot"
       sx={{
-        width: 16,
-        height: 16,
+        width: ringSize(dot),
+        height: ringSize(dot),
         borderRadius: '50%',
         bgcolor: token.signal,
         display: 'inline-flex',
@@ -50,8 +50,8 @@ function StatusDot({ token }: { token: StatusToken }) {
         component="span"
         data-testid="rbm-status-core"
         sx={{
-          width: 10,
-          height: 10,
+          width: dot,
+          height: dot,
           borderRadius: '50%',
           bgcolor: token.core,
           border: `${stroke.thick}px solid ${palette.background.paper}`,
@@ -69,6 +69,7 @@ function StatusDot({ token }: { token: StatusToken }) {
  */
 export function RbmStatusPill({ state, label, size = 'normal' }: RbmStatusPillProps) {
   const { palette } = useTheme();
+  const d = useDensity();
   const token = palette.status[state];
   return (
     <Box
@@ -77,13 +78,13 @@ export function RbmStatusPill({ state, label, size = 'normal' }: RbmStatusPillPr
         display: 'inline-flex',
         alignItems: 'center',
         gap: 2,
-        height: sizes[size].height,
+        height: heights[size],
         px: 3.5,
         borderRadius: 999,
         border: `${stroke.thin}px solid ${palette.divider}`,
         bgcolor: palette.background.paper,
         color: token.text,
-        fontSize: sizes[size].fontSize,
+        fontSize: size === 'compact' ? d.caption : d.body,
         fontWeight: 800,
         whiteSpace: 'nowrap',
         verticalAlign: 'middle',

@@ -1,6 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import type { ReactNode } from 'react';
 import { colour, radius, stroke } from '../../theme/tokens';
+import { useDensity } from '../../theme/RbmDensity';
 
 /**
  * Why a task is in focus, as drawn on the Command board ("Task row", "Acting on tasks").
@@ -88,6 +89,8 @@ function RingedDot({ signal, core }: { signal: string; core: string }) {
 /** A small tag that says why a task needs attention. It always has a label. */
 export function RbmTag({ kind, label }: RbmTagProps) {
   const { palette } = useTheme();
+  // The tag pill and its inline mark keep their drawn sizes; the text is the density's secondary text.
+  const d = useDensity();
   const { look, label: defaultLabel } = kinds[kind];
   const s = palette.status;
   const text: Record<Look, string> = {
@@ -114,7 +117,7 @@ export function RbmTag({ kind, label }: RbmTagProps) {
         px: 2,
         borderRadius: `${radius.pill}px`,
         border: look === 'upNext' ? `1px dashed ${s.pending.signal}` : `${stroke.thin}px solid ${palette.divider}`,
-        fontSize: 12,
+        fontSize: d.caption,
         fontWeight: 600,
         color: text[look],
         whiteSpace: 'nowrap',

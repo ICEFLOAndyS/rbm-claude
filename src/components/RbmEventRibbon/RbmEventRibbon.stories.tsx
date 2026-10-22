@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { RbmDensity } from '../../theme/RbmDensity';
 import { Box } from '@mui/material';
 import { fn } from 'storybook/test';
 import { RbmEventRibbon, type RbmRibbonRunbook } from './RbmEventRibbon';
@@ -8,7 +9,8 @@ const meta: Meta<typeof RbmEventRibbon> = {
   title: 'Command/RbmEventRibbon',
   component: RbmEventRibbon,
   parameters: { layout: 'padded' },
-  decorators: [(Story) => <Box sx={{ maxWidth: 1136 }}><Story /></Box>],
+  // A D2 Compact region of the Command Centre (mixed by region, 22 Oct 2026).
+  decorators: [(Story) => <Box sx={{ maxWidth: 1136 }}><Story /></Box>, (Story) => <RbmDensity level="compact"><Story /></RbmDensity>],
   args: { runbooks: mockRibbon(), now: ribbonNow, timeZone: 'UTC', onSelectStage: fn(), onSelectMarker: fn(), onCollapsedChange: fn() },
 };
 export default meta;

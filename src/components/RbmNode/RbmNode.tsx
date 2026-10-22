@@ -1,6 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import type { ReactNode } from 'react';
 import { colour, type RbmState } from '../../theme/tokens';
+import { useDensity } from '../../theme/RbmDensity';
 
 /** Shape says what it is: circle a task, diamond a milestone, rounded square a checkpoint. */
 export type RbmNodeKind = 'task' | 'milestone' | 'checkpoint';
@@ -16,7 +17,7 @@ const kindLabel: Record<RbmNodeKind, string> = { task: 'Task', milestone: 'Miles
 export interface RbmNodeProps {
   kind: RbmNodeKind;
   state: RbmState;
-  /** Pixel size. 28 at D1 (default), 24 at D2. */
+  /** Pixel size. Defaults to the drawn size for the region's density: 28 at D1, 24 at D2. */
   size?: number;
   /** Spine halves above and below the node. With a spine, the node fills its row's height. */
   spine?: { above?: RbmSpine; below?: RbmSpine };
@@ -102,7 +103,10 @@ function Mark({ kind, state }: { kind: RbmNodeKind; state: RbmState }) {
  * Timeline, the Event ribbon and the Hot-topics strip. Every state has its own mark,
  * so nothing depends on colour alone.
  */
-export function RbmNode({ kind, state, size = nodeSize.comfortable, spine, label, decorative = false }: RbmNodeProps) {
+export function RbmNode({ kind, state, size: sizeProp, spine, label, decorative = false }: RbmNodeProps) {
+  // The drawn size for the region's density (D1 28 px, D2 24 px). D0 and D3 are not drawn: they take the nearest.
+  const { level } = useDensity();
+  const size = sizeProp ?? (level === 'compact' || level === 'dense' ? nodeSize.compact : nodeSize.comfortable);
   const { palette } = useTheme();
   const name = label ?? `${kindLabel[kind]}, ${palette.status[state].label}`;
   const svg = (

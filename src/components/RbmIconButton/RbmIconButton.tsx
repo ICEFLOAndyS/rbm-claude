@@ -1,6 +1,7 @@
 import { IconButton, type IconButtonProps } from '@mui/material';
 import type { ReactNode } from 'react';
-import { colour, radius, stroke } from '../../theme/tokens';
+import { colour, stroke } from '../../theme/tokens';
+import { useDensity } from '../../theme/RbmDensity';
 
 export interface RbmIconButtonProps extends Omit<IconButtonProps, 'children' | 'aria-label'> {
   /** What the button does, for screen readers. Required: the button has no visible text. */
@@ -9,18 +10,19 @@ export interface RbmIconButtonProps extends Omit<IconButtonProps, 'children' | '
   children: ReactNode;
 }
 
-/** A square icon button with a Deep Blue outline, as drawn on the Components board ("More actions"). */
+/** A square icon button with a Deep Blue outline, as drawn on the Components board ("More actions"), at the density's control size (48 px at D1). */
 export function RbmIconButton({ label, children, sx, ...props }: RbmIconButtonProps) {
+  const d = useDensity();
   return (
     <IconButton
       aria-label={label}
       {...props}
       sx={[
         {
-          width: 48,
-          height: 48,
+          width: d.control,
+          height: d.control,
           border: `${stroke.thick}px solid ${colour.deepBlue}`,
-          borderRadius: `${radius.control}px`,
+          borderRadius: `${d.radius}px`,
           bgcolor: colour.white,
           color: colour.deepBlue,
           '&.Mui-disabled': { borderColor: colour.rule, bgcolor: colour.rule, color: colour.slate },

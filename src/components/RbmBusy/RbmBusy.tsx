@@ -1,6 +1,7 @@
 import { Box, ButtonBase, CircularProgress } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { elevation, radius } from '../../theme/tokens';
+import { hitTarget, useDensity } from '../../theme/RbmDensity';
 
 /**
  * Feedback for a request that can take a while: "Loading all tasks" over the region it affects.
@@ -147,8 +148,9 @@ export function useRbmBusy({ delayMs = 250, minVisibleMs = 400 }: RbmBusyOptions
  * modal: the rest of the page stays readable.
  */
 export function RbmBusyOverlay({ busy }: { busy: RbmBusy }) {
+  const d = useDensity();
   if (!busy.visible) return null;
-  const linkSx = { fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, alignSelf: 'flex-start' } as const;
+  const linkSx = { fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, alignSelf: 'flex-start', ...hitTarget(d.target) } as const;
   return (
     <Box data-testid="rbm-busy" sx={{ position: 'absolute', inset: 0, zIndex: 5, bgcolor: 'rgba(255,255,255,0.6)', lineHeight: 'normal' }}>
       <Box sx={{ position: 'sticky', top: 'calc(50vh - 48px)', display: 'flex', justifyContent: 'center', pt: 6, px: 4 }}>
@@ -158,10 +160,10 @@ export function RbmBusyOverlay({ busy }: { busy: RbmBusy }) {
         >
           {!busy.error && <CircularProgress size={20} thickness={5} aria-hidden="true" sx={{ flex: 'none', mt: '1px' }} />}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Box component="strong" sx={{ fontSize: 14, color: 'text.primary' }}>
+            <Box component="strong" sx={{ fontSize: d.body, color: 'text.primary' }}>
               {busy.error ?? `${busy.label}…`}
             </Box>
-            {!busy.error && busy.detail && <Box component="span" sx={{ fontSize: 12, color: 'text.secondary' }}>{busy.detail}</Box>}
+            {!busy.error && busy.detail && <Box component="span" sx={{ fontSize: d.caption, color: 'text.secondary' }}>{busy.detail}</Box>}
             {busy.cancel && (
               <ButtonBase onClick={busy.cancel} sx={linkSx}>
                 Cancel

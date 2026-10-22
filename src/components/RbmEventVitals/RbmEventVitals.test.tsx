@@ -6,7 +6,7 @@ import { RbmEventVitals, formatDuration, formatGap } from './RbmEventVitals';
 import { ringSegments } from './RbmRing';
 import { mockEventVitals } from '../../mocks/eventVitals';
 import { rbmTheme } from '../../theme/theme';
-import { colour } from '../../theme/tokens';
+import { colour, density } from '../../theme/tokens';
 
 const renderVitals = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{ui}</ThemeProvider>);
 const card = (name: string) => screen.getByRole('region', { name });
@@ -100,7 +100,7 @@ describe('RbmEventVitals', () => {
     renderVitals(<RbmEventVitals data={mockEventVitals({ rag, gapMinutes: gap })} timeZone="UTC" />);
     const forecast = card('Forecast end time');
     // The large figure comes first; on schedule, the planned end shows the same time.
-    expect(within(forecast).getAllByText(time)[0]).toHaveStyle({ fontSize: '36px' });
+    expect(within(forecast).getAllByText(time)[0]).toHaveStyle({ fontSize: `${density.comfortable.figure}px` }); // The D1 figure size (drawn 36 px).
     expect(within(forecast).getByText(words)).toHaveStyle({ color: text });
     expect(forecast).toHaveTextContent('Planned end 06:00');
     expect(within(forecast).getByTestId('rbm-rag-disc')).toHaveAttribute('data-rag', rag);

@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef, useState, type FocusEvent, type MouseEvent } f
 import { RbmNode } from '../RbmNode/RbmNode';
 import { RbmRegionCollapsed, RbmRegionToggle, RbmSummaryChip, RbmToggleLink } from '../RbmRegion/RbmRegion';
 import { colour, elevation, hairline, radius, type RbmState, stroke } from '../../theme/tokens';
+import { ringSize, useDensity } from '../../theme/RbmDensity';
 import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
 import { defaultWindow, hourTicks, lane, laneHeight, packStages, timeScale } from './ribbonLayout';
 
@@ -131,16 +132,18 @@ function useWidth() {
 /** The RAG mark: a Red or Green dot, or the At risk ringed dot for Amber. */
 function RagMark({ rag, size }: { rag: RbmRag; size: 'lane' | 'chip' }) {
   const { status } = useTheme().palette;
+  const { dot } = useDensity();
+  const plain = size === 'lane' ? dot : 9;
   if (rag === 'amber') {
-    const outer = size === 'lane' ? 14 : 11;
-    const inner = size === 'lane' ? 9 : 7;
+    const outer = size === 'lane' ? ringSize(dot) : 11;
+    const inner = size === 'lane' ? dot : 7;
     return (
       <Box component="span" aria-hidden="true" data-rag="amber" sx={{ width: outer, height: outer, borderRadius: '50%', bgcolor: status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
         <Box component="span" sx={{ width: inner, height: inner, borderRadius: '50%', bgcolor: status.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
       </Box>
     );
   }
-  return <Box component="span" aria-hidden="true" data-rag={rag} sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: rag === 'red' ? status.blocked.signal : status.complete.signal, flex: 'none' }} />;
+  return <Box component="span" aria-hidden="true" data-rag={rag} sx={{ width: plain, height: plain, borderRadius: '50%', bgcolor: rag === 'red' ? status.blocked.signal : status.complete.signal, flex: 'none' }} />;
 }
 
 /**
@@ -148,6 +151,7 @@ function RagMark({ rag, size }: { rag: RbmRag; size: 'lane' | 'chip' }) {
  * shown, with a menu of the three views. Not drawn for the ribbon (flagged).
  */
 function ViewMenu({ view, onChange }: { view: RbmRibbonView; onChange: (view: RbmRibbonView) => void }) {
+  const d = useDensity();
   const anchor = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const filtered = view !== 'all';
@@ -159,10 +163,10 @@ function ViewMenu({ view, onChange }: { view: RbmRibbonView; onChange: (view: Rb
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`Show: ${ribbonViews[view].name}`}
-        sx={{ position: 'absolute', left: 20, top: 16, display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 32, px: 3, maxWidth: X0 - 28, borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid ${filtered ? colour.deepBlue : colour.silver}`, bgcolor: filtered ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap' }}
+        sx={{ position: 'absolute', left: 20, top: 16, display: 'inline-flex', alignItems: 'center', gap: 1.5, height: d.control, px: 3, maxWidth: X0 - 28, borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid ${filtered ? colour.deepBlue : colour.silver}`, bgcolor: filtered ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: d.body, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap' }}
       >
         <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{ribbonViews[view].name}</Box>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colour.slate} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
+        <svg width={d.icon} height={d.icon} viewBox="0 0 24 24" fill="none" stroke={colour.slate} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
           <path d="M6 9l6 6 6-6" />
         </svg>
       </ButtonBase>
@@ -184,18 +188,18 @@ function ViewMenu({ view, onChange }: { view: RbmRibbonView; onChange: (view: Rb
               setOpen(false);
               onChange(v);
             }}
-            sx={{ gap: 3, minHeight: 40, px: 4, py: 1.5, fontSize: 13, fontWeight: 600, color: 'text.primary', borderTop: n > 0 ? `${stroke.thin}px solid ${hairline}` : 0, '&.Mui-focusVisible': { outlineOffset: -2 } }}
+            sx={{ gap: `${d.gap}px`, minHeight: d.target, px: `${d.padX}px`, py: 1.5, fontSize: d.body, fontWeight: 600, color: 'text.primary', borderTop: n > 0 ? `${stroke.thin}px solid ${hairline}` : 0, '&.Mui-focusVisible': { outlineOffset: -2 } }}
           >
-            <Box component="span" sx={{ width: 16, flex: 'none', color: 'primary.main' }}>
+            <Box component="span" sx={{ width: d.icon, flex: 'none', color: 'primary.main' }}>
               {v === view && (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block' }}>
+                <svg width={d.icon} height={d.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block' }}>
                   <path d="M5 12.5l4.5 4.5L19 7" />
                 </svg>
               )}
             </Box>
             <Box component="span" sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3, whiteSpace: 'normal' }}>
               <span>{ribbonViews[v].name}</span>
-              <Box component="span" sx={{ fontSize: 12, fontWeight: 400, color: 'text.secondary' }}>{ribbonViews[v].detail}</Box>
+              <Box component="span" sx={{ fontSize: d.caption, fontWeight: 400, color: 'text.secondary' }}>{ribbonViews[v].detail}</Box>
             </Box>
           </MenuItem>
         ))}
@@ -211,6 +215,8 @@ const hatch = (c: string) => `repeating-linear-gradient(135deg,${c} 0,${c} 3px,$
  * end set against its plan. It shows stages, not tasks.
  */
 export function RbmEventRibbon(props: RbmEventRibbonProps) {
+  // The schedule's geometry (lanes, sub-rows, label column, time scale) is as drawn; its text and marks follow the density.
+  const d = useDensity();
   const { runbooks, now, timeZone, collapsed: collapsedProp, onCollapsedChange, onSelectStage, onSelectMarker } = props;
   const [viewState, setViewState] = useState<RbmRibbonView>('all');
   const view = props.view ?? viewState;
@@ -327,7 +333,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
         {hourTicks(windowStart, windowEnd, pxPerHour).map((t) => (
           <Box key={t.getTime()} aria-hidden="true">
             <Box style={{ left: scale(t) }} sx={{ position: 'absolute', top: 60, bottom: 12, width: '1px', bgcolor: hairline }} />
-            <Box style={{ left: scale(t) }} sx={{ position: 'absolute', top: 38, transform: 'translateX(-50%)', fontSize: 11, color: 'text.secondary', fontVariantNumeric: 'tabular-nums', bgcolor: 'background.paper', px: '3px' }}>
+            <Box style={{ left: scale(t) }} sx={{ position: 'absolute', top: 38, transform: 'translateX(-50%)', fontSize: d.caption, color: 'text.secondary', fontVariantNumeric: 'tabular-nums', bgcolor: 'background.paper', px: '3px' }}>
               {timeOf(t, timeZone)}
             </Box>
           </Box>
@@ -349,7 +355,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                 <Box
                   aria-hidden="true"
                   style={{ top: laneTop + 2 }}
-                  sx={{ position: 'absolute', left: 20, height: 50, display: 'flex', alignItems: 'center', gap: 2, maxWidth: X0 - 28, fontSize: 12, fontWeight: 800, letterSpacing: '0.02em', textTransform: 'uppercase', color: 'primary.main', whiteSpace: 'nowrap', overflow: 'hidden' }}
+                  sx={{ position: 'absolute', left: 20, height: 50, display: 'flex', alignItems: 'center', gap: 2, maxWidth: X0 - 28, fontSize: d.caption, fontWeight: 800, letterSpacing: '0.02em', textTransform: 'uppercase', color: 'primary.main', whiteSpace: 'nowrap', overflow: 'hidden' }}
                 >
                   <Box component="span" sx={{ fontVariantNumeric: 'tabular-nums', color: 'text.secondary' }}>
                     {r.wbs}
@@ -357,7 +363,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                   {r.name}
                 </Box>
                 {(hidden > 0 || expanded) && (
-                  <RbmToggleLink onClick={() => toggleLane(r.id)} style={{ top: laneTop + 44 }} sx={{ position: 'absolute', left: 20, fontSize: 11 }}>
+                  <RbmToggleLink onClick={() => toggleLane(r.id)} style={{ top: laneTop + 44 }} sx={{ position: 'absolute', left: 20 }}>
                     {expanded ? 'Show fewer stages' : `+${hidden} more ${hidden === 1 ? 'stage' : 'stages'} overlapping`}
                   </RbmToggleLink>
                 )}
@@ -379,7 +385,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                     const label = `Stage ${s.wbs} ${s.name}, ${timeOf(s.start, timeZone)} to ${timeOf(s.end, timeZone)}, ${palette.status[s.state].label}${s.critical ? ', on the critical path' : ''}`;
                     return (
                       <Box key={s.id}>
-                        <Box aria-hidden="true" style={{ left: left + 3, top: rowTop(row) }} sx={{ position: 'absolute', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', color: 'text.secondary', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                        <Box aria-hidden="true" style={{ left: left + 3, top: rowTop(row) }} sx={{ position: 'absolute', fontSize: d.caption, fontWeight: 700, letterSpacing: '0.06em', color: 'text.secondary', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
                           {s.wbs}
                         </Box>
                         <ButtonBase
@@ -442,15 +448,15 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                   })}
 
                 <Box style={{ top: laneTop + 2 }} sx={{ position: 'absolute', right: 20, height: 50, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', gap: '1px' }}>
-                  <Box component="span" aria-hidden="true" sx={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: 'text.secondary' }}>
+                  <Box component="span" aria-hidden="true" sx={{ fontSize: d.caption, fontWeight: 800, letterSpacing: '0.08em', color: 'text.secondary' }}>
                     FORECAST
                   </Box>
                   <Box component="span" aria-hidden="true" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, fontVariantNumeric: 'tabular-nums' }}>
-                    <Box component="span" sx={{ fontSize: 15, fontWeight: 800, color: 'text.primary' }}>
+                    <Box component="span" sx={{ fontSize: d.body, fontWeight: 800, color: 'text.primary' }}>
                       {timeOf(r.forecastEnd, timeZone)}
                     </Box>
                     <RagMark rag={r.rag} size="lane" />
-                    <Box component="span" sx={{ fontSize: 12, fontWeight: 700, color: ragText[r.rag] }}>
+                    <Box component="span" sx={{ fontSize: d.caption, fontWeight: 700, color: ragText[r.rag] }}>
                       {shortGap(r.gapMinutes)}
                     </Box>
                   </Box>
@@ -463,7 +469,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
         {nowShown && (
           <>
             <Box aria-hidden="true" style={{ left: nowX - 1 }} sx={{ position: 'absolute', top: 30, bottom: 12, width: 2, bgcolor: 'text.primary' }} />
-            <Box style={{ left: nowX }} sx={{ position: 'absolute', top: 6, transform: 'translateX(-50%)', display: 'inline-flex', alignItems: 'center', height: 22, px: 2.5, borderRadius: `${radius.pill}px`, bgcolor: 'text.primary', color: colour.white, fontSize: 12, fontWeight: 800, whiteSpace: 'nowrap' }}>
+            <Box style={{ left: nowX }} sx={{ position: 'absolute', top: 6, transform: 'translateX(-50%)', display: 'inline-flex', alignItems: 'center', height: 22, px: 2.5, borderRadius: `${radius.pill}px`, bgcolor: 'text.primary', color: colour.white, fontSize: d.caption, fontWeight: 800, whiteSpace: 'nowrap' }}>
               NOW {timeOf(now, timeZone)}
             </Box>
           </>
@@ -472,11 +478,11 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
         <ViewMenu view={view} onChange={setView} />
 
         {hiddenText && (
-          <Box role="status" style={{ top: hiddenNoteTop }} sx={{ position: 'absolute', left: 0, right: 0, height: HIDDEN_NOTE, display: 'flex', alignItems: 'center', gap: 3, px: 5, borderTop: `${stroke.thin}px solid ${hairline}`, fontSize: 12, color: 'text.secondary', boxSizing: 'border-box' }}>
+          <Box role="status" style={{ top: hiddenNoteTop }} sx={{ position: 'absolute', left: 0, right: 0, height: HIDDEN_NOTE, display: 'flex', alignItems: 'center', gap: `${d.gap}px`, px: 5, borderTop: `${stroke.thin}px solid ${hairline}`, fontSize: d.caption, color: 'text.secondary', boxSizing: 'border-box' }}>
             <span>
               {hiddenText} hidden: not on the critical path
             </span>
-            <RbmToggleLink onClick={() => setView('all')} sx={{ fontSize: 12 }}>
+            <RbmToggleLink onClick={() => setView('all')}>
               Show all stages
             </RbmToggleLink>
           </Box>
@@ -484,7 +490,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
         <RbmRegionToggle region="Event ribbon" collapsed={false} onChange={setCollapsed} sx={{ position: 'absolute', right: 16, top: 8 }} />
       </Box>
 
-      <Box aria-hidden="true" sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px 20px', alignItems: 'center', fontSize: 12, color: 'text.secondary', px: 5, pb: 3.5 }}>
+      <Box aria-hidden="true" sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px 20px', alignItems: 'center', fontSize: d.caption, color: 'text.secondary', px: 5, pb: 3.5 }}>
         {(
           [
             ['task', 'complete', 'Complete stage'],

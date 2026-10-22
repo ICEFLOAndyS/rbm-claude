@@ -1,6 +1,7 @@
 import { Box, ButtonBase, InputBase, Paper, Popper } from '@mui/material';
 import { forwardRef, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { colour, elevation, radius, stroke } from '../../theme/tokens';
+import { hitTarget, ringSize, useDensity } from '../../theme/RbmDensity';
 import type { RbmTimelineTask } from './focusRule';
 import { highlight, matchedField, searchWords, type RbmSearchField } from './taskSearch';
 
@@ -31,6 +32,8 @@ export const SUGGESTION_LIMIT = 8;
  */
 export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(function RbmTaskSearch({ value, onChange, suggestions, fields, runbookNames, onPick, label = 'Search tasks', placeholder = 'Search tasks', size = 'medium' }, inputRef) {
   const small = size === 'small';
+  // The field is a control: the density's control height and body text. Small keeps its narrower width.
+  const d = useDensity();
   const anchor = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
@@ -68,9 +71,9 @@ export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(fu
   return (
     <Box
       ref={anchor}
-      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: small ? 28 : 32, width: small ? 200 : 220, minWidth: 140, flexShrink: 1, px: 3, boxSizing: 'border-box', borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid ${words.length ? colour.deepBlue : colour.silver}`, bgcolor: words.length ? 'rgba(35,50,111,0.08)' : colour.white, '&:focus-within': { outline: `${stroke.thick}px solid ${colour.blueDark}`, outlineOffset: 1 } }}
+      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: d.control, width: small ? 200 : 220, minWidth: 140, flexShrink: 1, px: 3, boxSizing: 'border-box', borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid ${words.length ? colour.deepBlue : colour.silver}`, bgcolor: words.length ? 'rgba(35,50,111,0.08)' : colour.white, '&:focus-within': { outline: `${stroke.thick}px solid ${colour.blueDark}`, outlineOffset: 1 } }}
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colour.slate} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
+      <svg width={d.icon} height={d.icon} viewBox="0 0 24 24" fill="none" stroke={colour.slate} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
         <circle cx="11" cy="11" r="6.5" />
         <path d="M16 16l4.5 4.5" />
       </svg>
@@ -95,7 +98,7 @@ export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(fu
           'aria-activedescendant': listOpen && active >= 0 ? optionId(active) : undefined,
           spellCheck: false,
         }}
-        sx={{ flex: 1, minWidth: 0, fontSize: small ? 12 : 13, fontWeight: 600, color: 'primary.main', '& input': { p: 0 }, '& input::placeholder': { color: colour.slate, opacity: 1, fontWeight: 400 } }}
+        sx={{ flex: 1, minWidth: 0, fontSize: d.body, fontWeight: 600, color: 'primary.main', '& input': { p: 0 }, '& input::placeholder': { color: colour.slate, opacity: 1, fontWeight: 400 } }}
       />
       {value && (
         <ButtonBase onClick={() => onChange('')} aria-label="Clear search" sx={{ borderRadius: '50%', color: colour.slate, flex: 'none' }}>
@@ -120,14 +123,14 @@ export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(fu
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => pick(t)}
                   onMouseEnter={() => setActive(i)}
-                  sx={{ display: 'flex', alignItems: 'center', gap: 3, minHeight: 44, px: 4, py: 1.5, cursor: 'pointer', borderTop: i > 0 ? 1 : 0, borderColor: 'divider', bgcolor: i === active ? 'grey.100' : 'transparent' }}
+                  sx={{ display: 'flex', alignItems: 'center', gap: `${d.gap}px`, minHeight: d.row, px: `${d.padX}px`, py: 1.5, cursor: 'pointer', borderTop: i > 0 ? 1 : 0, borderColor: 'divider', bgcolor: i === active ? 'grey.100' : 'transparent' }}
                 >
-                  <Box component="span" sx={{ fontSize: 12, fontWeight: 700, color: 'text.secondary', minWidth: 44, fontVariantNumeric: 'tabular-nums' }}>{t.wbs}</Box>
+                  <Box component="span" sx={{ fontSize: d.caption, fontWeight: 700, color: 'text.secondary', minWidth: 44, fontVariantNumeric: 'tabular-nums' }}>{t.wbs}</Box>
                   <Box component="span" sx={{ display: 'flex', flexDirection: 'column', minWidth: 0, lineHeight: 1.3 }}>
-                    <Box component="span" sx={{ fontSize: 13, color: 'text.primary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <Box component="span" sx={{ fontSize: d.body, color: 'text.primary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {highlight(t.title, words).map((p, n) => (p.match ? <Box component="strong" key={n} sx={{ fontWeight: 800 }}>{p.text}</Box> : <span key={n}>{p.text}</span>))}
                     </Box>
-                    <Box component="span" sx={{ fontSize: 12, color: 'text.secondary' }}>
+                    <Box component="span" sx={{ fontSize: d.caption, color: 'text.secondary' }}>
                       {runbookNames.get(t.runbookId)}
                       {field && field.key !== 'title' && ` · matched ${field.label.toLowerCase()}`}
                     </Box>
@@ -137,7 +140,7 @@ export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(fu
             })}
           </Box>
           {suggestions.length > shown.length && (
-            <Box sx={{ px: 4, py: 2, borderTop: 1, borderColor: 'divider', fontSize: 12, color: 'text.secondary' }}>
+            <Box sx={{ px: `${d.padX}px`, py: 2, borderTop: 1, borderColor: 'divider', fontSize: d.caption, color: 'text.secondary' }}>
               {suggestions.length - shown.length} more in the timeline
             </Box>
           )}

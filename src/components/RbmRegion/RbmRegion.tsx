@@ -1,6 +1,7 @@
 import { Box, ButtonBase } from '@mui/material';
 import type { CSSProperties, ReactNode } from 'react';
 import { radius } from '../../theme/tokens';
+import { hitTarget, useDensity } from '../../theme/RbmDensity';
 
 /**
  * The shared frame for the movable regions (Event ribbon, Task Timeline, Hot-topics strip).
@@ -19,8 +20,9 @@ function Chevron({ up }: { up?: boolean }) {
 
 /** A text link with a chevron, as drawn on the ribbon: "Collapse ⌃" or "Expand ⌄". */
 export function RbmToggleLink({ onClick, children, label, sx, style }: { onClick: () => void; children: ReactNode; label?: string; sx?: object; style?: CSSProperties }) {
+  const d = useDensity();
   return (
-    <ButtonBase onClick={onClick} aria-label={label} style={style} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap', borderRadius: 1, ...sx }}>
+    <ButtonBase onClick={onClick} aria-label={label} style={style} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap', borderRadius: 1, ...hitTarget(d.target), ...sx }}>
       {children}
     </ButtonBase>
   );
@@ -55,11 +57,13 @@ export function RbmEyebrow({ children }: { children: ReactNode }) {
 
 /** One chip in a collapsed region's summary. `label` is what a screen reader hears. */
 export function RbmSummaryChip({ label, children }: { label: string; children: ReactNode }) {
+  // A label, not a control: the drawn 32 px height stays; the text is the density's body text.
+  const d = useDensity();
   return (
     <Box
       component="li"
       aria-label={label}
-      sx={{ display: 'inline-flex', alignItems: 'center', gap: 2, height: 32, px: 3, border: 1, borderColor: 'divider', borderRadius: `${radius.pill}px`, fontSize: 13, whiteSpace: 'nowrap', flex: 'none' }}
+      sx={{ display: 'inline-flex', alignItems: 'center', gap: 2, height: 32, px: 3, border: 1, borderColor: 'divider', borderRadius: `${radius.pill}px`, fontSize: d.body, whiteSpace: 'nowrap', flex: 'none' }}
     >
       {children}
     </Box>

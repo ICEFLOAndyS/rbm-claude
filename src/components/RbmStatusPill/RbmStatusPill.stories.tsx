@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Box } from '@mui/material';
 import { RbmStatusPill } from './RbmStatusPill';
+import { RbmDensity } from '../../theme/RbmDensity';
 import type { RbmState } from '../../theme/tokens';
 
 const meta: Meta<typeof RbmStatusPill> = {
@@ -34,7 +35,8 @@ export const Blocked: Story = { args: { state: 'blocked' }, parameters: notDrawn
 export const Skipped: Story = { args: { state: 'skipped' }, parameters: notDrawn };
 
 /** The compact event bar size (24 px), drawn on the Command board for Active. */
-export const Compact: Story = { args: { state: 'active', size: 'compact' } };
+/** In the compact event bar, a D2 Compact region. */
+export const Compact: Story = { args: { state: 'active', size: 'compact' }, decorators: [(Story) => <RbmDensity level="compact">{Story()}</RbmDensity>] };
 
 export const CustomLabel: Story = { args: { state: 'active', label: 'Event live' } };
 

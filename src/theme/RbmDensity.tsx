@@ -24,6 +24,19 @@ export function useDensity(): DensityTokens {
   return { level, ...density[level] };
 }
 
+/** A ringed dot (At risk, Paused) at a density: a disc 6 px larger than the dot, with a dot-sized centre. */
+export const ringSize = (dot: number) => dot + 6;
+
+/**
+ * For a control drawn smaller than the density's minimum target (a pill-shaped button, a text link):
+ * the drawn shape stays, and an invisible layer extends the area a pointer can hit to the target.
+ */
+export const hitTarget = (target: number) =>
+  ({
+    position: 'relative',
+    '&::after': { content: '""', position: 'absolute', left: '50%', top: '50%', width: '100%', height: '100%', minWidth: target, minHeight: target, transform: 'translate(-50%, -50%)' },
+  }) as const;
+
 /** Line height for each level (Density board). */
 export const densityLineHeight: Record<DensityLevel, number> = { command: 1.5, comfortable: 1.5, compact: 1.4, dense: 1.35 };
 

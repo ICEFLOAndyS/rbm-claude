@@ -408,6 +408,29 @@ Built from the Page templates board ("1 · List of records") at D2 Compact, on M
 - **Stories:** Foundations / Density shows all four levels and a nested region; the grid has a story at D1 and D3. Screenshot-checked.
 - **Command Centre levels (Andy Smith, 22 Oct 2026): mixed by region.** Page header and Event vitals at D1 Comfortable; Event ribbon, Task Timeline and Hot-topics panel at D2 Compact. Converting the Command Centre's components to these tokens is the next pull request.
 
+### 22 Oct 2026: the Command & Control Centre at its density regions (decided by Andy Smith)
+- **Regions:** the Page header (with its menu) and the Event vitals are D1 Comfortable. The Event ribbon, Task Timeline and Hot-topics panel are D2 Compact. `RbmCommandCentre` sets them (`COMMAND_CENTRE_DENSITY`). The compact event bar and the Layout panel are D2 too (proposed: the bar is the compact view, and the panel is a slide-in).
+- **The rules** for which drawn size each token covers are in [density.md](density.md). Every component now reads its region's tokens with `useDensity()`. Widths, group bands, region chrome, the ribbon's schedule geometry, nodes, avatars, rings and tag pills keep their drawn sizes.
+- **What changed from the drawings at D2** (Task Timeline, ribbon, Hot-topics panel, event bar, Layout panel):
+  - Rows: task row 52 to 44 px; stage summary row 52 to 44; "+n more up next" 40 to 44; card item rows (blockers 52, milestones 40) to 44; Layout panel rows 56 to 44; runbook filter and search suggestion rows to 44.
+  - Controls: row action buttons 120 by 32 to 120 by 36; chips and filter pills 32 (28 small) to 36; search fields 32 (28) to 36; Focus / All 32 to 36; Join call, Done and the bulk Start and Complete 36 / 32 to 36.
+  - Text: task titles 15 to 14; times, WBS, durations and deltas 13 to 12; card titles 13 to 14.
+  - Status dots 8 or 9 to 10; ringed dots 11 to 14 to 16 with a 10 px centre.
+  - Side padding and gaps: 12 px each.
+  - Standalone icons: 20 px.
+  - The Next checkpoint countdown is a KPI figure: 28 to 32 px.
+- **At D1** (Page header and Event vitals):
+  - The event actions button goes from 40 to 48 px, with a 24 px icon.
+  - Its menu items are 48 px high, with 16 px text.
+  - Event vitals figures go from 32 and 36 px to 40 px, and their dots from 8 to 10 px.
+  - The state pill and alert counter text goes from 15 to 16 px. The pill heights stay as drawn.
+- **The 12 px floor** (Density board, "Floors protect people"): text drawn smaller now takes the secondary size. This covers the "FC" marker (9 px), eyebrows (10), the runbook record pill and chip counts (11), ribbon hour and WBS labels (10 and 11), the event bar's event number and FORECAST END (11 and 10), FIXED in the Layout panel (11), and the calendar chip's month (10).
+- **Minimum target:** small pill-shaped buttons and text links keep their drawn shape, and an invisible layer extends their hit area to the target (`hitTarget`). This covers the alert counter, "Collapse" and "Expand", "Show all", "Only", "n more", "+ Raise", Undo, Back to top, the drag grip and the hover checkbox.
+- **Icons beside a button's text** are glyphs sized with the text and keep their drawn sizes. Otherwise "Complete" no longer fits the fixed 120 px action button. The label's inner gap is 4 px (was 6) for the same reason.
+- **Needs a decision:** the compact event bar's forecast end time is a KPI figure, but the D2 figure size (32 px) does not fit the drawn 48 px bar with its eyebrow. It stays at the drawn 20 px. Should the bar grow, or is the bar's time not a KPI figure?
+- **Command board to redraw:** the Task Timeline, Event ribbon, Hot-topics panel and compact event bar at the D2 sizes above; the Page header and Event vitals at D1.
+- **Tests:** each converted component is tested in its region, and new tests pin the D2 sizes of the task row, the Task Timeline, the tags and the countdown, and the D1 figure. Visual check: the Weekend Payroll Cutover story, screenshotted at 1600 px.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?
@@ -430,5 +453,6 @@ Built from the Page templates board ("1 · List of records") at D2 Compact, on M
 - **Densities not drawn.** What sizes should nodes, buttons and the Event vitals use at D0 (Command) and D3 (Dense)?
 - **Boards to redraw at D2:** the Page templates list drawing shows 36 px rows, 13 px text and 8 px dots. The density rule (22 Oct 2026) makes them 44 px, 14 px and 10 px.
 - **List of records data contract** (22 Oct 2026, [list-data-model.md](list-data-model.md) section 8). The count line "128 events · filtered to Production" shows fewer than 128 with the fixtures, which span every environment. Live conflicts are found only on save until the ServiceNow real-time spike.
-- **Command board:** redraw the page header and the compact event bar with REV000009 instead of E12345.
+- **Command board:** redraw the page header and the compact event bar with REV000009 instead of E12345, and every region at its density (D1 header and vitals, D2 elsewhere).
+- **Compact event bar forecast time:** a KPI figure that does not fit the 48 px bar at the D2 figure size. Grow the bar, or treat it as text?
 - **MUI X licence.** A real Pro key is needed before release (D4).

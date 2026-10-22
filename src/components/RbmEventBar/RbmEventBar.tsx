@@ -4,6 +4,7 @@ import { RbmStatusPill } from '../RbmStatusPill/RbmStatusPill';
 import { RbmAlertCounter, type RbmAlert } from '../RbmAlertCounter/RbmAlertCounter';
 import type { RbmEventVitalsData, RbmRag } from '../RbmEventVitals/RbmEventVitals';
 import { colour, radius, type RbmState, stroke } from '../../theme/tokens';
+import { hitTarget, ringSize, useDensity } from '../../theme/RbmDensity';
 
 export interface RbmEventSummary {
   /** The event number, for example "REV000001". */
@@ -41,8 +42,9 @@ export function barGap(minutes: number) {
 const discTint: Record<RbmRag, string> = { green: 'rgba(132,204,22,0.28)', amber: 'rgba(255,159,28,0.30)', red: 'rgba(240,0,52,0.14)' };
 
 function Link({ label, onClick, children }: { label: string; onClick?: () => void; children: ReactNode }) {
+  const d = useDensity();
   return (
-    <ButtonBase onClick={onClick} disabled={!onClick} aria-label={label} sx={{ display: 'inline-flex', alignItems: 'center', gap: 2.5, fontFamily: 'inherit', whiteSpace: 'nowrap', borderRadius: 1, color: 'inherit', '&.Mui-disabled': { color: 'inherit' } }}>
+    <ButtonBase onClick={onClick} disabled={!onClick} aria-label={label} sx={{ display: 'inline-flex', alignItems: 'center', gap: 2.5, fontFamily: 'inherit', whiteSpace: 'nowrap', borderRadius: 1, color: 'inherit', '&.Mui-disabled': { color: 'inherit' }, ...hitTarget(d.target) }}>
       {children}
     </ButtonBase>
   );
@@ -55,6 +57,8 @@ function Link({ label, onClick, children }: { label: string; onClick?: () => voi
  */
 export function RbmEventBar({ event, vitals, alerts, visible, timeZone, onOpenProgress, onOpenIssues, onOpenForecast, onBackToTop }: RbmEventBarProps) {
   const { palette } = useTheme();
+  // The bar is a D2 Compact region; its 48 px height is as drawn (bar chrome, not on the density scale).
+  const d = useDensity();
   const s = palette.status;
   const { progress, issues, forecast } = vitals;
   const share = (n: number) => (progress.total > 0 ? (n / progress.total) * 100 : 0);
@@ -68,11 +72,11 @@ export function RbmEventBar({ event, vitals, alerts, visible, timeZone, onOpenPr
       <Box
         component="header"
         aria-label="Event summary"
-        sx={{ display: 'flex', alignItems: 'center', gap: 5, height: 48, px: 4, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider', boxShadow: '0 4px 12px rgba(35,50,111,0.10)', boxSizing: 'border-box', lineHeight: 'normal', overflow: 'hidden' }}
+        sx={{ display: 'flex', alignItems: 'center', gap: `${d.gap}px`, height: 48, px: `${d.padX}px`, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider', boxShadow: '0 4px 12px rgba(35,50,111,0.10)', boxSizing: 'border-box', lineHeight: 'normal', overflow: 'hidden' }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-          <Box component="span" sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: '0.04em' }}>{event.number}</Box>
-          <Box component="span" sx={{ fontSize: 14, fontWeight: 800, color: 'text.primary', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{event.name}</Box>
+          <Box component="span" sx={{ fontSize: d.caption, fontWeight: 700, color: 'text.secondary', letterSpacing: '0.04em' }}>{event.number}</Box>
+          <Box component="span" sx={{ fontSize: d.body, fontWeight: 800, color: 'text.primary', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{event.name}</Box>
         </Box>
         <RbmStatusPill state={event.state} size="compact" />
         <RbmAlertCounter alerts={alerts} size="compact" />
@@ -84,18 +88,18 @@ export function RbmEventBar({ event, vitals, alerts, visible, timeZone, onOpenPr
             <Box component="span" sx={{ width: `${share(progress.active)}%`, bgcolor: s.active.signal }} />
             <Box component="span" sx={{ width: `${share(progress.blocked)}%`, bgcolor: s.blocked.signal }} />
           </Box>
-          <Box component="span" sx={{ fontSize: 14, fontWeight: 800, color: 'text.primary' }}>{percent}%</Box>
-          <Box component="span" sx={{ fontSize: 12, color: 'text.secondary' }}>complete</Box>
+          <Box component="span" sx={{ fontSize: d.body, fontWeight: 800, color: 'text.primary' }}>{percent}%</Box>
+          <Box component="span" sx={{ fontSize: d.caption, color: 'text.secondary' }}>complete</Box>
         </Link>
 
         <Link label={`${open} open ${open === 1 ? 'issue' : 'issues'}`} onClick={onOpenIssues}>
-          <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '7px', fontSize: 13, color: 'text.secondary' }}>
+          <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '7px', fontSize: d.caption, color: 'text.secondary' }}>
             {worst === 'medium' ? (
-              <Box component="span" aria-hidden="true" sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: s.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: s.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
+              <Box component="span" aria-hidden="true" sx={{ width: ringSize(d.dot), height: ringSize(d.dot), borderRadius: '50%', bgcolor: s.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Box component="span" sx={{ width: d.dot, height: d.dot, borderRadius: '50%', bgcolor: s.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
               </Box>
             ) : worst ? (
-              <Box component="span" aria-hidden="true" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: worst === 'high' ? s.blocked.signal : s.pending.signal }} />
+              <Box component="span" aria-hidden="true" sx={{ width: d.dot, height: d.dot, borderRadius: '50%', bgcolor: worst === 'high' ? s.blocked.signal : s.pending.signal }} />
             ) : null}
             <Box component="strong" sx={{ color: 'text.primary' }}>{open}</Box> open {open === 1 ? 'issue' : 'issues'}
           </Box>
@@ -105,22 +109,23 @@ export function RbmEventBar({ event, vitals, alerts, visible, timeZone, onOpenPr
 
         <Link label={`Forecast end ${timeOf(forecast.end, timeZone)}, ${barGap(forecast.gapMinutes)}`} onClick={onOpenForecast}>
           <Box component="span" aria-hidden="true" data-rag={forecast.rag} sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: discTint[forecast.rag], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={ragText[forecast.rag]} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+            <svg width={d.icon} height={d.icon} viewBox="0 0 24 24" fill="none" stroke={ragText[forecast.rag]} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
               <circle cx="12" cy="12" r="9" />
               <path d="M12 7v5l3 2" />
             </svg>
           </Box>
           <Box component="span" sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15, textAlign: 'left' }}>
-            <Box component="span" sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: 'text.secondary' }}>FORECAST END</Box>
+            <Box component="span" sx={{ fontSize: d.caption, fontWeight: 700, letterSpacing: '0.08em', color: 'text.secondary' }}>FORECAST END</Box>
             <Box component="span" sx={{ display: 'inline-flex', alignItems: 'baseline', gap: 2 }}>
+              {/* Flagged: a KPI figure, but the D2 figure size (32 px) does not fit the drawn 48 px bar, so it stays at the drawn 20 px. */}
               <Box component="span" sx={{ fontSize: 20, fontWeight: 800, color: 'text.primary', fontVariantNumeric: 'tabular-nums' }}>{timeOf(forecast.end, timeZone)}</Box>
-              <Box component="span" sx={{ fontSize: 12, fontWeight: 700, color: ragText[forecast.rag] }}>{barGap(forecast.gapMinutes)}</Box>
+              <Box component="span" sx={{ fontSize: d.caption, fontWeight: 700, color: ragText[forecast.rag] }}>{barGap(forecast.gapMinutes)}</Box>
             </Box>
           </Box>
         </Link>
 
-        <ButtonBase onClick={onBackToTop} aria-label="Back to top" sx={{ borderRadius: 1, color: 'primary.main' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block' }}>
+        <ButtonBase onClick={onBackToTop} aria-label="Back to top" sx={{ borderRadius: 1, color: 'primary.main', ...hitTarget(d.target) }}>
+          <svg width={d.icon} height={d.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block' }}>
             <path d="M6 15l6-6 6 6" />
           </svg>
         </ButtonBase>

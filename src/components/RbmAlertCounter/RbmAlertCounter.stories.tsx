@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { RbmAlertCounter, type RbmAlert } from './RbmAlertCounter';
+import { RbmDensity } from '../../theme/RbmDensity';
 
 const meta: Meta<typeof RbmAlertCounter> = {
   title: 'Base/RbmAlertCounter',
@@ -43,7 +44,8 @@ export const Amber: Story = { args: { alerts: [drawn[1]!] } };
 /** Healthy: no counter at all. */
 export const Healthy: Story = { args: { alerts: [] } };
 /** In the compact event bar. */
-export const Compact: Story = { args: { alerts: drawn, size: 'compact' } };
+/** In the compact event bar, a D2 Compact region. */
+export const Compact: Story = { args: { alerts: drawn, size: 'compact' }, decorators: [(Story) => <RbmDensity level="compact">{Story()}</RbmDensity>] };
 
 /** After a click: the alerts, most serious first, each with a link. */
 export const Open: Story = {

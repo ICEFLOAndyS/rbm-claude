@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { RbmDensity } from '../../theme/RbmDensity';
 import { Box } from '@mui/material';
 import { fn } from 'storybook/test';
 import { RbmTaskRow, type RbmTask } from './RbmTaskRow';
@@ -13,7 +14,8 @@ const meta: Meta<typeof RbmTaskRow> = {
   title: 'Command/RbmTaskRow',
   component: RbmTaskRow,
   parameters: { layout: 'padded' },
-  decorators: [(Story) => <Box sx={{ maxWidth: 1136, border: 1, borderColor: 'divider', borderRadius: '14px', overflow: 'hidden', bgcolor: 'background.paper' }}><Story /></Box>],
+  // A D2 Compact region of the Command Centre (mixed by region, 22 Oct 2026).
+  decorators: [(Story) => <Box sx={{ maxWidth: 1136, border: 1, borderColor: 'divider', borderRadius: '14px', overflow: 'hidden', bgcolor: 'background.paper' }}><Story /></Box>, (Story) => <RbmDensity level="compact"><Story /></RbmDensity>],
   args: { now: tasksNow, timeZone: 'UTC', onAction: fn(), onOpen: fn() },
 };
 export default meta;

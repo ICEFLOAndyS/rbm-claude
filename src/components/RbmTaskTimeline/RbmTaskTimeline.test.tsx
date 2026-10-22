@@ -486,3 +486,21 @@ describe('RbmRunbookFilter', () => {
     expect(screen.getAllByRole('checkbox')).toHaveLength(1);
   });
 });
+
+describe('RbmTaskTimeline density', () => {
+  it('takes its rows, chips and text from the D2 Compact tokens in the Command Centre region', async () => {
+    const { RbmDensity } = await import('../../theme/RbmDensity');
+    const { density } = await import('../../theme/tokens');
+    const d = density.compact;
+    renderUi(
+      <RbmDensity level="compact">
+        <RbmTaskTimeline runbooks={mockTimelineRunbooks()} tasks={mockTimelineTasks()} now={tasksNow} timeZone="UTC" />
+      </RbmDensity>,
+    );
+    const firstTask = document.querySelector('[data-task]') as HTMLElement;
+    expect(firstTask).toHaveStyle({ height: `${d.row}px` });
+    const stageRow = screen.getAllByRole('button', { name: /^Stage / })[0]!;
+    expect(stageRow).toHaveStyle({ height: `${d.row}px` });
+    expect(screen.getAllByRole('button', { name: /^Mine/ })[0]!).toHaveStyle({ height: `${d.control}px`, fontSize: `${d.body}px` });
+  });
+});

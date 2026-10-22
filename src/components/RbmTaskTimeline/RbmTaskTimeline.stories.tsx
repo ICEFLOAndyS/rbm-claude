@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { RbmDensity } from '../../theme/RbmDensity';
 import { Box } from '@mui/material';
 import { fn } from 'storybook/test';
 import { RbmTaskTimeline } from './RbmTaskTimeline';
@@ -9,7 +10,8 @@ const meta: Meta<typeof RbmTaskTimeline> = {
   title: 'Command/RbmTaskTimeline',
   component: RbmTaskTimeline,
   parameters: { layout: 'padded' },
-  decorators: [(Story) => <Box sx={{ maxWidth: 1136 }}><Story /></Box>],
+  // A D2 Compact region of the Command Centre (mixed by region, 22 Oct 2026).
+  decorators: [(Story) => <Box sx={{ maxWidth: 1136 }}><Story /></Box>, (Story) => <RbmDensity level="compact"><Story /></RbmDensity>],
   args: { runbooks: mockTimelineRunbooks(), tasks: mockTimelineTasks(), now: tasksNow, timeZone: 'UTC', onAction: fn(), onOpen: fn(), onRunbookFilterChange: fn() },
 };
 export default meta;

@@ -3,6 +3,7 @@ import { Children, useState } from 'react';
 import { RbmEyebrow, RbmToggleLink } from '../RbmRegion/RbmRegion';
 import { RbmHotTopicsStrip, type RbmHotTopicsStripProps } from './RbmHotTopicsStrip';
 import { radius } from '../../theme/tokens';
+import { useDensity } from '../../theme/RbmDensity';
 
 export type RbmHotTopicsPanelProps = RbmHotTopicsStripProps;
 
@@ -34,6 +35,7 @@ function Chevron({ left }: { left?: boolean }) {
  * Not drawn on the Command board (flagged).
  */
 export function RbmHotTopicsPanel(props: RbmHotTopicsPanelProps) {
+  const d = useDensity();
   const { children, collapsed: collapsedProp, onCollapsedChange, summary = [] } = props;
   const narrow = useMediaQuery(`(max-width: ${HOT_TOPICS_PANEL_MIN_VIEWPORT - 0.02}px)`);
   const [collapsedState, setCollapsedState] = useState(false);
@@ -53,7 +55,7 @@ export function RbmHotTopicsPanel(props: RbmHotTopicsPanelProps) {
         data-collapsed="true"
         sx={{ ...sticky, width: HOT_TOPICS_RAIL_WIDTH, border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, py: 2, overflowY: 'auto', lineHeight: 'normal' }}
       >
-        <RbmToggleLink onClick={() => setCollapsed(false)} label={`Expand ${NAME}`} sx={{ width: 40, height: 40, justifyContent: 'center', flex: 'none' }}>
+        <RbmToggleLink onClick={() => setCollapsed(false)} label={`Expand ${NAME}`} sx={{ width: d.target, height: d.target, justifyContent: 'center', flex: 'none' }}>
           <Chevron left />
         </RbmToggleLink>
         <Box sx={{ writingMode: 'vertical-rl', flex: 'none' }}>
@@ -65,7 +67,7 @@ export function RbmHotTopicsPanel(props: RbmHotTopicsPanelProps) {
               component="li"
               key={item.label}
               aria-label={`${item.label} ${item.value}`}
-              sx={{ writingMode: 'vertical-rl', display: 'inline-flex', alignItems: 'center', gap: 1.5, width: 32, py: 3, boxSizing: 'border-box', border: 1, borderColor: 'divider', borderRadius: `${radius.pill}px`, fontSize: 12, whiteSpace: 'nowrap' }}
+              sx={{ writingMode: 'vertical-rl', display: 'inline-flex', alignItems: 'center', gap: 1.5, width: 32, py: 3, boxSizing: 'border-box', border: 1, borderColor: 'divider', borderRadius: `${radius.pill}px`, fontSize: d.caption, whiteSpace: 'nowrap' }}
             >
               <Box component="span" sx={{ color: 'text.secondary' }}>{item.label}</Box>
               <Box component="strong" sx={{ color: 'text.primary', fontVariantNumeric: 'tabular-nums' }}>{item.value}</Box>
@@ -86,7 +88,7 @@ export function RbmHotTopicsPanel(props: RbmHotTopicsPanelProps) {
         </RbmToggleLink>
       </Box>
       {/* The cards scroll inside the panel when they are taller than the screen. */}
-      <Box data-testid="rbm-hot-topics-cards" sx={{ display: 'flex', flexDirection: 'column', gap: 3, minHeight: 0, overflowY: 'auto', pb: 1 }}>
+      <Box data-testid="rbm-hot-topics-cards" sx={{ display: 'flex', flexDirection: 'column', gap: `${d.gap}px`, minHeight: 0, overflowY: 'auto', pb: 1 }}>
         {Children.map(children, (child) => (
           <Box sx={{ display: 'flex', minWidth: 0, flex: 'none' }}>{child}</Box>
         ))}

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Box } from '@mui/material';
 import { RbmTag, type RbmTagKind } from './RbmTag';
+import { RbmDensity } from '../../theme/RbmDensity';
 
 const kinds: RbmTagKind[] = ['lateToStart', 'lateToFinish', 'readyToStart', 'upNext', 'blocked', 'issue', 'needsResult', 'complete', 'atRisk', 'paused'];
 
@@ -8,6 +9,8 @@ const meta: Meta<typeof RbmTag> = {
   title: 'Base/RbmTag',
   component: RbmTag,
   argTypes: { kind: { control: 'select', options: kinds } },
+  // Tags live in the Task Timeline, a D2 Compact region.
+  decorators: [(Story) => <RbmDensity level="compact">{Story()}</RbmDensity>],
 };
 export default meta;
 

@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { useDensity } from '../../theme/RbmDensity';
 import { Children, useState, type ReactNode } from 'react';
 import { RbmEyebrow, RbmRegionCollapsed, RbmRegionToggle, RbmSummaryChip } from '../RbmRegion/RbmRegion';
 import { countdown, type RbmBlocker, type RbmMilestoneItem, type RbmNextCheckpointData, type RbmWatcher } from './cards';
@@ -47,6 +48,7 @@ const drawn = '1.3fr 1fr 1.25fr 1.05fr 0.95fr';
  * It collapses as a whole to one line, like the Event ribbon.
  */
 export function RbmHotTopicsStrip({ children, collapsed: collapsedProp, onCollapsedChange, summary = [], title = 'Hot-topics strip' }: RbmHotTopicsStripProps) {
+  const d = useDensity();
   const [collapsedState, setCollapsedState] = useState(false);
   const collapsed = collapsedProp ?? collapsedState;
   const setCollapsed = (c: boolean) => {
@@ -79,7 +81,7 @@ export function RbmHotTopicsStrip({ children, collapsed: collapsedProp, onCollap
         sx={{
           display: 'grid',
           gridTemplateColumns: count === 5 ? drawn : `repeat(${count}, minmax(0, 1fr))`,
-          gap: 3,
+          gap: `${d.gap}px`,
           alignItems: 'stretch',
           '@media (max-width: 1199.98px)': { gridTemplateColumns: `repeat(${Math.min(count, 3)}, minmax(0, 1fr))` },
           '@media (max-width: 899.98px)': { gridTemplateColumns: '1fr' },

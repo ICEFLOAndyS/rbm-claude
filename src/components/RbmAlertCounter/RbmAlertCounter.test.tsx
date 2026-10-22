@@ -4,7 +4,8 @@ import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
 import { RbmAlertCounter, sortAlerts, type RbmAlert } from './RbmAlertCounter';
 import { rbmTheme } from '../../theme/theme';
-import { colour, elevation } from '../../theme/tokens';
+import { colour, density, elevation } from '../../theme/tokens';
+import { RbmDensity } from '../../theme/RbmDensity';
 
 const renderCounter = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{ui}</ThemeProvider>);
 
@@ -48,7 +49,7 @@ describe('RbmAlertCounter', () => {
 
   it('is Red with white text when any alert is Red', () => {
     renderCounter(<RbmAlertCounter alerts={[late, blockers]} />);
-    expect(screen.getByRole('button')).toHaveStyle({ backgroundColor: colour.redInner, color: colour.white, height: '30px', fontSize: '15px' });
+    expect(screen.getByRole('button')).toHaveStyle({ backgroundColor: colour.redInner, color: colour.white, height: '30px', fontSize: `${density.comfortable.body}px` });
   });
 
   it('is Amber with Ink text when the only alert is a late forecast', () => {
@@ -56,8 +57,8 @@ describe('RbmAlertCounter', () => {
     expect(screen.getByRole('button')).toHaveStyle({ backgroundColor: colour.amber, color: colour.ink });
   });
 
-  it('is 24 px with 12 px text in the compact event bar', () => {
-    renderCounter(<RbmAlertCounter alerts={[blockers]} size="compact" />);
+  it('is 24 px with the D2 secondary text in the compact event bar', () => {
+    renderCounter(<RbmDensity level="compact"><RbmAlertCounter alerts={[blockers]} size="compact" /></RbmDensity>);
     expect(screen.getByRole('button')).toHaveStyle({ height: '24px', fontSize: '12px' });
   });
 
@@ -103,7 +104,8 @@ describe('RbmAlertCounter', () => {
     await userEvent.click(screen.getByRole('button'));
     const [red, amber] = screen.getAllByTestId('rbm-alert-mark');
     expect(red).toHaveStyle({ width: '10px', backgroundColor: colour.red });
-    expect(amber).toHaveStyle({ width: '12px', backgroundColor: colour.amber });
+    // The density's dot, and the ringed dot 6 px larger (D1: 10 and 16).
+    expect(amber).toHaveStyle({ width: '16px', backgroundColor: colour.amber });
     expect(amber!.firstElementChild).toHaveStyle({ backgroundColor: colour.amberInner });
   });
 });

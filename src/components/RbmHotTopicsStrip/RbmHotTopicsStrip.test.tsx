@@ -1,4 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
+import { RbmDensity } from '../../theme/RbmDensity';
+import { density } from '../../theme/tokens';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
@@ -9,7 +11,8 @@ import { at } from '../../mocks/eventRibbon';
 import { rbmTheme } from '../../theme/theme';
 import { colour } from '../../theme/tokens';
 
-const renderUi = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{ui}</ThemeProvider>);
+// The Hot-topics panel is a D2 Compact region of the Command Centre.
+const renderUi = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}><RbmDensity level="compact">{ui}</RbmDensity></ThemeProvider>);
 const card = (name: string) => screen.getByRole('region', { name });
 
 describe('countdown', () => {
@@ -122,7 +125,8 @@ describe('RbmNextCheckpoint', () => {
   it('shows the checkpoint, its countdown, and its forecast beside the plan', () => {
     renderUi(<RbmNextCheckpoint checkpoint={mockNextCheckpoint()} now={hotTopicsNow} timeZone="UTC" />);
     expect(screen.getByText('Go / No-Go')).toBeInTheDocument();
-    expect(screen.getByText('in 02:05')).toHaveStyle({ fontSize: '28px' });
+    // The countdown is a KPI figure: the D2 figure size (drawn 28 px).
+    expect(screen.getByText('in 02:05')).toHaveStyle({ fontSize: `${density.compact.figure}px` });
     expect(screen.getByText('+12m')).toHaveStyle({ color: colour.amberDeep });
   });
 

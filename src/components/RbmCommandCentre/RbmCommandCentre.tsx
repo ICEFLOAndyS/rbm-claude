@@ -6,7 +6,8 @@ import { RbmEventBar, type RbmEventSummary } from '../RbmEventBar/RbmEventBar';
 import type { RbmEventVitalsData } from '../RbmEventVitals/RbmEventVitals';
 import { DEFAULT_LAYOUT, RbmLayoutPanel, type RbmMovableRegion, type RbmRegion } from '../RbmLayoutPanel/RbmLayoutPanel';
 import { HOT_TOPICS_PANEL_MIN_VIEWPORT } from '../RbmHotTopicsStrip/RbmHotTopicsPanel';
-import { colour, elevation, hairline, radius, stroke } from '../../theme/tokens';
+import { colour, density, elevation, hairline, radius, stroke } from '../../theme/tokens';
+import { RbmDensity, useDensity } from '../../theme/RbmDensity';
 
 /** Event-level actions in the menu at the right of the page header, in the drawn order. */
 export type RbmEventAction = 'raiseIssue' | 'raiseBlocker' | 'addNote' | 'notifyStakeholders' | 'pauseEvent' | 'exportLog' | 'settings';
@@ -43,12 +44,22 @@ export interface RbmCommandCentreProps {
   timeZone?: string;
 }
 
-/** The Task Timeline keeps a minimum of 8 rows while open: toolbar 64 + summary 40 + 8 rows of 52. Collapsed, it is one line (agreed 22 Oct 2026). */
-export const TIMELINE_MIN_HEIGHT = 64 + 40 + 8 * 52;
+/**
+ * Density by region (Andy Smith, 22 Oct 2026): the Page header and Event vitals are D1 Comfortable; the
+ * Event ribbon, Task Timeline, Hot-topics panel, compact event bar and Layout panel are D2 Compact.
+ */
+export const COMMAND_CENTRE_DENSITY = { header: 'comfortable', vitals: 'comfortable', regions: 'compact' } as const;
+
+/**
+ * The Task Timeline keeps a minimum of 8 rows while open: toolbar 64 + summary 40 + 8 rows at the D2
+ * row height (44). Collapsed, it is one line (agreed 22 Oct 2026).
+ */
+export const TIMELINE_MIN_HEIGHT = 64 + 40 + 8 * density[COMMAND_CENTRE_DENSITY.regions].row;
 
 function Icon({ children }: { children: ReactNode }) {
+  const { icon } = useDensity();
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colour.ink} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
+    <svg width={icon} height={icon} viewBox="0 0 24 24" fill="none" stroke={colour.ink} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
       {children}
     </svg>
   );
@@ -119,6 +130,8 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
     timeline: props.collapsed?.timeline ? timeline : <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: TIMELINE_MIN_HEIGHT, '& > *': { flex: 1 } }}>{timeline}</Box>,
   };
   const shown = actions.filter((a) => a.key === 'layout' || eventActions[a.key as RbmEventAction]);
+  // The header is D1 whatever surrounds the page; it reads its tokens directly.
+  const h = density[COMMAND_CENTRE_DENSITY.header];
 
   return (
     <Box component="section" aria-labelledby={titleId} sx={{ bgcolor: 'grey.100', p: 8, display: 'flex', flexDirection: 'column', gap: 6, boxSizing: 'border-box', minWidth: 0, lineHeight: 'normal' }}>
@@ -126,80 +139,84 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
       {/* -32 px to reach the page edge, then 8 px so that with the 24 px gap the header stays where it was. */}
       <Box sx={{ position: 'sticky', top: 0, height: 0, zIndex: 10, mx: -8, mt: -8, mb: 2 }}>
         <Box sx={{ position: 'absolute', inset: '0 0 auto 0' }}>
-          <RbmEventBar
-            event={event}
-            vitals={vitalsData}
-            alerts={alerts}
-            visible={!vitalsOnScreen}
-            timeZone={timeZone}
-            onOpenProgress={props.onOpenProgress}
-            onOpenIssues={props.onOpenIssues}
-            onOpenForecast={props.onOpenForecast}
-            onBackToTop={() => top.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })}
-          />
+          <RbmDensity level={COMMAND_CENTRE_DENSITY.regions}>
+            <RbmEventBar
+              event={event}
+              vitals={vitalsData}
+              alerts={alerts}
+              visible={!vitalsOnScreen}
+              timeZone={timeZone}
+              onOpenProgress={props.onOpenProgress}
+              onOpenIssues={props.onOpenIssues}
+              onOpenForecast={props.onOpenForecast}
+              onBackToTop={() => top.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })}
+            />
+          </RbmDensity>
         </Box>
       </Box>
 
-      {/* Page header (fixed) */}
-      <Box ref={top} component="header" sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 4, scrollMarginTop: 32 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-          <Box component="nav" aria-label="Breadcrumb" sx={{ fontSize: 13, fontWeight: 600 }}>
-            <Box component="span" sx={{ color: 'primary.main' }}>Run</Box> <Box component="span" aria-hidden="true" sx={{ color: colour.silver }}>/</Box>{' '}
-            <Box component="span" aria-current="page" sx={{ color: 'text.secondary' }}>{event.name}</Box>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
-            <Box component="h1" id={titleId} sx={{ m: 0, fontSize: 28, lineHeight: 1.15, fontWeight: 800, letterSpacing: '-0.025em', color: 'text.primary' }}>
-              {event.number} · {event.name}
+      {/* Page header (fixed) and its menu: D1 Comfortable */}
+      <RbmDensity level={COMMAND_CENTRE_DENSITY.header}>
+        <Box ref={top} component="header" sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 4, scrollMarginTop: 32 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+            <Box component="nav" aria-label="Breadcrumb" sx={{ fontSize: h.caption, fontWeight: 600 }}>
+              <Box component="span" sx={{ color: 'primary.main' }}>Run</Box> <Box component="span" aria-hidden="true" sx={{ color: colour.silver }}>/</Box>{' '}
+              <Box component="span" aria-current="page" sx={{ color: 'text.secondary' }}>{event.name}</Box>
             </Box>
-            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 2.5, ml: 0.5 }}>
-              <RbmStatusPill state={event.state} />
-              <RbmAlertCounter alerts={alerts} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
+              <Box component="h1" id={titleId} sx={{ m: 0, fontSize: 28, lineHeight: 1.15, fontWeight: 800, letterSpacing: '-0.025em', color: 'text.primary' }}>
+                {event.number} · {event.name}
+              </Box>
+              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 2.5, ml: 0.5 }}>
+                <RbmStatusPill state={event.state} />
+                <RbmAlertCounter alerts={alerts} />
+              </Box>
+            </Box>
+            <Box sx={{ fontSize: h.caption, color: 'text.secondary' }}>
+              Owner <Box component="strong" sx={{ color: 'text.primary' }}>{event.owner}</Box> · Window {formatWindow(event.window.start, event.window.end, timeZone)}
             </Box>
           </Box>
-          <Box sx={{ fontSize: 13, color: 'text.secondary' }}>
-            Owner <Box component="strong" sx={{ color: 'text.primary' }}>{event.owner}</Box> · Window {formatWindow(event.window.start, event.window.end, timeZone)}
-          </Box>
-        </Box>
-        <ButtonBase
-          ref={menuButton}
-          onClick={() => setMenuOpen(true)}
-          aria-label="Event actions"
-          aria-haspopup="menu"
-          aria-expanded={menuOpen}
-          sx={{ width: 40, height: 40, borderRadius: `${radius.control}px`, border: `${stroke.thin}px solid ${colour.silver}`, bgcolor: colour.white, color: 'primary.main', flex: 'none' }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M4 7h16M4 12h16M4 17h16" />
-          </svg>
-        </ButtonBase>
-      </Box>
-
-      <Menu
-        open={menuOpen}
-        anchorEl={menuButton.current}
-        onClose={() => setMenuOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        slotProps={{ paper: { sx: { mt: 1.5, width: 300, border: 1, borderColor: 'divider', borderRadius: `${radius.control}px`, boxShadow: elevation.menu } }, list: { 'aria-label': 'Event actions', sx: { py: 0 } } }}
-      >
-        {shown.map((a, n) => (
-          <MenuItem
-            key={a.key}
-            onClick={() => {
-              setMenuOpen(false);
-              if (a.key === 'layout') setLayoutOpen(true);
-              else eventActions[a.key]?.();
-            }}
-            sx={{ gap: 3, minHeight: 40, px: 4, py: 1.5, fontSize: 13, fontWeight: 600, color: 'text.primary', borderTop: n > 0 ? `${stroke.thin}px solid ${hairline}` : 0, '&.Mui-focusVisible': { outlineOffset: -2 } }}
+          <ButtonBase
+            ref={menuButton}
+            onClick={() => setMenuOpen(true)}
+            aria-label="Event actions"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            sx={{ width: h.control, height: h.control, borderRadius: `${h.radius}px`, border: `${stroke.thin}px solid ${colour.silver}`, bgcolor: colour.white, color: 'primary.main', flex: 'none' }}
           >
-            <Icon>{a.icon}</Icon>
-            <Box component="span" sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
-              <span>{a.text}</span>
-              {a.sub && <Box component="span" sx={{ fontSize: 12, fontWeight: 400, color: 'text.secondary' }}>{a.sub}</Box>}
-            </Box>
-          </MenuItem>
-        ))}
-      </Menu>
+            <svg width={h.icon} height={h.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </ButtonBase>
+        </Box>
+
+        <Menu
+          open={menuOpen}
+          anchorEl={menuButton.current}
+          onClose={() => setMenuOpen(false)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          slotProps={{ paper: { sx: { mt: 1.5, width: 300, border: 1, borderColor: 'divider', borderRadius: `${radius.control}px`, boxShadow: elevation.menu } }, list: { 'aria-label': 'Event actions', sx: { py: 0 } } }}
+        >
+          {shown.map((a, n) => (
+            <MenuItem
+              key={a.key}
+              onClick={() => {
+                setMenuOpen(false);
+                if (a.key === 'layout') setLayoutOpen(true);
+                else eventActions[a.key]?.();
+              }}
+              sx={{ gap: `${h.gap}px`, minHeight: h.target, px: `${h.padX}px`, py: 1.5, fontSize: h.body, fontWeight: 600, color: 'text.primary', borderTop: n > 0 ? `${stroke.thin}px solid ${hairline}` : 0, '&.Mui-focusVisible': { outlineOffset: -2 } }}
+            >
+              <Icon>{a.icon}</Icon>
+              <Box component="span" sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
+                <span>{a.text}</span>
+                {a.sub && <Box component="span" sx={{ fontSize: h.caption, fontWeight: 400, color: 'text.secondary' }}>{a.sub}</Box>}
+              </Box>
+            </MenuItem>
+          ))}
+        </Menu>
+      </RbmDensity>
 
       {/* Layout opens a small panel beside the menu, not a new page, so the user watches the page change. */}
       <Popover
@@ -211,25 +228,31 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
         disableScrollLock
         slotProps={{ paper: { sx: { mt: 1.5, bgcolor: 'transparent', boxShadow: 'none', overflow: 'visible' } } }}
       >
-        <RbmLayoutPanel order={layout} onChange={setLayout} onClose={() => setLayoutOpen(false)} collapsed={props.collapsed} onCollapsedChange={props.onCollapsedChange} onReset={props.onLayoutReset} />
+        <RbmDensity level={COMMAND_CENTRE_DENSITY.regions}>
+          <RbmLayoutPanel order={layout} onChange={setLayout} onClose={() => setLayoutOpen(false)} collapsed={props.collapsed} onCollapsedChange={props.onCollapsedChange} onReset={props.onLayoutReset} />
+        </RbmDensity>
       </Popover>
 
       {/* Event vitals (fixed) */}
-      <Box ref={vitalsRef}>{vitals}</Box>
-
-      {/* The main column and the Hot-topics panel. The panel's cell runs the full height, so the panel can stay in view as the page scrolls. */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: 6, alignItems: 'stretch', [`@media (max-width: ${HOT_TOPICS_PANEL_MIN_VIEWPORT - 0.02}px)`]: { gridTemplateColumns: 'minmax(0, 1fr)' } }}>
-        <Box data-testid="rbm-main-column" sx={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
-          {layout.map((r) => (
-            <Box key={r} data-region={r} sx={{ minWidth: 0 }}>
-              {regions[r]}
-            </Box>
-          ))}
-        </Box>
-        <Box data-region="hotTopics" sx={{ minWidth: 0 }}>
-          {hotTopics}
-        </Box>
+      <Box ref={vitalsRef}>
+        <RbmDensity level={COMMAND_CENTRE_DENSITY.vitals}>{vitals}</RbmDensity>
       </Box>
+
+      {/* The main column and the Hot-topics panel, D2 Compact. The panel's cell runs the full height, so the panel can stay in view as the page scrolls. */}
+      <RbmDensity level={COMMAND_CENTRE_DENSITY.regions}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: 6, alignItems: 'stretch', [`@media (max-width: ${HOT_TOPICS_PANEL_MIN_VIEWPORT - 0.02}px)`]: { gridTemplateColumns: 'minmax(0, 1fr)' } }}>
+          <Box data-testid="rbm-main-column" sx={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
+            {layout.map((r) => (
+              <Box key={r} data-region={r} sx={{ minWidth: 0 }}>
+                {regions[r]}
+              </Box>
+            ))}
+          </Box>
+          <Box data-region="hotTopics" sx={{ minWidth: 0 }}>
+            {hotTopics}
+          </Box>
+        </Box>
+      </RbmDensity>
     </Box>
   );
 }

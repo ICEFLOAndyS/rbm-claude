@@ -3,7 +3,8 @@ import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
 import { RbmStatusPill } from './RbmStatusPill';
 import { rbmTheme } from '../../theme/theme';
-import { colour, status, type RbmState } from '../../theme/tokens';
+import { colour, density, status, type RbmState } from '../../theme/tokens';
+import { RbmDensity } from '../../theme/RbmDensity';
 
 const states = Object.keys(status) as RbmState[];
 
@@ -47,12 +48,19 @@ describe('RbmStatusPill', () => {
     expect(screen.queryByTestId('rbm-status-core')).not.toBeInTheDocument();
   });
 
+  // Heights as drawn. Text follows the density: body text in the page header (D1), secondary text in the
+  // compact event bar (D2). The drawing had 15 px and 12 px.
   it.each([
-    ['normal', '30px', '15px'],
-    ['compact', '24px', '12px'],
-  ] as const)('is %s size: %s tall with %s text', (size, height, fontSize) => {
-    renderPill(<RbmStatusPill state="active" size={size} />);
+    ['normal', 'comfortable', '30px', `${density.comfortable.body}px`],
+    ['compact', 'compact', '24px', `${density.compact.caption}px`],
+  ] as const)('is %s size in a %s region: %s tall with %s text', (size, level, height, fontSize) => {
+    renderPill(<RbmDensity level={level}><RbmStatusPill state="active" size={size} /></RbmDensity>);
     expect(screen.getByText('Active')).toHaveStyle({ height, fontSize });
+  });
+
+  it('sizes its dot from the density', () => {
+    renderPill(<RbmDensity level="command"><RbmStatusPill state="active" /></RbmDensity>);
+    expect(screen.getByTestId('rbm-status-dot')).toHaveStyle({ width: `${density.command.dot}px` });
   });
 });
 

@@ -3,9 +3,11 @@ import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
 import { RbmTag, type RbmTagKind } from './RbmTag';
 import { rbmTheme } from '../../theme/theme';
+import { RbmDensity } from '../../theme/RbmDensity';
 import { colour } from '../../theme/tokens';
 
-const renderTag = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{ui}</ThemeProvider>);
+// Tags live in the Task Timeline, a D2 Compact region: their text is the D2 secondary size (12 px).
+const renderTag = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}><RbmDensity level="compact">{ui}</RbmDensity></ThemeProvider>);
 
 // As drawn on the Command board: default label, text colour, and the mark before the label.
 const drawn: [RbmTagKind, string, string, 'dot' | 'icon' | 'ring'][] = [

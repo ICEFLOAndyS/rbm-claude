@@ -28,7 +28,7 @@ Source: RBM Design System canvas, Command & Control Centre board, and the compon
 - **Names.** The state stays `active` (the brief and the Command board say Active). The Semantic board calls it `inProgress`. `pending` is labelled "Not started".
 
 ### 21 Oct 2026: setup
-- MUI 9.5 (upgraded from 7.3). MUI X 9.16 is compatible but not added until each piece is evaluated.
+- MUI 9.5 (upgraded from 7.3). MUI X 9.16 is compatible. The Data Grid (Pro) is chosen for the List of records page (22 Oct 2026, below); other MUI X pieces are still evaluated one at a time.
 - Inter is loaded in Storybook with `@fontsource-variable/inter`. The library does not bundle the font; apps load it.
 
 ### 21 Oct 2026: theme and tokens
@@ -322,17 +322,15 @@ The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png
 - **Foundations story:** "Shape and spacing" shows the scale.
 - **Design board:** drafted on the Foundations board ("04 · Layout and theme", under Radius and Elevation), tagged Proposed, with a line in the MUI theme mapping and in "Where the guide stops". Needs sign-off.
 
-### 22 Oct 2026: Hot topics move to a collapsible panel on the right (asked by Andy Smith)
-- **Layout:** under the fixed Page header and Event vitals, the page has two columns. The Event ribbon and Task Timeline are in the main column, in the user's order, and are narrower. The Hot-topics panel is on the right, from under the Event vitals down. It replaces the Hot-topics strip under the timeline (decided by Andy Smith).
-- **Panel:** 340 px wide, with the five cards stacked in urgency order (Blockers, Next checkpoint, Milestones, Collaboration, Watchers), and "HOT TOPICS" with Collapse at the top.
-- **Sticky (decided by Andy Smith):** the panel stays in view while the page scrolls, pinned under the compact event bar. It is never taller than the screen, and its cards scroll inside it when they do not fit.
-- **Collapsed (decided by Andy Smith):** a 56 px rail with the expand button, "HOT TOPICS" written vertically, and one chip per card with its name and number (for example "Blockers 2"), written vertically. The Event ribbon and Task Timeline take the freed width. The rail is sticky too.
-- **Narrow screens:** below 1200 px there is no room for the panel, so it becomes the Hot-topics strip under the main column, with the same name and the same open or collapsed state.
-- **Layout panel:** only the Event ribbon and Task Timeline move. The Hot-topics panel has its own row under "Right panel", with no grip and with its Open switch.
-- **Saved layouts:** `LayoutPreference.order` now holds the two main-column regions. An order saved before this change still lists `hotTopics`; it is dropped and the rest of the order kept.
-- **Name (decided by Andy Smith):** the region is the **Hot-topics panel**. The repo copy of the brief (`docs/handoff-brief.md`) is updated: the region list, the runbook filter and the Layout rule. `RbmHotTopicsStrip` keeps its name as the narrow-screen form.
-- **Components:** new `RbmHotTopicsPanel` (exported with `HOT_TOPICS_PANEL_WIDTH`, `HOT_TOPICS_RAIL_WIDTH` and `HOT_TOPICS_PANEL_MIN_VIEWPORT`). `RbmHotTopicsStrip` stays, as the narrow-screen form, and takes an optional `title`. New type `RbmMovableRegion` ('ribbon' | 'timeline').
-- **Design board:** drafted on the Command & Control Centre board as a Proposed section, "Hot-topics panel on the right", straight after "The page" (canvas version 71). It shows the open panel, the rail and the Layout panel row. The rest of the board still shows the strip until sign-off; the section lists what to update then.
+### 22 Oct 2026: List of records page, early decisions (decided by Andy Smith)
+Brief: `claude/rbm-list-page-brief.md` (repository copy `docs/list-page-brief.md`).
+- **D1, grid:** MUI X Data Grid v9 is the grid for `RbmDataGrid`. There is no comparison with AG Grid. A strategic choice to keep the tech stack small: no second grid library.
+- **D2, Peek:** the Peek (a row expanding in place) is not in this release. A row click opens the 480 px slide-in directly. The record pattern board still shows the Peek as an option; the board is unchanged.
+- **D3, density:** D2 Compact is the default density for the page. It settles the board's "For your decision" question.
+- **D4, licence:** the MUI X Pro licence is assumed, so the page uses `@mui/x-data-grid-pro` and may use Pro features where the design needs them (column pinning, column reordering, saved column state). Premium features (row grouping, aggregation, Excel export) are not assumed; ask first.
+  - The licence key comes from configuration (an environment variable such as `VITE_MUI_X_LICENSE_KEY`) and is set once with `LicenseInfo.setLicenseKey` in the app and Storybook set-up. It is never committed. There is no key yet (proof of concept): the grid runs without one, with a development watermark and a console warning, and the tests and Storybook build must not fail on it. A real licence is needed before release.
+  - Only `RbmDataGrid` imports the grid, so no other component depends on MUI X directly.
+- **Design to update:** the Templates board still asks "AG Grid or MUI X" and "D2 or D1" under "For your decision". Both are now answered.
 
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.

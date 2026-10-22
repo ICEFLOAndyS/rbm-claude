@@ -64,7 +64,7 @@ interface Clock {                      // time, injectable and speedable
   subscribe(listener): () => void;
 }
 interface LayoutPreferenceStore {      // the user's own layout
-  get(): Promise<LayoutPreference>;    // { order, ribbonCollapsed, ribbonCriticalOnly }
+  get(): Promise<LayoutPreference>;    // { order, collapsed: { ribbon, timeline, hotTopics }, ribbonCriticalOnly }
   set(preference): Promise<void>;
   reset(): Promise<LayoutPreference>;
 }
@@ -160,3 +160,4 @@ The components built so far each have their own props (`RbmEventVitalsData`, `Rb
 6. **The real components** from PRs #5–#17 are used (not stand-ins), on a branch built on them, fed by adapters. Agreed.
 7. **The ribbon's Critical path filter** is kept in `LayoutPreference` as `ribbonCriticalOnly` (off by default), so it is saved per user. A preference saved before the field existed reads as off. (22 Oct 2026)
 8. **The critical path is event-wide only.** There is no runbook critical path. (22 Oct 2026)
+9. **Every movable region can collapse.** `LayoutPreference.collapsed` holds one flag per region and replaces `ribbonCollapsed` (decision 2), which is carried over from older saved preferences. (22 Oct 2026)

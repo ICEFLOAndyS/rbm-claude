@@ -6,6 +6,7 @@ import type { RbmSpine } from '../RbmNode/RbmNode';
 import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
 import { colour, hairline, radius, surfaceTint, type RbmState } from '../../theme/tokens';
 import { RbmRunbookFilter } from './RbmRunbookFilter';
+import { RbmRegionCollapsed, RbmRegionToggle, RbmSummaryChip } from '../RbmRegion/RbmRegion';
 import { byStart, capUpNext, focusReasons, formatLinger, lingerLeft, type RbmTimelineTask } from './focusRule';
 
 export interface RbmTimelineStage {
@@ -54,6 +55,9 @@ export interface RbmTaskTimelineProps {
   onNoticeClose?: () => void;
   /** When set, the toolbar and summary line stick this far from the top (under the compact event bar). */
   stickyTop?: number;
+  /** Open by default. Collapsed, it is one line with the focus, late and blocked counts. Pass with onCollapsedChange to remember the choice. */
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 /** Above this many tasks in view, rows are drawn only near the screen and quiet runbooks start collapsed. */
@@ -138,6 +142,17 @@ function Chip({ label, count, on, onClick }: { label: string; count: number; on:
   );
 }
 
+function SummaryCount({ n, text }: { n: number; text: string }) {
+  return (
+    <RbmSummaryChip label={`${n} ${text}`}>
+      <span>
+        <Box component="strong" sx={{ color: 'text.primary', fontVariantNumeric: 'tabular-nums' }}>{n}</Box>{' '}
+        <Box component="span" sx={{ color: 'text.secondary' }}>{text}</Box>
+      </span>
+    </RbmSummaryChip>
+  );
+}
+
 function Toast({ tone, message, actionLabel, onAction }: { tone: 'done' | 'warning'; message: string; actionLabel?: string; onAction?: () => void }) {
   return (
     <Box role="status" sx={{ bgcolor: 'text.primary', color: colour.white, borderRadius: `${radius.control}px`, px: 4, py: 3, display: 'flex', alignItems: 'center', gap: 3, fontSize: 13, minWidth: 320, maxWidth: 520 }}>
@@ -178,6 +193,12 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; undo: RbmTask[] } | null>(null);
   const body = useRef<HTMLDivElement>(null);
+  const [regionCollapsedState, setRegionCollapsedState] = useState(false);
+  const regionCollapsed = props.collapsed ?? regionCollapsedState;
+  const setRegionCollapsed = (c: boolean) => {
+    setRegionCollapsedState(c);
+    props.onCollapsedChange?.(c);
+  };
 
   const filtered = runbookFilter.length > 0 && runbookFilter.length < runbooks.length;
   const inFilter = (id: string) => !filtered || runbookFilter.includes(id);
@@ -281,6 +302,49 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
 
   const ragOnDark: Record<RbmRag, string> = { green: palette.status.complete.signal, amber: palette.status.atRisk.signal, red: palette.status.blocked.signal };
 
+  // Messages stay on screen when the region is collapsed, so a refusal or Undo is never lost.
+  const messages = (
+    <>
+      <Snackbar open={toast !== null} autoHideDuration={lingerSeconds * 1000} onClose={(_, reason) => reason !== 'clickaway' && setToast(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Box>
+          {toast && (
+            <Toast
+              tone="done"
+              message={toast.message}
+              actionLabel="Undo"
+              onAction={() => {
+                for (const t of toast.undo) onAction?.(t, { type: 'undo' });
+                setToast(null);
+              }}
+            />
+          )}
+        </Box>
+      </Snackbar>
+      <Snackbar open={!!notice} onClose={(_, reason) => reason !== 'clickaway' && onNoticeClose?.()} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Box>{notice && <Toast tone="warning" message={notice.message} actionLabel={notice.actionLabel} onAction={notice.onAction} />}</Box>
+      </Snackbar>
+    </>
+  );
+
+  if (regionCollapsed) {
+    // The focus set within the runbook filter, whatever the scope and chips; the counts match the Late and Blocked chips in Focus.
+    const focused = tasks.filter((t) => inFilter(t.runbookId) && t.state !== 'skipped' && focusReasons(t, now, lingerSeconds).length > 0);
+    const late = focused.filter(matches.late).length;
+    const blocked = focused.filter(matches.blocked).length;
+    const runbookCount = runbooks.filter((r) => inFilter(r.id)).length;
+    return (
+      <>
+        <RbmRegionCollapsed title="Task Timeline" onExpand={() => setRegionCollapsed(false)}>
+          <SummaryCount n={focused.length} text="in focus" />
+          <SummaryCount n={late} text="late" />
+          <SummaryCount n={blocked} text="blocked" />
+          {filtered && <SummaryCount n={runbookCount} text={`of ${runbooks.length} runbooks`} />}
+        </RbmRegionCollapsed>
+        {messages}
+      </>
+    );
+  }
+
   return (
     // overflow: clip (not hidden) keeps the rounded corners without stopping the toolbar from sticking.
     <Box component="section" aria-label="Task Timeline" sx={{ position: 'relative', border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', overflow: 'clip', minWidth: 0, lineHeight: 'normal' }}>
@@ -308,6 +372,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
             </ButtonBase>
           ))}
         </Box>
+        <RbmRegionToggle region="Task Timeline" collapsed={false} onChange={setRegionCollapsed} sx={{ ml: 2 }} />
       </Box>
 
       {/* Summary line: nothing is hidden silently */}
@@ -462,24 +527,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
         </Box>
       )}
 
-      <Snackbar open={toast !== null} autoHideDuration={lingerSeconds * 1000} onClose={(_, reason) => reason !== 'clickaway' && setToast(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-        <Box>
-          {toast && (
-            <Toast
-              tone="done"
-              message={toast.message}
-              actionLabel="Undo"
-              onAction={() => {
-                for (const t of toast.undo) onAction?.(t, { type: 'undo' });
-                setToast(null);
-              }}
-            />
-          )}
-        </Box>
-      </Snackbar>
-      <Snackbar open={!!notice} onClose={(_, reason) => reason !== 'clickaway' && onNoticeClose?.()} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-        <Box>{notice && <Toast tone="warning" message={notice.message} actionLabel={notice.actionLabel} onAction={notice.onAction} />}</Box>
-      </Snackbar>
+      {messages}
     </Box>
   );
 }

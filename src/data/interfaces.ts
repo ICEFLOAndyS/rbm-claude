@@ -32,8 +32,8 @@ export interface Clock {
 export interface LayoutPreference {
   /** Order of the three movable regions. */
   order: RbmRegion[];
-  /** The Event ribbon folded to its 56 px summary line. Open by default. */
-  ribbonCollapsed: boolean;
+  /** Each movable region folded to its 56 px summary line. All open by default. */
+  collapsed: Record<RbmRegion, boolean>;
   /** The Event ribbon's Critical path filter: only stages and markers on the event's critical path. Off by default. */
   ribbonCriticalOnly: boolean;
 }

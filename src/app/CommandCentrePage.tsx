@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { CommandCentreActions, CommandCentreData, LayoutPreference, LayoutPreferenceStore } from '../data/interfaces';
 import type { TaskCommand } from '../data/types';
 import { toAlerts, toEvent, toHotTopics, toRibbon, toTimeline, toVitals } from '../data/adapters';
-import { DEFAULT_PREFERENCE } from '../data/layoutStore';
+import { DEFAULT_PREFERENCE, defaultPreference } from '../data/layoutStore';
 import { RbmCommandCentre } from '../components/RbmCommandCentre/RbmCommandCentre';
 import { RbmEventVitals } from '../components/RbmEventVitals/RbmEventVitals';
 import { RbmEventRibbon } from '../components/RbmEventRibbon/RbmEventRibbon';
 import { RbmTaskTimeline } from '../components/RbmTaskTimeline/RbmTaskTimeline';
-import { RbmHotTopicsStrip } from '../components/RbmHotTopicsStrip/RbmHotTopicsStrip';
+import { RbmHotTopicsStrip, hotTopicsSummary } from '../components/RbmHotTopicsStrip/RbmHotTopicsStrip';
+import type { RbmRegion } from '../components/RbmLayoutPanel/RbmLayoutPanel';
 import { RbmBlockers, RbmCollaboration, RbmMilestones, RbmNextCheckpoint, RbmWatchers } from '../components/RbmHotTopicsStrip/cards';
 import type { RbmTask } from '../components/RbmTaskRow/RbmTaskRow';
 import type { RbmTaskActionEvent } from '../components/RbmTaskRow/RbmTaskAction';
@@ -43,10 +44,16 @@ export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds =
       live = false;
     };
   }, [layoutStore]);
-  const savePref = (next: LayoutPreference) => {
+  // Changes build on the latest preference, so two in a row (for example from Reset) never undo each other.
+  const latest = useRef(pref);
+  latest.current = pref;
+  const savePref = (change: (p: LayoutPreference) => LayoutPreference) => {
+    const next = change(latest.current);
+    latest.current = next;
     setPref(next);
     void layoutStore.set(next);
   };
+  const setCollapsed = (region: RbmRegion, collapsed: boolean) => savePref((p) => ({ ...p, collapsed: { ...p.collapsed, [region]: collapsed } }));
 
   const now = new Date(snapshot.now);
   const event = useMemo(() => toEvent(snapshot), [snapshot]);
@@ -111,7 +118,10 @@ export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds =
       vitalsData={vitals}
       timeZone={timeZone}
       layout={pref.order}
-      onLayoutChange={(order) => savePref({ ...pref, order })}
+      onLayoutChange={(order) => savePref((p) => ({ ...p, order }))}
+      collapsed={pref.collapsed}
+      onCollapsedChange={setCollapsed}
+      onLayoutReset={() => savePref((p) => ({ ...defaultPreference(), ribbonCriticalOnly: p.ribbonCriticalOnly }))}
       eventActions={{
         raiseIssue: notBuilt('Raise issue'),
         raiseBlocker: notBuilt('Raise blocker'),
@@ -133,7 +143,7 @@ export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds =
           onRaiseIssue={notBuilt('Raise issue')}
         />
       }
-      ribbon={<RbmEventRibbon runbooks={ribbon} now={now} timeZone={timeZone} collapsed={pref.ribbonCollapsed} onCollapsedChange={(c) => savePref({ ...pref, ribbonCollapsed: c })} criticalOnly={pref.ribbonCriticalOnly} onCriticalOnlyChange={(on) => savePref({ ...pref, ribbonCriticalOnly: on })} />}
+      ribbon={<RbmEventRibbon runbooks={ribbon} now={now} timeZone={timeZone} collapsed={pref.collapsed.ribbon} onCollapsedChange={(c) => setCollapsed('ribbon', c)} criticalOnly={pref.ribbonCriticalOnly} onCriticalOnlyChange={(on) => savePref((p) => ({ ...p, ribbonCriticalOnly: on }))} />}
       timeline={
         <RbmTaskTimeline
           runbooks={timeline.runbooks}
@@ -148,10 +158,12 @@ export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds =
           notice={notice}
           onNoticeClose={() => setNotice(undefined)}
           stickyTop={48}
+          collapsed={pref.collapsed.timeline}
+          onCollapsedChange={(c) => setCollapsed('timeline', c)}
         />
       }
       hotTopics={
-        <RbmHotTopicsStrip>
+        <RbmHotTopicsStrip collapsed={pref.collapsed.hotTopics} onCollapsedChange={(c) => setCollapsed('hotTopics', c)} summary={hotTopicsSummary(hot, now)}>
           <RbmBlockers blockers={hot.blockers} onOpen={(b) => notBuilt(b.recordId)()} onRaise={notBuilt('Raise blocker')} />
           <RbmNextCheckpoint checkpoint={hot.nextCheckpoint} now={now} timeZone={timeZone} onJoinCall={notBuilt('The call')} />
           <RbmMilestones milestones={hot.milestones} timeZone={timeZone} />

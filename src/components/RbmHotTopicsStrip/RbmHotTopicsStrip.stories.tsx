@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Box } from '@mui/material';
 import { fn } from 'storybook/test';
-import { RbmHotTopicsStrip } from './RbmHotTopicsStrip';
+import { RbmHotTopicsStrip, hotTopicsSummary } from './RbmHotTopicsStrip';
 import { RbmBlockers, RbmCollaboration, RbmMilestones, RbmNextCheckpoint, RbmWatchers } from './cards';
 import { hotTopicsNow, mockBlockers, mockMilestones, mockNextCheckpoint, mockPeople, mockWatchers } from '../../mocks/hotTopics';
 import { at } from '../../mocks/eventRibbon';
@@ -23,10 +23,14 @@ type Overrides = Partial<{
   watchers: ReturnType<typeof mockWatchers>;
 }>;
 
-function Strip({ width = 1136, o = {} }: { width?: number; o?: Overrides }) {
+function Strip({ width = 1136, o = {}, collapsed }: { width?: number; o?: Overrides; collapsed?: boolean }) {
+  const summary = hotTopicsSummary(
+    { blockers: o.blockers ?? mockBlockers(), nextCheckpoint: 'checkpoint' in o ? o.checkpoint : mockNextCheckpoint(), milestones: o.milestones ?? mockMilestones(), collaboration: { live: o.live ?? true }, watchers: o.watchers ?? mockWatchers() },
+    hotTopicsNow,
+  );
   return (
     <Box sx={{ maxWidth: width }}>
-      <RbmHotTopicsStrip>
+      <RbmHotTopicsStrip collapsed={collapsed} onCollapsedChange={collapsed === undefined ? undefined : fn()} summary={summary}>
         <RbmBlockers blockers={o.blockers ?? mockBlockers()} onOpen={fn()} onRaise={fn()} onShowMore={fn()} />
         <RbmNextCheckpoint checkpoint={'checkpoint' in o ? o.checkpoint : mockNextCheckpoint()} now={hotTopicsNow} timeZone="UTC" onOpen={fn()} onJoinCall={fn()} />
         <RbmMilestones milestones={o.milestones ?? mockMilestones()} timeZone="UTC" onOpen={fn()} onShowMore={fn()} />
@@ -39,6 +43,9 @@ function Strip({ width = 1136, o = {} }: { width?: number; o?: Overrides }) {
 
 /** As on the Command board. */
 export const Drawn: Story = { render: () => <Strip /> };
+
+/** Collapsed as a whole to one line: one chip per card with the number its header shows. Not drawn; follows the ribbon's collapsed line. */
+export const Collapsed: Story = { render: () => <Strip collapsed /> };
 
 /** More than three items: "n more". A card with nothing in it collapses to its header with a zero count. */
 export const MoreAndEmpty: Story = {

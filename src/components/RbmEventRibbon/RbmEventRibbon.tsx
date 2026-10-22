@@ -1,6 +1,7 @@
 import { Box, ButtonBase, Tooltip, useTheme } from '@mui/material';
-import { useLayoutEffect, useRef, useState, type CSSProperties, type FocusEvent, type MouseEvent, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type FocusEvent, type MouseEvent } from 'react';
 import { RbmNode } from '../RbmNode/RbmNode';
+import { RbmRegionCollapsed, RbmRegionToggle, RbmSummaryChip, RbmToggleLink } from '../RbmRegion/RbmRegion';
 import { colour, hairline, radius, type RbmState } from '../../theme/tokens';
 import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
 import { defaultWindow, hourTicks, lane, laneHeight, packStages, timeScale } from './ribbonLayout';
@@ -106,22 +107,6 @@ function useWidth() {
   return [ref, width] as const;
 }
 
-function Chevron({ up }: { up?: boolean }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
-      <path d={up ? 'M6 15l6-6 6 6' : 'M6 9l6 6 6-6'} />
-    </svg>
-  );
-}
-
-function ToggleLink({ onClick, children, sx, style }: { onClick: () => void; children: ReactNode; sx?: object; style?: CSSProperties }) {
-  return (
-    <ButtonBase onClick={onClick} style={style} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap', borderRadius: 1, ...sx }}>
-      {children}
-    </ButtonBase>
-  );
-}
-
 /** The RAG mark: a Red or Green dot, or the At risk ringed dot for Amber. */
 function RagMark({ rag, size }: { rag: RbmRag; size: 'lane' | 'chip' }) {
   const { status } = useTheme().palette;
@@ -177,23 +162,10 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
 
   if (collapsed) {
     return (
-      <Box
-        ref={ref}
-        component="section"
-        aria-label="Event ribbon"
-        sx={{ border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', display: 'flex', alignItems: 'center', gap: 3.5, height: 56, px: 4, lineHeight: 'normal' }}
-      >
-        <Box component="span" aria-hidden="true" sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'text.secondary', whiteSpace: 'nowrap' }}>
-          Event ribbon
-        </Box>
-        <Box component="ul" sx={{ m: 0, p: 0, listStyle: 'none', display: 'flex', alignItems: 'center', gap: 2.5, flex: 1, minWidth: 0, overflow: 'hidden' }}>
+      <Box ref={ref}>
+        <RbmRegionCollapsed title="Event ribbon" onExpand={() => setCollapsed(false)}>
           {runbooks.map((r) => (
-            <Box
-              component="li"
-              key={r.id}
-              aria-label={laneSummary(r, timeZone)}
-              sx={{ display: 'inline-flex', alignItems: 'center', gap: 2, height: 32, px: 3, border: 1, borderColor: 'divider', borderRadius: `${radius.pill}px`, fontSize: 13, whiteSpace: 'nowrap', flex: 'none' }}
-            >
+            <RbmSummaryChip key={r.id} label={laneSummary(r, timeZone)}>
               <RagMark rag={r.rag} size="chip" />
               <Box component="strong" sx={{ color: 'text.primary', textTransform: 'uppercase' }}>
                 {r.wbs} {r.name}
@@ -207,13 +179,9 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                   {shortGap(r.gapMinutes)}
                 </Box>
               </Box>
-            </Box>
+            </RbmSummaryChip>
           ))}
-        </Box>
-        <ToggleLink onClick={() => setCollapsed(false)}>
-          Expand
-          <Chevron />
-        </ToggleLink>
+        </RbmRegionCollapsed>
       </Box>
     );
   }
@@ -298,9 +266,9 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                   {r.name}
                 </Box>
                 {(hidden > 0 || expanded) && (
-                  <ToggleLink onClick={() => toggleLane(r.id)} style={{ top: laneTop + 44 }} sx={{ position: 'absolute', left: 20, fontSize: 11 }}>
+                  <RbmToggleLink onClick={() => toggleLane(r.id)} style={{ top: laneTop + 44 }} sx={{ position: 'absolute', left: 20, fontSize: 11 }}>
                     {expanded ? 'Show fewer stages' : `+${hidden} more ${hidden === 1 ? 'stage' : 'stages'} overlapping`}
-                  </ToggleLink>
+                  </RbmToggleLink>
                 )}
 
                 {criticalOnly && r.stages.length === 0 && (
@@ -428,10 +396,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
           )}
           Critical path
         </ButtonBase>
-        <ToggleLink onClick={() => setCollapsed(true)} sx={{ position: 'absolute', right: 16, top: 8 }}>
-          Collapse
-          <Chevron up />
-        </ToggleLink>
+        <RbmRegionToggle region="Event ribbon" collapsed={false} onChange={setCollapsed} sx={{ position: 'absolute', right: 16, top: 8 }} />
       </Box>
 
       <Box aria-hidden="true" sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px 20px', alignItems: 'center', fontSize: 12, color: 'text.secondary', px: 5, pb: 3.5 }}>

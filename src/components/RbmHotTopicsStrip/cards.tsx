@@ -11,8 +11,6 @@ export const CARD_LIMIT = 3;
 export type RbmSeverity = 'high' | 'medium' | 'low';
 
 interface CardBase {
-  collapsed?: boolean;
-  onCollapsedChange?: (collapsed: boolean) => void;
   timeZone?: string;
 }
 

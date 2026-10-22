@@ -38,6 +38,36 @@ function Harness({ onChange }: { onChange?: (o: RbmRegion[]) => void }) {
 }
 
 describe('RbmLayoutPanel', () => {
+  it('opens and collapses each movable region from its row, with the state in words', async () => {
+    const onCollapsedChange = vi.fn();
+    renderUi(<RbmLayoutPanel order={DEFAULT_LAYOUT} onChange={() => {}} collapsed={{ timeline: true }} onCollapsedChange={onCollapsedChange} />);
+    const timeline = screen.getByRole('switch', { name: 'Task Timeline open' });
+    expect(timeline).not.toBeChecked();
+    expect(screen.getByRole('switch', { name: 'Event ribbon open' })).toBeChecked();
+    expect(document.querySelector('[data-region="timeline"]')).toHaveTextContent('Collapsed');
+    await userEvent.click(timeline);
+    expect(onCollapsedChange).toHaveBeenCalledWith('timeline', false);
+    await userEvent.click(screen.getByRole('switch', { name: 'Hot-topics strip open' }));
+    expect(onCollapsedChange).toHaveBeenCalledWith('hotTopics', true);
+  });
+
+  it('has no open switches unless the page holds the collapsed state, and the fixed regions never have one', () => {
+    const { unmount } = renderUi(<RbmLayoutPanel order={DEFAULT_LAYOUT} onChange={() => {}} />);
+    expect(screen.queryAllByRole('switch')).toHaveLength(0);
+    unmount();
+    renderUi(<RbmLayoutPanel order={DEFAULT_LAYOUT} onChange={() => {}} onCollapsedChange={() => {}} />);
+    expect(screen.getAllByRole('switch')).toHaveLength(3);
+  });
+
+  it('hands Reset to default to the page when it asks for it', async () => {
+    const onReset = vi.fn();
+    const onChange = vi.fn();
+    renderUi(<RbmLayoutPanel order={['hotTopics', 'timeline', 'ribbon']} onChange={onChange} onReset={onReset} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Reset to default' }));
+    expect(onReset).toHaveBeenCalledTimes(1);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it('locks the Page header and the Event vitals at the top, marked FIXED', () => {
     renderUi(<RbmLayoutPanel order={DEFAULT_LAYOUT} onChange={vi.fn()} />);
     const fixedList = screen.getByRole('list', { name: 'Fixed regions' });

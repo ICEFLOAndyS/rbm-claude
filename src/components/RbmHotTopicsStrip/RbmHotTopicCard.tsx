@@ -1,5 +1,5 @@
 import { Box, ButtonBase } from '@mui/material';
-import { useId, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { colour, hairline, radius } from '../../theme/tokens';
 
 export interface RbmHotTopicCardProps {
@@ -10,9 +10,6 @@ export interface RbmHotTopicCardProps {
   count?: number;
   /** A header action, for example "+ Raise". */
   action?: ReactNode;
-  /** Pass with onCollapsedChange to remember the choice per user. */
-  collapsed?: boolean;
-  onCollapsedChange?: (collapsed: boolean) => void;
   children?: ReactNode;
 }
 
@@ -25,15 +22,8 @@ export function Icon({ size = 18, stroke = 'currentColor', width = 1.75, childre
 }
 
 /** A card in the Hot-topics strip: the drawn header (icon, title, count, action) over its rows. */
-export function RbmHotTopicCard({ title, icon, count, action, collapsed: collapsedProp, onCollapsedChange, children }: RbmHotTopicCardProps) {
-  const [collapsedState, setCollapsedState] = useState(false);
-  const collapsed = collapsedProp ?? collapsedState;
-  const bodyId = useId();
+export function RbmHotTopicCard({ title, icon, count, action, children }: RbmHotTopicCardProps) {
   const empty = count === 0;
-  const toggle = () => {
-    setCollapsedState(!collapsed);
-    onCollapsedChange?.(!collapsed);
-  };
   return (
     <Box component="section" aria-label={title} sx={{ border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', overflow: 'hidden', width: '100%', minWidth: 0, lineHeight: 'normal' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, height: 44, px: 3.5, whiteSpace: 'nowrap' }}>
@@ -48,13 +38,8 @@ export function RbmHotTopicCard({ title, icon, count, action, collapsed: collaps
         )}
         <Box sx={{ flex: 1 }} />
         {action}
-        {!empty && (
-          <ButtonBase onClick={toggle} aria-expanded={!collapsed} aria-controls={bodyId} aria-label={collapsed ? `Expand ${title}` : `Collapse ${title}`} sx={{ borderRadius: 1, color: 'text.secondary', ml: 0.5 }}>
-            <Icon><path d={collapsed ? 'M9 6l6 6-6 6' : 'M6 9l6 6 6-6'} /></Icon>
-          </ButtonBase>
-        )}
       </Box>
-      {!empty && !collapsed && <Box id={bodyId}>{children}</Box>}
+      {!empty && children}
     </Box>
   );
 }

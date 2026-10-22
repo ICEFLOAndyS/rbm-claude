@@ -1,4 +1,4 @@
-import { Box, ButtonBase } from '@mui/material';
+import { Box, ButtonBase, Switch } from '@mui/material';
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors, type Announcements, type DragEndEvent, type DragOverEvent, type DragStartEvent } from '@dnd-kit/core';
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -28,6 +28,11 @@ export interface RbmLayoutPanelProps {
   onChange: (order: RbmRegion[]) => void;
   /** Done and the close button. */
   onClose?: () => void;
+  /** Which regions are collapsed. With onCollapsedChange, each movable row gets an Open switch. */
+  collapsed?: Partial<Record<RbmRegion, boolean>>;
+  onCollapsedChange?: (region: RbmRegion, collapsed: boolean) => void;
+  /** Reset to default. Without it, Reset to default only puts the order back, through onChange. */
+  onReset?: () => void;
 }
 
 function Icon({ size = 16, stroke = colour.slate, children }: { size?: number; stroke?: string; children: ReactNode }) {
@@ -61,7 +66,19 @@ function Grip() {
 
 const DropLine = () => <Box aria-hidden="true" data-testid="rbm-drop-line" sx={{ height: 4, borderRadius: `${radius.pill}px`, bgcolor: colour.blueDark, my: '-4px' }} />;
 
-function SortableRow({ id, position, total, line, follow }: { id: RbmRegion; position: number; total: number; line?: 'before' | 'after'; follow: boolean }) {
+/** Not drawn: MUI's switch (no RBM style exists), with the state in words beside it. */
+function OpenSwitch({ name, open, onChange }: { name: string; open: boolean; onChange: (open: boolean) => void }) {
+  return (
+    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, flex: 'none' }}>
+      <Box component="span" aria-hidden="true" sx={{ fontSize: 12, fontWeight: 700, color: 'text.secondary', minWidth: 58, textAlign: 'right' }}>
+        {open ? 'Open' : 'Collapsed'}
+      </Box>
+      <Switch size="small" checked={open} onChange={(_, on) => onChange(on)} slotProps={{ input: { 'aria-label': `${name} open` } }} />
+    </Box>
+  );
+}
+
+function SortableRow({ id, position, total, line, follow, open, onOpenChange }: { id: RbmRegion; position: number; total: number; line?: 'before' | 'after'; follow: boolean; open: boolean; onOpenChange?: (open: boolean) => void }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, isDragging } = useSortable({ id });
   const info = regionInfo[id];
   return (
@@ -92,6 +109,7 @@ function SortableRow({ id, position, total, line, follow }: { id: RbmRegion; pos
           <Grip />
         </ButtonBase>
         <Text name={info.name} detail={info.detail} />
+        {onOpenChange && <OpenSwitch name={info.name} open={open} onChange={onOpenChange} />}
       </Box>
       {line === 'after' && <DropLine />}
     </>
@@ -103,7 +121,7 @@ function SortableRow({ id, position, total, line, follow }: { id: RbmRegion; pos
  * top, then the Event ribbon, Task Timeline and Hot-topics strip, dragged from the grip into any
  * order. From the keyboard, Space picks a row up, the arrow keys move it and Space drops it.
  */
-export function RbmLayoutPanel({ order, onChange, onClose }: RbmLayoutPanelProps) {
+export function RbmLayoutPanel({ order, onChange, onClose, collapsed = {}, onCollapsedChange, onReset }: RbmLayoutPanelProps) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
   const [active, setActive] = useState<RbmRegion | null>(null);
   const [over, setOver] = useState<RbmRegion | null>(null);
@@ -139,7 +157,7 @@ export function RbmLayoutPanel({ order, onChange, onClose }: RbmLayoutPanelProps
           </ButtonBase>
         )}
       </Box>
-      <Box sx={{ px: 4, pb: 3, fontSize: 13, lineHeight: 1.45, color: 'text.secondary' }}>Drag the regions into the order you prefer. Your layout is saved to your profile.</Box>
+      <Box sx={{ px: 4, pb: 3, fontSize: 13, lineHeight: 1.45, color: 'text.secondary' }}>{onCollapsedChange ? 'Drag the regions into the order you prefer, and choose which are open.' : 'Drag the regions into the order you prefer.'} Your layout is saved to your profile.</Box>
 
       <Box component="ul" aria-label="Fixed regions" sx={{ m: 0, p: 0, px: 4, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 2 }}>
         {fixed.map((f) => (
@@ -173,7 +191,7 @@ export function RbmLayoutPanel({ order, onChange, onClose }: RbmLayoutPanelProps
           <Box aria-label="Movable regions" role="list" sx={{ px: 4, pt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
             {order.map((id, i) => (
               <Box key={id} role="listitem" sx={{ display: 'contents' }}>
-                <SortableRow id={id} position={i + 1} total={order.length} line={lineFor(id)} follow={byPointer} />
+                <SortableRow id={id} position={i + 1} total={order.length} line={lineFor(id)} follow={byPointer} open={!collapsed[id]} onOpenChange={onCollapsedChange && ((open) => onCollapsedChange(id, !open))} />
               </Box>
             ))}
           </Box>
@@ -181,7 +199,7 @@ export function RbmLayoutPanel({ order, onChange, onClose }: RbmLayoutPanelProps
       </DndContext>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 4, mt: 1, borderTop: 1, borderColor: 'divider' }}>
-        <ButtonBase onClick={() => onChange([...DEFAULT_LAYOUT])} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5 }}>
+        <ButtonBase onClick={() => (onReset ? onReset() : onChange([...DEFAULT_LAYOUT]))} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5 }}>
           <Icon stroke={colour.deepBlue}><path d="M9 8L4 13l5 5" /><path d="M4 13h10a6 6 0 000-12" transform="translate(0 6)" /></Icon>
           Reset to default
         </ButtonBase>

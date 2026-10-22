@@ -63,6 +63,20 @@ describe('RbmCommandCentre', () => {
     expect(screen.getByText('Timeline').parentElement).toHaveStyle({ minHeight: `${TIMELINE_MIN_HEIGHT}px` });
   });
 
+  it('drops the 8-row minimum while the Task Timeline is collapsed', () => {
+    page({ collapsed: { timeline: true } });
+    expect(screen.getByText('Timeline').parentElement).not.toHaveStyle({ minHeight: `${TIMELINE_MIN_HEIGHT}px` });
+  });
+
+  it('opens and collapses regions from the Layout panel', async () => {
+    const onCollapsedChange = vi.fn();
+    page({ collapsed: {}, onCollapsedChange });
+    await userEvent.click(screen.getByRole('button', { name: 'Event actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /Layout/ }));
+    await userEvent.click(within(screen.getByRole('dialog', { name: 'Layout' })).getByRole('switch', { name: 'Task Timeline open' }));
+    expect(onCollapsedChange).toHaveBeenCalledWith('timeline', true);
+  });
+
   it('shows only the event actions the user may take, and always Layout', async () => {
     const raiseIssue = vi.fn();
     page({ eventActions: { raiseIssue } });

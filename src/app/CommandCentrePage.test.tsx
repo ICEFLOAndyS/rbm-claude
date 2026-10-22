@@ -56,7 +56,7 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
 
     it('loads a saved order, and keeps a change across a reload', async () => {
       const storage = memoryStorage();
-      await createLocalLayoutStore('test', storage).set({ order: ['hotTopics', 'timeline', 'ribbon'], ribbonCollapsed: false, ribbonCriticalOnly: false });
+      await createLocalLayoutStore('test', storage).set({ order: ['hotTopics', 'timeline', 'ribbon'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonCriticalOnly: false });
       const first = setup(weekendPayrollCutover(), storage);
       await waitFor(() => expect(regionOrder()).toEqual(['hotTopics', 'timeline', 'ribbon']));
       // Reset to default from the Layout panel saves the default.
@@ -75,13 +75,42 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     it('remembers the collapsed ribbon', async () => {
       const storage = memoryStorage();
       const first = setup(weekendPayrollCutover(), storage);
-      await userEvent.click(screen.getByRole('button', { name: 'Collapse' }));
-      await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).ribbonCollapsed).toBe(true));
+      await userEvent.click(screen.getByRole('button', { name: 'Collapse Event ribbon' }));
+      await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).collapsed.ribbon).toBe(true));
       first.unmount();
       first.clock.dispose();
       setup(weekendPayrollCutover(), storage);
-      expect(await screen.findByRole('button', { name: 'Expand' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Expand Event ribbon' })).toBeInTheDocument();
     });
+  });
+
+  it('collapses the Task Timeline and the Hot-topics strip, and remembers them across a reload', async () => {
+    const storage = memoryStorage();
+    const first = setup(weekendPayrollCutover(), storage);
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse Task Timeline' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse Hot-topics strip' }));
+    expect(within(screen.getByRole('list', { name: 'Hot-topics strip summary' })).getByRole('listitem', { name: 'Blockers 2' })).toBeInTheDocument();
+    await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).collapsed).toEqual({ ribbon: false, timeline: true, hotTopics: true }));
+    first.unmount();
+    first.clock.dispose();
+    setup(weekendPayrollCutover(), storage);
+    expect(await screen.findByRole('button', { name: 'Expand Task Timeline' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Expand Hot-topics strip' })).toBeInTheDocument();
+  });
+
+  it('Reset to default opens every region and keeps the Critical path filter', async () => {
+    const storage = memoryStorage();
+    await createLocalLayoutStore('test', storage).set({ order: ['hotTopics', 'timeline', 'ribbon'], collapsed: { ribbon: true, timeline: true, hotTopics: false }, ribbonCriticalOnly: true });
+    setup(weekendPayrollCutover(), storage);
+    expect(await screen.findByRole('button', { name: 'Expand Event ribbon' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Event actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /Layout/ }));
+    await userEvent.click(within(screen.getByRole('dialog', { name: 'Layout' })).getByRole('button', { name: 'Reset to default' }));
+    expect(regionOrder()).toEqual(['ribbon', 'timeline', 'hotTopics']);
+    await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+    expect(screen.getByRole('button', { name: 'Collapse Task Timeline' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Critical path' })).toHaveAttribute('aria-pressed', 'true');
+    await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).ribbonCriticalOnly).toBe(true));
   });
 
   describe('acting on tasks through the fake engine', () => {

@@ -47,3 +47,11 @@ export const TryIt: Story = {
     );
   },
 };
+
+/** With the page holding which regions are open: an Open switch on each movable row. Not drawn; MUI's switch, with the state in words. */
+export const OpenAndCollapse: Story = {
+  render: function OpenAndCollapse() {
+    const [collapsed, setCollapsed] = useState<Partial<Record<RbmRegion, boolean>>>({ timeline: true });
+    return <RbmLayoutPanel order={DEFAULT_LAYOUT} onChange={() => {}} onClose={() => {}} collapsed={collapsed} onCollapsedChange={(r, c) => setCollapsed({ ...collapsed, [r]: c })} />;
+  },
+};

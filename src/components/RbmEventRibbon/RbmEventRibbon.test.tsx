@@ -153,20 +153,20 @@ describe('RbmEventRibbon', () => {
   it('collapses to one chip per runbook with its forecast end, and expands again', async () => {
     const onCollapsedChange = vi.fn();
     renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" onCollapsedChange={onCollapsedChange} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Collapse' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse Event ribbon' }));
     expect(onCollapsedChange).toHaveBeenLastCalledWith(true);
     const chips = within(screen.getByRole('region', { name: 'Event ribbon' })).getAllByRole('listitem');
     expect(chips).toHaveLength(3);
     expect(chips[1]).toHaveTextContent('2 Interfacesends05:27 +27m');
     expect(chips[1]).toHaveAccessibleName('Interfaces, forecast end 05:27, 27 minutes behind');
-    await userEvent.click(screen.getByRole('button', { name: 'Expand' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Expand Event ribbon' }));
     expect(onCollapsedChange).toHaveBeenLastCalledWith(false);
     expect(screen.getAllByRole('group')).toHaveLength(3);
   });
 
   it('follows a collapsed value from the parent, so the choice can be remembered', () => {
     renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" collapsed />);
-    expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Expand Event ribbon' })).toBeInTheDocument();
   });
 
   describe('the Critical path filter', () => {

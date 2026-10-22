@@ -45,3 +45,9 @@ export const UndoMessage: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Complete task 1.3.5 Startup application UI' }));
   },
 };
+
+/** Collapsed to one line, like the Event ribbon: the focus, late and blocked counts. Not drawn; follows the ribbon's collapsed line. */
+export const Collapsed: Story = { args: { collapsed: true, onCollapsedChange: fn() } };
+
+/** Collapsed while filtered: the line says how many runbooks the counts cover. */
+export const CollapsedFiltered: Story = { args: { collapsed: true, runbookFilter: ['rb2'], onCollapsedChange: fn() } };

@@ -167,7 +167,7 @@ The page template, as drawn on the Command board ("The page", "Layout", "Acting 
 - **Event actions menu** as drawn, in order: Raise issue, Raise blocker, Add event note, Notify stakeholders, Pause event ("Holds every active task"), Export event log, Layout ("Order the page regions"), Event settings. Only the actions the page passes (the user's permissions) are shown; Layout is always there.
 - **Layout** opens `RbmLayoutPanel` in a small panel beside the menu, not a new page, so the page re-orders in view. `layout` and `onLayoutChange` let the page keep the order in the user's profile.
 - **Compact event bar:** `RbmEventBar` pins to the top without taking space, and shows only while the Event vitals are off screen (watched with IntersectionObserver). Its chevron scrolls back to the top.
-- **8-row minimum:** the Task Timeline region keeps room for its toolbar, summary line and 8 rows (520 px).
+- **8-row minimum:** the Task Timeline region keeps room for its toolbar, summary line and 8 rows (520 px) while it is open. Collapsed, it is one line (changed 22 Oct 2026, below).
 - **Left to the app shell:** the top bar, the sidebar and the programme selector above the breadcrumb (Shell board).
 - **Built in the prototype:** the Task Timeline toolbar sticking beneath the compact event bar (`stickyTop`).
 - **Differs from the text:** the vertical budget says 16 px gaps between regions; the page drawing has 24 px, and the drawing is followed.
@@ -205,6 +205,24 @@ See [prototype.md](prototype.md) and [data-model.md](data-model.md). The data co
   - Save the filter at user level. Done: `ribbonCriticalOnly` in `LayoutPreference`.
   - Mark the stages on the critical path, whether the filter is on or off.
 - **Not drawn (flagged): the critical-stage mark.** A critical stage bar has a 2 px Ink outline with a 1 px gap, so it shows on every state colour and is not a colour signal. The legend adds "On the critical path". Screen readers hear "…, on the critical path" at the end of the stage's name, and the tooltip says the same. Markers are not outlined; their nodes are drawn and the filter covers them.
+
+### 22 Oct 2026: every movable region collapses like the Event ribbon (asked by Andy Smith)
+The Event ribbon's collapse becomes the model for the Event ribbon, Task Timeline and Hot-topics strip. The Page header and Event vitals stay fixed and never collapse.
+- **Shared frame, `RbmRegion`:** `RbmRegionCollapsed` (the drawn 56 px line: eyebrow title, summary chips, "Expand ⌄"), `RbmRegionToggle` ("Collapse ⌃" / "Expand ⌄"), `RbmSummaryChip` and `RbmEyebrow`. The ribbon now uses them, with no visual change.
+- **Toggle names:** each button is named after its region ("Collapse Task Timeline"), since three are on one page. The visible text stays "Collapse" or "Expand".
+- **Expanded:** each region keeps its drawn header, with Collapse at the top right. The ribbon is unchanged; the Task Timeline has Collapse at the right end of its toolbar, after Focus and All.
+- **Decisions (Andy Smith, 22 Oct 2026):**
+  - The Task Timeline can collapse. This overrides the brief's 8-row minimum while it is collapsed; open, the minimum holds. Collapsed, its toolbar and summary line go with it, so nothing sticks under the compact event bar.
+  - Summaries as proposed: Task Timeline "12 in focus · 3 late · 2 blocked"; Hot-topics strip one chip per card.
+  - The per-card chevrons in the Hot-topics strip are removed; the strip collapses as a whole. A card with nothing in it still shows only its header with a zero count, as drawn.
+  - Collapse is set from each region's header and from the Layout panel.
+- **Saved per user:** `LayoutPreference.collapsed` holds one flag per region (`{ ribbon, timeline, hotTopics }`), replacing `ribbonCollapsed`. A preference saved earlier with `ribbonCollapsed` is carried over. Reset to default puts back the order and opens every region; it keeps the Critical path filter, which is not part of the layout.
+- **Not drawn (flagged):**
+  - The collapsed Task Timeline and Hot-topics strip. Both follow the ribbon's drawn line.
+  - Task Timeline summary: the focus set within the runbook filter, whatever the scope and chips; late and blocked match the Late and Blocked chip counts in Focus. When the runbook filter is on, a chip adds "1 of 3 runbooks", so nothing is hidden silently. Undo and refusal messages still show while it is collapsed.
+  - Hot-topics strip summary: "Blockers 2 · Next checkpoint in 02:05 · Milestones 3 · Collaboration Live · Watchers 1", each the number the card's header shows ("none" with no checkpoint, "Not live" with no call).
+  - The Hot-topics strip's expanded header: it had none, so it gains a 24 px row with the "HOT-TOPICS STRIP" eyebrow and Collapse, above the cards.
+  - The Layout panel's Open switch on each movable row: MUI's default small switch (no RBM style exists), with "Open" or "Collapsed" in words beside it. Its intro now reads "…and choose which are open."
 
 ## Open questions
 - Should the Hot-topics cards (Blockers, Next checkpoint and so on) also be reorderable in the Layout panel, or only the three regions?

@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
-import { RbmHotTopicsStrip } from './RbmHotTopicsStrip';
+import { RbmHotTopicsStrip, hotTopicsSummary } from './RbmHotTopicsStrip';
 import { RbmBlockers, RbmCollaboration, RbmMilestones, RbmNextCheckpoint, RbmWatchers, countdown } from './cards';
 import { hotTopicsNow, mockBlockers, mockMilestones, mockNextCheckpoint, mockPeople, mockWatchers } from '../../mocks/hotTopics';
 import { at } from '../../mocks/eventRibbon';
@@ -20,6 +20,42 @@ describe('countdown', () => {
 });
 
 describe('RbmHotTopicsStrip', () => {
+  const data = { blockers: mockBlockers(), nextCheckpoint: mockNextCheckpoint(), milestones: mockMilestones(), collaboration: { live: true }, watchers: mockWatchers() };
+
+  it('summarises each card with the number its header shows', () => {
+    expect(hotTopicsSummary(data, hotTopicsNow)).toEqual([
+      { label: 'Blockers', value: String(data.blockers.length) },
+      { label: 'Next checkpoint', value: countdown(data.nextCheckpoint.at, hotTopicsNow) },
+      { label: 'Milestones', value: String(data.milestones.length) },
+      { label: 'Collaboration', value: 'Live' },
+      { label: 'Watchers', value: String(data.watchers.length) },
+    ]);
+    expect(hotTopicsSummary({ ...data, nextCheckpoint: undefined, collaboration: { live: false } }, hotTopicsNow).map((i) => i.value)).toContain('none');
+  });
+
+  it('collapses as a whole to one line of chips, and expands again', async () => {
+    const onCollapsedChange = vi.fn();
+    renderUi(
+      <RbmHotTopicsStrip onCollapsedChange={onCollapsedChange} summary={hotTopicsSummary(data, hotTopicsNow)}>
+        <RbmBlockers blockers={mockBlockers()} />
+        <RbmWatchers watchers={mockWatchers()} timeZone="UTC" />
+      </RbmHotTopicsStrip>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse Hot-topics strip' }));
+    expect(onCollapsedChange).toHaveBeenLastCalledWith(true);
+    expect(screen.queryByRole('region', { name: 'Blockers' })).not.toBeInTheDocument();
+    const chips = within(screen.getByRole('list', { name: 'Hot-topics strip summary' })).getAllByRole('listitem');
+    expect(chips).toHaveLength(5);
+    expect(chips[1]).toHaveAccessibleName('Next checkpoint in 02:05');
+    await userEvent.click(screen.getByRole('button', { name: 'Expand Hot-topics strip' }));
+    expect(screen.getByRole('region', { name: 'Blockers' })).toBeInTheDocument();
+  });
+
+  it('has no collapse on the cards themselves: the strip collapses as a whole', () => {
+    renderUi(<RbmWatchers watchers={mockWatchers()} timeZone="UTC" />);
+    expect(screen.queryByRole('button', { name: /Collapse/ })).not.toBeInTheDocument();
+  });
+
   it('shows the five cards in order of urgency', () => {
     renderUi(
       <RbmHotTopicsStrip>
@@ -146,20 +182,10 @@ describe('RbmCollaboration', () => {
   });
 });
 
-describe('RbmWatchers and collapsing', () => {
+describe('RbmWatchers', () => {
   it('shows each watcher and since when', () => {
     renderUi(<RbmWatchers watchers={mockWatchers()} timeZone="UTC" />);
     expect(screen.getByRole('button', { name: 'Payroll Interface Monitoring, watching since 01:00' })).toBeInTheDocument();
   });
 
-  it('collapses a card from its header, and reports it so the choice can be remembered', async () => {
-    const onCollapsedChange = vi.fn();
-    renderUi(<RbmWatchers watchers={mockWatchers()} timeZone="UTC" onCollapsedChange={onCollapsedChange} />);
-    const toggle = screen.getByRole('button', { name: 'Collapse Watchers' });
-    expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    await userEvent.click(toggle);
-    expect(onCollapsedChange).toHaveBeenCalledWith(true);
-    expect(screen.queryByText('Payroll Interface Monitoring')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Expand Watchers' })).toHaveAttribute('aria-expanded', 'false');
-  });
 });

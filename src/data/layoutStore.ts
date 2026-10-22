@@ -1,15 +1,23 @@
 import type { LayoutPreference, LayoutPreferenceStore } from './interfaces';
 import { DEFAULT_LAYOUT, type RbmRegion } from '../components/RbmLayoutPanel/RbmLayoutPanel';
 
-export const DEFAULT_PREFERENCE: LayoutPreference = { order: [...DEFAULT_LAYOUT], ribbonCollapsed: false, ribbonCriticalOnly: false };
+export const DEFAULT_PREFERENCE: LayoutPreference = { order: [...DEFAULT_LAYOUT], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonCriticalOnly: false };
+
+/** A fresh copy of the default, safe to change. */
+export const defaultPreference = (): LayoutPreference => ({ ...DEFAULT_PREFERENCE, order: [...DEFAULT_PREFERENCE.order], collapsed: { ...DEFAULT_PREFERENCE.collapsed } });
 
 const REGIONS = new Set<RbmRegion>(DEFAULT_LAYOUT);
 
-/** A stored order is used only if it holds each of the three regions exactly once. */
+/**
+ * A stored order is used only if it holds each of the three regions exactly once. A preference
+ * saved before 22 Oct 2026 has `ribbonCollapsed` instead of `collapsed`; it is carried over.
+ */
 export function sanitise(value: unknown): LayoutPreference {
-  const v = value as Partial<LayoutPreference> | null;
+  const v = value as (Partial<LayoutPreference> & { ribbonCollapsed?: unknown }) | null;
+  const c = (v?.collapsed ?? {}) as Partial<Record<RbmRegion, unknown>>;
   const order = Array.isArray(v?.order) && v.order.length === REGIONS.size && new Set(v.order).size === REGIONS.size && v.order.every((r) => REGIONS.has(r)) ? [...v.order] : [...DEFAULT_LAYOUT];
-  return { order, ribbonCollapsed: v?.ribbonCollapsed === true, ribbonCriticalOnly: v?.ribbonCriticalOnly === true };
+  const collapsed = { ribbon: c.ribbon === true || (v?.collapsed === undefined && v?.ribbonCollapsed === true), timeline: c.timeline === true, hotTopics: c.hotTopics === true };
+  return { order, collapsed, ribbonCriticalOnly: v?.ribbonCriticalOnly === true };
 }
 
 /**
@@ -21,9 +29,9 @@ export function createLocalLayoutStore(key = 'rbm.commandCentre.layout.v1', stor
     async get() {
       try {
         const raw = storage?.getItem(key);
-        return raw ? sanitise(JSON.parse(raw)) : { ...DEFAULT_PREFERENCE, order: [...DEFAULT_PREFERENCE.order] };
+        return raw ? sanitise(JSON.parse(raw)) : defaultPreference();
       } catch {
-        return { ...DEFAULT_PREFERENCE, order: [...DEFAULT_PREFERENCE.order] };
+        return defaultPreference();
       }
     },
     async set(preference) {
@@ -39,7 +47,7 @@ export function createLocalLayoutStore(key = 'rbm.commandCentre.layout.v1', stor
       } catch {
         // As above.
       }
-      return { ...DEFAULT_PREFERENCE, order: [...DEFAULT_PREFERENCE.order] };
+      return defaultPreference();
     },
   };
 }

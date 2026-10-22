@@ -15,6 +15,35 @@ const rowIds = () => Array.from(document.querySelectorAll<HTMLElement>('[data-ta
 const summary = () => screen.getAllByRole('status').find((s) => s.textContent?.startsWith('Showing'))!;
 
 describe('RbmTaskTimeline', () => {
+  it('collapses to one line with the focus, late and blocked counts, matching the chips', async () => {
+    const onCollapsedChange = vi.fn();
+    timeline({ onCollapsedChange });
+    const chipCount = (name: string) => Number(screen.getByRole('button', { name: new RegExp(`^${name}`) }).textContent!.replace(/\D/g, '') || 0);
+    const late = chipCount('Late');
+    const blocked = chipCount('Blocked');
+    const inFocus = Number(/Showing (\d+) of/.exec(summary().textContent!)![1]);
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse Task Timeline' }));
+    expect(onCollapsedChange).toHaveBeenLastCalledWith(true);
+    const chips = within(screen.getByRole('list', { name: 'Task Timeline summary' })).getAllByRole('listitem');
+    expect(chips.map((c) => c.getAttribute('aria-label'))).toEqual([`${inFocus} in focus`, `${late} late`, `${blocked} blocked`]);
+    expect(rowIds()).toEqual([]);
+    expect(screen.queryByRole('group', { name: 'Scope' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Expand Task Timeline' }));
+    expect(onCollapsedChange).toHaveBeenLastCalledWith(false);
+    expect(rowIds().length).toBeGreaterThan(0);
+  });
+
+  it('says how many runbooks the collapsed counts cover when the runbook filter is on', () => {
+    const runbooks = mockTimelineRunbooks();
+    timeline({ collapsed: true, runbookFilter: [runbooks[0]!.id] });
+    expect(screen.getByRole('listitem', { name: `1 of ${runbooks.length} runbooks` })).toBeInTheDocument();
+  });
+
+  it('keeps a refusal on screen while collapsed', () => {
+    timeline({ collapsed: true, notice: { message: '1.3.5 was already completed by L. Chen at 03:41' } });
+    expect(screen.getByText('1.3.5 was already completed by L. Chen at 03:41')).toBeInTheDocument();
+  });
+
   it('shows only the tasks in focus, and hides the rest', () => {
     timeline();
     expect(rowIds()).not.toContain('1.3.1'); // complete long ago

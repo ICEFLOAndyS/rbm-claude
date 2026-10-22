@@ -28,6 +28,11 @@ export interface RbmCommandCentreProps {
   /** The user's order for the movable regions, saved to their profile by the page. */
   layout?: RbmRegion[];
   onLayoutChange?: (order: RbmRegion[]) => void;
+  /** Which movable regions are collapsed. With onCollapsedChange, the Layout panel can open and collapse them. */
+  collapsed?: Partial<Record<RbmRegion, boolean>>;
+  onCollapsedChange?: (region: RbmRegion, collapsed: boolean) => void;
+  /** Reset to default in the Layout panel. Without it, only the order is put back. */
+  onLayoutReset?: () => void;
   /** Only the actions the user may take are shown; permissions come from the platform. Layout is always there. */
   eventActions?: Partial<Record<RbmEventAction, () => void>>;
   /** Links in the compact event bar. */
@@ -37,7 +42,7 @@ export interface RbmCommandCentreProps {
   timeZone?: string;
 }
 
-/** The Task Timeline keeps a minimum of 8 rows: toolbar 64 + summary 40 + 8 rows of 52. */
+/** The Task Timeline keeps a minimum of 8 rows while open: toolbar 64 + summary 40 + 8 rows of 52. Collapsed, it is one line (agreed 22 Oct 2026). */
 export const TIMELINE_MIN_HEIGHT = 64 + 40 + 8 * 52;
 
 function Icon({ children }: { children: ReactNode }) {
@@ -108,7 +113,7 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
 
   const regions: Record<RbmRegion, ReactNode> = {
     ribbon,
-    timeline: <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: TIMELINE_MIN_HEIGHT, '& > *': { flex: 1 } }}>{timeline}</Box>,
+    timeline: props.collapsed?.timeline ? timeline : <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: TIMELINE_MIN_HEIGHT, '& > *': { flex: 1 } }}>{timeline}</Box>,
     hotTopics,
   };
   const shown = actions.filter((a) => a.key === 'layout' || eventActions[a.key as RbmEventAction]);
@@ -204,7 +209,7 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
         disableScrollLock
         slotProps={{ paper: { sx: { mt: 1.5, bgcolor: 'transparent', boxShadow: 'none', overflow: 'visible' } } }}
       >
-        <RbmLayoutPanel order={layout} onChange={setLayout} onClose={() => setLayoutOpen(false)} />
+        <RbmLayoutPanel order={layout} onChange={setLayout} onClose={() => setLayoutOpen(false)} collapsed={props.collapsed} onCollapsedChange={props.onCollapsedChange} onReset={props.onLayoutReset} />
       </Popover>
 
       {/* Event vitals (fixed) */}

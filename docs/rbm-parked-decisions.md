@@ -330,9 +330,9 @@ The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png
 - **Narrow screens:** below 1200 px there is no room for the panel, so it becomes the Hot-topics strip under the main column, with the same name and the same open or collapsed state.
 - **Layout panel:** only the Event ribbon and Task Timeline move. The Hot-topics panel has its own row under "Right panel", with no grip and with its Open switch.
 - **Saved layouts:** `LayoutPreference.order` now holds the two main-column regions. An order saved before this change still lists `hotTopics`; it is dropped and the rest of the order kept.
-- **Name:** the region is called the **Hot-topics panel** (the brief and the board say Hot-topics strip). Update the brief's region list and the Layout rule ("the user drags the Event ribbon, Task Timeline and Hot-topics strip") to match.
+- **Name (decided by Andy Smith):** the region is the **Hot-topics panel**. The repo copy of the brief (`docs/handoff-brief.md`) is updated: the region list, the runbook filter and the Layout rule. `RbmHotTopicsStrip` keeps its name as the narrow-screen form.
 - **Components:** new `RbmHotTopicsPanel` (exported with `HOT_TOPICS_PANEL_WIDTH`, `HOT_TOPICS_RAIL_WIDTH` and `HOT_TOPICS_PANEL_MIN_VIEWPORT`). `RbmHotTopicsStrip` stays, as the narrow-screen form, and takes an optional `title`. New type `RbmMovableRegion` ('ribbon' | 'timeline').
-- **Not drawn (flagged):** the two-column page, the panel and its header, the rail, the panel width, and the Layout panel's "Right panel" row. The Command board still shows the strip under the Task Timeline, so it needs redrawing.
+- **Design board:** drafted on the Command & Control Centre board as a Proposed section, "Hot-topics panel on the right", straight after "The page" (canvas version 71). It shows the open panel, the rail and the Layout panel row. The rest of the board still shows the strip until sign-off; the section lists what to update then.
 
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.

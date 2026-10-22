@@ -20,7 +20,7 @@ Start a library of working, tested React components for RBM, built on MUI, with 
 
 ## 4. Naming (use these exactly)
 - **Event** (a cutover event; the user is the Event Manager, also called the Implementation or Runbook Manager), **Runbook** (IDs like RBK0000001), **Stage**, **Task**. Tasks are identified by WBS: runbook 1, stage 1.3, task 1.3.5. Do not use "#45" task numbers.
-- Regions of the Command & Control Centre: **Page header**, **Event vitals** (Progress, Issues, Start, Forecast end time, left to right), **Event ribbon**, **Task Timeline**, **Hot-topics strip** (Blockers, Next checkpoint, Milestones, Collaboration, Watchers).
+- Regions of the Command & Control Centre: **Page header**, **Event vitals** (Progress, Issues, Start, Forecast end time, left to right), **Event ribbon**, **Task Timeline**, **Hot-topics panel** (Blockers, Next checkpoint, Milestones, Collaboration, Watchers), a collapsible column on the right of the Event ribbon and Task Timeline. It was the Hot-topics strip under the Task Timeline until 22 Oct 2026.
 - Never use "War room". It is **Collaboration**.
 - Component prefix `Rbm`. Examples: `RbmCommandCentre`, `RbmEventVitals`, `RbmEventRibbon`, `RbmTaskTimeline`, `RbmTaskRow`, `RbmHotTopicsStrip`, `RbmEventBar`, `RbmAlertCounter`, `RbmNode`, `RbmStatusPill`.
 
@@ -41,12 +41,12 @@ Each component needs: Storybook stories for every state, unit tests, keyboard an
 - **Task Timeline focus rule:** show only tasks that need attention: Active, Ready to start, Up next (cap 5 released tasks, then "+n more"), Blocked, Has an issue, Late to start, Late to finish, At risk or paused, Failed check. Hide Complete (after a 60-second linger), Skipped, and Not started and not ready. Runbooks and stages with nothing in focus are not shown.
 - **Sorting:** always by start time (actual if started, otherwise forecast, marked FC), grouped by runbook then stage.
 - **Linger time:** 60 seconds by default. It will become an Event Setting later, so make it a prop.
-- **Runbook filter:** multi-select. It scopes the Task Timeline and the Hot-topics strip, not the Event vitals or the ribbon.
+- **Runbook filter:** multi-select. It scopes the Task Timeline and the Hot-topics panel, not the Event vitals or the ribbon.
 - **Task actions:** Start, Complete (split button: Complete at…, with note, Pause, Skip), checkpoint Result (Pass, Fail, Pass with comment), Resume, View (the blocker), Undo (during the linger). Bulk Start and Complete are in the first release. Undo and conflict toasts. Every action is written to the event log.
 - **Row action buttons are all one size: 120 by 32 px, whatever the label.** Icon and label are centred, and the actions form one clean column at the right of the row. Labels are one word (Start, Complete, Result, Resume, View, Undo). Weight comes from colour, not width: Start is a Blue Dark outline; Complete and Result are Green split buttons, with a 28 px caret segment inside the 120 px (the caret holds the menu); Resume, View and Undo are neutral outlines. Rows with no action (Up next) leave the column empty. Do not let the button grow with its label. Test with long translations and truncate the label instead.
 - **Alert counter** (page header, beside the state pill): Red for a blocker, failed check or Red forecast; Amber when only the forecast is late; hidden when healthy. A click opens a popover of alerts, most serious first. There is no alert strip.
 - **Event actions menu** (burger, right of the page header): Raise issue, Raise blocker, Add event note, Notify stakeholders, Pause event, Export event log, **Layout**, Event settings.
-- **Layout:** the user drags the Event ribbon, Task Timeline and Hot-topics strip into their preferred order. Page header and Event vitals are fixed. Saved as a personal preference, with Reset to default. Keyboard dragging (Space, arrows, Space) is required. Suggested drag layer: dnd-kit.
+- **Layout:** the user drags the Event ribbon and Task Timeline into their preferred order. Page header and Event vitals are fixed, and the Hot-topics panel stays on the right; each region can be opened or collapsed. Saved as a personal preference, with Reset to default. Keyboard dragging (Space, arrows, Space) is required. Suggested drag layer: dnd-kit.
 - **Vertical budget:** the Task Timeline is full width, with a minimum of 8 rows. The ribbon collapses to one 56 px summary line (open by default; choice remembered). A sticky 48 px `RbmEventBar` appears when the Event vitals scroll off screen (name, state, alert counter, progress, open issues, Forecast end time). The Task Timeline toolbar sticks beneath it. Both the compact bar and the collapsed ribbon are drawn on the Command board ("Compact event bar and collapsed ribbon").
 - **Next checkpoint card** has a **Join call** button, in the same style as Collaboration. It joins the call linked to the checkpoint; hidden if none; disabled with the opening time if not yet open.
 - Forecast end time is the most important number on the page. It is the rightmost vital card, and it keeps the large figure, the RAG disc and the words ("+12 min Behind Schedule").
@@ -67,7 +67,7 @@ Build as plain SVG (or absolutely positioned elements) inside React, not a chart
 - **Design to update:** the Command board's vertical-budget table assumes a fixed 252 px ribbon. It should become "252 px plus about 28 px per extra sub-row". An overlapping example is not yet drawn on the board.
 
 ## 8. Not yet decided or not yet drawn
-- Whether the Hot-topics cards can also be reordered in the Layout panel, or only the three regions.
+- Whether the Hot-topics cards can also be reordered in the Layout panel, or only the regions.
 - Whether the Blockers card "+ Raise" needs a different pattern.
 - ServiceNow attribute names for RAG, forecast end and alerts.
 - Spikes needed: real-time updates from ServiceNow; a task-level Gantt view (a separate view from the ribbon).

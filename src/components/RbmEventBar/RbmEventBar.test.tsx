@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { RbmDensity } from '../../theme/RbmDensity';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
@@ -8,7 +9,8 @@ import { mockAlerts, mockEvent } from '../../mocks/event';
 import { rbmTheme } from '../../theme/theme';
 import { colour } from '../../theme/tokens';
 
-const renderUi = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{ui}</ThemeProvider>);
+// The bar is a D2 Compact region of the Command Centre.
+const renderUi = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}><RbmDensity level="compact">{ui}</RbmDensity></ThemeProvider>);
 const bar = (over: Partial<RbmEventBarProps> = {}) =>
   renderUi(<RbmEventBar event={mockEvent()} vitals={mockEventVitals()} alerts={mockAlerts()} visible timeZone="UTC" {...over} />);
 
@@ -32,9 +34,9 @@ describe('RbmEventBar', () => {
     expect(screen.getByRole('button', { name: 'Forecast end 06:12, +12 min' })).toBeInTheDocument();
   });
 
-  it('is 48 px high', () => {
+  it('is as tall as its forecast time at the D2 figure size needs (56 px; drawn 48)', () => {
     bar();
-    expect(screen.getByRole('banner', { name: 'Event summary' })).toHaveStyle({ height: '48px' });
+    expect(screen.getByRole('banner', { name: 'Event summary' })).toHaveStyle({ height: '56px' });
   });
 
   it('shows the gap in the RAG text colour', () => {

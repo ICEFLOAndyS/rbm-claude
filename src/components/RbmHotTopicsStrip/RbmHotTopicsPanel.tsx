@@ -1,4 +1,5 @@
 import { Box, useMediaQuery } from '@mui/material';
+import { EVENT_BAR_HEIGHT } from '../RbmEventBar/RbmEventBar';
 import { Children, useState } from 'react';
 import { RbmEyebrow, RbmToggleLink } from '../RbmRegion/RbmRegion';
 import { RbmHotTopicsStrip, type RbmHotTopicsStripProps } from './RbmHotTopicsStrip';
@@ -16,8 +17,8 @@ export const HOT_TOPICS_PANEL_MIN_VIEWPORT = 1200;
 
 const NAME = 'Hot-topics panel';
 
-/** Pinned under the 48 px compact event bar with a 16 px gap, and never taller than the screen. */
-const sticky = { position: 'sticky', top: 64, maxHeight: 'calc(100vh - 80px)', boxSizing: 'border-box' } as const;
+/** Pinned under the compact event bar with a 16 px gap, and never taller than the screen. */
+const sticky = { position: 'sticky', top: EVENT_BAR_HEIGHT + 16, maxHeight: `calc(100vh - ${EVENT_BAR_HEIGHT + 32}px)`, boxSizing: 'border-box' } as const;
 
 function Chevron({ left }: { left?: boolean }) {
   return (

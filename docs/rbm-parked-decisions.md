@@ -427,7 +427,7 @@ Built from the Page templates board ("1 · List of records") at D2 Compact, on M
 - **The 12 px floor** (Density board, "Floors protect people"): text drawn smaller now takes the secondary size. This covers the "FC" marker (9 px), eyebrows (10), the runbook record pill and chip counts (11), ribbon hour and WBS labels (10 and 11), the event bar's event number and FORECAST END (11 and 10), FIXED in the Layout panel (11), and the calendar chip's month (10).
 - **Minimum target:** small pill-shaped buttons and text links keep their drawn shape, and an invisible layer extends their hit area to the target (`hitTarget`). This covers the alert counter, "Collapse" and "Expand", "Show all", "Only", "n more", "+ Raise", Undo, Back to top, the drag grip and the hover checkbox.
 - **Icons beside a button's text** are glyphs sized with the text and keep their drawn sizes. Otherwise "Complete" no longer fits the fixed 120 px action button. The label's inner gap is 4 px (was 6) for the same reason.
-- **Needs a decision:** the compact event bar's forecast end time is a KPI figure, but the D2 figure size (32 px) does not fit the drawn 48 px bar with its eyebrow. It stays at the drawn 20 px. Should the bar grow, or is the bar's time not a KPI figure?
+- **Compact event bar (decided by Andy Smith, 22 Oct 2026: grow to D2, then assess the visual impact):** the forecast end time is a KPI figure at the D2 figure size (32 px; drawn 20). The bar grows to fit it: 56 px (drawn 48), the eyebrow over the time with 4 px above and below. The Task Timeline toolbar now sticks 56 px down (was 48), and the Hot-topics panel 72 px (was 64). `EVENT_BAR_HEIGHT` holds the number. **To assess:** the visual impact on the board.
 - **Command board to redraw:** the Task Timeline, Event ribbon, Hot-topics panel and compact event bar at the D2 sizes above; the Page header and Event vitals at D1.
 - **Tests:** each converted component is tested in its region, and new tests pin the D2 sizes of the task row, the Task Timeline, the tags and the countdown, and the D1 figure. Visual check: the Weekend Payroll Cutover story, screenshotted at 1600 px.
 
@@ -514,6 +514,6 @@ Built as drawn on the Page templates board ("1 · List of records", zone 4): the
 - **Boards to redraw at D2:** the Page templates list drawing shows 36 px rows, 13 px text and 8 px dots. The density rule (22 Oct 2026) makes them 44 px, 14 px and 10 px.
 - **List of records data contract** (22 Oct 2026, [list-data-model.md](list-data-model.md) section 8). The count line "128 events · filtered to Production" shows fewer than 128 with the fixtures, which span every environment. Live conflicts are found only on save until the ServiceNow real-time spike.
 - **Command board:** redraw the page header and the compact event bar with REV000009 instead of E12345, and every region at its density (D1 header and vitals, D2 elsewhere).
-- **Compact event bar forecast time:** a KPI figure that does not fit the 48 px bar at the D2 figure size. Grow the bar, or treat it as text?
+- **Compact event bar at 56 px** (22 Oct 2026): assess the visual impact of the larger forecast time.
 - **MUI X licence.** A real Pro key is needed before release (D4).
 - **Bulk actions for the Events list:** which ones (Export selected, Change owner, Change environment, Delete)? Each but export needs a data contract addition.

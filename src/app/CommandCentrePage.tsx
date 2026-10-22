@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { EVENT_BAR_HEIGHT } from '../components/RbmEventBar/RbmEventBar';
 import type { CommandCentreActions, CommandCentreData, LayoutPreference, LayoutPreferenceStore } from '../data/interfaces';
 import type { TaskCommand } from '../data/types';
 import { toAlerts, toEvent, toHotTopics, toRibbon, toTimeline, toVitals } from '../data/adapters';
@@ -173,7 +174,7 @@ export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds =
           onOpen={(t) => notBuilt(`Task ${t.wbs}`)()}
           notice={notice}
           onNoticeClose={() => setNotice(undefined)}
-          stickyTop={48}
+          stickyTop={EVENT_BAR_HEIGHT}
           onLoadAll={loadAllDelayMs > 0 ? (signal) => wait(loadAllDelayMs, signal) : undefined}
           collapsed={pref.collapsed.timeline}
           onCollapsedChange={(c) => setCollapsed('timeline', c)}

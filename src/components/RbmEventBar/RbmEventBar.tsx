@@ -5,6 +5,7 @@ import { RbmAlertCounter, type RbmAlert } from '../RbmAlertCounter/RbmAlertCount
 import type { RbmEventVitalsData, RbmRag } from '../RbmEventVitals/RbmEventVitals';
 import { colour, radius, type RbmState, stroke } from '../../theme/tokens';
 import { hitTarget, ringSize, useDensity } from '../../theme/RbmDensity';
+import { density } from '../../theme/tokens';
 
 export interface RbmEventSummary {
   /** The event number, for example "REV000001". */
@@ -51,13 +52,23 @@ function Link({ label, onClick, children }: { label: string; onClick?: () => voi
 }
 
 /**
- * The compact event bar, as drawn on the Command board: 48 px, pinned under the top bar once the
+ * The bar's height at a density: the FORECAST END eyebrow over the time at the KPI figure size, with
+ * 4 px above and below. 56 px at D2 (drawn 48 px with a 20 px time; grown to the D2 figure size by
+ * Andy Smith, 22 Oct 2026, to assess the visual impact).
+ */
+export const eventBarHeight = (d: { caption: number; figure: number }) => Math.ceil(d.caption * 1.15 + d.figure * 1.05) + 8;
+
+/** The bar's height in the Command Centre, where it is a D2 Compact region. Regions pinned under it use it. */
+export const EVENT_BAR_HEIGHT = eventBarHeight(density.compact);
+
+/**
+ * The compact event bar, as drawn on the Command board (48 px; now the height its D2 contents need), pinned under the top bar once the
  * Event vitals scroll away. It carries the event name and state, the alert counter, progress, open
  * issues and Forecast end time.
  */
 export function RbmEventBar({ event, vitals, alerts, visible, timeZone, onOpenProgress, onOpenIssues, onOpenForecast, onBackToTop }: RbmEventBarProps) {
   const { palette } = useTheme();
-  // The bar is a D2 Compact region; its 48 px height is as drawn (bar chrome, not on the density scale).
+  // The bar is a D2 Compact region; it is as tall as its forecast time at the D2 figure size needs.
   const d = useDensity();
   const s = palette.status;
   const { progress, issues, forecast } = vitals;
@@ -72,7 +83,7 @@ export function RbmEventBar({ event, vitals, alerts, visible, timeZone, onOpenPr
       <Box
         component="header"
         aria-label="Event summary"
-        sx={{ display: 'flex', alignItems: 'center', gap: `${d.gap}px`, height: 48, px: `${d.padX}px`, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider', boxShadow: '0 4px 12px rgba(35,50,111,0.10)', boxSizing: 'border-box', lineHeight: 'normal', overflow: 'hidden' }}
+        sx={{ display: 'flex', alignItems: 'center', gap: `${d.gap}px`, height: eventBarHeight(d), px: `${d.padX}px`, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider', boxShadow: '0 4px 12px rgba(35,50,111,0.10)', boxSizing: 'border-box', lineHeight: 'normal', overflow: 'hidden' }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <Box component="span" sx={{ fontSize: d.caption, fontWeight: 700, color: 'text.secondary', letterSpacing: '0.04em' }}>{event.number}</Box>
@@ -117,8 +128,8 @@ export function RbmEventBar({ event, vitals, alerts, visible, timeZone, onOpenPr
           <Box component="span" sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15, textAlign: 'left' }}>
             <Box component="span" sx={{ fontSize: d.caption, fontWeight: 700, letterSpacing: '0.08em', color: 'text.secondary' }}>FORECAST END</Box>
             <Box component="span" sx={{ display: 'inline-flex', alignItems: 'baseline', gap: 2 }}>
-              {/* Flagged: a KPI figure, but the D2 figure size (32 px) does not fit the drawn 48 px bar, so it stays at the drawn 20 px. */}
-              <Box component="span" sx={{ fontSize: 20, fontWeight: 800, color: 'text.primary', fontVariantNumeric: 'tabular-nums' }}>{timeOf(forecast.end, timeZone)}</Box>
+              {/* A KPI figure, at the density's figure size (32 px at D2; drawn 20). */}
+              <Box component="span" sx={{ fontSize: d.figure, lineHeight: 1.05, fontWeight: 800, color: 'text.primary', fontVariantNumeric: 'tabular-nums' }}>{timeOf(forecast.end, timeZone)}</Box>
               <Box component="span" sx={{ fontSize: d.caption, fontWeight: 700, color: ragText[forecast.rag] }}>{barGap(forecast.gapMinutes)}</Box>
             </Box>
           </Box>

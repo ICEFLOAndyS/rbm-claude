@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { RbmDataGrid, type RbmDataGridHandle, type RbmDataGridProps } from './RbmDataGrid';
+import { GRID_ROW_HEIGHT, RbmDataGrid, type RbmDataGridHandle, type RbmDataGridProps } from './RbmDataGrid';
+import { density } from '../../theme/tokens';
 import { rbmTheme } from '../../theme/theme';
 import { DEFAULT_EVENT_COLUMNS, EVENT_COLUMNS } from '../../data/list/events';
 import type { EventColumnField, EventRow } from '../../data/list/types';
@@ -143,6 +144,13 @@ describe('RbmDataGrid', () => {
   it('says why the grid is empty', () => {
     renderGrid({ rows: [], noRowsLabel: 'No events match.' });
     expect(screen.getByText('No events match.')).toBeInTheDocument();
+  });
+
+  it('takes its sizes from the D2 Compact density tokens, not from the drawing', () => {
+    expect(GRID_ROW_HEIGHT).toBe(density.compact.row);
+    renderGrid();
+    const dot = within(rowOf('Q4 Data Centre Cutover')).getByTestId('rbm-grid-status-dot');
+    expect(dot).toHaveStyle({ width: `${density.compact.dot}px` });
   });
 
   it('is the only component that imports MUI X (decision D4)', () => {

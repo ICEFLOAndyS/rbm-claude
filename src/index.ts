@@ -1,6 +1,6 @@
 export { rbmTheme } from './theme/theme';
-export { colour, hairline, radius, elevation, spacingUnit, fontFamily, type, status } from './theme/tokens';
-export type { ColourName, TypeStyle, RbmState, StatusToken } from './theme/tokens';
+export { colour, hairline, radius, elevation, spacingUnit, fontFamily, type, status, density } from './theme/tokens';
+export type { ColourName, TypeStyle, RbmState, StatusToken, DensityLevel } from './theme/tokens';
 export { RbmStatusPill } from './components/RbmStatusPill/RbmStatusPill';
 export type { RbmStatusPillProps, RbmStatusPillSize } from './components/RbmStatusPill/RbmStatusPill';
 export { RbmNode, nodeSize } from './components/RbmNode/RbmNode';

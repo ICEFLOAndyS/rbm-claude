@@ -14,7 +14,7 @@ import {
 import type { ColumnDef, ColumnState, PersonRef, SortItem } from '../../data/list/types';
 import { formatDay, shortName } from '../../data/list/format';
 import type { RbmState } from '../../theme/tokens';
-import { colour, radius, stroke } from '../../theme/tokens';
+import { colour, density, radius, stroke } from '../../theme/tokens';
 
 /**
  * The one grid on a list page (Page templates board, "1 · List of records"), on MUI X Data Grid Pro
@@ -24,9 +24,13 @@ import { colour, radius, stroke } from '../../theme/tokens';
  * sorts or pages rows itself: a header click asks for a new sort with `onSortChange`.
  */
 
-/** As drawn at D2 Compact on the board: 40 px header, 36 px rows, 13 px text. */
+/**
+ * The list page is D2 Compact (decision D3), and density tokens win over sizes drawn on a board
+ * (Andy Smith, 22 Oct 2026). The header height is not on the density scale, so it stays as drawn (40 px).
+ */
+const D2 = density.compact;
 export const GRID_HEADER_HEIGHT = 40;
-export const GRID_ROW_HEIGHT = 36;
+export const GRID_ROW_HEIGHT = D2.row;
 
 export interface RbmGridRowAction {
   id: string;
@@ -71,18 +75,21 @@ export interface RbmDataGridProps<Row extends { id: string }, F extends string> 
 
 const ACTIONS = '__actions';
 
-/** The semantic dot and label, as drawn in the board's grid: 8 px dot, or a 12 px ringed dot. */
+/**
+ * The semantic dot and label at D2: a 10 px dot, or the Semantic board's ringed dot (a 16 px disc,
+ * 2 px white gap and 10 px centre), as `RbmStatusPill` draws them.
+ */
 function StatusCell({ state, label }: { state: RbmState; label: string }) {
   const { palette } = useTheme();
   const token = palette.status[state];
   return (
-    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '7px', fontWeight: 600, color: token.text, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: token.text, whiteSpace: 'nowrap', overflow: 'hidden' }}>
       {token.core ? (
-        <Box component="span" aria-hidden="true" data-testid="rbm-grid-status-dot" sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: token.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-          <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: token.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
+        <Box component="span" aria-hidden="true" data-testid="rbm-grid-status-dot" sx={{ width: D2.dot + 6, height: D2.dot + 6, borderRadius: '50%', bgcolor: token.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+          <Box component="span" sx={{ width: D2.dot, height: D2.dot, borderRadius: '50%', bgcolor: token.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
         </Box>
       ) : (
-        <Box component="span" aria-hidden="true" data-testid="rbm-grid-status-dot" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: token.signal, flex: 'none' }} />
+        <Box component="span" aria-hidden="true" data-testid="rbm-grid-status-dot" sx={{ width: D2.dot, height: D2.dot, borderRadius: '50%', bgcolor: token.signal, flex: 'none' }} />
       )}
       <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
         {label}
@@ -91,10 +98,10 @@ function StatusCell({ state, label }: { state: RbmState; label: string }) {
   );
 }
 
-/** The drawn "more" icon: three dots, 18 px, Slate. */
+/** The drawn "more" icon: three dots in Slate, at the D2 icon size (20 px). */
 function MoreIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colour.slate} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width={D2.icon} height={D2.icon} viewBox="0 0 24 24" fill="none" stroke={colour.slate} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M12 6h.01M12 12h.01M12 18h.01" />
     </svg>
   );
@@ -254,16 +261,16 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
         sx={{
           border: 'none',
           fontFamily: 'inherit',
-          fontSize: 13,
+          fontSize: D2.body,
+          lineHeight: 1.4,
           color: colour.ink,
           '--DataGrid-rowBorderColor': colour.rule,
           '--DataGrid-t-header-background-base': colour.mist,
           '--DataGrid-containerBackground': colour.mist,
           '& .MuiDataGrid-columnHeader, & .MuiDataGrid-filler, & .MuiDataGrid-scrollbarFiller': { bgcolor: colour.mist },
-          '& .MuiDataGrid-columnHeaderTitle': { fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: colour.slate },
-          // 12 px between columns and 16 px at the edges, as drawn.
-          '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': { px: '6px' },
-          '& .MuiDataGrid-columnHeader[aria-colindex="1"], & .MuiDataGrid-cell[aria-colindex="1"]': { pl: '16px' },
+          '& .MuiDataGrid-columnHeaderTitle': { fontSize: D2.caption, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: colour.slate },
+          // The D2 cell padding (12 px each side); the header labels line up with the cells.
+          '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': { px: `${D2.padX}px` },
           '& .MuiDataGrid-cell': { display: 'flex', alignItems: 'center' },
           // The record open in the panel: the approved highlight (List to record in use).
           '& .MuiDataGrid-row.rbm-open': { bgcolor: colour.rule, boxShadow: `inset 4px 0 0 ${colour.blueDark}` },

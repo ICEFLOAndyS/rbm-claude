@@ -64,6 +64,22 @@ export const elevation = {
 /** The 4 px base unit: theme.spacing(n) is n × 4 px. */
 export const spacingUnit = 4;
 
+/**
+ * Proposed. The four densities on the Density board ("In code"), in CSS px: row and control height,
+ * minimum target, body and secondary ("caption") text, KPI figure, cell padding (x), gap, icon, status
+ * dot and control radius. Line heights: 1.5, 1.5, 1.4, 1.35.
+ *
+ * Decided by Andy Smith, 22 Oct 2026: a component at a density takes its sizes from here, even where a
+ * board draws something else.
+ */
+export const density = {
+  command: { row: 80, control: 64, target: 56, body: 24, caption: 18, figure: 96, padX: 24, gap: 24, icon: 32, dot: 16, radius: 12 },
+  comfortable: { row: 56, control: 48, target: 48, body: 16, caption: 13, figure: 40, padX: 16, gap: 16, icon: 24, dot: 10, radius: 12 },
+  compact: { row: 44, control: 36, target: 36, body: 14, caption: 12, figure: 32, padX: 12, gap: 12, icon: 20, dot: 10, radius: 12 },
+  dense: { row: 32, control: 28, target: 24, body: 13, caption: 12, figure: 24, padX: 8, gap: 8, icon: 16, dot: 8, radius: 8 },
+} as const;
+export type DensityLevel = keyof typeof density;
+
 /** "Inter Variable" is the name @fontsource-variable/inter registers; "Inter" covers the static font. */
 export const fontFamily = '"Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif';
 

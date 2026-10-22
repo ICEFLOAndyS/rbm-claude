@@ -370,15 +370,15 @@ See [list-data-model.md](list-data-model.md). Types, record spec, `ListData`, `L
 - **Note:** the 21 Oct entries above still say E12345; they record what was drawn and built then.
 
 ### 22 Oct 2026: `RbmDataGrid`
-Built as drawn on the Page templates board ("1 · List of records") at D2 Compact, on MUI X Data Grid Pro (D1, D4), with the columns agreed for the Events list. It is the only component that imports MUI X; a test fails if another file does.
-- **As drawn:**
-  - A 14 px rounded card with a Rule border.
-  - A 40 px Mist header with 12 px bold uppercase Slate labels.
-  - 36 px rows with 13 px text and Rule lines between them.
-  - 16 px edge padding and 12 px between columns.
-  - The title in 600 Deep Blue; the ID in 600 with tabular figures.
-  - Status as the semantic dot and label: an 8 px dot, or the 12 px ringed dot for At risk and Paused.
-  - The "more" button (three dots, 18 px, Slate) at the end of each row.
+Built from the Page templates board ("1 · List of records") at D2 Compact, on MUI X Data Grid Pro (D1, D4), with the columns agreed for the Events list. It is the only component that imports MUI X; a test fails if another file does.
+- **Density wins (decided by Andy Smith, 22 Oct 2026):** a component at a density takes its sizes from the Density board's tokens, even where a board draws something else. The tokens are now in `src/theme/tokens.ts` (`density`, exactly as the board's "In code" table). At D2 Compact the grid has:
+  - 44 px rows (the list drawing has 36);
+  - 14 px cell text (drawn 13), with 12 px header labels (the D2 caption size);
+  - 12 px cell padding on each side (drawn 6 px, with 16 px at the edges);
+  - a 10 px status dot (drawn 8), or the Semantic board's 16 px ringed dot with a 10 px centre, as `RbmStatusPill` draws it (drawn 12 and 8);
+  - a 20 px "more" icon (drawn 18).
+  The header stays 40 px, as drawn, because header height is not on the density scale.
+- **As drawn:** a 14 px rounded card with a Rule border; the Mist header with bold uppercase Slate labels; Rule lines between rows; the title in 600 Deep Blue; the ID in 600 with tabular figures; status as the semantic dot and label; the "more" button (three dots, Slate) at the end of each row.
 - **Open row:** the record open in the panel keeps the approved highlight from "List to record in use": Rule fill, a 4 px Blue Dark bar on the left, and the title in 700.
 - **Server-driven:** the grid shows one page as the server returned it. A header click asks for a new sort (`onSortChange`); the grid never sorts or pages rows itself. Pagination is a separate component (build step 5). Until then, the Storybook proof uses a stand-in pager.
 - **Columns:** `columnState` (visible columns in order, and widths) in and out. Drag to reorder (Pro) and resize both report the new state, so a saved view or the user's preference can keep it. `openColumnChooser()` opens MUI X's column panel for the toolbar's Columns button (build step 3). The Event column cannot be hidden.
@@ -389,18 +389,11 @@ Built as drawn on the Page templates board ("1 · List of records") at D2 Compac
   - Focus shows the Proposed 2 px Blue Dark ring.
   - The status dot is hidden from screen readers, because the label says it.
   - The "more" column's header is blank, as drawn, but is named "Actions" for screen readers. Each button is named "More actions".
-- **Differs from the design (flagged):**
-  - **Row height:** 36 px, as drawn on the list. The Density board's D2 row is 44 px and its dot 10 px; the drawing is followed. Which is right?
-  - **The Proof story** shows MUI X's licence watermark until a key is set (expected, D4).
-- **Not drawn (MUI's defaults, the agreed fallback):**
-  - The checkbox column.
-  - Hover on rows and headers, and the sort arrow.
-  - The column chooser panel.
-  - The loading skeleton.
-  - The "more" menu and its items: the Storybook story uses "Open" and "Open in full".
-  - The no-rows line, which the list page's empty state replaces later.
+- **MUI's defaults (decided by Andy Smith, 22 Oct 2026):** the checkbox column, hover on rows and headers, the sort arrow, the column chooser panel, the loading skeleton, and the items in the "more" menu. The Storybook story's menu items ("Open", "Open in full") are examples; each list passes its own.
+- **Not drawn (MUI's default for now):** the no-rows line, which the list page's empty state replaces later.
+- **Expected:** the stories show MUI X's licence watermark until a key is set (D4).
 - **Removed from the header:** MUI X's column menu and column filters. Filters live in the toolbar (board rule), and the column chooser is a toolbar button.
-- **Visual check:** the stories were screenshotted against the board (as drawn, row open, selectable, row actions, and the proof on 128 and 15,000 events). Dates use three-letter months ("10 Sep"; en-GB writes "Sept").
+- **Visual check:** the stories were screenshotted against the board (as drawn, row open, selectable, row actions, and the proof on 128 and 15,000 events), first as drawn, then again at the D2 tokens. Dates use three-letter months ("10 Sep"; en-GB writes "Sept").
 - **Shared formats:** `src/data/list/format.ts` holds `shortName`, `formatDay`, `formatWhen` and `formatWindow`, so the grid does not depend on the Events list.
 
 ## Open questions
@@ -423,7 +416,7 @@ Built as drawn on the Page templates board ("1 · List of records") at D2 Compac
 - **Layout drop line.** The build puts the drop line where the row will land. The drawing shows it between the two rows. Which should it be?
 - **Gaps between regions.** The vertical budget says 16 px and the page drawing has 24 px. Which is right?
 - **Densities not drawn.** What sizes should nodes, buttons and the Event vitals use at D0 (Command) and D3 (Dense)?
+- **Boards to redraw at D2:** the Page templates list drawing shows 36 px rows, 13 px text and 8 px dots. The density rule (22 Oct 2026) makes them 44 px, 14 px and 10 px.
 - **List of records data contract** (22 Oct 2026, [list-data-model.md](list-data-model.md) section 8). The count line "128 events · filtered to Production" shows fewer than 128 with the fixtures, which span every environment. Live conflicts are found only on save until the ServiceNow real-time spike.
-- **Grid row height at D2:** the list drawing has 36 px rows; the Density board says 44 px (and a 10 px dot, drawn as 8 px). `RbmDataGrid` follows the drawing.
 - **Command board:** redraw the page header and the compact event bar with REV000009 instead of E12345.
 - **MUI X licence.** A real Pro key is needed before release (D4).

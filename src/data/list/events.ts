@@ -42,7 +42,7 @@ export { shortName, formatWhen, formatWindow } from './format';
 
 /** The board's columns, in the board's order, with Event ID first. */
 export const EVENT_COLUMNS: readonly ColumnDef<EventColumnField>[] = [
-  { field: 'number', header: 'Event ID', kind: 'recordNumber', sortable: true, hideable: true, width: 120 },
+  { field: 'number', header: 'Event ID', kind: 'recordNumber', sortable: true, hideable: true, width: 140 },
   { field: 'name', header: 'Event', kind: 'title', sortable: true, hideable: false, width: 280 },
   { field: 'status', header: 'Status', kind: 'status', sortable: true, hideable: true, width: 140, labels: STATUS_LABELS },
   { field: 'owner', header: 'Owner', kind: 'person', sortable: true, hideable: true, width: 140 },

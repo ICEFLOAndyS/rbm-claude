@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { createTheme } from '@mui/material/styles';
-import { colour, fontFamily, radius, spacingUnit, status, type, type RbmState, type StatusToken, stroke } from './tokens';
+import { colour, density, fontFamily, radius, spacingUnit, status, type, type RbmState, type StatusToken, stroke } from './tokens';
 
 declare module '@mui/material/styles' {
   interface Palette {
@@ -74,10 +74,11 @@ export const rbmTheme = createTheme({
       defaultProps: { disableElevation: true },
       styleOverrides: {
         root: {
-          minHeight: 48,
+          // D1 Comfortable control height and body text (density tokens); RbmDensity changes them by region.
+          minHeight: density.comfortable.control,
           padding: '0 24px',
           borderRadius: radius.control,
-          fontSize: 16,
+          fontSize: density.comfortable.body,
           fontWeight: 700,
           variants: [
             {

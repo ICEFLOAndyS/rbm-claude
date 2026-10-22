@@ -396,6 +396,18 @@ Built from the Page templates board ("1 · List of records") at D2 Compact, on M
 - **Visual check:** the stories were screenshotted against the board (as drawn, row open, selectable, row actions, and the proof on 128 and 15,000 events), first as drawn, then again at the D2 tokens. Dates use three-letter months ("10 Sep"; en-GB writes "Sept").
 - **Shared formats:** `src/data/list/format.ts` holds `shortName`, `formatDay`, `formatWhen` and `formatWindow`, so the grid does not depend on the Events list.
 
+### 22 Oct 2026: density is mandatory, set by region (`RbmDensity`) (decided by Andy Smith)
+- **The rule:** density choices are asserted, not optional. Where a level applies, its tokens (`density` in `src/theme/tokens.ts`, the Density board's table) win over sizes drawn on any board: row, control, minimum target, body and secondary text, line height, KPI figure, cell padding, gap, icon, status dot and control radius. Sizes the scale does not name (column widths, header height, side padding of buttons) keep the drawing's values.
+- **`RbmDensity`** (`src/theme/RbmDensity.tsx`), as on the board's "In code" section: `<RbmDensity level="compact">` sets the level for a region, everything inside follows, and regions nest. Outside any region the level is D1 Comfortable, the board's default.
+  - `useDensity()` gives components the region's level and tokens.
+  - A nested MUI theme sizes MUI's own controls at the level: buttons, inputs and tabs at the control height; menu items, icon buttons and checkboxes at the minimum target; body text; icons; and the control radius.
+  - CSS variables (`--rbm-row`, `--rbm-control` and so on) for anything outside React.
+  - The base theme's D1 button sizes now come from the tokens (no visual change).
+- **`RbmDataGrid`** reads the region's density instead of a fixed D2. A list page wraps it at D2 Compact (D3). Tests check rows, text and dots at D1, D2 and D3.
+- **Event ID column:** 140 px (was 120), so "REV000001" fits at D1 as well as D2. Column widths are not on the density scale.
+- **Stories:** Foundations / Density shows all four levels and a nested region; the grid has a story at D1 and D3. Screenshot-checked.
+- **Command Centre levels (Andy Smith, 22 Oct 2026): mixed by region.** Page header and Event vitals at D1 Comfortable; Event ribbon, Task Timeline and Hot-topics panel at D2 Compact. Converting the Command Centre's components to these tokens is the next pull request.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

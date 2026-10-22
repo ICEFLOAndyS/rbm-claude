@@ -8,6 +8,7 @@ import { createLocalListPreferenceStore } from '../../data/list/preferenceStore'
 import { EMPTY_EVENT_FILTERS, PAGE_SIZES, type EventColumnField, type EventColumnState, type EventRow, type PageSize, type SortItem } from '../../data/list/types';
 import { events128, eventsBoard, eventsLarge } from '../../fixtures/events/build';
 import { colour } from '../../theme/tokens';
+import { RbmDensity } from '../../theme/RbmDensity';
 
 type Props = RbmDataGridProps<EventRow, EventColumnField>;
 const boardRows = eventsBoard().rows;
@@ -37,7 +38,8 @@ const meta: Meta<typeof Stateful> = {
   title: 'List/RbmDataGrid',
   component: Stateful,
   parameters: { layout: 'padded' },
-  decorators: [(Story) => <Box sx={{ maxWidth: 1100 }}>{Story()}</Box>],
+  // A list page is a D2 Compact region (decision D3); the grid takes its sizes from it.
+  decorators: [(Story) => <RbmDensity level="compact"><Box sx={{ maxWidth: 1100 }}>{Story()}</Box></RbmDensity>],
   args: { label: 'Events', columns: EVENT_COLUMNS, rows: boardRows },
 };
 export default meta;
@@ -66,6 +68,17 @@ export const Loading: Story = { args: { loading: true } };
 
 /** With rows, but the server is fetching another page. */
 export const LoadingWithRows: Story = { args: { loading: true, rows: boardRows } };
+
+/** The same grid in a D1 Comfortable region and a D3 Dense one: rows, text, padding, dots and icons follow the tokens. */
+export const InOtherDensities: Story = {
+  render: (args) => (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <RbmDensity level="comfortable"><Stateful {...args} /></RbmDensity>
+      <RbmDensity level="dense"><Stateful {...args} /></RbmDensity>
+    </Box>
+  ),
+  args: { rowActions: () => [{ id: 'open', label: 'Open', onSelect: () => {} }] },
+};
 
 /** No rows on the page. The list page's empty state (later) replaces this line. */
 export const Empty: Story = { args: { rows: [], noRowsLabel: 'No events match these filters.' } };

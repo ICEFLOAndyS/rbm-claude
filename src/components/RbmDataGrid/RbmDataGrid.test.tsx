@@ -4,8 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { GRID_ROW_HEIGHT, RbmDataGrid, type RbmDataGridHandle, type RbmDataGridProps } from './RbmDataGrid';
-import { density } from '../../theme/tokens';
+import { RbmDataGrid, type RbmDataGridHandle, type RbmDataGridProps } from './RbmDataGrid';
+import { density, type DensityLevel } from '../../theme/tokens';
+import { RbmDensity } from '../../theme/RbmDensity';
 import { rbmTheme } from '../../theme/theme';
 import { DEFAULT_EVENT_COLUMNS, EVENT_COLUMNS } from '../../data/list/events';
 import type { EventColumnField, EventRow } from '../../data/list/types';
@@ -14,7 +15,8 @@ import { eventsBoard } from '../../fixtures/events/build';
 const rows = eventsBoard().rows;
 type Props = RbmDataGridProps<EventRow, EventColumnField>;
 
-function renderGrid(over: Partial<Props> = {}) {
+/** Rendered inside a D2 Compact region, as on a list page (decision D3), unless another level is given. */
+function renderGrid(over: Partial<Props> = {}, level: DensityLevel = 'compact') {
   const props: Props = {
     label: 'Events',
     columns: EVENT_COLUMNS,
@@ -28,7 +30,9 @@ function renderGrid(over: Partial<Props> = {}) {
   };
   const view = render(
     <ThemeProvider theme={rbmTheme}>
-      <RbmDataGrid {...props} />
+      <RbmDensity level={level}>
+        <RbmDataGrid {...props} />
+      </RbmDensity>
     </ThemeProvider>,
   );
   return { ...view, props };
@@ -146,11 +150,14 @@ describe('RbmDataGrid', () => {
     expect(screen.getByText('No events match.')).toBeInTheDocument();
   });
 
-  it('takes its sizes from the D2 Compact density tokens, not from the drawing', () => {
-    expect(GRID_ROW_HEIGHT).toBe(density.compact.row);
-    renderGrid();
-    const dot = within(rowOf('Q4 Data Centre Cutover')).getByTestId('rbm-grid-status-dot');
-    expect(dot).toHaveStyle({ width: `${density.compact.dot}px` });
+  it.each(['compact', 'comfortable', 'dense'] as const)('takes its row height, text size and dot from the region’s density tokens (%s)', (level) => {
+    const d = density[level];
+    const { unmount } = renderGrid({}, level);
+    const row = rowOf('Q4 Data Centre Cutover');
+    expect(row.getAttribute('style')).toContain(`${d.row}px`);
+    expect(screen.getByRole('grid').closest('.MuiDataGrid-root')).toHaveStyle({ fontSize: `${d.body}px` });
+    expect(within(row).getByTestId('rbm-grid-status-dot')).toHaveStyle({ width: `${d.dot}px` });
+    unmount();
   });
 
   it('is the only component that imports MUI X (decision D4)', () => {

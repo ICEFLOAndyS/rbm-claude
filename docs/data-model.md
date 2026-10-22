@@ -64,7 +64,7 @@ interface Clock {                      // time, injectable and speedable
   subscribe(listener): () => void;
 }
 interface LayoutPreferenceStore {      // the user's own layout
-  get(): Promise<LayoutPreference>;    // { order, collapsed: { ribbon, timeline, hotTopics }, ribbonCriticalOnly }
+  get(): Promise<LayoutPreference>;    // { order, collapsed: { ribbon, timeline, hotTopics }, ribbonCriticalOnly, ribbonCriticalRunbooksOnly }
   set(preference): Promise<void>;
   reset(): Promise<LayoutPreference>;
 }
@@ -161,3 +161,4 @@ The components built so far each have their own props (`RbmEventVitalsData`, `Rb
 7. **The ribbon's Critical path filter** is kept in `LayoutPreference` as `ribbonCriticalOnly` (off by default), so it is saved per user. A preference saved before the field existed reads as off. (22 Oct 2026)
 8. **The critical path is event-wide only.** There is no runbook critical path. (22 Oct 2026)
 9. **Every movable region can collapse.** `LayoutPreference.collapsed` holds one flag per region and replaces `ribbonCollapsed` (decision 2), which is carried over from older saved preferences. (22 Oct 2026)
+10. **The ribbon's Critical runbooks filter** is kept in `LayoutPreference` as `ribbonCriticalRunbooksOnly` (off by default). A runbook is on the critical path when any of its stages is. Open for Dave: whether the planning engine writes runbook (and stage) critical status, or clients derive it; the ribbon accepts either. (22 Oct 2026)

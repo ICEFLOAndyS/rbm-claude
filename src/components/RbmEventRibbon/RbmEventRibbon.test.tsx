@@ -169,6 +169,53 @@ describe('RbmEventRibbon', () => {
     expect(screen.getByRole('button', { name: 'Expand Event ribbon' })).toBeInTheDocument();
   });
 
+  describe('the Critical runbooks filter', () => {
+    const lanes = () => Array.from(document.querySelectorAll<HTMLElement>('[data-lane]')).map((l) => l.dataset.lane);
+
+    it('is off by default and shows every runbook', () => {
+      renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" />);
+      expect(screen.getByRole('button', { name: 'Critical runbooks' })).toHaveAttribute('aria-pressed', 'false');
+      expect(lanes()).toHaveLength(3);
+    });
+
+    it('hides runbooks with no stage on the critical path, says how many, and shows them again', async () => {
+      const onChange = vi.fn();
+      const all = mockRibbon();
+      renderRibbon(<RbmEventRibbon runbooks={all} now={ribbonNow} timeZone="UTC" onCriticalRunbooksOnlyChange={onChange} />);
+      await userEvent.click(screen.getByRole('button', { name: 'Critical runbooks' }));
+      expect(onChange).toHaveBeenLastCalledWith(true);
+      expect(lanes()).toEqual([all[0]!.id]);
+      // Every stage of a critical runbook stays: this filter hides runbooks, not stages.
+      expect(document.querySelectorAll('[data-stage]')).toHaveLength(all[0]!.stages.length);
+      expect(screen.getByRole('status')).toHaveTextContent('2 runbooks hidden: no stages on the critical path');
+      await userEvent.click(screen.getByRole('button', { name: 'Show all runbooks' }));
+      expect(onChange).toHaveBeenLastCalledWith(false);
+      expect(lanes()).toHaveLength(3);
+    });
+
+    it('combines with the Critical path filter: critical stages of critical runbooks', () => {
+      renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" criticalOnly criticalRunbooksOnly />);
+      expect(lanes()).toHaveLength(1);
+      expect(Array.from(document.querySelectorAll<HTMLElement>('[data-stage]')).map((s) => s.dataset.stage)).toEqual(['1.1', '1.2', '1.3', '1.4', '1.5']);
+      expect(screen.queryByText('No stages on the critical path')).not.toBeInTheDocument();
+    });
+
+    it('uses the runbook value from the planning engine when it is given', () => {
+      const [a, b, c] = mockRibbon();
+      renderRibbon(<RbmEventRibbon runbooks={[{ ...a!, critical: false }, { ...b!, critical: true }, c!]} now={ribbonNow} timeZone="UTC" criticalRunbooksOnly />);
+      expect(lanes()).toEqual([b!.id]);
+    });
+
+    it('keeps the clock when lanes are hidden', () => {
+      const { unmount } = renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" />);
+      const hours = () => screen.getAllByText(/^\d\d:00$/).map((h) => h.textContent);
+      const before = hours();
+      unmount();
+      renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" criticalRunbooksOnly />);
+      expect(hours()).toEqual(before);
+    });
+  });
+
   describe('the Critical path filter', () => {
     it('marks critical stages with an outline and in their name, with the filter off', () => {
       renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" />);

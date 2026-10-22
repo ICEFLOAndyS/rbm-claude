@@ -78,3 +78,9 @@ export const CriticalPathOnly: Story = {
   args: { criticalOnly: true, runbooks: [...mockRibbon(), mockOverlappingRunbook()] },
   parameters: { docs: { description: { story: 'The ribbon filters are not drawn. The chip follows the Task Timeline toolbar chips, at 24 px.' } } },
 };
+
+/** Critical runbooks: runbooks with no stage on the critical path are hidden, and a line says how many. Not drawn. */
+export const CriticalRunbooksOnly: Story = { args: { criticalRunbooksOnly: true } };
+
+/** Both filters: only the critical stages of the critical runbooks. */
+export const BothCriticalFilters: Story = { args: { criticalOnly: true, criticalRunbooksOnly: true } };

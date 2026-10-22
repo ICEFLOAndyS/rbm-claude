@@ -36,6 +36,8 @@ export interface LayoutPreference {
   collapsed: Record<RbmRegion, boolean>;
   /** The Event ribbon's Critical path filter: only stages and markers on the event's critical path. Off by default. */
   ribbonCriticalOnly: boolean;
+  /** The Event ribbon's Critical runbooks filter: runbooks with no stage on the critical path hidden. Off by default. */
+  ribbonCriticalRunbooksOnly: boolean;
 }
 
 /** Saved to the user's profile. localStorage in the prototype; a ServiceNow user preference later. */

@@ -224,7 +224,20 @@ The Event ribbon's collapse becomes the model for the Event ribbon, Task Timelin
   - The Hot-topics strip's expanded header: it had none, so it gains a 24 px row with the "HOT-TOPICS STRIP" eyebrow and Collapse, above the cards.
   - The Layout panel's Open switch on each movable row: MUI's default small switch (no RBM style exists), with "Open" or "Collapsed" in words beside it. Its intro now reads "…and choose which are open."
 
+### 22 Oct 2026: Event ribbon, Critical runbooks filter (asked by Andy Smith)
+- **What it does:** a second ribbon filter, "Critical runbooks", off by default. When on, it hides every runbook with no stage on the critical path. Every stage of the runbooks that stay is still shown; this filter hides runbooks, not stages.
+- **With Critical path:** the two combine, so both on shows only the critical stages of the critical runbooks.
+- **Nothing hidden silently:** a line under the lanes says "2 runbooks hidden: no stages on the critical path", with "Show all runbooks" to turn the filter off.
+- **The clock stays on every runbook,** so hiding lanes never rescales the hours.
+- **Saved per user:** `ribbonCriticalRunbooksOnly` in `LayoutPreference`, beside `ribbonCriticalOnly`. Reset to default keeps both filters.
+- **Runbook status:** a runbook is on the critical path when any of its stages is. `RbmRibbonRunbook.critical` is optional: if given, the ribbon uses it; if not, the ribbon works it out from the stages. The adapter does not set it today, so the fake engine is unchanged.
+- **Collapsed ribbon:** the summary still shows every runbook, and the filters are not on the collapsed line.
+- **Not drawn (flagged):** the second chip and its wording, and the hidden-runbooks line. The two chips are stacked in the left column above the runbook names (at 6 px and 34 px), where the hour labels and the NOW pill never reach.
+- **Open question (Dave):** should the planning engine write critical-path status on stages and runbooks, or should clients work it out from the tasks? Today the engine sets `StageView.critical` and the ribbon works out the runbook.
+
 ## Open questions
+- Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
+- Should the collapsed Event ribbon's summary follow the Critical runbooks filter?
 - Should the Hot-topics cards (Blockers, Next checkpoint and so on) also be reorderable in the Layout panel, or only the three regions?
 - Does the Blockers card "+ Raise" need a different pattern?
 - Task-level Gantt view: needs a spike.

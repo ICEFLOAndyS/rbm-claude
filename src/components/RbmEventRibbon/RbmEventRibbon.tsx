@@ -43,7 +43,15 @@ export interface RbmRibbonRunbook {
   gapMinutes: number;
   stages: RbmRibbonStage[];
   markers?: RbmRibbonMarker[];
+  /**
+   * On the critical path: true when any of its stages is. If absent, the ribbon works it out from
+   * the stages. Whether the planning engine writes it is open (a question for Dave).
+   */
+  critical?: boolean;
 }
+
+/** A runbook is on the critical path when the engine says so, or else when any of its stages is. */
+export const runbookOnCriticalPath = (r: RbmRibbonRunbook) => r.critical ?? r.stages.some((s) => s.critical);
 
 export interface RbmEventRibbonProps {
   /** Every runbook, always: the ribbon ignores the runbook filter. */
@@ -64,6 +72,12 @@ export interface RbmEventRibbonProps {
    */
   criticalOnly?: boolean;
   onCriticalOnlyChange?: (criticalOnly: boolean) => void;
+  /**
+   * The Critical runbooks filter: when on, runbooks with no stage on the critical path are hidden,
+   * and a line says how many. Pass with onCriticalRunbooksOnlyChange to control it from the page.
+   */
+  criticalRunbooksOnly?: boolean;
+  onCriticalRunbooksOnlyChange?: (criticalRunbooksOnly: boolean) => void;
 }
 
 // Horizontal geometry at the board's 1136 px: names to the left of 188 px, forecasts in the right 125 px.
@@ -71,6 +85,7 @@ const X0 = 188;
 const RIGHT = 125;
 const HEADER = 64;
 const BOTTOM = 14;
+const HIDDEN_NOTE = 36;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -122,6 +137,25 @@ function RagMark({ rag, size }: { rag: RbmRag; size: 'lane' | 'chip' }) {
   return <Box component="span" aria-hidden="true" data-rag={rag} sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: rag === 'red' ? status.blocked.signal : status.complete.signal, flex: 'none' }} />;
 }
 
+/** A 24 px filter chip with a tick when on, in the Task Timeline toolbar's chip style. */
+function FilterChip({ on, onClick, top, children }: { on: boolean; onClick: () => void; top: number; children: string }) {
+  return (
+    <ButtonBase
+      onClick={onClick}
+      aria-pressed={on}
+      style={{ top }}
+      sx={{ position: 'absolute', left: 20, display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 24, px: 2.5, borderRadius: `${radius.pill}px`, border: `1px solid ${on ? colour.deepBlue : colour.silver}`, bgcolor: on ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: 12, fontWeight: 600, color: 'primary.main', whiteSpace: 'nowrap', maxWidth: X0 - 28 }}
+    >
+      {on && (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
+          <path d="M5 12.5l4.5 4.5L19 7" />
+        </svg>
+      )}
+      {children}
+    </ButtonBase>
+  );
+}
+
 const hatch = (c: string) => `repeating-linear-gradient(135deg,${c} 0,${c} 3px,${colour.white} 3px,${colour.white} 6px)`;
 
 /**
@@ -135,6 +169,12 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
   const setCriticalOnly = (on: boolean) => {
     setCriticalState(on);
     props.onCriticalOnlyChange?.(on);
+  };
+  const [criticalRunbooksState, setCriticalRunbooksState] = useState(false);
+  const criticalRunbooksOnly = props.criticalRunbooksOnly ?? criticalRunbooksState;
+  const setCriticalRunbooksOnly = (on: boolean) => {
+    setCriticalRunbooksState(on);
+    props.onCriticalRunbooksOnlyChange?.(on);
   };
   const { palette } = useTheme();
   const [ref, width] = useWidth();
@@ -196,7 +236,10 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
   const pxPerHour = (x1 - X0) / ((windowEnd.getTime() - windowStart.getTime()) / 3_600_000);
 
   // Pack each lane once, remembering rows between renders.
-  const lanes = runbooks.map((all) => {
+  // The clock stays on every runbook, so hiding lanes never rescales the hours.
+  const shownRunbooks = criticalRunbooksOnly ? runbooks.filter(runbookOnCriticalPath) : runbooks;
+  const hiddenRunbooks = runbooks.length - shownRunbooks.length;
+  const lanes = shownRunbooks.map((all) => {
     // With the Critical path filter on, a lane keeps only its critical stages and markers.
     const r = criticalOnly ? { ...all, stages: all.stages.filter((s) => s.critical), markers: (all.markers ?? []).filter((m) => m.critical) } : all;
     const memoryKey = `${r.id}|${criticalOnly ? 'critical' : 'all'}`;
@@ -213,6 +256,8 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
     top += l.height;
     return p;
   });
+  const hiddenNoteTop = top;
+  if (hiddenRunbooks > 0) top += HIDDEN_NOTE;
   const height = top + BOTTOM;
   const nowX = scale(now);
   const nowShown = nowX >= X0 && nowX <= x1;
@@ -383,19 +428,24 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
           </>
         )}
 
-        {/* Not drawn: the ribbon's filters, in the Task Timeline toolbar's chip style at 24 px. */}
-        <ButtonBase
-          onClick={() => setCriticalOnly(!criticalOnly)}
-          aria-pressed={criticalOnly}
-          sx={{ position: 'absolute', left: 20, top: 6, display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 24, px: 2.5, borderRadius: `${radius.pill}px`, border: `1px solid ${criticalOnly ? colour.deepBlue : colour.silver}`, bgcolor: criticalOnly ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: 12, fontWeight: 600, color: 'primary.main', whiteSpace: 'nowrap' }}
-        >
-          {criticalOnly && (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
-              <path d="M5 12.5l4.5 4.5L19 7" />
-            </svg>
-          )}
+        {/* Not drawn: the ribbon's filters, in the Task Timeline toolbar's chip style at 24 px, stacked above the runbook names where the hour labels never reach. */}
+        <FilterChip on={criticalOnly} onClick={() => setCriticalOnly(!criticalOnly)} top={6}>
           Critical path
-        </ButtonBase>
+        </FilterChip>
+        <FilterChip on={criticalRunbooksOnly} onClick={() => setCriticalRunbooksOnly(!criticalRunbooksOnly)} top={34}>
+          Critical runbooks
+        </FilterChip>
+
+        {hiddenRunbooks > 0 && (
+          <Box role="status" style={{ top: hiddenNoteTop }} sx={{ position: 'absolute', left: 0, right: 0, height: HIDDEN_NOTE, display: 'flex', alignItems: 'center', gap: 3, px: 5, borderTop: `1px solid ${hairline}`, fontSize: 12, color: 'text.secondary', boxSizing: 'border-box' }}>
+            <span>
+              {hiddenRunbooks} {hiddenRunbooks === 1 ? 'runbook' : 'runbooks'} hidden: no stages on the critical path
+            </span>
+            <RbmToggleLink onClick={() => setCriticalRunbooksOnly(false)} sx={{ fontSize: 12 }}>
+              Show all runbooks
+            </RbmToggleLink>
+          </Box>
+        )}
         <RbmRegionToggle region="Event ribbon" collapsed={false} onChange={setCollapsed} sx={{ position: 'absolute', right: 16, top: 8 }} />
       </Box>
 

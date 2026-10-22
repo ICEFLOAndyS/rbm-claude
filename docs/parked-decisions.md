@@ -322,7 +322,7 @@ The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png
   - `heavy` 3 px: kept for a stronger mark; nothing uses it yet.
 - **Scope:** every border, outline and ring in the components and the theme now uses these tokens. No other line changed thickness. Icon strokes are not on the scale, because they are set in each icon's own viewBox.
 - **Foundations story:** "Shape and spacing" shows the scale.
-- **For the design board:** add the scale to the Foundations board ("04 · Layout and theme"), next to Radius and Elevation, for sign-off.
+- **Design board:** drafted on the Foundations board ("04 · Layout and theme", under Radius and Elevation), tagged Proposed, with a line in the MUI theme mapping and in "Where the guide stops". Needs sign-off.
 
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.

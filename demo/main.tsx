@@ -3,6 +3,7 @@ import { StrictMode, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import { rbmTheme } from '../src/theme/theme';
+import { applyMuiXLicence } from '../src/components/RbmDataGrid/licence';
 import { colour, radius } from '../src/theme/tokens';
 import type { EventFixture } from '../src/data/types';
 import { createSimClock } from '../src/engine/clock';
@@ -29,6 +30,8 @@ const speeds = [
   { value: 60, label: '×60 (a minute a second)' },
   { value: 300, label: '×300' },
 ];
+
+applyMuiXLicence();
 
 const layoutStore = createLocalLayoutStore();
 

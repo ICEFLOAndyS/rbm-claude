@@ -396,7 +396,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                             backgroundColor: palette.status[s.state].signal,
                             borderRadius: `${clippedStart ? 0 : 7}px ${clippedEnd ? 0 : 7}px ${clippedEnd ? 0 : 7}px ${clippedStart ? 0 : 7}px`,
                             // Not drawn on the board (flagged): a critical stage carries an Ink outline, so it reads without colour.
-                            ...(s.critical ? { outline: `${stroke.regular}px solid ${palette.text.primary}`, outlineOffset: 1 } : {}),
+                            ...(s.critical ? { outline: `${stroke.thick}px solid ${palette.text.primary}`, outlineOffset: 1 } : {}),
                           }}
                           sx={{ position: 'absolute', height: lane.barHeight }}
                         />
@@ -508,7 +508,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
           Forecast overrun
         </Box>
         <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5 }}>
-          <Box component="span" sx={{ width: 22, height: 12, borderRadius: '6px', bgcolor: palette.status.pending.signal, outline: `${stroke.regular}px solid ${palette.text.primary}`, outlineOffset: '1px', display: 'inline-block' }} />
+          <Box component="span" sx={{ width: 22, height: 12, borderRadius: '6px', bgcolor: palette.status.pending.signal, outline: `${stroke.thick}px solid ${palette.text.primary}`, outlineOffset: '1px', display: 'inline-block' }} />
           On the critical path
         </Box>
       </Box>

@@ -181,7 +181,7 @@ describe('RbmEventRibbon', () => {
       renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" />);
       const marked = Array.from(document.querySelectorAll<HTMLElement>('[data-critical]'));
       expect(marked.map((s) => s.dataset.stage)).toEqual(['1.1', '1.2', '1.3', '1.4', '1.5']);
-      expect(marked[0]!.getAttribute('style')).toMatch(/outline: 1.5px solid/);
+      expect(marked[0]!.getAttribute('style')).toMatch(/outline: 2px solid/);
       expect(marked[0]).toHaveAccessibleName(/^Stage 1.1 .*, on the critical path$/);
       const plain = Array.from(document.querySelectorAll<HTMLElement>('[data-stage]:not([data-critical])'));
       expect(plain).toHaveLength(2);

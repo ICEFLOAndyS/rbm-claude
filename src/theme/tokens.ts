@@ -47,9 +47,9 @@ export const radius = { control: 12, card: 14, pill: 999 } as const;
  * Proposed. Line thickness in px for borders, rules, outlines and rings. The boards draw 1 and 2 px
  * lines but name no scale. Icon strokes are not on it: they are set in each icon's own viewBox.
  * - thin: rules, dividers, and card, chip and field borders
- * - regular: a mark that should be seen but not shout, such as the critical-path outline on the
- *   Event ribbon and the Start action's ring
- * - thick: focus rings, a lifted or selected item, outlined buttons, the white ring round a dot
+ * - regular: a mark that should be seen but not shout, such as the Start action's ring
+ * - thick: focus rings, a lifted or selected item, outlined buttons, the white ring round a dot,
+ *   the critical-path outline on the Event ribbon
  * - heavy: kept for a stronger mark; nothing uses it yet
  */
 export const stroke = { thin: 1, regular: 1.5, thick: 2, heavy: 3 } as const;

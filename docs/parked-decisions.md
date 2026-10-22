@@ -313,12 +313,12 @@ The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png
 - **Tests:** whole-page tests in jsdom are slower with the extra rows, so the Vitest time limit is now 15 s, and search tests paste their text rather than typing it letter by letter.
 - **Not drawn (flagged):** the runbook filter row and the stage summary.
 
-### 22 Oct 2026: line thickness tokens, and a lighter critical-path outline (asked by Andy Smith)
-- **Critical-path outline:** the Ink outline on critical stages in the Event ribbon, and its legend sample, are now 1.5 px instead of 2 px, because 2 px was too heavy. The 1 px offset is unchanged.
+### 22 Oct 2026: line thickness tokens, and the critical-path outline (asked by Andy Smith)
+- **Critical-path outline:** the Ink outline on critical stages in the Event ribbon, and its legend sample, use `stroke.thick` (2 px), decided by Andy Smith. It was briefly `regular` (1.5 px) after 2 px was felt too heavy. The 1 px offset is unchanged.
 - **New tokens (Proposed):** `stroke` in `src/theme/tokens.ts`. The boards draw 1 and 2 px lines but name no scale.
   - `thin` 1 px: rules, dividers, and card, chip and field borders.
-  - `regular` 1.5 px: a mark that should be seen but not shout (the critical-path outline, the Start action's ring).
-  - `thick` 2 px: focus rings, a lifted or selected item, outlined buttons, the white ring round a dot.
+  - `regular` 1.5 px: a mark that should be seen but not shout (the Start action's ring).
+  - `thick` 2 px: focus rings, a lifted or selected item, outlined buttons, the white ring round a dot, the critical-path outline.
   - `heavy` 3 px: kept for a stronger mark; nothing uses it yet.
 - **Scope:** every border, outline and ring in the components and the theme now uses these tokens. No other line changed thickness. Icon strokes are not on the scale, because they are set in each icon's own viewBox.
 - **Foundations story:** "Shape and spacing" shows the scale.

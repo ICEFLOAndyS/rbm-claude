@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { createTheme } from '@mui/material/styles';
-import { colour, fontFamily, radius, spacingUnit, status, type, type RbmState, type StatusToken } from './tokens';
+import { colour, fontFamily, radius, spacingUnit, status, type, type RbmState, type StatusToken, stroke } from './tokens';
 
 declare module '@mui/material/styles' {
   interface Palette {
@@ -66,7 +66,7 @@ export const rbmTheme = createTheme({
     // Proposed on the Foundations board: a 2 px Blue Dark focus ring on everything that takes focus.
     MuiButtonBase: {
       styleOverrides: {
-        root: { '&.Mui-focusVisible': { outline: `2px solid ${colour.blueDark}`, outlineOffset: 2 } },
+        root: { '&.Mui-focusVisible': { outline: `${stroke.thick}px solid ${colour.blueDark}`, outlineOffset: 2 } },
       },
     },
     // Buttons as drawn on the Components board ("Buttons and pills"), at D1.
@@ -86,7 +86,7 @@ export const rbmTheme = createTheme({
             },
             {
               props: { variant: 'outlined' },
-              style: { borderWidth: 2, backgroundColor: colour.white, '&:hover': { borderWidth: 2 } },
+              style: { borderWidth: stroke.thick, backgroundColor: colour.white, '&:hover': { borderWidth: stroke.thick } },
             },
             {
               props: { variant: 'outlined', color: 'primary' },

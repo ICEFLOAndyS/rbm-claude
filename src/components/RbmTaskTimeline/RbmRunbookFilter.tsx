@@ -1,6 +1,6 @@
 import { Box, ButtonBase, InputBase, Popover, useTheme } from '@mui/material';
 import { useId, useRef, useState } from 'react';
-import { colour, elevation, radius } from '../../theme/tokens';
+import { colour, elevation, radius, stroke } from '../../theme/tokens';
 import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
 
 export interface RbmRunbookOption {
@@ -34,7 +34,7 @@ function RagMark({ rag }: { rag: RbmRag }) {
   if (rag === 'amber') {
     return (
       <Box component="span" aria-hidden="true" sx={{ width: 14, height: 14, borderRadius: '50%', bgcolor: status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-        <Box component="span" sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: status.atRisk.core, border: `2px solid ${colour.white}`, boxSizing: 'border-box' }} />
+        <Box component="span" sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: status.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
       </Box>
     );
   }
@@ -76,7 +76,7 @@ export function RbmRunbookFilter({ runbooks, selected, onChange }: RbmRunbookFil
           height: 32,
           px: 3,
           borderRadius: `${radius.pill}px`,
-          border: `1px solid ${all ? colour.silver : colour.deepBlue}`,
+          border: `${stroke.thin}px solid ${all ? colour.silver : colour.deepBlue}`,
           bgcolor: all ? colour.white : 'rgba(35,50,111,0.08)',
           fontFamily: 'inherit',
           fontSize: 13,
@@ -119,9 +119,9 @@ export function RbmRunbookFilter({ runbooks, selected, onChange }: RbmRunbookFil
                   checked={isOn(r.id)}
                   onChange={() => toggle(r.id)}
                   aria-label={`${r.wbs} ${r.name}, ${r.recordId}, ${ragWord[r.rag]}, ${r.inFocus} in focus`}
-                  sx={{ position: 'absolute', opacity: 0, width: 18, height: 18, m: 0, '&:focus-visible + span': { outline: `2px solid ${colour.blueDark}`, outlineOffset: 2 } }}
+                  sx={{ position: 'absolute', opacity: 0, width: 18, height: 18, m: 0, '&:focus-visible + span': { outline: `${stroke.thick}px solid ${colour.blueDark}`, outlineOffset: 2 } }}
                 />
-                <Box component="span" aria-hidden="true" sx={{ width: 18, height: 18, borderRadius: '5px', boxSizing: 'border-box', flex: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', ...(isOn(r.id) ? { bgcolor: 'primary.main' } : { border: `2px solid ${colour.silver}` }) }}>
+                <Box component="span" aria-hidden="true" sx={{ width: 18, height: 18, borderRadius: '5px', boxSizing: 'border-box', flex: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', ...(isOn(r.id) ? { bgcolor: 'primary.main' } : { border: `${stroke.thick}px solid ${colour.silver}` }) }}>
                   {isOn(r.id) && (
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={colour.white} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M5 12.5l4.5 4.5L19 7" />

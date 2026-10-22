@@ -3,7 +3,7 @@ import type { KeyboardEvent } from 'react';
 import { RbmAvatar } from '../RbmAvatar/RbmAvatar';
 import { RbmNode, type RbmNodeKind, type RbmSpine } from '../RbmNode/RbmNode';
 import { RbmTag, type RbmTagKind } from '../RbmTag/RbmTag';
-import { hairline, type RbmState } from '../../theme/tokens';
+import { hairline, type RbmState, stroke } from '../../theme/tokens';
 import { RbmTaskAction, type RbmCompleteOption, type RbmTaskActionEvent, type RbmTaskActionKind } from './RbmTaskAction';
 
 /** A task as the Task Timeline shows it. Data from the RBM planning engine; actions from the API. */
@@ -107,11 +107,11 @@ export function RbmTaskRow({ task, now, timeZone, spine, selected = false, onSel
         alignItems: 'center',
         height: 52,
         px: 5,
-        borderBottom: `1px solid ${hairline}`,
+        borderBottom: `${stroke.thin}px solid ${hairline}`,
         boxSizing: 'border-box',
         lineHeight: 'normal',
         bgcolor: active ? 'rgba(53,75,168,0.08)' : selected ? 'action.selected' : undefined,
-        '&:focus-visible': { outline: `2px solid ${palette.status.active.signal}`, outlineOffset: -2 },
+        '&:focus-visible': { outline: `${stroke.thick}px solid ${palette.status.active.signal}`, outlineOffset: -2 },
         '& .rbm-select': { opacity: selected ? 1 : 0 },
         '&:hover .rbm-select, &:focus-within .rbm-select': { opacity: 1 },
       }}

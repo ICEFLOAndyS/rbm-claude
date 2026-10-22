@@ -3,7 +3,7 @@ import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, us
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useState, type ReactNode } from 'react';
-import { colour, elevation, liftTint, radius } from '../../theme/tokens';
+import { colour, elevation, liftTint, radius, stroke } from '../../theme/tokens';
 
 /** The three regions that move. The Page header and the Event vitals are fixed. */
 export type RbmRegion = 'ribbon' | 'timeline' | 'hotTopics';
@@ -90,7 +90,7 @@ function SortableRow({ id, position, total, line, follow, open, onOpenChange }: 
         sx={{
           ...rowSx,
           bgcolor: isDragging ? liftTint : colour.white,
-          border: isDragging ? `2px solid ${colour.blueDark}` : `1px solid ${colour.rule}`,
+          border: isDragging ? `${stroke.thick}px solid ${colour.blueDark}` : `${stroke.thin}px solid ${colour.rule}`,
           boxShadow: isDragging ? '0 10px 24px rgba(35,50,111,0.22)' : 'none',
           // Only the lifted row moves, and only with the pointer; the others stay put and a blue line shows where it will land.
           transform: isDragging ? `${follow ? (CSS.Translate.toString(transform) ?? '') : ''} rotate(-0.6deg)` : undefined,
@@ -204,7 +204,7 @@ export function RbmLayoutPanel({ order, onChange, onClose, collapsed = {}, onCol
           Reset to default
         </ButtonBase>
         {onClose && (
-          <ButtonBase onClick={onClose} sx={{ height: 36, px: 4.5, borderRadius: `${radius.control}px`, fontFamily: 'inherit', fontSize: 13, fontWeight: 800, color: colour.deepBlue, bgcolor: colour.green, border: `1px solid ${colour.green}` }}>
+          <ButtonBase onClick={onClose} sx={{ height: 36, px: 4.5, borderRadius: `${radius.control}px`, fontFamily: 'inherit', fontSize: 13, fontWeight: 800, color: colour.deepBlue, bgcolor: colour.green, border: `${stroke.thin}px solid ${colour.green}` }}>
             Done
           </ButtonBase>
         )}

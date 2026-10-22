@@ -2,7 +2,7 @@ import { Box, ButtonBase, Menu, MenuItem, Tooltip, useTheme } from '@mui/materia
 import { useLayoutEffect, useRef, useState, type FocusEvent, type MouseEvent } from 'react';
 import { RbmNode } from '../RbmNode/RbmNode';
 import { RbmRegionCollapsed, RbmRegionToggle, RbmSummaryChip, RbmToggleLink } from '../RbmRegion/RbmRegion';
-import { colour, elevation, hairline, radius, type RbmState } from '../../theme/tokens';
+import { colour, elevation, hairline, radius, type RbmState, stroke } from '../../theme/tokens';
 import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
 import { defaultWindow, hourTicks, lane, laneHeight, packStages, timeScale } from './ribbonLayout';
 
@@ -136,7 +136,7 @@ function RagMark({ rag, size }: { rag: RbmRag; size: 'lane' | 'chip' }) {
     const inner = size === 'lane' ? 9 : 7;
     return (
       <Box component="span" aria-hidden="true" data-rag="amber" sx={{ width: outer, height: outer, borderRadius: '50%', bgcolor: status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-        <Box component="span" sx={{ width: inner, height: inner, borderRadius: '50%', bgcolor: status.atRisk.core, border: `2px solid ${colour.white}`, boxSizing: 'border-box' }} />
+        <Box component="span" sx={{ width: inner, height: inner, borderRadius: '50%', bgcolor: status.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
       </Box>
     );
   }
@@ -159,7 +159,7 @@ function ViewMenu({ view, onChange }: { view: RbmRibbonView; onChange: (view: Rb
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`Show: ${ribbonViews[view].name}`}
-        sx={{ position: 'absolute', left: 20, top: 16, display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 32, px: 3, maxWidth: X0 - 28, borderRadius: `${radius.pill}px`, border: `1px solid ${filtered ? colour.deepBlue : colour.silver}`, bgcolor: filtered ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap' }}
+        sx={{ position: 'absolute', left: 20, top: 16, display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 32, px: 3, maxWidth: X0 - 28, borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid ${filtered ? colour.deepBlue : colour.silver}`, bgcolor: filtered ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap' }}
       >
         <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{ribbonViews[view].name}</Box>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colour.slate} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
@@ -184,7 +184,7 @@ function ViewMenu({ view, onChange }: { view: RbmRibbonView; onChange: (view: Rb
               setOpen(false);
               onChange(v);
             }}
-            sx={{ gap: 3, minHeight: 40, px: 4, py: 1.5, fontSize: 13, fontWeight: 600, color: 'text.primary', borderTop: n > 0 ? `1px solid ${hairline}` : 0, '&.Mui-focusVisible': { outlineOffset: -2 } }}
+            sx={{ gap: 3, minHeight: 40, px: 4, py: 1.5, fontSize: 13, fontWeight: 600, color: 'text.primary', borderTop: n > 0 ? `${stroke.thin}px solid ${hairline}` : 0, '&.Mui-focusVisible': { outlineOffset: -2 } }}
           >
             <Box component="span" sx={{ width: 16, flex: 'none', color: 'primary.main' }}>
               {v === view && (
@@ -396,7 +396,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                             backgroundColor: palette.status[s.state].signal,
                             borderRadius: `${clippedStart ? 0 : 7}px ${clippedEnd ? 0 : 7}px ${clippedEnd ? 0 : 7}px ${clippedStart ? 0 : 7}px`,
                             // Not drawn on the board (flagged): a critical stage carries an Ink outline, so it reads without colour.
-                            ...(s.critical ? { outline: `2px solid ${palette.text.primary}`, outlineOffset: 1 } : {}),
+                            ...(s.critical ? { outline: `${stroke.regular}px solid ${palette.text.primary}`, outlineOffset: 1 } : {}),
                           }}
                           sx={{ position: 'absolute', height: lane.barHeight }}
                         />
@@ -472,7 +472,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
         <ViewMenu view={view} onChange={setView} />
 
         {hiddenText && (
-          <Box role="status" style={{ top: hiddenNoteTop }} sx={{ position: 'absolute', left: 0, right: 0, height: HIDDEN_NOTE, display: 'flex', alignItems: 'center', gap: 3, px: 5, borderTop: `1px solid ${hairline}`, fontSize: 12, color: 'text.secondary', boxSizing: 'border-box' }}>
+          <Box role="status" style={{ top: hiddenNoteTop }} sx={{ position: 'absolute', left: 0, right: 0, height: HIDDEN_NOTE, display: 'flex', alignItems: 'center', gap: 3, px: 5, borderTop: `${stroke.thin}px solid ${hairline}`, fontSize: 12, color: 'text.secondary', boxSizing: 'border-box' }}>
             <span>
               {hiddenText} hidden: not on the critical path
             </span>
@@ -508,7 +508,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
           Forecast overrun
         </Box>
         <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5 }}>
-          <Box component="span" sx={{ width: 22, height: 12, borderRadius: '6px', bgcolor: palette.status.pending.signal, outline: `2px solid ${palette.text.primary}`, outlineOffset: '1px', display: 'inline-block' }} />
+          <Box component="span" sx={{ width: 22, height: 12, borderRadius: '6px', bgcolor: palette.status.pending.signal, outline: `${stroke.regular}px solid ${palette.text.primary}`, outlineOffset: '1px', display: 'inline-block' }} />
           On the critical path
         </Box>
       </Box>

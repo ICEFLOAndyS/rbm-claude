@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { RbmStatusPill } from '../RbmStatusPill/RbmStatusPill';
 import { RbmAlertCounter, type RbmAlert } from '../RbmAlertCounter/RbmAlertCounter';
 import type { RbmEventVitalsData, RbmRag } from '../RbmEventVitals/RbmEventVitals';
-import { colour, radius, type RbmState } from '../../theme/tokens';
+import { colour, radius, type RbmState, stroke } from '../../theme/tokens';
 
 export interface RbmEventSummary {
   /** The event number, for example "E12345". */
@@ -92,7 +92,7 @@ export function RbmEventBar({ event, vitals, alerts, visible, timeZone, onOpenPr
           <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '7px', fontSize: 13, color: 'text.secondary' }}>
             {worst === 'medium' ? (
               <Box component="span" aria-hidden="true" sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: s.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: s.atRisk.core, border: `2px solid ${colour.white}`, boxSizing: 'border-box' }} />
+                <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: s.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
               </Box>
             ) : worst ? (
               <Box component="span" aria-hidden="true" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: worst === 'high' ? s.blocked.signal : s.pending.signal }} />

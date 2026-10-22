@@ -1,6 +1,6 @@
 import { Box, ButtonBase, useTheme } from '@mui/material';
 import { useId, type ReactNode } from 'react';
-import { colour, radius } from '../../theme/tokens';
+import { colour, radius, stroke } from '../../theme/tokens';
 import { RbmRing } from './RbmRing';
 
 /** The event RAG status. The RBM planning engine sets it; the page displays it and never works it out. */
@@ -212,7 +212,7 @@ export function RbmEventVitals({ data, timeZone, onOpenProgress, onOpenIssues, o
               {
                 mark: (
                   <Box component="span" aria-hidden="true" sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: s.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-                    <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: s.atRisk.core, border: `2px solid ${colour.white}`, boxSizing: 'border-box' }} />
+                    <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: s.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
                   </Box>
                 ),
                 label: 'Medium',
@@ -228,7 +228,7 @@ export function RbmEventVitals({ data, timeZone, onOpenProgress, onOpenIssues, o
 
       <Card label="Start of event" onOpen={onOpenStart} openLabel="Open the event start">
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Box component="span" aria-hidden="true" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 42, border: `1px solid ${colour.silver}`, borderRadius: '10px', overflow: 'hidden', flex: 'none' }}>
+          <Box component="span" aria-hidden="true" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 42, border: `${stroke.thin}px solid ${colour.silver}`, borderRadius: '10px', overflow: 'hidden', flex: 'none' }}>
             <Box component="span" sx={{ width: '100%', textAlign: 'center', bgcolor: 'primary.main', color: colour.white, fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', py: 0.5 }}>
               {month}
             </Box>

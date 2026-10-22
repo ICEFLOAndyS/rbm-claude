@@ -1,6 +1,6 @@
 import { Box, useTheme } from '@mui/material';
 import type { ReactNode } from 'react';
-import { colour, radius } from '../../theme/tokens';
+import { colour, radius, stroke } from '../../theme/tokens';
 
 /**
  * Why a task is in focus, as drawn on the Command board ("Task row", "Acting on tasks").
@@ -80,7 +80,7 @@ const icons: Partial<Record<Look, ReactNode>> = {
 function RingedDot({ signal, core }: { signal: string; core: string }) {
   return (
     <Box component="span" aria-hidden="true" data-testid="rbm-tag-ring" sx={{ width: 11, height: 11, borderRadius: '50%', bgcolor: signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-      <Box component="span" sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: core, border: `2px solid ${colour.white}`, boxSizing: 'border-box' }} />
+      <Box component="span" sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
     </Box>
   );
 }
@@ -113,7 +113,7 @@ export function RbmTag({ kind, label }: RbmTagProps) {
         height: 22,
         px: 2,
         borderRadius: `${radius.pill}px`,
-        border: look === 'upNext' ? `1px dashed ${s.pending.signal}` : `1px solid ${palette.divider}`,
+        border: look === 'upNext' ? `1px dashed ${s.pending.signal}` : `${stroke.thin}px solid ${palette.divider}`,
         fontSize: 12,
         fontWeight: 600,
         color: text[look],

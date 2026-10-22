@@ -1,6 +1,6 @@
 import { Box, ButtonBase, InputBase, Paper, Popper } from '@mui/material';
 import { forwardRef, useId, useRef, useState, type KeyboardEvent } from 'react';
-import { colour, elevation, radius } from '../../theme/tokens';
+import { colour, elevation, radius, stroke } from '../../theme/tokens';
 import type { RbmTimelineTask } from './focusRule';
 import { highlight, matchedField, searchWords, type RbmSearchField } from './taskSearch';
 
@@ -68,7 +68,7 @@ export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(fu
   return (
     <Box
       ref={anchor}
-      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: small ? 28 : 32, width: small ? 200 : 220, minWidth: 140, flexShrink: 1, px: 3, boxSizing: 'border-box', borderRadius: `${radius.pill}px`, border: `1px solid ${words.length ? colour.deepBlue : colour.silver}`, bgcolor: words.length ? 'rgba(35,50,111,0.08)' : colour.white, '&:focus-within': { outline: `2px solid ${colour.blueDark}`, outlineOffset: 1 } }}
+      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: small ? 28 : 32, width: small ? 200 : 220, minWidth: 140, flexShrink: 1, px: 3, boxSizing: 'border-box', borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid ${words.length ? colour.deepBlue : colour.silver}`, bgcolor: words.length ? 'rgba(35,50,111,0.08)' : colour.white, '&:focus-within': { outline: `${stroke.thick}px solid ${colour.blueDark}`, outlineOffset: 1 } }}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colour.slate} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
         <circle cx="11" cy="11" r="6.5" />

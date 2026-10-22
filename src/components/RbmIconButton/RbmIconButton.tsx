@@ -1,6 +1,6 @@
 import { IconButton, type IconButtonProps } from '@mui/material';
 import type { ReactNode } from 'react';
-import { colour, radius } from '../../theme/tokens';
+import { colour, radius, stroke } from '../../theme/tokens';
 
 export interface RbmIconButtonProps extends Omit<IconButtonProps, 'children' | 'aria-label'> {
   /** What the button does, for screen readers. Required: the button has no visible text. */
@@ -19,7 +19,7 @@ export function RbmIconButton({ label, children, sx, ...props }: RbmIconButtonPr
         {
           width: 48,
           height: 48,
-          border: `2px solid ${colour.deepBlue}`,
+          border: `${stroke.thick}px solid ${colour.deepBlue}`,
           borderRadius: `${radius.control}px`,
           bgcolor: colour.white,
           color: colour.deepBlue,

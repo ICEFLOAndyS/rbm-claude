@@ -1,5 +1,6 @@
 import { Box, useTheme } from '@mui/material';
 import type { RbmState, StatusToken } from '../../theme/tokens';
+import { stroke } from '../../theme/tokens';
 
 export type RbmStatusPillSize = 'normal' | 'compact';
 
@@ -53,7 +54,7 @@ function StatusDot({ token }: { token: StatusToken }) {
           height: 10,
           borderRadius: '50%',
           bgcolor: token.core,
-          border: `2px solid ${palette.background.paper}`,
+          border: `${stroke.thick}px solid ${palette.background.paper}`,
           boxSizing: 'border-box',
         }}
       />
@@ -79,7 +80,7 @@ export function RbmStatusPill({ state, label, size = 'normal' }: RbmStatusPillPr
         height: sizes[size].height,
         px: 3.5,
         borderRadius: 999,
-        border: `1px solid ${palette.divider}`,
+        border: `${stroke.thin}px solid ${palette.divider}`,
         bgcolor: palette.background.paper,
         color: token.text,
         fontSize: sizes[size].fontSize,

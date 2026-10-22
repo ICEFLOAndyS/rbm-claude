@@ -1,6 +1,6 @@
 import { Box, ButtonBase } from '@mui/material';
 import type { ReactNode } from 'react';
-import { colour, hairline, radius } from '../../theme/tokens';
+import { colour, hairline, radius, stroke } from '../../theme/tokens';
 
 export interface RbmHotTopicCardProps {
   title: string;
@@ -51,7 +51,7 @@ export function CardRow({ onOpen, label, children, sx }: { onOpen?: () => void; 
       onClick={onOpen}
       disabled={!onOpen}
       aria-label={label}
-      sx={{ width: '100%', display: 'flex', justifyContent: 'flex-start', textAlign: 'left', fontFamily: 'inherit', color: 'text.primary', borderTop: `1px solid ${hairline}`, '&.Mui-disabled': { color: 'text.primary' }, '&.Mui-focusVisible': { outlineOffset: -2 }, ...sx }}
+      sx={{ width: '100%', display: 'flex', justifyContent: 'flex-start', textAlign: 'left', fontFamily: 'inherit', color: 'text.primary', borderTop: `${stroke.thin}px solid ${hairline}`, '&.Mui-disabled': { color: 'text.primary' }, '&.Mui-focusVisible': { outlineOffset: -2 }, ...sx }}
     >
       {children}
     </ButtonBase>
@@ -62,7 +62,7 @@ export function CardRow({ onOpen, label, children, sx }: { onOpen?: () => void; 
 export function MoreRow({ n, onClick }: { n: number; onClick?: () => void }) {
   if (n <= 0) return null;
   return (
-    <Box sx={{ borderTop: `1px solid ${hairline}`, px: 4, py: 2 }}>
+    <Box sx={{ borderTop: `${stroke.thin}px solid ${hairline}`, px: 4, py: 2 }}>
       <ButtonBase onClick={onClick} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.light', borderRadius: 1, px: 0.5 }}>
         {n} more
       </ButtonBase>
@@ -77,7 +77,7 @@ export function JoinCall({ onJoin, disabledText, label }: { onJoin?: () => void;
       onClick={onJoin}
       disabled={!!disabledText}
       aria-label={disabledText ? `${label}, ${disabledText.toLowerCase()}` : label}
-      sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 2, height: 36, px: 4.5, borderRadius: `${radius.control}px`, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', bgcolor: colour.white, color: colour.deepBlue, border: `1px solid ${colour.silver}`, '&.Mui-disabled': { color: colour.slate, bgcolor: colour.mist } }}
+      sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 2, height: 36, px: 4.5, borderRadius: `${radius.control}px`, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', bgcolor: colour.white, color: colour.deepBlue, border: `${stroke.thin}px solid ${colour.silver}`, '&.Mui-disabled': { color: colour.slate, bgcolor: colour.mist } }}
     >
       <Icon><path d="M6 4h3l1.5 4-2 1.5a11 11 0 005 5L15 12.5l4 1.5v3a2 2 0 01-2 2A13 13 0 014 6a2 2 0 012-2z" /></Icon>
       {disabledText ?? 'Join call'}

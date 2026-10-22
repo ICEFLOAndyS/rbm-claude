@@ -5,7 +5,7 @@ import { RbmAlertCounter, type RbmAlert } from '../RbmAlertCounter/RbmAlertCount
 import { RbmEventBar, type RbmEventSummary } from '../RbmEventBar/RbmEventBar';
 import type { RbmEventVitalsData } from '../RbmEventVitals/RbmEventVitals';
 import { DEFAULT_LAYOUT, RbmLayoutPanel, type RbmRegion } from '../RbmLayoutPanel/RbmLayoutPanel';
-import { colour, elevation, hairline, radius } from '../../theme/tokens';
+import { colour, elevation, hairline, radius, stroke } from '../../theme/tokens';
 
 /** Event-level actions in the menu at the right of the page header, in the drawn order. */
 export type RbmEventAction = 'raiseIssue' | 'raiseBlocker' | 'addNote' | 'notifyStakeholders' | 'pauseEvent' | 'exportLog' | 'settings';
@@ -164,7 +164,7 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
           aria-label="Event actions"
           aria-haspopup="menu"
           aria-expanded={menuOpen}
-          sx={{ width: 40, height: 40, borderRadius: `${radius.control}px`, border: `1px solid ${colour.silver}`, bgcolor: colour.white, color: 'primary.main', flex: 'none' }}
+          sx={{ width: 40, height: 40, borderRadius: `${radius.control}px`, border: `${stroke.thin}px solid ${colour.silver}`, bgcolor: colour.white, color: 'primary.main', flex: 'none' }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M4 7h16M4 12h16M4 17h16" />
@@ -188,7 +188,7 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
               if (a.key === 'layout') setLayoutOpen(true);
               else eventActions[a.key]?.();
             }}
-            sx={{ gap: 3, minHeight: 40, px: 4, py: 1.5, fontSize: 13, fontWeight: 600, color: 'text.primary', borderTop: n > 0 ? `1px solid ${hairline}` : 0, '&.Mui-focusVisible': { outlineOffset: -2 } }}
+            sx={{ gap: 3, minHeight: 40, px: 4, py: 1.5, fontSize: 13, fontWeight: 600, color: 'text.primary', borderTop: n > 0 ? `${stroke.thin}px solid ${hairline}` : 0, '&.Mui-focusVisible': { outlineOffset: -2 } }}
           >
             <Icon>{a.icon}</Icon>
             <Box component="span" sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>

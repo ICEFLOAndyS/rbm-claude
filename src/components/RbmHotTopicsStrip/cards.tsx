@@ -2,7 +2,7 @@ import { Box, ButtonBase, useTheme } from '@mui/material';
 import type { ReactNode } from 'react';
 import { RbmAvatar } from '../RbmAvatar/RbmAvatar';
 import { RbmNode } from '../RbmNode/RbmNode';
-import { colour, hairline, type RbmState } from '../../theme/tokens';
+import { colour, hairline, type RbmState, stroke } from '../../theme/tokens';
 import { CardRow, Icon, JoinCall, MoreRow, RbmHotTopicCard } from './RbmHotTopicCard';
 
 /** Three items per card, then "n more". */
@@ -30,7 +30,7 @@ export function Severity({ level }: { level: RbmSeverity }) {
     <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, fontSize: 12, fontWeight: 700, color: text, whiteSpace: 'nowrap' }}>
       {level === 'medium' ? (
         <Box component="span" aria-hidden="true" sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-          <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: status.atRisk.core, border: `2px solid ${colour.white}`, boxSizing: 'border-box' }} />
+          <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: status.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
         </Box>
       ) : (
         <Box component="span" aria-hidden="true" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: level === 'high' ? status.blocked.signal : status.pending.signal, flex: 'none' }} />
@@ -137,7 +137,7 @@ export function RbmNextCheckpoint({ checkpoint: c, now, onOpen, onJoinCall, time
   return (
     <RbmHotTopicCard title="Next checkpoint" icon={<Icon stroke={colour.deepBlue}><path d="M5 21V4M5 4h11l-2 4 2 4H5" /></Icon>} count={c ? undefined : 0} {...card}>
       {c && (
-        <Box sx={{ borderTop: `1px solid ${hairline}`, px: 4, py: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ borderTop: `${stroke.thin}px solid ${hairline}`, px: 4, py: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
           <CardRow onOpen={onOpen} label={`Checkpoint ${c.wbs} ${c.title}, ${countdown(c.at, now)}, forecast ${timeOf(c.forecast, timeZone)}, ${gapWords(c.gapMinutes)}`} sx={{ borderTop: 0, flexDirection: 'column', alignItems: 'stretch', gap: 2, borderRadius: 1 }}>
             <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
               <RbmNode kind="checkpoint" state={c.state} size={22} decorative />
@@ -223,7 +223,7 @@ export function RbmCollaboration({ live, people, onJoinCall, maxAvatars = 4, ...
       icon={<Icon stroke={colour.deepBlue}><circle cx="9" cy="9" r="3" /><circle cx="17" cy="10" r="2.5" /><path d="M3 19c.5-3 3-4.5 6-4.5s5.5 1.5 6 4.5M15 15c2.5-.3 4.7.9 5.5 3.5" /></Icon>}
       {...card}
     >
-      <Box sx={{ borderTop: `1px solid ${hairline}`, px: 4, py: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box sx={{ borderTop: `${stroke.thin}px solid ${hairline}`, px: 4, py: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
           <StatusLine live={live}>{live ? `Live · ${people.length} ${people.length === 1 ? 'person' : 'people'}` : 'No live call'}</StatusLine>
           {live && <JoinCall onJoin={onJoinCall} label="Join the Collaboration call" />}
@@ -231,12 +231,12 @@ export function RbmCollaboration({ live, people, onJoinCall, maxAvatars = 4, ...
         {live && people.length > 0 && (
           <Box role="list" aria-label="On the call" sx={{ display: 'flex', pl: 2 }}>
             {shown.map((p) => (
-              <Box key={p.name} role="listitem" sx={{ ml: -2, border: `2px solid ${colour.white}`, borderRadius: '50%', display: 'inline-flex' }}>
+              <Box key={p.name} role="listitem" sx={{ ml: -2, border: `${stroke.thick}px solid ${colour.white}`, borderRadius: '50%', display: 'inline-flex' }}>
                 <RbmAvatar name={p.name} initials={p.initials} size={32} />
               </Box>
             ))}
             {extra > 0 && (
-              <Box role="listitem" aria-label={`and ${extra} more`} sx={{ ml: -2, width: 36, height: 36, borderRadius: '50%', bgcolor: hairline, border: `2px solid ${colour.white}`, color: 'text.secondary', fontSize: 12, fontWeight: 800, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' }}>
+              <Box role="listitem" aria-label={`and ${extra} more`} sx={{ ml: -2, width: 36, height: 36, borderRadius: '50%', bgcolor: hairline, border: `${stroke.thick}px solid ${colour.white}`, color: 'text.secondary', fontSize: 12, fontWeight: 800, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' }}>
                 +{extra}
               </Box>
             )}

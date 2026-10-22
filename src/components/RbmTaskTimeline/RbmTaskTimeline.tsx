@@ -4,7 +4,7 @@ import { RbmTaskRow, type RbmTask } from '../RbmTaskRow/RbmTaskRow';
 import type { RbmTaskActionEvent } from '../RbmTaskRow/RbmTaskAction';
 import type { RbmSpine } from '../RbmNode/RbmNode';
 import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
-import { colour, hairline, radius, surfaceTint, type RbmState } from '../../theme/tokens';
+import { colour, hairline, radius, surfaceTint, type RbmState, stroke } from '../../theme/tokens';
 import { RbmRunbookFilter } from './RbmRunbookFilter';
 import { RbmTaskSearch } from './RbmTaskSearch';
 import { RbmBusyOverlay, useRbmBusy, type RbmBusyOptions } from '../RbmBusy/RbmBusy';
@@ -133,7 +133,7 @@ function ForecastSummary({ end, rag, gapMinutes, tone, timeZone }: { end: Date; 
         <span style={{ fontSize: dark ? 16 : 14, fontWeight: 800, color: dark ? colour.white : palette.text.primary }}>{timeOf(end, timeZone)}</span>
         {rag === 'amber' && (
           <span style={{ width: 14, height: 14, borderRadius: '50%', background: palette.status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ width: 9, height: 9, borderRadius: '50%', background: palette.status.atRisk.core, border: `2px solid ${colour.white}`, boxSizing: 'border-box' }} />
+            <span style={{ width: 9, height: 9, borderRadius: '50%', background: palette.status.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
           </span>
         )}
         {rag && rag !== 'amber' && <span style={{ width: 9, height: 9, borderRadius: '50%', background: signal[rag] }} />}
@@ -223,7 +223,7 @@ function Chip({ label, count, on, onClick, small, ariaLabel }: { label: string; 
       onClick={onClick}
       aria-pressed={on}
       aria-label={ariaLabel}
-      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: small ? 28 : 32, px: small ? 2.5 : 3, borderRadius: `${radius.pill}px`, border: `1px solid ${on ? colour.deepBlue : colour.silver}`, bgcolor: on ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: small ? 12 : 13, fontWeight: 600, color: 'primary.main', whiteSpace: 'nowrap' }}
+      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: small ? 28 : 32, px: small ? 2.5 : 3, borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid ${on ? colour.deepBlue : colour.silver}`, bgcolor: on ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: small ? 12 : 13, fontWeight: 600, color: 'primary.main', whiteSpace: 'nowrap' }}
     >
       {label}
       {count > 0 && (
@@ -599,7 +599,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
           const progress = runbookProgress(r);
           const anyStageOpen = stages.some((g) => !isClosed(`${r.id}/${g.s.id}`));
           return (
-            <Box key={r.id} data-runbook={r.id} sx={{ border: `1px solid ${colour.silver}`, borderRadius: `${radius.control}px`, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 2px rgba(31,36,48,0.06)' }}>
+            <Box key={r.id} data-runbook={r.id} sx={{ border: `${stroke.thin}px solid ${colour.silver}`, borderRadius: `${radius.control}px`, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 2px rgba(31,36,48,0.06)' }}>
               <ButtonBase
                 onClick={() => setCollapsed(flip(collapsed, r.id))}
                 aria-expanded={rOpen}
@@ -611,7 +611,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
                 <Box component="span" sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0 }}>
                   <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 2.5, fontSize: 14, fontWeight: 800, letterSpacing: '0.02em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                     {r.name}
-                    <Box component="span" sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', px: 2, py: 0.5, borderRadius: `${radius.pill}px`, border: '1px solid rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}>{r.recordId}</Box>
+                    <Box component="span" sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', px: 2, py: 0.5, borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid rgba(255,255,255,0.35)`, fontVariantNumeric: 'tabular-nums' }}>{r.recordId}</Box>
                   </Box>
                   <Box component="span" sx={{ fontSize: 12, color: 'rgba(255,255,255,0.72)', whiteSpace: 'nowrap' }}>
                     {inFocus} in focus
@@ -732,7 +732,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
                       )}
                       {sOpen &&
                         [...more].map(([after, n]) => (
-                          <Box key={after} sx={{ display: 'flex', alignItems: 'center', height: 40, pl: '192px', borderBottom: `1px solid ${hairline}` }}>
+                          <Box key={after} sx={{ display: 'flex', alignItems: 'center', height: 40, pl: '192px', borderBottom: `${stroke.thin}px solid ${hairline}` }}>
                             <ButtonBase onClick={() => setUpNextOpen(new Set(upNextOpen).add(`${s.id}|${after}`))} sx={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5 }}>
                               +{n} more up next after {after}
                             </ButtonBase>
@@ -753,7 +753,7 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
             {selectedTasks.length} selected
           </Box>
           <Box sx={{ flex: 1 }} />
-          <ButtonBase disabled={!canBulk('start')} onClick={() => bulk('start')} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 32, px: 3, borderRadius: `${radius.control}px`, border: '1px solid rgba(255,255,255,0.45)', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: colour.white, '&.Mui-disabled': { opacity: 0.45 } }}>
+          <ButtonBase disabled={!canBulk('start')} onClick={() => bulk('start')} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 32, px: 3, borderRadius: `${radius.control}px`, border: `${stroke.thin}px solid rgba(255,255,255,0.45)`, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: colour.white, '&.Mui-disabled': { opacity: 0.45 } }}>
             <Icon size={14} stroke={colour.white} width={2.5}><path d="M8 5l11 7-11 7z" /></Icon>
             Start
           </ButtonBase>

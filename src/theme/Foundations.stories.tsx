@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactNode } from 'react';
 import { Box, Typography, useTheme, type TypographyProps } from '@mui/material';
 import { RbmStatusPill } from '../components/RbmStatusPill/RbmStatusPill';
-import { colour, elevation, radius, status, type ColourName, type RbmState } from './tokens';
+import { colour, elevation, radius, status, type ColourName, type RbmState, stroke } from './tokens';
 
 /** Token pages laid out as on the Foundations board. Every value is read from the tokens or the theme. */
 const meta: Meta = {
@@ -317,9 +317,19 @@ export const ShapeAndSpacing: Story = {
           </Group>
           <Group title="Radius" intro="CTA 12 px and figure card 14 px come from the guide. Pills are fully rounded.">
             <Box sx={{ display: 'flex', gap: 4 }}>
-              <Sample label={`${radius.control} · CTA, inputs`} sx={{ bgcolor: 'grey.100', border: `1px solid ${colour.silver}`, borderRadius: `${radius.control}px` }} />
-              <Sample label={`${radius.card} · cards`} sx={{ bgcolor: 'grey.100', border: `1px solid ${colour.silver}`, borderRadius: `${radius.card}px` }} />
+              <Sample label={`${radius.control} · CTA, inputs`} sx={{ bgcolor: 'grey.100', border: `${stroke.thin}px solid ${colour.silver}`, borderRadius: `${radius.control}px` }} />
+              <Sample label={`${radius.card} · cards`} sx={{ bgcolor: 'grey.100', border: `${stroke.thin}px solid ${colour.silver}`, borderRadius: `${radius.card}px` }} />
               <Sample label="Pill" sx={{ bgcolor: 'secondary.main', borderRadius: `${radius.pill}px` }} />
+            </Box>
+          </Group>
+          <Group title="Line thickness (Proposed)" intro="Borders, rules, outlines and rings. Not icon strokes.">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {(Object.keys(stroke) as (keyof typeof stroke)[]).map((k) => (
+                <Box key={k} sx={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 14 }}>
+                  <Box sx={{ width: 120, height: 0, borderTop: `${stroke[k]}px solid ${colour.ink}` }} />
+                  {k} · {stroke[k]} px
+                </Box>
+              ))}
             </Box>
           </Group>
           <Group title="Elevation (Proposed)" intro="Rule borders first. Shadow only for overlays.">

@@ -1,5 +1,5 @@
 import { rbmTheme } from './theme';
-import { colour, radius, type } from './tokens';
+import { colour, radius, stroke, type } from './tokens';
 
 // Values as drawn on the Foundations board ("02 · Colour" and "MUI theme mapping").
 const board: Record<keyof typeof colour, string> = {
@@ -80,6 +80,10 @@ describe('rbmTheme', () => {
   it('uses 12 px controls and 14 px cards', () => {
     expect(rbmTheme.shape.borderRadius).toBe(12);
     expect(radius.card).toBe(14);
+  });
+
+  it('has a line thickness scale of 1, 1.5, 2 and 3 px', () => {
+    expect(stroke).toEqual({ thin: 1, regular: 1.5, thick: 2, heavy: 3 });
   });
 
   it('sets Inter first', () => {

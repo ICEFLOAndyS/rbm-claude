@@ -1,6 +1,6 @@
 import { Box, ButtonBase, Popover, useTheme } from '@mui/material';
 import { useId, useState } from 'react';
-import { colour, elevation, radius } from '../../theme/tokens';
+import { colour, elevation, radius, stroke } from '../../theme/tokens';
 
 /**
  * Red: a blocker, a failed check or a Red forecast. Amber: the forecast is late and nothing is blocked.
@@ -61,7 +61,7 @@ function Mark({ severity }: { severity: RbmAlertSeverity }) {
   }
   return (
     <Box component="span" aria-hidden="true" data-testid="rbm-alert-mark" sx={{ width: 12, height: 12, mt: 0.75, borderRadius: '50%', bgcolor: status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-      <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: status.atRisk.core, border: `2px solid ${colour.white}`, boxSizing: 'border-box' }} />
+      <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: status.atRisk.core, border: `${stroke.thick}px solid ${colour.white}`, boxSizing: 'border-box' }} />
     </Box>
   );
 }

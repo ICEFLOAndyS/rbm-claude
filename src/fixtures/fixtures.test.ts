@@ -28,6 +28,12 @@ describe('fixtures validate against the types', () => {
     expect(validateFixture(broken).errors.join()).toMatch(/tasks\.0\.state/);
   });
 
+  it('rejects an event number that is not REVnnnnnn', () => {
+    const broken = structuredClone(weekend) as unknown as { event: { number: string } };
+    broken.event.number = 'E12345';
+    expect(validateFixture(broken).errors.join()).toMatch(/event\.number/);
+  });
+
   it('rejects broken links between records', () => {
     const broken = structuredClone(weekendPayrollCutover());
     const task = broken.tasks[5]!;

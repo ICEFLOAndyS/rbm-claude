@@ -35,7 +35,7 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
 
   it('shows the Weekend Payroll Cutover as on the Command board', () => {
     setup();
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('E12345 · Weekend Payroll Cutover');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('REV000009 · Weekend Payroll Cutover');
     expect(screen.getByRole('button', { name: /^3 alerts, most serious: 2 blockers are holding/ })).toBeInTheDocument();
     const forecast = screen.getByRole('region', { name: 'Forecast end time' });
     expect(forecast).toHaveTextContent('06:12');

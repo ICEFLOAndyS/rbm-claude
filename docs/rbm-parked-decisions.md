@@ -332,6 +332,43 @@ Brief: `claude/rbm-list-page-brief.md` (repository copy `docs/list-page-brief.md
   - Only `RbmDataGrid` imports the grid, so no other component depends on MUI X directly.
 - **Design to update:** the Templates board still asks "AG Grid or MUI X" and "D2 or D1" under "For your decision". Both are now answered.
 
+### 22 Oct 2026: MUI X Data Grid Pro installed (D1, D4)
+- **Packages:** `@mui/x-data-grid-pro` 9.16.0 and `@mui/x-license` 9.16.0, on `@mui/material` 9.5.0 (peer range `^7.3.0 || ^9.0.0`). No Premium package.
+- **Licence key:** `applyMuiXLicence()` (`src/components/RbmDataGrid/licence.ts`) reads `VITE_MUI_X_LICENSE_KEY` and calls `LicenseInfo.setLicenseKey` once. It is called in `.storybook/preview.tsx` and `demo/main.tsx`, never in a component. `.env.example` and the README name the variable, and `.env` is git-ignored. The demo reads `.env` from the repository root.
+- **Without a key** (now): the grid draws with a "MUI X Missing license key" watermark and logs one `console.error`. It does not throw. A test proves the grid still draws, and the Storybook build passes. The watermark is expected in visual checks until a licence is bought.
+- **Telemetry:** npm did not run `@mui/x-telemetry`'s install script (it is not in `allowScripts`). The grid does not need it. Left off.
+
+### 22 Oct 2026: List of records data contract (proposed, for review)
+See [list-data-model.md](list-data-model.md). Types, record spec, `ListData`, `ListPreferenceStore`, the mock server and the fixtures are in `src/data/list/` and `src/fixtures/events/`. No component is built on them until the contract is agreed.
+- **Faithful to the board (Andy Smith, 22 Oct 2026):** the list is the Page templates board's "1 · List of records" with Runbooks replaced by Events. Keep it simple; the only changes are:
+  - an **Event ID** column (REVnnnnnn) is added, first;
+  - **Progress** is removed;
+  - **Phase** is called **State**, and shows the Command Centre's event state (`EventState`: Not started, Active, Paused, Complete), decided by Andy Smith, 22 Oct 2026. State follows Status: Pending is Not started; In progress, At risk and Blocked are Active; Paused and Complete match. In the record, State is read-only, because the Command Centre changes it (Start run, Pause event); the fixture check rejects a state that does not fit the status.
+  - **Environments** (Andy Smith, 22 Oct 2026): Production, Pre-production, Test, Development.
+  Columns: Event ID, Event, Status, Owner, State, Window. Status labels as drawn: "In progress" and "Pending", not the library's "Active" and "Not started".
+- **Removed, because they are not drawn:** row flags, the hidden columns (Window end, Environment, Updated), column pinning, the Mine view and a default sort. With no sort, rows keep the server's order. The environment stays on the row only for the drawn Environment filter.
+- **The record is an RBM Event** (Andy Smith, 22 Oct 2026). The record's fields are as proposed, with Phase called State, and with no runbook or stage information (an Event holds Runbooks, a Runbook Stages, a Stage Tasks; the Command Centre shows one Event). Tasks in Needs attention are named by WBS. The record keeps its own progress in the summary strip (68%, 84 of 124 tasks for Q4, as on the Single record board).
+- **Record spec limits are compile errors:** at most four groups (and at least one), five sections per group, four summary facts, one level of nesting, and only the record's own field keys. `checkRecordSpec` tests the 14-character tab labels and unique ids.
+- **Not drawn (flagged):**
+  - The Event record spec: Overview (Details, Schedule, People and roles, Linked changes), Tasks (Needs attention), Dependencies (Waits for, Needed by) and History (Changes), with its summary facts, footer actions, validation messages and locks.
+  - The All events view, and page sizes 50 and 100 (MUI's defaults).
+- **Differs from the board:** Runbooks become Events; Event ID added; Progress removed; Phase becomes State. The 128 fixture spans every environment, so "filtered to Production" shows fewer than 128.
+- **Additions to the brief:** `deleteView`, and `AbortSignal` on every request (for the `RbmBusy` Cancel). Panel width is stored as `slideIn` or `wide`.
+- **Prototype limit:** live conflicts are found when the user saves; a push while editing waits for the ServiceNow real-time spike.
+
+### 22 Oct 2026: Event IDs are REVnnnnnn everywhere, and the two prototypes agree (decided by Andy Smith)
+- **One numbering:** the Command Centre's E12345 becomes a REVnnnnnn Event ID, and the numbers match the Events list ("match the numbers up"; the number was left to Claude Code).
+- **Numbers:** REV000001 to REV000008 stay the eight events drawn on the Page templates board. The Command Centre's events follow:
+  - REV000009 Weekend Payroll Cutover;
+  - REV000010 Weekend Payroll Cutover (healthy);
+  - REV000011 Weekend Payroll Cutover (late);
+  - REV000012 Data Centre Migration (large).
+  Each is a row in the 128 and large Events lists with the same name and window. Their list status follows the scenario: At risk (+12 Amber), In progress (on time), At risk (+45 Red), In progress. The board fixture keeps only the eight drawn events.
+- **One source:** `src/fixtures/commandCentreEvents.ts` gives the number, name and window to both fixture builders. A test checks the Command Centre fixtures and the Events lists against it, so they cannot drift apart.
+- **Changed:** the Command Centre fixtures, their builder, the Storybook mocks and the tests now read "REV000009 · Weekend Payroll Cutover". The fixture check rejects an event number that is not REVnnnnnn.
+- **Differs from the board:** the Command board draws "E12345" in the page header and the compact event bar. It should read REV000009.
+- **Note:** the 21 Oct entries above still say E12345; they record what was drawn and built then.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?
@@ -352,3 +389,6 @@ Brief: `claude/rbm-list-page-brief.md` (repository copy `docs/list-page-brief.md
 - **Layout drop line.** The build puts the drop line where the row will land. The drawing shows it between the two rows. Which should it be?
 - **Gaps between regions.** The vertical budget says 16 px and the page drawing has 24 px. Which is right?
 - **Densities not drawn.** What sizes should nodes, buttons and the Event vitals use at D0 (Command) and D3 (Dense)?
+- **List of records data contract** (22 Oct 2026, [list-data-model.md](list-data-model.md) section 8). The count line "128 events · filtered to Production" shows fewer than 128 with the fixtures, which span every environment. Live conflicts are found only on save until the ServiceNow real-time spike.
+- **Command board:** redraw the page header and the compact event bar with REV000009 instead of E12345.
+- **MUI X licence.** A real Pro key is needed before release (D4).

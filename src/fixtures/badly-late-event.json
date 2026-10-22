@@ -2,8 +2,8 @@
   "startsAt": "2026-05-25T03:40:00Z",
   "currentUserId": "p-as",
   "event": {
-    "id": "ev-E12347",
-    "number": "E12347",
+    "id": "ev-REV000011",
+    "number": "REV000011",
     "name": "Weekend Payroll Cutover (late)",
     "state": "active",
     "owner": "Cutover Manager Team",

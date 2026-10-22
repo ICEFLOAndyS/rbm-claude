@@ -8,7 +8,7 @@ A working Command & Control Centre in the browser, fed by JSON fixtures through 
 | --- | --- |
 | `npm run demo` | Regenerates the fixtures, then serves the demo at http://localhost:5173/#/command-centre |
 | `npm run demo:build` then `npm run demo:preview` | A production build at http://localhost:4173 (use this to judge speed) |
-| `npm run fixtures` | Writes the four fixtures to `src/fixtures/` (the large one is git-ignored) |
+| `npm run fixtures` | Writes the four event fixtures to `src/fixtures/` and the four Events list fixtures to `src/fixtures/events/` (the two large ones are git-ignored) |
 | `npm run check` | Type check and all tests |
 
 The demo bar has a **fixture switcher** (Weekend Payroll Cutover, healthy, badly late, large), a **clock** (paused, ×1, ×10, ×60, ×300) and **Reset**, which rebuilds the event from its fixture. URL settings: `?fixture=large-event&speed=60`, and `&scroll=900` to open scrolled down. Layout changes are saved in the browser and survive a reload.

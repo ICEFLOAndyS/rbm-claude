@@ -36,7 +36,7 @@ describe('RbmCommandCentre', () => {
   it('shows the page header: breadcrumb, title with state and alerts, owner and window', () => {
     page();
     expect(screen.getByRole('navigation', { name: 'Breadcrumb' })).toHaveTextContent('Run / Weekend Payroll Cutover');
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('E12345 · Weekend Payroll Cutover');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('REV000009 · Weekend Payroll Cutover');
     expect(screen.getByText('Active')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^3 alerts,/ })).toBeInTheDocument();
     expect(screen.getByText(/Owner/)).toHaveTextContent('Owner Cutover Manager Team · Window Sun 24 May 22:00 – Mon 25 May 06:00');
@@ -44,7 +44,7 @@ describe('RbmCommandCentre', () => {
 
   it('names the page by its title', () => {
     page();
-    expect(screen.getByRole('region', { name: 'E12345 · Weekend Payroll Cutover' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'REV000009 · Weekend Payroll Cutover' })).toBeInTheDocument();
   });
 
   it('puts the movable regions in the default order, after the fixed vitals', () => {

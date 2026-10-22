@@ -4,7 +4,7 @@ import { mockTaskStates, tasksNow } from './tasks';
 import { at } from './eventRibbon';
 
 /**
- * Mock focus set for the Task Timeline, after the Command board's page (E12345 Weekend Payroll
+ * Mock focus set for the Task Timeline, after the Command board's page (REV000009 Weekend Payroll
  * Cutover). It also holds tasks the focus rule hides, to show that it does.
  */
 export function mockTimelineRunbooks(): RbmTimelineRunbook[] {

@@ -1,0 +1,1883 @@
+{
+  "now": "2026-10-25T02:00:00Z",
+  "currentUserId": "p-as",
+  "people": [
+    {
+      "id": "p-as",
+      "name": "Andy Smith"
+    },
+    {
+      "id": "p-mo",
+      "name": "Mia Okafor"
+    },
+    {
+      "id": "p-lc",
+      "name": "Lin Chen"
+    },
+    {
+      "id": "p-rp",
+      "name": "Raj Patel"
+    },
+    {
+      "id": "p-jn",
+      "name": "Jo Novak"
+    },
+    {
+      "id": "p-sd",
+      "name": "Sam Diaz"
+    },
+    {
+      "id": "p-tb",
+      "name": "Tom Brown"
+    },
+    {
+      "id": "p-kw",
+      "name": "Kate Wright"
+    },
+    {
+      "id": "p-ab",
+      "name": "Alex Baker"
+    },
+    {
+      "id": "p-rs",
+      "name": "Ravi Silva"
+    },
+    {
+      "id": "p-an",
+      "name": "Ana Nash"
+    },
+    {
+      "id": "p-br",
+      "name": "Ben Reid"
+    }
+  ],
+  "rows": [
+    {
+      "id": "ev-00001",
+      "number": "REV000001",
+      "name": "Q4 Data Centre Cutover",
+      "status": "active",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-24T22:00:00Z",
+      "windowEnd": "2026-10-25T06:00:00Z"
+    },
+    {
+      "id": "ev-00002",
+      "number": "REV000002",
+      "name": "Payments DB Failover",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-26T22:00:00Z",
+      "windowEnd": "2026-10-27T06:00:00Z"
+    },
+    {
+      "id": "ev-00003",
+      "number": "REV000003",
+      "name": "Core Network Refresh",
+      "status": "blocked",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-28T22:00:00Z",
+      "windowEnd": "2026-10-29T06:00:00Z"
+    },
+    {
+      "id": "ev-00004",
+      "number": "REV000004",
+      "name": "Identity Platform Upgrade",
+      "status": "complete",
+      "owner": {
+        "id": "p-rp",
+        "name": "Raj Patel"
+      },
+      "state": "complete",
+      "environment": "production",
+      "windowStart": "2026-10-12T22:00:00Z",
+      "windowEnd": "2026-10-13T06:00:00Z"
+    },
+    {
+      "id": "ev-00005",
+      "number": "REV000005",
+      "name": "Warehouse Mgmt Cutover",
+      "status": "pending",
+      "owner": {
+        "id": "p-jn",
+        "name": "Jo Novak"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-11-03T22:00:00Z",
+      "windowEnd": "2026-11-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00006",
+      "number": "REV000006",
+      "name": "Backup Restore Test",
+      "status": "paused",
+      "owner": {
+        "id": "p-sd",
+        "name": "Sam Diaz"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-10-31T22:00:00Z",
+      "windowEnd": "2026-11-01T06:00:00Z"
+    },
+    {
+      "id": "ev-00007",
+      "number": "REV000007",
+      "name": "ERP Month-end Release",
+      "status": "active",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-31T22:00:00Z",
+      "windowEnd": "2026-11-01T06:00:00Z"
+    },
+    {
+      "id": "ev-00008",
+      "number": "REV000008",
+      "name": "Storage Array Migration",
+      "status": "active",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-05T22:00:00Z",
+      "windowEnd": "2026-11-06T06:00:00Z"
+    },
+    {
+      "id": "ev-00009",
+      "number": "REV000009",
+      "name": "Weekend Payroll Cutover",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-05-24T22:00:00Z",
+      "windowEnd": "2026-05-25T06:00:00Z"
+    },
+    {
+      "id": "ev-00010",
+      "number": "REV000010",
+      "name": "Weekend Payroll Cutover (healthy)",
+      "status": "active",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-05-24T22:00:00Z",
+      "windowEnd": "2026-05-25T06:00:00Z"
+    },
+    {
+      "id": "ev-00011",
+      "number": "REV000011",
+      "name": "Weekend Payroll Cutover (late)",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-05-24T22:00:00Z",
+      "windowEnd": "2026-05-25T06:00:00Z"
+    },
+    {
+      "id": "ev-00012",
+      "number": "REV000012",
+      "name": "Data Centre Migration (large)",
+      "status": "active",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-05-24T22:00:00Z",
+      "windowEnd": "2026-05-26T01:21:00Z"
+    },
+    {
+      "id": "ev-00013",
+      "number": "REV000013",
+      "name": "Reporting Failover",
+      "status": "pending",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-10-29T22:00:00Z",
+      "windowEnd": "2026-10-30T06:00:00Z"
+    },
+    {
+      "id": "ev-00014",
+      "number": "REV000014",
+      "name": "HR Upgrade",
+      "status": "pending",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "not_started",
+      "environment": "test",
+      "windowStart": "2026-11-23T22:00:00Z",
+      "windowEnd": "2026-11-24T06:00:00Z"
+    },
+    {
+      "id": "ev-00015",
+      "number": "REV000015",
+      "name": "Logistics Failover",
+      "status": "active",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "active",
+      "environment": "development",
+      "windowStart": "2026-11-05T22:00:00Z",
+      "windowEnd": "2026-11-06T06:00:00Z"
+    },
+    {
+      "id": "ev-00016",
+      "number": "REV000016",
+      "name": "HR Cutover",
+      "status": "pending",
+      "owner": {
+        "id": "p-ab",
+        "name": "Alex Baker"
+      },
+      "state": "not_started",
+      "environment": "development",
+      "windowStart": "2026-11-13T22:00:00Z",
+      "windowEnd": "2026-11-14T06:00:00Z"
+    },
+    {
+      "id": "ev-00017",
+      "number": "REV000017",
+      "name": "CRM Migration",
+      "status": "active",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-03T22:00:00Z",
+      "windowEnd": "2026-11-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00018",
+      "number": "REV000018",
+      "name": "Storage Cutover",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "active",
+      "environment": "preProduction",
+      "windowStart": "2026-10-30T22:00:00Z",
+      "windowEnd": "2026-10-31T06:00:00Z"
+    },
+    {
+      "id": "ev-00019",
+      "number": "REV000019",
+      "name": "Payroll Migration",
+      "status": "complete",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "complete",
+      "environment": "production",
+      "windowStart": "2026-10-18T22:00:00Z",
+      "windowEnd": "2026-10-19T06:00:00Z"
+    },
+    {
+      "id": "ev-00020",
+      "number": "REV000020",
+      "name": "Data Warehouse Patch",
+      "status": "pending",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-11-27T22:00:00Z",
+      "windowEnd": "2026-11-28T06:00:00Z"
+    },
+    {
+      "id": "ev-00021",
+      "number": "REV000021",
+      "name": "ERP Patch",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-30T22:00:00Z",
+      "windowEnd": "2026-10-31T06:00:00Z"
+    },
+    {
+      "id": "ev-00022",
+      "number": "REV000022",
+      "name": "Logistics Cutover",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "active",
+      "environment": "preProduction",
+      "windowStart": "2026-11-03T22:00:00Z",
+      "windowEnd": "2026-11-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00023",
+      "number": "REV000023",
+      "name": "Backup Patch",
+      "status": "complete",
+      "owner": {
+        "id": "p-rs",
+        "name": "Ravi Silva"
+      },
+      "state": "complete",
+      "environment": "preProduction",
+      "windowStart": "2026-09-03T22:00:00Z",
+      "windowEnd": "2026-09-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00024",
+      "number": "REV000024",
+      "name": "Payments Restore Test",
+      "status": "pending",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "not_started",
+      "environment": "test",
+      "windowStart": "2026-12-29T22:00:00Z",
+      "windowEnd": "2026-12-30T06:00:00Z"
+    },
+    {
+      "id": "ev-00025",
+      "number": "REV000025",
+      "name": "Data Warehouse Restore Test",
+      "status": "pending",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-12-14T22:00:00Z",
+      "windowEnd": "2026-12-15T06:00:00Z"
+    },
+    {
+      "id": "ev-00026",
+      "number": "REV000026",
+      "name": "Logistics Restore Test",
+      "status": "active",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-28T22:00:00Z",
+      "windowEnd": "2026-10-29T06:00:00Z"
+    },
+    {
+      "id": "ev-00027",
+      "number": "REV000027",
+      "name": "Identity Restore Test",
+      "status": "active",
+      "owner": {
+        "id": "p-jn",
+        "name": "Jo Novak"
+      },
+      "state": "active",
+      "environment": "preProduction",
+      "windowStart": "2026-11-05T22:00:00Z",
+      "windowEnd": "2026-11-06T06:00:00Z"
+    },
+    {
+      "id": "ev-00028",
+      "number": "REV000028",
+      "name": "Storage Restore Test",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "active",
+      "environment": "preProduction",
+      "windowStart": "2026-10-31T22:00:00Z",
+      "windowEnd": "2026-11-01T06:00:00Z"
+    },
+    {
+      "id": "ev-00029",
+      "number": "REV000029",
+      "name": "Email Refresh",
+      "status": "pending",
+      "owner": {
+        "id": "p-rp",
+        "name": "Raj Patel"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-12-01T22:00:00Z",
+      "windowEnd": "2026-12-02T06:00:00Z"
+    },
+    {
+      "id": "ev-00030",
+      "number": "REV000030",
+      "name": "Billing Release",
+      "status": "complete",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "complete",
+      "environment": "test",
+      "windowStart": "2026-09-07T22:00:00Z",
+      "windowEnd": "2026-09-08T06:00:00Z"
+    },
+    {
+      "id": "ev-00031",
+      "number": "REV000031",
+      "name": "Email Refresh",
+      "status": "paused",
+      "owner": {
+        "id": "p-sd",
+        "name": "Sam Diaz"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-10-31T22:00:00Z",
+      "windowEnd": "2026-11-01T06:00:00Z"
+    },
+    {
+      "id": "ev-00032",
+      "number": "REV000032",
+      "name": "Backup Refresh",
+      "status": "paused",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "paused",
+      "environment": "preProduction",
+      "windowStart": "2026-11-05T22:00:00Z",
+      "windowEnd": "2026-11-06T06:00:00Z"
+    },
+    {
+      "id": "ev-00033",
+      "number": "REV000033",
+      "name": "HR Refresh",
+      "status": "active",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "active",
+      "environment": "preProduction",
+      "windowStart": "2026-10-27T22:00:00Z",
+      "windowEnd": "2026-10-28T06:00:00Z"
+    },
+    {
+      "id": "ev-00034",
+      "number": "REV000034",
+      "name": "Data Warehouse Upgrade",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-27T22:00:00Z",
+      "windowEnd": "2026-10-28T06:00:00Z"
+    },
+    {
+      "id": "ev-00035",
+      "number": "REV000035",
+      "name": "Storage Restore Test",
+      "status": "active",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-08T22:00:00Z",
+      "windowEnd": "2026-11-09T06:00:00Z"
+    },
+    {
+      "id": "ev-00036",
+      "number": "REV000036",
+      "name": "Logistics Migration",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "active",
+      "environment": "preProduction",
+      "windowStart": "2026-11-07T22:00:00Z",
+      "windowEnd": "2026-11-08T06:00:00Z"
+    },
+    {
+      "id": "ev-00037",
+      "number": "REV000037",
+      "name": "Identity Patch",
+      "status": "active",
+      "owner": {
+        "id": "p-jn",
+        "name": "Jo Novak"
+      },
+      "state": "active",
+      "environment": "test",
+      "windowStart": "2026-11-03T22:00:00Z",
+      "windowEnd": "2026-11-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00038",
+      "number": "REV000038",
+      "name": "Logistics Upgrade",
+      "status": "active",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-29T22:00:00Z",
+      "windowEnd": "2026-10-30T06:00:00Z"
+    },
+    {
+      "id": "ev-00039",
+      "number": "REV000039",
+      "name": "ERP Failover",
+      "status": "pending",
+      "owner": {
+        "id": "p-an",
+        "name": "Ana Nash"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2027-01-03T22:00:00Z",
+      "windowEnd": "2027-01-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00040",
+      "number": "REV000040",
+      "name": "Data Warehouse Refresh",
+      "status": "pending",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-11-28T22:00:00Z",
+      "windowEnd": "2026-11-29T06:00:00Z"
+    },
+    {
+      "id": "ev-00041",
+      "number": "REV000041",
+      "name": "CRM Release",
+      "status": "blocked",
+      "owner": {
+        "id": "p-rs",
+        "name": "Ravi Silva"
+      },
+      "state": "active",
+      "environment": "test",
+      "windowStart": "2026-10-26T22:00:00Z",
+      "windowEnd": "2026-10-27T06:00:00Z"
+    },
+    {
+      "id": "ev-00042",
+      "number": "REV000042",
+      "name": "Identity Patch",
+      "status": "pending",
+      "owner": {
+        "id": "p-rs",
+        "name": "Ravi Silva"
+      },
+      "state": "not_started",
+      "environment": "test",
+      "windowStart": "2026-12-13T22:00:00Z",
+      "windowEnd": "2026-12-14T06:00:00Z"
+    },
+    {
+      "id": "ev-00043",
+      "number": "REV000043",
+      "name": "Mainframe Upgrade",
+      "status": "active",
+      "owner": {
+        "id": "p-rs",
+        "name": "Ravi Silva"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-04T22:00:00Z",
+      "windowEnd": "2026-11-05T06:00:00Z"
+    },
+    {
+      "id": "ev-00044",
+      "number": "REV000044",
+      "name": "CRM Restore Test",
+      "status": "paused",
+      "owner": {
+        "id": "p-rp",
+        "name": "Raj Patel"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-10-31T22:00:00Z",
+      "windowEnd": "2026-11-01T06:00:00Z"
+    },
+    {
+      "id": "ev-00045",
+      "number": "REV000045",
+      "name": "Backup Restore Test",
+      "status": "complete",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "complete",
+      "environment": "test",
+      "windowStart": "2026-09-05T22:00:00Z",
+      "windowEnd": "2026-09-06T06:00:00Z"
+    },
+    {
+      "id": "ev-00046",
+      "number": "REV000046",
+      "name": "Logistics Failover",
+      "status": "active",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "active",
+      "environment": "preProduction",
+      "windowStart": "2026-10-26T22:00:00Z",
+      "windowEnd": "2026-10-27T06:00:00Z"
+    },
+    {
+      "id": "ev-00047",
+      "number": "REV000047",
+      "name": "Reporting Release",
+      "status": "paused",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-10-26T22:00:00Z",
+      "windowEnd": "2026-10-27T06:00:00Z"
+    },
+    {
+      "id": "ev-00048",
+      "number": "REV000048",
+      "name": "CRM Refresh",
+      "status": "paused",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-11-01T22:00:00Z",
+      "windowEnd": "2026-11-02T06:00:00Z"
+    },
+    {
+      "id": "ev-00049",
+      "number": "REV000049",
+      "name": "ERP Restore Test",
+      "status": "active",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "active",
+      "environment": "development",
+      "windowStart": "2026-10-29T22:00:00Z",
+      "windowEnd": "2026-10-30T06:00:00Z"
+    },
+    {
+      "id": "ev-00050",
+      "number": "REV000050",
+      "name": "Logistics Patch",
+      "status": "complete",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "complete",
+      "environment": "production",
+      "windowStart": "2026-09-04T22:00:00Z",
+      "windowEnd": "2026-09-05T06:00:00Z"
+    },
+    {
+      "id": "ev-00051",
+      "number": "REV000051",
+      "name": "Payments Upgrade",
+      "status": "active",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "active",
+      "environment": "test",
+      "windowStart": "2026-10-26T22:00:00Z",
+      "windowEnd": "2026-10-27T06:00:00Z"
+    },
+    {
+      "id": "ev-00052",
+      "number": "REV000052",
+      "name": "Payroll Migration",
+      "status": "pending",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-10-29T22:00:00Z",
+      "windowEnd": "2026-10-30T06:00:00Z"
+    },
+    {
+      "id": "ev-00053",
+      "number": "REV000053",
+      "name": "Logistics Patch",
+      "status": "active",
+      "owner": {
+        "id": "p-sd",
+        "name": "Sam Diaz"
+      },
+      "state": "active",
+      "environment": "test",
+      "windowStart": "2026-10-30T22:00:00Z",
+      "windowEnd": "2026-10-31T06:00:00Z"
+    },
+    {
+      "id": "ev-00054",
+      "number": "REV000054",
+      "name": "Data Warehouse Upgrade",
+      "status": "active",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-08T22:00:00Z",
+      "windowEnd": "2026-11-09T06:00:00Z"
+    },
+    {
+      "id": "ev-00055",
+      "number": "REV000055",
+      "name": "Core Network Refresh",
+      "status": "blocked",
+      "owner": {
+        "id": "p-ab",
+        "name": "Alex Baker"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-08T22:00:00Z",
+      "windowEnd": "2026-11-09T06:00:00Z"
+    },
+    {
+      "id": "ev-00056",
+      "number": "REV000056",
+      "name": "Payroll Cutover",
+      "status": "active",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "active",
+      "environment": "preProduction",
+      "windowStart": "2026-10-29T22:00:00Z",
+      "windowEnd": "2026-10-30T06:00:00Z"
+    },
+    {
+      "id": "ev-00057",
+      "number": "REV000057",
+      "name": "Billing Restore Test",
+      "status": "pending",
+      "owner": {
+        "id": "p-sd",
+        "name": "Sam Diaz"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-11-23T22:00:00Z",
+      "windowEnd": "2026-11-24T06:00:00Z"
+    },
+    {
+      "id": "ev-00058",
+      "number": "REV000058",
+      "name": "ERP Migration",
+      "status": "pending",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-11-01T22:00:00Z",
+      "windowEnd": "2026-11-02T06:00:00Z"
+    },
+    {
+      "id": "ev-00059",
+      "number": "REV000059",
+      "name": "Reporting Migration",
+      "status": "complete",
+      "owner": {
+        "id": "p-jn",
+        "name": "Jo Novak"
+      },
+      "state": "complete",
+      "environment": "test",
+      "windowStart": "2026-09-29T22:00:00Z",
+      "windowEnd": "2026-09-30T06:00:00Z"
+    },
+    {
+      "id": "ev-00060",
+      "number": "REV000060",
+      "name": "Reporting Release",
+      "status": "pending",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "not_started",
+      "environment": "test",
+      "windowStart": "2026-12-25T22:00:00Z",
+      "windowEnd": "2026-12-26T06:00:00Z"
+    },
+    {
+      "id": "ev-00061",
+      "number": "REV000061",
+      "name": "HR Upgrade",
+      "status": "active",
+      "owner": {
+        "id": "p-rp",
+        "name": "Raj Patel"
+      },
+      "state": "active",
+      "environment": "preProduction",
+      "windowStart": "2026-10-28T22:00:00Z",
+      "windowEnd": "2026-10-29T06:00:00Z"
+    },
+    {
+      "id": "ev-00062",
+      "number": "REV000062",
+      "name": "Logistics Refresh",
+      "status": "complete",
+      "owner": {
+        "id": "p-ab",
+        "name": "Alex Baker"
+      },
+      "state": "complete",
+      "environment": "preProduction",
+      "windowStart": "2026-10-03T22:00:00Z",
+      "windowEnd": "2026-10-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00063",
+      "number": "REV000063",
+      "name": "Payments Patch",
+      "status": "blocked",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-05T22:00:00Z",
+      "windowEnd": "2026-11-06T06:00:00Z"
+    },
+    {
+      "id": "ev-00064",
+      "number": "REV000064",
+      "name": "Logistics Patch",
+      "status": "paused",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-11-02T22:00:00Z",
+      "windowEnd": "2026-11-03T06:00:00Z"
+    },
+    {
+      "id": "ev-00065",
+      "number": "REV000065",
+      "name": "Payments Migration",
+      "status": "pending",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "not_started",
+      "environment": "preProduction",
+      "windowStart": "2026-11-06T22:00:00Z",
+      "windowEnd": "2026-11-07T06:00:00Z"
+    },
+    {
+      "id": "ev-00066",
+      "number": "REV000066",
+      "name": "Billing Cutover",
+      "status": "blocked",
+      "owner": {
+        "id": "p-rp",
+        "name": "Raj Patel"
+      },
+      "state": "active",
+      "environment": "test",
+      "windowStart": "2026-10-29T22:00:00Z",
+      "windowEnd": "2026-10-30T06:00:00Z"
+    },
+    {
+      "id": "ev-00067",
+      "number": "REV000067",
+      "name": "CRM Release",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-an",
+        "name": "Ana Nash"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-29T22:00:00Z",
+      "windowEnd": "2026-10-30T06:00:00Z"
+    },
+    {
+      "id": "ev-00068",
+      "number": "REV000068",
+      "name": "Backup Upgrade",
+      "status": "pending",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "not_started",
+      "environment": "preProduction",
+      "windowStart": "2026-11-08T22:00:00Z",
+      "windowEnd": "2026-11-09T06:00:00Z"
+    },
+    {
+      "id": "ev-00069",
+      "number": "REV000069",
+      "name": "Core Network Refresh",
+      "status": "pending",
+      "owner": {
+        "id": "p-rp",
+        "name": "Raj Patel"
+      },
+      "state": "not_started",
+      "environment": "preProduction",
+      "windowStart": "2026-12-20T22:00:00Z",
+      "windowEnd": "2026-12-21T06:00:00Z"
+    },
+    {
+      "id": "ev-00070",
+      "number": "REV000070",
+      "name": "Email Migration",
+      "status": "pending",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-12-04T22:00:00Z",
+      "windowEnd": "2026-12-05T06:00:00Z"
+    },
+    {
+      "id": "ev-00071",
+      "number": "REV000071",
+      "name": "CRM Patch",
+      "status": "paused",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-11-01T22:00:00Z",
+      "windowEnd": "2026-11-02T06:00:00Z"
+    },
+    {
+      "id": "ev-00072",
+      "number": "REV000072",
+      "name": "Backup Refresh",
+      "status": "paused",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-10-31T22:00:00Z",
+      "windowEnd": "2026-11-01T06:00:00Z"
+    },
+    {
+      "id": "ev-00073",
+      "number": "REV000073",
+      "name": "Email Upgrade",
+      "status": "complete",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "complete",
+      "environment": "production",
+      "windowStart": "2026-09-01T22:00:00Z",
+      "windowEnd": "2026-09-02T06:00:00Z"
+    },
+    {
+      "id": "ev-00074",
+      "number": "REV000074",
+      "name": "Email Upgrade",
+      "status": "active",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-03T22:00:00Z",
+      "windowEnd": "2026-11-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00075",
+      "number": "REV000075",
+      "name": "Billing Refresh",
+      "status": "complete",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "complete",
+      "environment": "production",
+      "windowStart": "2026-10-17T22:00:00Z",
+      "windowEnd": "2026-10-18T06:00:00Z"
+    },
+    {
+      "id": "ev-00076",
+      "number": "REV000076",
+      "name": "Storage Failover",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-jn",
+        "name": "Jo Novak"
+      },
+      "state": "active",
+      "environment": "test",
+      "windowStart": "2026-10-25T22:00:00Z",
+      "windowEnd": "2026-10-26T06:00:00Z"
+    },
+    {
+      "id": "ev-00077",
+      "number": "REV000077",
+      "name": "Email Migration",
+      "status": "pending",
+      "owner": {
+        "id": "p-sd",
+        "name": "Sam Diaz"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-11-22T22:00:00Z",
+      "windowEnd": "2026-11-23T06:00:00Z"
+    },
+    {
+      "id": "ev-00078",
+      "number": "REV000078",
+      "name": "Identity Migration",
+      "status": "active",
+      "owner": {
+        "id": "p-rs",
+        "name": "Ravi Silva"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-27T22:00:00Z",
+      "windowEnd": "2026-10-28T06:00:00Z"
+    },
+    {
+      "id": "ev-00079",
+      "number": "REV000079",
+      "name": "ERP Failover",
+      "status": "active",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-29T22:00:00Z",
+      "windowEnd": "2026-10-30T06:00:00Z"
+    },
+    {
+      "id": "ev-00080",
+      "number": "REV000080",
+      "name": "Payments Restore Test",
+      "status": "pending",
+      "owner": {
+        "id": "p-jn",
+        "name": "Jo Novak"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-12-14T22:00:00Z",
+      "windowEnd": "2026-12-15T06:00:00Z"
+    },
+    {
+      "id": "ev-00081",
+      "number": "REV000081",
+      "name": "HR Migration",
+      "status": "active",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-03T22:00:00Z",
+      "windowEnd": "2026-11-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00082",
+      "number": "REV000082",
+      "name": "Email Cutover",
+      "status": "blocked",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "active",
+      "environment": "development",
+      "windowStart": "2026-11-08T22:00:00Z",
+      "windowEnd": "2026-11-09T06:00:00Z"
+    },
+    {
+      "id": "ev-00083",
+      "number": "REV000083",
+      "name": "Billing Release",
+      "status": "blocked",
+      "owner": {
+        "id": "p-rp",
+        "name": "Raj Patel"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-31T22:00:00Z",
+      "windowEnd": "2026-11-01T06:00:00Z"
+    },
+    {
+      "id": "ev-00084",
+      "number": "REV000084",
+      "name": "Backup Patch",
+      "status": "complete",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "complete",
+      "environment": "production",
+      "windowStart": "2026-10-16T22:00:00Z",
+      "windowEnd": "2026-10-17T06:00:00Z"
+    },
+    {
+      "id": "ev-00085",
+      "number": "REV000085",
+      "name": "Logistics Patch",
+      "status": "pending",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "not_started",
+      "environment": "development",
+      "windowStart": "2026-11-24T22:00:00Z",
+      "windowEnd": "2026-11-25T06:00:00Z"
+    },
+    {
+      "id": "ev-00086",
+      "number": "REV000086",
+      "name": "Identity Refresh",
+      "status": "complete",
+      "owner": {
+        "id": "p-jn",
+        "name": "Jo Novak"
+      },
+      "state": "complete",
+      "environment": "preProduction",
+      "windowStart": "2026-10-14T22:00:00Z",
+      "windowEnd": "2026-10-15T06:00:00Z"
+    },
+    {
+      "id": "ev-00087",
+      "number": "REV000087",
+      "name": "Identity Refresh",
+      "status": "blocked",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-04T22:00:00Z",
+      "windowEnd": "2026-11-05T06:00:00Z"
+    },
+    {
+      "id": "ev-00088",
+      "number": "REV000088",
+      "name": "Storage Upgrade",
+      "status": "pending",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "not_started",
+      "environment": "preProduction",
+      "windowStart": "2026-11-01T22:00:00Z",
+      "windowEnd": "2026-11-02T06:00:00Z"
+    },
+    {
+      "id": "ev-00089",
+      "number": "REV000089",
+      "name": "Payments Restore Test",
+      "status": "complete",
+      "owner": {
+        "id": "p-an",
+        "name": "Ana Nash"
+      },
+      "state": "complete",
+      "environment": "test",
+      "windowStart": "2026-09-16T22:00:00Z",
+      "windowEnd": "2026-09-17T06:00:00Z"
+    },
+    {
+      "id": "ev-00090",
+      "number": "REV000090",
+      "name": "ERP Failover",
+      "status": "complete",
+      "owner": {
+        "id": "p-ab",
+        "name": "Alex Baker"
+      },
+      "state": "complete",
+      "environment": "test",
+      "windowStart": "2026-10-07T22:00:00Z",
+      "windowEnd": "2026-10-08T06:00:00Z"
+    },
+    {
+      "id": "ev-00091",
+      "number": "REV000091",
+      "name": "ERP Cutover",
+      "status": "complete",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "complete",
+      "environment": "production",
+      "windowStart": "2026-09-07T22:00:00Z",
+      "windowEnd": "2026-09-08T06:00:00Z"
+    },
+    {
+      "id": "ev-00092",
+      "number": "REV000092",
+      "name": "Reporting Release",
+      "status": "active",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "active",
+      "environment": "development",
+      "windowStart": "2026-10-24T22:00:00Z",
+      "windowEnd": "2026-10-25T06:00:00Z"
+    },
+    {
+      "id": "ev-00093",
+      "number": "REV000093",
+      "name": "HR Refresh",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "active",
+      "environment": "preProduction",
+      "windowStart": "2026-11-01T22:00:00Z",
+      "windowEnd": "2026-11-02T06:00:00Z"
+    },
+    {
+      "id": "ev-00094",
+      "number": "REV000094",
+      "name": "Billing Upgrade",
+      "status": "active",
+      "owner": {
+        "id": "p-rp",
+        "name": "Raj Patel"
+      },
+      "state": "active",
+      "environment": "test",
+      "windowStart": "2026-10-24T22:00:00Z",
+      "windowEnd": "2026-10-25T06:00:00Z"
+    },
+    {
+      "id": "ev-00095",
+      "number": "REV000095",
+      "name": "Identity Refresh",
+      "status": "complete",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "complete",
+      "environment": "production",
+      "windowStart": "2026-10-15T22:00:00Z",
+      "windowEnd": "2026-10-16T06:00:00Z"
+    },
+    {
+      "id": "ev-00096",
+      "number": "REV000096",
+      "name": "Identity Patch",
+      "status": "active",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "active",
+      "environment": "preProduction",
+      "windowStart": "2026-10-29T22:00:00Z",
+      "windowEnd": "2026-10-30T06:00:00Z"
+    },
+    {
+      "id": "ev-00097",
+      "number": "REV000097",
+      "name": "ERP Migration",
+      "status": "active",
+      "owner": {
+        "id": "p-an",
+        "name": "Ana Nash"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-26T22:00:00Z",
+      "windowEnd": "2026-10-27T06:00:00Z"
+    },
+    {
+      "id": "ev-00098",
+      "number": "REV000098",
+      "name": "HR Release",
+      "status": "paused",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-11-07T22:00:00Z",
+      "windowEnd": "2026-11-08T06:00:00Z"
+    },
+    {
+      "id": "ev-00099",
+      "number": "REV000099",
+      "name": "Billing Cutover",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-sd",
+        "name": "Sam Diaz"
+      },
+      "state": "active",
+      "environment": "development",
+      "windowStart": "2026-11-04T22:00:00Z",
+      "windowEnd": "2026-11-05T06:00:00Z"
+    },
+    {
+      "id": "ev-00100",
+      "number": "REV000100",
+      "name": "Backup Cutover",
+      "status": "pending",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "not_started",
+      "environment": "test",
+      "windowStart": "2026-11-28T22:00:00Z",
+      "windowEnd": "2026-11-29T06:00:00Z"
+    },
+    {
+      "id": "ev-00101",
+      "number": "REV000101",
+      "name": "Identity Failover",
+      "status": "pending",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "not_started",
+      "environment": "test",
+      "windowStart": "2026-11-23T22:00:00Z",
+      "windowEnd": "2026-11-24T06:00:00Z"
+    },
+    {
+      "id": "ev-00102",
+      "number": "REV000102",
+      "name": "ERP Patch",
+      "status": "active",
+      "owner": {
+        "id": "p-ab",
+        "name": "Alex Baker"
+      },
+      "state": "active",
+      "environment": "test",
+      "windowStart": "2026-11-02T22:00:00Z",
+      "windowEnd": "2026-11-03T06:00:00Z"
+    },
+    {
+      "id": "ev-00103",
+      "number": "REV000103",
+      "name": "Data Warehouse Restore Test",
+      "status": "paused",
+      "owner": {
+        "id": "p-rs",
+        "name": "Ravi Silva"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-10-24T22:00:00Z",
+      "windowEnd": "2026-10-25T06:00:00Z"
+    },
+    {
+      "id": "ev-00104",
+      "number": "REV000104",
+      "name": "Billing Restore Test",
+      "status": "active",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-04T22:00:00Z",
+      "windowEnd": "2026-11-05T06:00:00Z"
+    },
+    {
+      "id": "ev-00105",
+      "number": "REV000105",
+      "name": "Identity Migration",
+      "status": "complete",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "complete",
+      "environment": "preProduction",
+      "windowStart": "2026-09-08T22:00:00Z",
+      "windowEnd": "2026-09-09T06:00:00Z"
+    },
+    {
+      "id": "ev-00106",
+      "number": "REV000106",
+      "name": "Backup Release",
+      "status": "blocked",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-31T22:00:00Z",
+      "windowEnd": "2026-11-01T06:00:00Z"
+    },
+    {
+      "id": "ev-00107",
+      "number": "REV000107",
+      "name": "CRM Migration",
+      "status": "complete",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "complete",
+      "environment": "production",
+      "windowStart": "2026-09-30T22:00:00Z",
+      "windowEnd": "2026-10-01T06:00:00Z"
+    },
+    {
+      "id": "ev-00108",
+      "number": "REV000108",
+      "name": "Data Warehouse Refresh",
+      "status": "pending",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-11-05T22:00:00Z",
+      "windowEnd": "2026-11-06T06:00:00Z"
+    },
+    {
+      "id": "ev-00109",
+      "number": "REV000109",
+      "name": "Billing Failover",
+      "status": "pending",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-12-05T22:00:00Z",
+      "windowEnd": "2026-12-06T06:00:00Z"
+    },
+    {
+      "id": "ev-00110",
+      "number": "REV000110",
+      "name": "Payments Refresh",
+      "status": "atRisk",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-03T22:00:00Z",
+      "windowEnd": "2026-11-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00111",
+      "number": "REV000111",
+      "name": "Payments Upgrade",
+      "status": "pending",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-12-15T22:00:00Z",
+      "windowEnd": "2026-12-16T06:00:00Z"
+    },
+    {
+      "id": "ev-00112",
+      "number": "REV000112",
+      "name": "Data Warehouse Failover",
+      "status": "pending",
+      "owner": {
+        "id": "p-ab",
+        "name": "Alex Baker"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-11-11T22:00:00Z",
+      "windowEnd": "2026-11-12T06:00:00Z"
+    },
+    {
+      "id": "ev-00113",
+      "number": "REV000113",
+      "name": "Storage Migration",
+      "status": "paused",
+      "owner": {
+        "id": "p-tb",
+        "name": "Tom Brown"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-10-30T22:00:00Z",
+      "windowEnd": "2026-10-31T06:00:00Z"
+    },
+    {
+      "id": "ev-00114",
+      "number": "REV000114",
+      "name": "Core Network Release",
+      "status": "active",
+      "owner": {
+        "id": "p-kw",
+        "name": "Kate Wright"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-03T22:00:00Z",
+      "windowEnd": "2026-11-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00115",
+      "number": "REV000115",
+      "name": "Core Network Upgrade",
+      "status": "active",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "active",
+      "environment": "development",
+      "windowStart": "2026-11-01T22:00:00Z",
+      "windowEnd": "2026-11-02T06:00:00Z"
+    },
+    {
+      "id": "ev-00116",
+      "number": "REV000116",
+      "name": "Payroll Restore Test",
+      "status": "pending",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "not_started",
+      "environment": "production",
+      "windowStart": "2026-12-01T22:00:00Z",
+      "windowEnd": "2026-12-02T06:00:00Z"
+    },
+    {
+      "id": "ev-00117",
+      "number": "REV000117",
+      "name": "Billing Restore Test",
+      "status": "paused",
+      "owner": {
+        "id": "p-an",
+        "name": "Ana Nash"
+      },
+      "state": "paused",
+      "environment": "production",
+      "windowStart": "2026-10-26T22:00:00Z",
+      "windowEnd": "2026-10-27T06:00:00Z"
+    },
+    {
+      "id": "ev-00118",
+      "number": "REV000118",
+      "name": "Payroll Cutover",
+      "status": "complete",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "complete",
+      "environment": "test",
+      "windowStart": "2026-09-14T22:00:00Z",
+      "windowEnd": "2026-09-15T06:00:00Z"
+    },
+    {
+      "id": "ev-00119",
+      "number": "REV000119",
+      "name": "Logistics Migration",
+      "status": "complete",
+      "owner": {
+        "id": "p-rs",
+        "name": "Ravi Silva"
+      },
+      "state": "complete",
+      "environment": "preProduction",
+      "windowStart": "2026-10-03T22:00:00Z",
+      "windowEnd": "2026-10-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00120",
+      "number": "REV000120",
+      "name": "Logistics Failover",
+      "status": "blocked",
+      "owner": {
+        "id": "p-mo",
+        "name": "Mia Okafor"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-31T22:00:00Z",
+      "windowEnd": "2026-11-01T06:00:00Z"
+    },
+    {
+      "id": "ev-00121",
+      "number": "REV000121",
+      "name": "Payments Refresh",
+      "status": "complete",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "complete",
+      "environment": "preProduction",
+      "windowStart": "2026-10-23T22:00:00Z",
+      "windowEnd": "2026-10-24T06:00:00Z"
+    },
+    {
+      "id": "ev-00122",
+      "number": "REV000122",
+      "name": "Mainframe Cutover",
+      "status": "active",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "active",
+      "environment": "test",
+      "windowStart": "2026-10-30T22:00:00Z",
+      "windowEnd": "2026-10-31T06:00:00Z"
+    },
+    {
+      "id": "ev-00123",
+      "number": "REV000123",
+      "name": "Mainframe Migration",
+      "status": "paused",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "paused",
+      "environment": "development",
+      "windowStart": "2026-10-24T22:00:00Z",
+      "windowEnd": "2026-10-25T06:00:00Z"
+    },
+    {
+      "id": "ev-00124",
+      "number": "REV000124",
+      "name": "Payments Migration",
+      "status": "complete",
+      "owner": {
+        "id": "p-br",
+        "name": "Ben Reid"
+      },
+      "state": "complete",
+      "environment": "preProduction",
+      "windowStart": "2026-08-28T22:00:00Z",
+      "windowEnd": "2026-08-29T06:00:00Z"
+    },
+    {
+      "id": "ev-00125",
+      "number": "REV000125",
+      "name": "Data Warehouse Migration",
+      "status": "active",
+      "owner": {
+        "id": "p-an",
+        "name": "Ana Nash"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-04T22:00:00Z",
+      "windowEnd": "2026-11-05T06:00:00Z"
+    },
+    {
+      "id": "ev-00126",
+      "number": "REV000126",
+      "name": "Payroll Restore Test",
+      "status": "blocked",
+      "owner": {
+        "id": "p-as",
+        "name": "Andy Smith"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-11-02T22:00:00Z",
+      "windowEnd": "2026-11-03T06:00:00Z"
+    },
+    {
+      "id": "ev-00127",
+      "number": "REV000127",
+      "name": "ERP Cutover",
+      "status": "paused",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "paused",
+      "environment": "test",
+      "windowStart": "2026-11-03T22:00:00Z",
+      "windowEnd": "2026-11-04T06:00:00Z"
+    },
+    {
+      "id": "ev-00128",
+      "number": "REV000128",
+      "name": "Payroll Migration",
+      "status": "active",
+      "owner": {
+        "id": "p-lc",
+        "name": "Lin Chen"
+      },
+      "state": "active",
+      "environment": "production",
+      "windowStart": "2026-10-28T22:00:00Z",
+      "windowEnd": "2026-10-29T06:00:00Z"
+    }
+  ],
+  "records": [],
+  "views": [
+    {
+      "id": "view-1",
+      "name": "Production at risk",
+      "kind": "user",
+      "filters": {
+        "search": "",
+        "status": [
+          "atRisk",
+          "blocked"
+        ],
+        "owner": [],
+        "environment": [
+          "production"
+        ]
+      },
+      "columns": {
+        "visible": [
+          "number",
+          "name",
+          "status",
+          "owner",
+          "state",
+          "windowStart"
+        ]
+      },
+      "sort": [
+        {
+          "field": "windowStart",
+          "direction": "asc"
+        }
+      ]
+    }
+  ]
+}

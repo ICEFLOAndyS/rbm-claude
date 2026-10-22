@@ -2,7 +2,7 @@ import type { RbmEventVitalsData, RbmRag } from '../components/RbmEventVitals/Rb
 
 /**
  * Mock planning-engine data for the Event vitals, with the values drawn on the Command
- * board (E12345 Weekend Payroll Cutover). Times are UTC; pass timeZone="UTC" to show them as drawn.
+ * board (REV000009 Weekend Payroll Cutover). Times are UTC; pass timeZone="UTC" to show them as drawn.
  * Replaced by the ServiceNow adapter once the attribute names are known.
  */
 export function mockEventVitals(forecast: { rag: RbmRag; gapMinutes: number } = { rag: 'amber', gapMinutes: 12 }): RbmEventVitalsData {

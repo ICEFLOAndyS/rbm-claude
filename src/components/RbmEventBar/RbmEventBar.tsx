@@ -6,7 +6,7 @@ import type { RbmEventVitalsData, RbmRag } from '../RbmEventVitals/RbmEventVital
 import { colour, radius, type RbmState, stroke } from '../../theme/tokens';
 
 export interface RbmEventSummary {
-  /** The event number, for example "E12345". */
+  /** The event number, for example "REV000001". */
   number: string;
   name: string;
   state: RbmState;

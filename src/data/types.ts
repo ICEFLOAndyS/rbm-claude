@@ -23,7 +23,7 @@ export type EventState = 'not_started' | 'active' | 'paused' | 'complete';
 
 export interface CutoverEvent {
   id: string;
-  /** The event number, for example "E12345". */
+  /** The event number, for example "REV000001". */
   number: string;
   name: string;
   state: EventState;

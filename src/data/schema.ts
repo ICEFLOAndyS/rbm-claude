@@ -39,7 +39,8 @@ export const fixtureSchema = z.object({
   currentUserId: z.string(),
   event: z.object({
     id: z.string(),
-    number: z.string(),
+    /** Event ID, REVnnnnnn (decided by Andy Smith, 22 Oct 2026). */
+    number: z.string().regex(/^REV\d{6}$/),
     name: z.string(),
     state: z.enum(['not_started', 'active', 'paused', 'complete']),
     owner: z.string(),

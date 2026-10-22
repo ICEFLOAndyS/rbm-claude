@@ -23,7 +23,7 @@ describe('barGap', () => {
 describe('RbmEventBar', () => {
   it('carries the five facts: name and state, alerts, progress, open issues and Forecast end time', () => {
     bar();
-    expect(screen.getByText('E12345')).toBeInTheDocument();
+    expect(screen.getByText('REV000009')).toBeInTheDocument();
     expect(screen.getByText('Weekend Payroll Cutover')).toBeInTheDocument();
     expect(screen.getByText('Active')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^3 alerts,/ })).toHaveStyle({ height: '24px' });

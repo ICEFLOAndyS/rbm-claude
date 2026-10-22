@@ -1,0 +1,57 @@
+{
+  "now": "2026-10-25T02:00:00Z",
+  "currentUserId": "p-as",
+  "people": [
+    {
+      "id": "p-as",
+      "name": "Andy Smith"
+    },
+    {
+      "id": "p-mo",
+      "name": "Mia Okafor"
+    },
+    {
+      "id": "p-lc",
+      "name": "Lin Chen"
+    },
+    {
+      "id": "p-rp",
+      "name": "Raj Patel"
+    },
+    {
+      "id": "p-jn",
+      "name": "Jo Novak"
+    },
+    {
+      "id": "p-sd",
+      "name": "Sam Diaz"
+    },
+    {
+      "id": "p-tb",
+      "name": "Tom Brown"
+    },
+    {
+      "id": "p-kw",
+      "name": "Kate Wright"
+    },
+    {
+      "id": "p-ab",
+      "name": "Alex Baker"
+    },
+    {
+      "id": "p-rs",
+      "name": "Ravi Silva"
+    },
+    {
+      "id": "p-an",
+      "name": "Ana Nash"
+    },
+    {
+      "id": "p-br",
+      "name": "Ben Reid"
+    }
+  ],
+  "rows": [],
+  "records": [],
+  "views": []
+}

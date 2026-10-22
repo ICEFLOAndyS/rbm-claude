@@ -2,7 +2,7 @@ import type { RbmEventSummary } from '../components/RbmEventBar/RbmEventBar';
 import type { RbmAlert } from '../components/RbmAlertCounter/RbmAlertCounter';
 
 /** The event on the Command board. */
-export const mockEvent = (): RbmEventSummary => ({ number: 'E12345', name: 'Weekend Payroll Cutover', state: 'active' });
+export const mockEvent = (): RbmEventSummary => ({ number: 'REV000009', name: 'Weekend Payroll Cutover', state: 'active' });
 
 /** The alerts drawn on the Command board ("Alert counter"). */
 export const mockAlerts = (): RbmAlert[] => [

@@ -7,6 +7,7 @@
  * Used by `npm run fixtures` (scripts/fixtures.ts) and by the tests. Pure: no file access.
  */
 import type { Blocker, Call, EventFixture, Issue, Person, Runbook, Stage, Task, TaskKind, Watcher } from '../data/types';
+import { commandCentreEvent, type CommandCentreEventRef } from './commandCentreEvents';
 
 const MIN = 60_000;
 const iso = (ms: number) => new Date(ms).toISOString().replace('.000Z', 'Z');
@@ -273,7 +274,9 @@ const notBefore = (tasks: Task[], wbs: string, minutesLate: number) => {
   t.constraints = { notBefore: iso(Date.parse(t.planned.start) + minutesLate * MIN) };
 };
 
-function baseFixture(name: string, number: string, built: Built, now: number): EventFixture {
+/** `ref` gives the Event ID and name, shared with the Events list (commandCentreEvents.ts). */
+function baseFixture(ref: CommandCentreEventRef['fixture'], built: Built, now: number): EventFixture {
+  const { number, name } = commandCentreEvent(ref);
   const end = Math.max(...built.runbooks.map((r) => Date.parse(r.plannedEnd)));
   return {
     startsAt: iso(now),
@@ -310,7 +313,7 @@ export function weekendPayrollCutover(): EventFixture {
   // 1.3.18 is due but not picked up: Ready and Late to start. Its lane has 15 minutes of slack, so the forecast holds.
   playTo(tasks, now, { ...delayStage(tasks, '1.3', 12), '2.1.1': 27 }, ['1.3.18']);
   assign(tasks, people);
-  const f = baseFixture('Weekend Payroll Cutover', 'E12345', built, now);
+  const f = baseFixture('weekend-payroll-cutover', built, now);
 
   const active = tasks.filter((t) => t.wbs.startsWith('1.3.') && t.state === 'active');
   const check = active[1]!;
@@ -345,7 +348,7 @@ export function healthyEvent(): EventFixture {
   const built = planPayroll();
   playTo(built.tasks, now);
   assign(built.tasks, people);
-  return { ...baseFixture('Weekend Payroll Cutover (healthy)', 'E12346', built, now), calls: calls(built.tasks, false), watchers };
+  return { ...baseFixture('healthy-event', built, now), calls: calls(built.tasks, false), watchers };
 }
 
 /** A Red forecast, several blockers, a failed check and a paused task. */
@@ -358,7 +361,7 @@ export function badlyLateEvent(): EventFixture {
   // through Reporting and the end of Payroll cutover.
   notBefore(tasks, '3.1.1', 45);
   assign(tasks, people);
-  const f = baseFixture('Weekend Payroll Cutover (late)', 'E12347', built, now);
+  const f = baseFixture('badly-late-event', built, now);
   const active = tasks.filter((t) => t.wbs.startsWith('1.3.') && t.state === 'active');
   const check = active[0]!;
   check.kind = 'checkpoint';
@@ -424,7 +427,7 @@ export function largeEvent(seed = 20261021): EventFixture {
     t.result = { value: 'fail', byId: pool[0]!.id, at: iso(now - 3 * MIN) };
   });
   const severities = ['high', 'medium', 'low'] as const;
-  const fx = baseFixture('Data Centre Migration (large)', 'E20000', built, now);
+  const fx = baseFixture('large-event', built, now);
   return {
     ...fx,
     people: [...people, ...pool],

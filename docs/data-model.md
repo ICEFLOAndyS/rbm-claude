@@ -19,7 +19,7 @@ Timestamps are ISO 8601 strings in UTC (`"2026-05-25T03:40:00Z"`) so that fixtur
 
 | Type | Key fields | Notes |
 | --- | --- | --- |
-| `CutoverEvent` | `number` (E12345), `name`, `state`, `owner`, `window` | The event's planned end is `window.end`. |
+| `CutoverEvent` | `number` (REV000001), `name`, `state`, `owner`, `window` | The event's planned end is `window.end`. |
 | `Person` | `name`, `initials?` | Assignees, call participants, who did what. |
 | `Runbook` | `number` (RBK0000001), `wbs` (1), `name`, `plannedEnd` | Its forecast end comes from the engine. |
 | `Stage` | `runbookId`, `wbs` (1.3), `name` | Its times and progress come from its tasks. |

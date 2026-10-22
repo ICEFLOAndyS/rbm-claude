@@ -14,6 +14,11 @@ export interface RbmTaskSearchProps {
   runbookNames: Map<string, string>;
   /** A suggestion was chosen: the timeline narrows to it and focuses its row. */
   onPick: (task: RbmTimelineTask) => void;
+  /** The field's accessible name and placeholder. "Search tasks" by default. */
+  label?: string;
+  placeholder?: string;
+  /** small: 28 px, for the filters inside a runbook. */
+  size?: 'medium' | 'small';
 }
 
 /** Suggestions shown under the field. */
@@ -24,7 +29,8 @@ export const SUGGESTION_LIMIT = 8;
  * offers the first matching tasks; Arrow keys move through them, Enter picks one, Escape closes
  * the list and then clears the search. Not drawn on the Command board (flagged).
  */
-export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(function RbmTaskSearch({ value, onChange, suggestions, fields, runbookNames, onPick }, inputRef) {
+export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(function RbmTaskSearch({ value, onChange, suggestions, fields, runbookNames, onPick, label = 'Search tasks', placeholder = 'Search tasks', size = 'medium' }, inputRef) {
+  const small = size === 'small';
   const anchor = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
@@ -62,7 +68,7 @@ export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(fu
   return (
     <Box
       ref={anchor}
-      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 32, width: 220, minWidth: 140, flexShrink: 1, px: 3, boxSizing: 'border-box', borderRadius: `${radius.pill}px`, border: `1px solid ${words.length ? colour.deepBlue : colour.silver}`, bgcolor: words.length ? 'rgba(35,50,111,0.08)' : colour.white, '&:focus-within': { outline: `2px solid ${colour.blueDark}`, outlineOffset: 1 } }}
+      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: small ? 28 : 32, width: small ? 200 : 220, minWidth: 140, flexShrink: 1, px: 3, boxSizing: 'border-box', borderRadius: `${radius.pill}px`, border: `1px solid ${words.length ? colour.deepBlue : colour.silver}`, bgcolor: words.length ? 'rgba(35,50,111,0.08)' : colour.white, '&:focus-within': { outline: `2px solid ${colour.blueDark}`, outlineOffset: 1 } }}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colour.slate} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
         <circle cx="11" cy="11" r="6.5" />
@@ -71,7 +77,7 @@ export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(fu
       <InputBase
         inputRef={inputRef}
         value={value}
-        placeholder="Search tasks"
+        placeholder={placeholder}
         onChange={(e) => {
           onChange(e.target.value);
           setOpen(true);
@@ -82,14 +88,14 @@ export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(fu
         onKeyDown={onKeyDown}
         inputProps={{
           role: 'combobox',
-          'aria-label': 'Search tasks',
+          'aria-label': label,
           'aria-autocomplete': 'list',
           'aria-expanded': listOpen,
           'aria-controls': listOpen ? listId : undefined,
           'aria-activedescendant': listOpen && active >= 0 ? optionId(active) : undefined,
           spellCheck: false,
         }}
-        sx={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: 'primary.main', '& input': { p: 0 }, '& input::placeholder': { color: colour.slate, opacity: 1, fontWeight: 400 } }}
+        sx={{ flex: 1, minWidth: 0, fontSize: small ? 12 : 13, fontWeight: 600, color: 'primary.main', '& input': { p: 0 }, '& input::placeholder': { color: colour.slate, opacity: 1, fontWeight: 400 } }}
       />
       {value && (
         <ButtonBase onClick={() => onChange('')} aria-label="Clear search" sx={{ borderRadius: '50%', color: colour.slate, flex: 'none' }}>
@@ -100,7 +106,7 @@ export const RbmTaskSearch = forwardRef<HTMLInputElement, RbmTaskSearchProps>(fu
       )}
       <Popper open={listOpen} anchorEl={anchor.current} placement="bottom-start" style={{ zIndex: 1300 }}>
         <Paper sx={{ mt: 1.5, width: 360, maxWidth: 'calc(100vw - 32px)', border: 1, borderColor: 'divider', borderRadius: `${radius.control}px`, boxShadow: elevation.menu, overflow: 'hidden' }}>
-          <Box component="ul" id={listId} role="listbox" aria-label="Matching tasks" sx={{ m: 0, p: 0, listStyle: 'none' }}>
+          <Box component="ul" id={listId} role="listbox" aria-label={small ? `Matching tasks: ${label}` : 'Matching tasks'} sx={{ m: 0, p: 0, listStyle: 'none' }}>
             {shown.map((t, i) => {
               const field = matchedField(t, words, fields);
               return (

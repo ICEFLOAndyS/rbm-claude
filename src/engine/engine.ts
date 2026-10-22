@@ -166,9 +166,14 @@ export function computeSnapshot(records: EventRecords, now: Date, currentUserId:
   const stages: StageView[] = records.stages.map((st) => {
     const own = byStage.get(st.id) ?? [];
     const done = own.filter(finished).length;
+    const end = maxOf(own.map((t) => fEnd.get(t.id)!));
+    const planned = forecastOf(maxOf(own.map((t) => ms(t.planned.end))), end, s);
     return {
       ...st,
-      forecast: { start: iso(minOf(own.map((t) => fStart.get(t.id)!))), end: iso(maxOf(own.map((t) => fEnd.get(t.id)!))) },
+      forecast: { start: iso(minOf(own.map((t) => fStart.get(t.id)!))), end: iso(end) },
+      plannedEnd: planned.plannedEnd,
+      gapMinutes: planned.gapMinutes,
+      rag: planned.rag,
       state: done === own.length ? 'complete' : own.some((t) => t.state !== 'not_started') ? 'active' : 'not_started',
       complete: own.filter((t) => t.state === 'complete').length,
       total: own.length,

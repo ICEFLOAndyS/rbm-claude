@@ -175,7 +175,7 @@ export function toTimeline(s: CommandCentreSnapshot): { runbooks: RbmTimelineRun
       forecastEnd: d(r.forecast.forecastEnd),
       rag: r.forecast.rag,
       gapMinutes: r.forecast.gapMinutes,
-      stages: s.stages.filter((st) => st.runbookId === r.id).map((st) => ({ id: st.id, wbs: st.wbs, name: st.name, start: d(st.forecast.start), end: d(st.forecast.end), state: stageState(st), complete: st.complete, total: st.total })),
+      stages: s.stages.filter((st) => st.runbookId === r.id).map((st) => ({ id: st.id, wbs: st.wbs, name: st.name, start: d(st.forecast.start), end: d(st.forecast.end), state: stageState(st), complete: st.complete, total: st.total, plannedEnd: d(st.plannedEnd), gapMinutes: st.gapMinutes, rag: st.rag })),
       hidden: {
         complete: own.filter((t) => t.state === 'complete' && !t.lingerUntil).length,
         notAvailable: own.filter((t) => t.state === 'not_started' && !t.flags.ready && !t.flags.upNextAfter && !t.flags.blocked && !t.flags.hasIssue && !t.flags.lateToStart && !t.atRisk).length,

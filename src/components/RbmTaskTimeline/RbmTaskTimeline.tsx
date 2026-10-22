@@ -1,5 +1,5 @@
 import { Box, ButtonBase, Snackbar, useTheme } from '@mui/material';
-import { useDeferredValue, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useDeferredValue, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode, type CSSProperties } from 'react';
 import { RbmTaskRow, type RbmTask } from '../RbmTaskRow/RbmTaskRow';
 import type { RbmTaskActionEvent } from '../RbmTaskRow/RbmTaskAction';
 import type { RbmSpine } from '../RbmNode/RbmNode';
@@ -21,6 +21,10 @@ export interface RbmTimelineStage {
   state: RbmState;
   complete: number;
   total: number;
+  /** From the planning engine: the stage's planned end and its forecast against it, as for a runbook. */
+  plannedEnd?: Date;
+  gapMinutes?: number;
+  rag?: RbmRag;
 }
 
 export interface RbmTimelineRunbook {
@@ -73,12 +77,78 @@ export interface RbmTaskTimelineProps {
   onCollapsedChange?: (collapsed: boolean) => void;
 }
 
+/** Progress as a whole percentage, rounded down so nothing looks further on than it is. */
+const progressOf = (complete: number, total: number) => ({ complete, total, percent: total ? Math.floor((complete / total) * 100) : 0 });
+
 /** A runbook's progress: tasks complete of all its tasks, from its stages' counts. */
 export function runbookProgress(r: Pick<RbmTimelineRunbook, 'stages'>) {
-  const complete = r.stages.reduce((n, s) => n + s.complete, 0);
-  const total = r.stages.reduce((n, s) => n + s.total, 0);
-  return { complete, total, percent: total ? Math.floor((complete / total) * 100) : 0 };
+  return progressOf(r.stages.reduce((n, s) => n + s.complete, 0), r.stages.reduce((n, s) => n + s.total, 0));
 }
+
+/** A stage's progress: tasks complete of all its tasks. */
+export const stageProgress = (s: Pick<RbmTimelineStage, 'complete' | 'total'>) => progressOf(s.complete, s.total);
+
+type Tone = 'dark' | 'light';
+
+// The summaries are plain elements with inline styles, not MUI sx: with hundreds of stages open,
+// each styled element costs a generated class, and Show all on a large event slowed by seconds.
+const eyebrow = (dark: boolean): CSSProperties => ({ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: dark ? colour.blueLight : colour.slate });
+const column: CSSProperties = { display: 'flex', flexDirection: 'column' };
+const row: CSSProperties = { display: 'inline-flex', alignItems: 'center', fontVariantNumeric: 'tabular-nums' };
+
+/**
+ * PROGRESS: a 160 px bar, the percentage and "complete of total". On the dark runbook band and the
+ * light stage row, with the same widths so the bars line up down the timeline. Not drawn (flagged).
+ */
+function ProgressSummary({ complete, total, percent, tone }: { complete: number; total: number; percent: number; tone: Tone }) {
+  const { palette } = useTheme();
+  const dark = tone === 'dark';
+  return (
+    <span aria-hidden="true" data-testid={dark ? 'rbm-runbook-progress' : 'rbm-stage-progress'} style={{ ...column, gap: 3, marginRight: 32, flex: 'none' }}>
+      <span style={eyebrow(dark)}>PROGRESS</span>
+      <span style={{ ...row, gap: 10 }}>
+        <span style={{ width: 160, height: dark ? 8 : 6, borderRadius: 4, background: dark ? 'rgba(255,255,255,0.22)' : palette.divider, overflow: 'hidden', display: 'inline-block' }}>
+          <span style={{ display: 'block', width: `${percent}%`, height: '100%', borderRadius: 4, background: palette.status.complete.signal }} />
+        </span>
+        <span style={{ fontSize: dark ? 16 : 14, fontWeight: 800, minWidth: 44, textAlign: 'right', color: dark ? colour.white : palette.text.primary }}>{percent}%</span>
+        <span style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,0.72)' : palette.text.secondary, whiteSpace: 'nowrap', minWidth: 76 }}>
+          {complete} of {total}
+        </span>
+      </span>
+    </span>
+  );
+}
+
+/** FORECAST END: the time, the RAG mark and the gap, on the dark band or the light stage row. */
+function ForecastSummary({ end, rag, gapMinutes, tone, timeZone }: { end: Date; rag?: RbmRag; gapMinutes?: number; tone: Tone; timeZone?: string }) {
+  const { palette } = useTheme();
+  const dark = tone === 'dark';
+  const signal: Record<RbmRag, string> = { green: palette.status.complete.signal, amber: palette.status.atRisk.signal, red: palette.status.blocked.signal };
+  // On white, the gap is written in the darker text colours, which are easier to read.
+  const text: Record<RbmRag, string> = dark ? signal : { green: palette.status.complete.text, amber: palette.status.atRisk.text, red: palette.status.blocked.text };
+  return (
+    <span aria-hidden="true" style={{ ...column, alignItems: 'flex-end', gap: 1, minWidth: 124 }}>
+      <span style={eyebrow(dark)}>FORECAST END</span>
+      <span style={{ ...row, gap: 7 }}>
+        <span style={{ fontSize: dark ? 16 : 14, fontWeight: 800, color: dark ? colour.white : palette.text.primary }}>{timeOf(end, timeZone)}</span>
+        {rag === 'amber' && (
+          <span style={{ width: 14, height: 14, borderRadius: '50%', background: palette.status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ width: 9, height: 9, borderRadius: '50%', background: palette.status.atRisk.core, border: `2px solid ${colour.white}`, boxSizing: 'border-box' }} />
+          </span>
+        )}
+        {rag && rag !== 'amber' && <span style={{ width: 9, height: 9, borderRadius: '50%', background: signal[rag] }} />}
+        {rag && gapMinutes !== undefined && <span style={{ fontSize: 12, fontWeight: 700, color: text[rag] }}>{shortGap(gapMinutes)}</span>}
+      </span>
+    </span>
+  );
+}
+
+/** A runbook's own filters, inside its panel: they narrow only that runbook. */
+interface RunbookTools {
+  query: string;
+  narrow: ReadonlySet<Narrow>;
+}
+const NO_TOOLS: RunbookTools = { query: '', narrow: new Set() };
 
 /** Above this many tasks in view, rows are drawn only near the screen and quiet runbooks start collapsed. */
 export const LARGE_TIMELINE = 200;
@@ -147,12 +217,13 @@ function Icon({ size = 18, stroke = 'currentColor', width = 1.75, children }: { 
 
 const chevron = (open: boolean) => <path d={open ? 'M6 9l6 6 6-6' : 'M9 6l6 6-6 6'} />;
 
-function Chip({ label, count, on, onClick }: { label: string; count: number; on: boolean; onClick: () => void }) {
+function Chip({ label, count, on, onClick, small, ariaLabel }: { label: string; count: number; on: boolean; onClick: () => void; small?: boolean; ariaLabel?: string }) {
   return (
     <ButtonBase
       onClick={onClick}
       aria-pressed={on}
-      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 32, px: 3, borderRadius: `${radius.pill}px`, border: `1px solid ${on ? colour.deepBlue : colour.silver}`, bgcolor: on ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: 13, fontWeight: 600, color: 'primary.main', whiteSpace: 'nowrap' }}
+      aria-label={ariaLabel}
+      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: small ? 28 : 32, px: small ? 2.5 : 3, borderRadius: `${radius.pill}px`, border: `1px solid ${on ? colour.deepBlue : colour.silver}`, bgcolor: on ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: small ? 12 : 13, fontWeight: 600, color: 'primary.main', whiteSpace: 'nowrap' }}
     >
       {label}
       {count > 0 && (
@@ -222,6 +293,9 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
   const searching = words.length > 0;
   const searchFields = props.searchFields ?? DEFAULT_SEARCH_FIELDS;
   const [pendingFocus, setPendingFocus] = useState<string | null>(null);
+  const [tools, setTools] = useState<ReadonlyMap<string, RunbookTools>>(new Map());
+  const toolsFor = (id: string) => tools.get(id) ?? NO_TOOLS;
+  const changeTools = (id: string, change: Partial<RunbookTools>) => setTools((prev) => new Map(prev).set(id, { ...(prev.get(id) ?? NO_TOOLS), ...change }));
   const busy = useRbmBusy(props.busyOptions);
   // Everything that widens the timeline to all tasks can mean a large query, so it says so while it runs.
   // heavy: the result will be large to draw, so the feedback shows at once.
@@ -280,29 +354,49 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
   const groups = runbooks
     .filter((r) => inFilter(r.id))
     .map((r) => {
+      const own = toolsFor(r.id);
+      const ownWords = searchWords(own.query);
+      const ownFiltered = ownWords.length > 0 || own.narrow.size > 0;
+      const keep = (x: (typeof shown)[number]) => matchesSearch(x.t, ownWords, searchFields) && [...own.narrow].every((k) => matches[k](x.t));
+      // Counts for the runbook's own chips: its tasks after the main filters, before its own.
+      const before = r.stages.flatMap((s) => byStage.get(s.id) ?? []);
+      const ownCounts = { mine: 0, late: 0, blocked: 0 };
+      for (const { t } of before) for (const k of ['mine', 'late', 'blocked'] as const) if (matches[k](t)) ownCounts[k]++;
       const stages = r.stages
         .map((s) => {
-          const sorted = (byStage.get(s.id) ?? []).slice().sort((a, b) => byStart(a.t, b.t));
+          const sorted = (byStage.get(s.id) ?? []).filter(keep).sort((a, b) => byStart(a.t, b.t));
           // A search shows every match: "+n more up next" never hides one.
-          const { shown: capped, more } = searching
+          const { shown: capped, more } = searching || ownWords.length > 0
             ? { shown: sorted.map((x) => x.t), more: new Map<string, number>() }
             : capUpNext(sorted.map((x) => x.t), new Set([...upNextOpen].filter((k) => k.startsWith(`${s.id}|`)).map((k) => k.slice(s.id.length + 1))));
           const lingering = new Set(sorted.filter((x) => x.reasons.includes('lingering')).map((x) => x.t.id));
-          return { s, rows: capped.map((t) => rowTask(t, lingering.has(t.id))), more };
+          return { s, rows: capped.map((t) => rowTask(t, lingering.has(t.id))), more, inFocus: sorted.length };
         })
         .filter((g) => g.rows.length > 0 || g.more.size > 0);
-      return { r, stages, inFocus: byRunbook.get(r.id) ?? 0 };
+      const ownShown = stages.reduce((n, g) => n + g.inFocus, 0);
+      return { r, stages, inFocus: byRunbook.get(r.id) ?? 0, own, ownFiltered, ownCounts, ownShown, ownTotal: before.length };
     })
-    .filter((g) => g.stages.length > 0);
+    // A runbook stays while the main filters leave it any task, even if its own filters hide them all, so they can be cleared.
+    .filter((g) => g.ownTotal > 0);
 
   const anyRunbookOpen = groups.some((g) => !isClosed(g.r.id, g.r.id));
   // Collapse all or Expand all: every runbook band, leaving each stage as the user set it.
   const setAllRunbooks = (close: boolean) =>
     setCollapsed(new Set([...[...collapsed].filter((k) => k.includes('/')), ...runbooks.filter((r) => close !== closedByDefault(r.id)).map((r) => r.id)]));
+  const setAllStages = (r: RbmTimelineRunbook, close: boolean) => {
+    const next = new Set(collapsed);
+    for (const st of r.stages) {
+      if (close) next.add(`${r.id}/${st.id}`);
+      else next.delete(`${r.id}/${st.id}`);
+    }
+    setCollapsed(next);
+  };
   const matchingTasks = groups.flatMap((g) => g.stages.flatMap((s) => s.rows));
   // A suggestion was chosen: narrow to it, open its runbook and stage, then focus its row.
-  const pickTask = (t: RbmTimelineTask) => {
-    setQuery(t.title);
+  // From a runbook's own search, that runbook's search narrows; from the toolbar, the main one.
+  const pickTask = (t: RbmTimelineTask, inRunbook = false) => {
+    if (inRunbook) changeTools(t.runbookId, { query: t.title });
+    else setQuery(t.title);
     const next = new Set(collapsed);
     if (closedByDefault(t.runbookId)) next.add(t.runbookId);
     else next.delete(t.runbookId);
@@ -367,7 +461,6 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
     below: i === rows.length - 1 ? undefined : rows[i]!.state === 'complete' ? 'done' : 'todo',
   });
 
-  const ragOnDark: Record<RbmRag, string> = { green: palette.status.complete.signal, amber: palette.status.atRisk.signal, red: palette.status.blocked.signal };
 
   // Messages stay on screen when the region is collapsed, so a refusal or Undo is never lost.
   const messages = (
@@ -501,9 +594,10 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
         {groups.length === 0 && (
           <Box sx={{ p: 6, textAlign: 'center', fontSize: 14, color: 'text.secondary', bgcolor: 'background.paper', borderRadius: `${radius.control}px` }}>{searching ? `No tasks match “${query.trim()}”.` : 'No tasks match.'}</Box>
         )}
-        {groups.map(({ r, stages, inFocus }) => {
+        {groups.map(({ r, stages, inFocus, own, ownFiltered, ownCounts, ownShown, ownTotal }) => {
           const rOpen = !isClosed(r.id, r.id);
           const progress = runbookProgress(r);
+          const anyStageOpen = stages.some((g) => !isClosed(`${r.id}/${g.s.id}`));
           return (
             <Box key={r.id} data-runbook={r.id} sx={{ border: `1px solid ${colour.silver}`, borderRadius: `${radius.control}px`, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 2px rgba(31,36,48,0.06)' }}>
               <ButtonBase
@@ -526,61 +620,91 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
                   </Box>
                 </Box>
                 <Box sx={{ flex: 1 }} />
-                {/* Not drawn (flagged): the runbook's progress, so Collapse all still shows how far each runbook has got. Fixed widths here and on the forecast keep the bars in one column. */}
-                {progress.total > 0 && (
-                  <Box component="span" aria-hidden="true" data-testid="rbm-runbook-progress" sx={{ display: 'flex', flexDirection: 'column', gap: '3px', mr: 8, flex: 'none' }}>
-                    <Box component="span" sx={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: colour.blueLight }}>PROGRESS</Box>
-                    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 2.5, fontVariantNumeric: 'tabular-nums' }}>
-                      <Box component="span" sx={{ width: 160, height: 8, borderRadius: '4px', bgcolor: 'rgba(255,255,255,0.22)', overflow: 'hidden', display: 'inline-block' }}>
-                        <Box component="span" style={{ width: `${progress.percent}%` }} sx={{ display: 'block', height: '100%', borderRadius: '4px', bgcolor: palette.status.complete.signal }} />
-                      </Box>
-                      <Box component="span" sx={{ fontSize: 16, fontWeight: 800, minWidth: 44, textAlign: 'right' }}>{progress.percent}%</Box>
-                      <Box component="span" sx={{ fontSize: 12, color: 'rgba(255,255,255,0.72)', whiteSpace: 'nowrap', minWidth: 76 }}>
-                        {progress.complete} of {progress.total}
-                      </Box>
-                    </Box>
-                  </Box>
-                )}
-                <Box component="span" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1px', minWidth: 124 }}>
-                  <Box component="span" sx={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: colour.blueLight }}>FORECAST END</Box>
-                  <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '7px', fontVariantNumeric: 'tabular-nums' }}>
-                    <Box component="span" sx={{ fontSize: 16, fontWeight: 800 }}>{timeOf(r.forecastEnd, timeZone)}</Box>
-                    {r.rag === 'amber' ? (
-                      <Box component="span" sx={{ width: 14, height: 14, borderRadius: '50%', bgcolor: palette.status.atRisk.signal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Box component="span" sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: palette.status.atRisk.core, border: `2px solid ${colour.white}`, boxSizing: 'border-box' }} />
-                      </Box>
-                    ) : (
-                      <Box component="span" sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: ragOnDark[r.rag] }} />
-                    )}
-                    <Box component="span" sx={{ fontSize: 12, fontWeight: 700, color: ragOnDark[r.rag] }}>{shortGap(r.gapMinutes)}</Box>
-                  </Box>
-                </Box>
+                {/* Not drawn (flagged): the runbook's progress, so Collapse all still shows how far each runbook has got. Fixed widths keep the bars in one column. */}
+                {progress.total > 0 && <ProgressSummary {...progress} tone="dark" />}
+                <ForecastSummary end={r.forecastEnd} rag={r.rag} gapMinutes={r.gapMinutes} tone="dark" timeZone={timeZone} />
               </ButtonBase>
 
+              {rOpen && (
+                // Not drawn (flagged): the runbook's own filters, which narrow only this runbook.
+                <Box role="group" aria-label={`Filter ${r.name}`} sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, minHeight: 48, px: 5, py: 1.5, boxSizing: 'border-box', bgcolor: surfaceTint, borderBottom: 1, borderColor: 'divider', fontSize: 12, color: 'text.secondary' }}>
+                  <RbmTaskSearch
+                    size="small"
+                    label={`Search tasks in ${r.name}`}
+                    placeholder="Search this runbook"
+                    value={own.query}
+                    onChange={(q) => changeTools(r.id, { query: q })}
+                    suggestions={stages.flatMap((g) => g.rows)}
+                    fields={searchFields}
+                    runbookNames={new Map([[r.id, r.name]])}
+                    onPick={(t) => pickTask(t, true)}
+                  />
+                  {(['mine', 'late', 'blocked'] as const).map((k) => {
+                    const name = { mine: 'Mine', late: 'Late', blocked: 'Blocked' }[k];
+                    return (
+                      <Chip
+                        key={k}
+                        small
+                        label={name}
+                        ariaLabel={`${name} in ${r.name}${ownCounts[k] ? `, ${ownCounts[k]}` : ''}`}
+                        count={ownCounts[k]}
+                        on={own.narrow.has(k)}
+                        onClick={() => changeTools(r.id, { narrow: flip(own.narrow, k) })}
+                      />
+                    );
+                  })}
+                  {ownFiltered && (
+                    <>
+                      <span>
+                        Showing <Box component="strong" sx={{ color: 'text.primary' }}>{ownShown} of {ownTotal}</Box> in this runbook
+                      </span>
+                      <ButtonBase onClick={() => changeTools(r.id, { query: '', narrow: new Set() })} aria-label={`Clear filters in ${r.name}`} sx={{ fontFamily: 'inherit', fontSize: 12, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5 }}>
+                        Clear
+                      </ButtonBase>
+                    </>
+                  )}
+                  <Box sx={{ flex: 1 }} />
+                  {stages.length > 0 && (
+                    <ButtonBase
+                      onClick={() => setAllStages(r, anyStageOpen)}
+                      aria-label={`${anyStageOpen ? 'Collapse' : 'Expand'} all stages in ${r.name}`}
+                      sx={{ fontFamily: 'inherit', fontSize: 12, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, whiteSpace: 'nowrap' }}
+                    >
+                      {anyStageOpen ? 'Collapse all stages' : 'Expand all stages'}
+                    </ButtonBase>
+                  )}
+                </Box>
+              )}
+              {rOpen && ownFiltered && stages.length === 0 && (
+                <Box sx={{ px: 5, py: 4, fontSize: 13, color: 'text.secondary' }}>No tasks in this runbook match.</Box>
+              )}
               {rOpen &&
-                stages.map(({ s, rows, more }) => {
+                stages.map(({ s, rows, more, inFocus: stageInFocus }) => {
                   const key = `${r.id}/${s.id}`;
                   const sOpen = !isClosed(key);
+                  const sp = stageProgress(s);
                   return (
                     <Box key={s.id} role="list" aria-label={`Stage ${s.wbs} ${s.name}`}>
                       <ButtonBase
                         onClick={() => setCollapsed(flip(collapsed, key))}
                         aria-expanded={sOpen}
-                        aria-label={`Stage ${s.wbs} ${s.name}, ${timeOf(s.start, timeZone)} to ${timeOf(s.end, timeZone)}, ${s.complete} of ${s.total} complete`}
-                        sx={{ width: '100%', display: 'flex', alignItems: 'center', gap: 3, height: 44, px: 5, bgcolor: 'grey.100', borderTop: 1, borderBottom: 1, borderColor: 'divider', boxSizing: 'border-box', textAlign: 'left', fontFamily: 'inherit', '&.Mui-focusVisible': { outlineOffset: -2 } }}
+                        aria-label={`Stage ${s.wbs} ${s.name}, ${timeOf(s.start, timeZone)} to ${timeOf(s.end, timeZone)}, ${stageInFocus} in focus, ${sp.percent}% complete, ${s.complete} of ${s.total} tasks, forecast end ${timeOf(s.end, timeZone)}${s.gapMinutes !== undefined ? `, ${shortGap(s.gapMinutes)}` : ''}`}
+                        sx={{ width: '100%', display: 'flex', alignItems: 'center', gap: 3, height: 52, px: 5, bgcolor: 'grey.100', borderTop: 1, borderBottom: 1, borderColor: 'divider', boxSizing: 'border-box', textAlign: 'left', fontFamily: 'inherit', '&.Mui-focusVisible': { outlineOffset: -2 } }}
                       >
                         <Icon stroke={colour.slate}>{chevron(sOpen)}</Icon>
-                        <Box component="span" sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: palette.status[s.state].signal, flex: 'none' }} />
-                        <Box component="span" sx={{ fontSize: 13, fontWeight: 700, color: 'text.secondary', fontVariantNumeric: 'tabular-nums', minWidth: 28 }}>{s.wbs}</Box>
-                        <Box component="span" sx={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.02em', color: 'primary.main', textTransform: 'uppercase' }}>{s.name}</Box>
-                        <Box component="span" sx={{ fontSize: 12, color: 'text.secondary' }}>{timeOf(s.start, timeZone)} – {timeOf(s.end, timeZone)}</Box>
-                        <Box sx={{ flex: 1 }} />
-                        <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 12, color: 'text.secondary' }}>
-                          <Box component="span" sx={{ width: 72, height: 6, borderRadius: '3px', bgcolor: 'divider', overflow: 'hidden', display: 'inline-block' }}>
-                            <Box component="span" sx={{ display: 'block', width: `${s.total ? (s.complete / s.total) * 100 : 0}%`, height: '100%', bgcolor: palette.status[s.state === 'complete' ? 'complete' : 'active'].signal }} />
-                          </Box>
-                          {s.complete} of {s.total}
-                        </Box>
+                        {/* Inline styles: one stage row per stage, hundreds on a large event. */}
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: palette.status[s.state].signal, flex: 'none' }} />
+                        <span style={{ fontSize: 13, fontWeight: 700, color: palette.text.secondary, fontVariantNumeric: 'tabular-nums', minWidth: 28 }}>{s.wbs}</span>
+                        <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                          <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.02em', color: palette.primary.main, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{s.name}</span>
+                          <span style={{ fontSize: 12, color: palette.text.secondary, whiteSpace: 'nowrap' }}>
+                            {timeOf(s.start, timeZone)} – {timeOf(s.end, timeZone)} · {stageInFocus} in focus
+                          </span>
+                        </span>
+                        <span style={{ flex: 1 }} />
+                        {/* Not drawn (flagged): the stage's progress and forecast, as on the runbook band, in the same columns. */}
+                        {s.total > 0 && <ProgressSummary {...sp} tone="light" />}
+                        <ForecastSummary end={s.end} rag={s.rag} gapMinutes={s.gapMinutes} tone="light" timeZone={timeZone} />
                       </ButtonBase>
                       {sOpen && (
                         <StageRows

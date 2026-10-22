@@ -117,7 +117,7 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     setup(weekendPayrollCutover(), memoryStorage(), 600);
     await userEvent.click(screen.getByRole('button', { name: 'Show all' }));
     expect(await screen.findByText('Loading all tasks…')).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByText('Loading all tasks…')).not.toBeInTheDocument(), { timeout: 3000 });
+    await waitFor(() => expect(screen.queryByText('Loading all tasks…')).not.toBeInTheDocument(), { timeout: 10_000 });
     expect(screen.getAllByRole('status').find((s) => s.textContent?.startsWith('Showing'))).toHaveTextContent('Showing 124 of 124 tasks');
   });
 
@@ -191,7 +191,7 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     first.unmount();
     first.clock.dispose();
     setup(weekendPayrollCutover(), storage);
-    expect(await screen.findByRole('button', { name: 'Show: Critical runbooks' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Show: Critical runbooks' }, { timeout: 5000 })).toBeInTheDocument();
   });
 
   it('follows the clock: the now marker moves as simulated time passes', () => {

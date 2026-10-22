@@ -81,3 +81,10 @@ export const LoadingAllTasks: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Show all' }));
   },
 };
+
+/** Filters inside a runbook: its own search, Mine, Late and Blocked, and Collapse all stages. They narrow only that runbook. Not drawn. */
+export const RunbookFilters: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.type(canvas.getByRole('combobox', { name: 'Search tasks in Payroll cutover' }), 'refresh');
+  },
+};

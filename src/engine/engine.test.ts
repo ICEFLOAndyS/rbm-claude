@@ -106,6 +106,14 @@ describe('Forecast, gap and RAG', () => {
     expect(s.tasks.filter((t) => t.flags.critical).map((t) => t.id).sort()).toEqual(['A', 'B', 'C', 'M', 'X']);
   });
 
+  it('gives each stage a planned end and its forecast against it, as for a runbook', () => {
+    const s = snap(event(plan()), '10:10');
+    const stage = s.stages[0]!;
+    expect(stage.plannedEnd).toBe(T('11:00'));
+    expect(stage.forecast.end).toBe(T('11:10'));
+    expect([stage.gapMinutes, stage.rag]).toEqual([10, 'amber']);
+  });
+
   it('puts a stage on the critical path when any of its tasks is', () => {
     const tasks = [...plan(), task('X', '10:00', 5, [], { stageId: 'st2', wbs: '1.2.X', constraints: { notBefore: T('10:00') } })];
     const r = event(tasks, { stages: [{ id: 'st', runbookId: 'rb', wbs: '1.1', name: 'Stage' }, { id: 'st2', runbookId: 'rb', wbs: '1.2', name: 'Side' }] });

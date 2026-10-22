@@ -46,6 +46,13 @@ describe('adapters', () => {
     expect(rb1.forecastEnd.toISOString()).toBe('2026-05-25T06:12:00.000Z');
   });
 
+  it('passes each stage its planned end, gap and RAG for the Task Timeline', () => {
+    const st = toTimeline(s).runbooks[0]!.stages.find((x) => x.wbs === '1.3')!;
+    expect(st.end.toISOString()).toBe('2026-05-25T04:42:00.000Z');
+    expect(st.plannedEnd!.toISOString()).toBe('2026-05-25T04:30:00.000Z');
+    expect([st.gapMinutes, st.rag]).toEqual([12, 'amber']);
+  });
+
   it('gives the ribbon one lane per runbook, with milestones and checkpoints as markers', () => {
     const lanes = toRibbon(s);
     expect(lanes.map((l) => l.name)).toEqual(['Payroll cutover', 'Interfaces', 'Reporting']);

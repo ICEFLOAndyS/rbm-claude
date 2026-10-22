@@ -13,19 +13,19 @@ export function mockTimelineRunbooks(): RbmTimelineRunbook[] {
       id: 'rb1', wbs: '1', name: 'Payroll cutover', recordId: 'RBK0000001', forecastEnd: at('06:12'), rag: 'amber', gapMinutes: 12,
       hidden: { complete: 83, notAvailable: 20 },
       stages: [
-        { id: '1.3', wbs: '1.3', name: 'Application failover', start: at('02:00'), end: at('04:30'), state: 'active', complete: 4, total: 8 },
-        { id: '1.4', wbs: '1.4', name: 'Verify', start: at('04:30'), end: at('05:30'), state: 'pending', complete: 0, total: 6 },
+        { id: '1.3', wbs: '1.3', name: 'Application failover', start: at('02:00'), end: at('04:42'), state: 'active', complete: 4, total: 8, plannedEnd: at('04:30'), gapMinutes: 12, rag: 'amber' },
+        { id: '1.4', wbs: '1.4', name: 'Verify', start: at('04:42'), end: at('05:42'), state: 'pending', complete: 0, total: 6, plannedEnd: at('05:30'), gapMinutes: 12, rag: 'amber' },
       ],
     },
     {
       id: 'rb2', wbs: '2', name: 'Interfaces', recordId: 'RBK0000002', forecastEnd: at('05:27'), rag: 'red', gapMinutes: 27,
       hidden: { complete: 0, notAvailable: 4 },
-      stages: [{ id: '2.1', wbs: '2.1', name: 'Switch interfaces', start: at('03:00'), end: at('05:00'), state: 'active', complete: 2, total: 8 }],
+      stages: [{ id: '2.1', wbs: '2.1', name: 'Switch interfaces', start: at('03:00'), end: at('05:27'), state: 'active', complete: 2, total: 8, plannedEnd: at('05:00'), gapMinutes: 27, rag: 'red' }],
     },
     {
       id: 'rb3', wbs: '3', name: 'Reporting', recordId: 'RBK0000003', forecastEnd: at('05:40'), rag: 'green', gapMinutes: 0,
       hidden: { complete: 0, notAvailable: 5 },
-      stages: [{ id: '3.1', wbs: '3.1', name: 'Rebuild reports', start: at('04:00'), end: at('05:40'), state: 'pending', complete: 0, total: 5 }],
+      stages: [{ id: '3.1', wbs: '3.1', name: 'Rebuild reports', start: at('04:00'), end: at('05:40'), state: 'pending', complete: 0, total: 5, plannedEnd: at('05:40'), gapMinutes: 0, rag: 'green' }],
     },
   ];
 }

@@ -44,7 +44,7 @@ A **fixture** (`EventFixture`) is `EventRecords` plus `startsAt` (where the cloc
 | --- | --- |
 | `Forecast` | `plannedEnd`, `forecastEnd`, `rag`, `gapMinutes` (positive behind, negative ahead), for the event and for each runbook |
 | `TaskView` | the task plus `forecast` start and end, `flags` (`ready`, `upNextAfter?`, `blocked`, `hasIssue`, `lateToStart`, `lateToFinish`, `failedCheck`, `critical`), `deltaMinutes`, and `lingerUntil?` while a completed task lingers |
-| `StageView` | the stage plus forecast start and end, a derived state, `complete` of `total`, and `critical` (any of its tasks is on the critical path) |
+| `StageView` | the stage plus forecast start and end, a derived state, `complete` of `total`, `critical` (any of its tasks is on the critical path), and `plannedEnd` (latest planned end of its tasks) with `gapMinutes` and `rag`, as for a runbook (added 22 Oct 2026) |
 | `Alert` | `kind` (blockers, failed check, forecast), `severity` (red or amber), `title`, `detail?`, `target` (what its link opens) |
 | `NextCheckpoint` | the next checkpoint not yet passed, its planned time (for the countdown), its forecast and its call, if any |
 | `CommandCentreSnapshot` | all of the above at one moment, with `now`, `progress` and the log |

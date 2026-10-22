@@ -294,6 +294,25 @@ The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png
 - **Prototype:** `CommandCentrePage` takes `loadAllDelayMs`, a pretend server query behind those actions. The demo sets it from `?latency=` (1,500 ms by default; `?latency=0` turns it off). On ServiceNow, `onLoadAll` will run the real query.
 - **Not drawn (flagged):** the busy card and scrim. MUI's spinner is used because there is no RBM style for one.
 
+### 22 Oct 2026: Task Timeline, filters inside a runbook and a summary on each stage (asked by Andy Smith)
+- **Filters inside a runbook:** an open runbook has a compact filter row under its band (48 px, surface tint). It holds:
+  - its own search ("Search this runbook", 28 px, with suggestions from that runbook);
+  - Mine, Late and Blocked chips (28 px), counted for that runbook only;
+  - "Showing 1 of 8 in this runbook" with Clear, while any of them is on;
+  - Collapse all stages / Expand all stages at the right.
+- **How they combine:** they narrow only that runbook, on top of the main toolbar's filters (agreed rule: filters only ever narrow). They are not saved.
+- **Never stuck:** a runbook whose own filters match nothing stays visible, saying "No tasks in this runbook match.", so its filters can always be cleared.
+- **Accessible names:** each control names its runbook, for example "Late in Payroll cutover" and "Collapse all stages in Interfaces", because several are on the page.
+- **Stage summary:** each stage row matches the runbook band, in its light style, and is now 52 px with two lines:
+  - name, then "02:12 – 04:42 · 6 in focus";
+  - PROGRESS (a 160 px bar, the percentage and complete of total);
+  - FORECAST END (time, RAG mark and gap, the gap in the darker status text colours on white).
+  - The blocks use the same fixed widths as the band, so stage bars line up under runbook bars.
+- **Data (planning engine output):** `StageView` gains `plannedEnd` (the latest planned end of its tasks), `gapMinutes` and `rag`, worked out as for runbooks. `RbmTimelineStage` takes them as optional fields; without them, the row shows the forecast time with no gap.
+- **Performance:** the stage summaries use inline styles rather than MUI `sx`, as the Event ribbon does, because there can be hundreds of stages. Show all on the 15,000-task event takes about 3.5–3.9 s in the development build, against 3.2 s before these changes. Most of the difference is the 30 runbook filter rows.
+- **Tests:** whole-page tests in jsdom are slower with the extra rows, so the Vitest time limit is now 15 s, and search tests paste their text rather than typing it letter by letter.
+- **Not drawn (flagged):** the runbook filter row and the stage summary.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

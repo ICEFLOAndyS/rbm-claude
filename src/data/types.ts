@@ -235,6 +235,10 @@ export interface StageView extends Stage {
   total: number;
   /** Set by the planning engine: true when any of the stage's tasks is on the critical path. */
   critical: boolean;
+  /** The latest planned end of the stage's tasks, and the forecast against it, as for a runbook. */
+  plannedEnd: IsoTime;
+  gapMinutes: number;
+  rag: Rag;
 }
 
 export type AlertKind = 'blockers' | 'failed_check' | 'forecast';

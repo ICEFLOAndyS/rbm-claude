@@ -2,7 +2,7 @@ import { act, render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
-import { RbmTaskTimeline, runbookProgress, type RbmTaskTimelineProps } from './RbmTaskTimeline';
+import { RbmTaskTimeline, runbookProgress, stageProgress, type RbmTaskTimelineProps } from './RbmTaskTimeline';
 import { RbmRunbookFilter } from './RbmRunbookFilter';
 import { mockManyUpNext, mockTimelineRunbooks, mockTimelineTasks } from '../../mocks/timeline';
 import { tasksNow } from '../../mocks/tasks';
@@ -12,6 +12,11 @@ const renderUi = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{u
 const timeline = (over: Partial<RbmTaskTimelineProps> = {}) =>
   renderUi(<RbmTaskTimeline runbooks={mockTimelineRunbooks()} tasks={mockTimelineTasks()} now={tasksNow} timeZone="UTC" {...over} />);
 const rowIds = () => Array.from(document.querySelectorAll<HTMLElement>('[data-task]')).map((r) => r.dataset.task);
+/** Puts text in a field in one go, as a paste: one redraw instead of one per letter. */
+const enter = async (field: HTMLElement, text: string) => {
+  await userEvent.click(field);
+  await userEvent.paste(text);
+};
 const summary = () => screen.getAllByRole('status').find((s) => s.textContent?.startsWith('Showing'))!;
 
 describe('RbmTaskTimeline search', () => {
@@ -19,14 +24,14 @@ describe('RbmTaskTimeline search', () => {
 
   it('narrows the timeline as you type, on the task title, within Focus', async () => {
     timeline();
-    await userEvent.type(search(), 'refresh');
+    await enter(search(), 'refresh');
     expect(rowIds().sort()).toEqual(['1.3.9', '1.4.3']);
     expect(summary()).toHaveTextContent('Showing 2 tasks matching “refresh” in 1 runbook · Focus');
   });
 
   it('counts matches outside Focus, and shows them when asked', async () => {
     timeline();
-    await userEvent.type(search(), 'payroll');
+    await enter(search(), 'payroll');
     expect(rowIds()).not.toContain('1.3.1'); // complete long ago
     const more = screen.getByRole('button', { name: /^\d+ more outside Focus$/ });
     await userEvent.click(more);
@@ -36,15 +41,15 @@ describe('RbmTaskTimeline search', () => {
 
   it('combines with the chips, which only ever narrow', async () => {
     timeline();
-    await userEvent.type(search(), 'refresh');
-    await userEvent.click(screen.getByRole('button', { name: /^Blocked/ }));
+    await enter(search(), 'refresh');
+    await userEvent.click(screen.getByRole('button', { name: /^Blocked( ?\d+)?$/ }));
     expect(rowIds()).toEqual([]);
     expect(screen.getByText('No tasks match “refresh”.')).toBeInTheDocument();
   });
 
   it('offers matching tasks; Arrow keys and Enter pick one, which narrows to it and takes focus', async () => {
     timeline();
-    await userEvent.type(search(), 'refresh');
+    await enter(search(), 'refresh');
     const list = screen.getByRole('listbox', { name: 'Matching tasks' });
     expect(within(list).getAllByRole('option').map((o) => o.textContent)).toEqual(['1.3.9Refresh test dataPayroll cutover', '1.4.3Refresh reportsPayroll cutover']);
     expect(search()).toHaveAttribute('aria-expanded', 'true');
@@ -58,7 +63,7 @@ describe('RbmTaskTimeline search', () => {
 
   it('Escape closes the suggestions, then clears the search', async () => {
     timeline();
-    await userEvent.type(search(), 'refresh');
+    await enter(search(), 'refresh');
     await userEvent.keyboard('{Escape}');
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     expect(search()).toHaveValue('refresh');
@@ -69,7 +74,7 @@ describe('RbmTaskTimeline search', () => {
 
   it('clears from the field, and / jumps to it from the timeline', async () => {
     timeline();
-    await userEvent.type(search(), 'refresh');
+    await enter(search(), 'refresh');
     await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
     expect(search()).toHaveValue('');
     document.querySelector<HTMLElement>('[data-task]')!.focus();
@@ -79,7 +84,7 @@ describe('RbmTaskTimeline search', () => {
 
   it('searches any fields it is given, and says which one matched', async () => {
     timeline({ searchFields: [{ key: 'title', label: 'Title', get: (t) => t.title }, { key: 'wbs', label: 'WBS', get: (t) => t.wbs }] });
-    await userEvent.type(search(), '2.1.3');
+    await enter(search(), '2.1.3');
     expect(rowIds()).toEqual(['2.1.3']);
     expect(screen.getByRole('option')).toHaveTextContent('matched wbs');
   });
@@ -87,7 +92,7 @@ describe('RbmTaskTimeline search', () => {
   it('shows every match, even ones that "+n more up next" would hide', async () => {
     timeline({ tasks: [...mockTimelineTasks(), ...mockManyUpNext()] });
     expect(rowIds()).not.toContain('1.4.16');
-    await userEvent.type(search(), 'verify interface');
+    await enter(search(), 'verify interface');
     expect(rowIds()).toContain('1.4.16');
     expect(screen.queryByRole('button', { name: /more up next/ })).not.toBeInTheDocument();
   });
@@ -131,6 +136,82 @@ describe('RbmTaskTimeline feedback while loading all tasks', () => {
   });
 });
 
+describe('RbmTaskTimeline filters inside a runbook', () => {
+  const panel = (id: string) => document.querySelector<HTMLElement>(`[data-runbook="${id}"]`)!;
+  const rowsIn = (id: string) => Array.from(panel(id).querySelectorAll<HTMLElement>('[data-task]')).map((r) => r.dataset.task);
+
+  it('gives each open runbook its own search, chips and stage controls', () => {
+    timeline();
+    const tools = screen.getByRole('group', { name: 'Filter Payroll cutover' });
+    expect(within(tools).getByRole('combobox', { name: 'Search tasks in Payroll cutover' })).toHaveAttribute('placeholder', 'Search this runbook');
+    expect(within(tools).getByRole('button', { name: /^Mine in Payroll cutover/ })).toBeInTheDocument();
+    expect(within(tools).getByRole('button', { name: /^Late in Payroll cutover/ })).toBeInTheDocument();
+    expect(within(tools).getByRole('button', { name: /^Blocked in Payroll cutover/ })).toBeInTheDocument();
+    expect(within(tools).getByRole('button', { name: 'Collapse all stages in Payroll cutover' })).toBeInTheDocument();
+  });
+
+  it('a runbook search narrows only that runbook, and says how many of its tasks show', async () => {
+    timeline();
+    const otherBefore = rowsIn('rb2');
+    await enter(screen.getByRole('combobox', { name: 'Search tasks in Payroll cutover' }), 'refresh');
+    expect(rowsIn('rb1').sort()).toEqual(['1.3.9', '1.4.3']);
+    expect(rowsIn('rb2')).toEqual(otherBefore);
+    expect(screen.getByRole('group', { name: 'Filter Payroll cutover' })).toHaveTextContent(/Showing 2 of \d+ in this runbook/);
+    await userEvent.click(screen.getByRole('button', { name: 'Clear filters in Payroll cutover' }));
+    expect(rowsIn('rb1').length).toBeGreaterThan(2);
+  });
+
+  it('runbook chips count that runbook only and narrow it, combining with the main chips', async () => {
+    timeline();
+    const late = screen.getByRole('button', { name: /^Late in Payroll cutover/ });
+    const n = Number(late.textContent!.replace(/\D/g, ''));
+    await userEvent.click(late);
+    expect(late).toHaveAttribute('aria-pressed', 'true');
+    expect(rowsIn('rb1')).toHaveLength(n);
+    expect(rowsIn('rb2').length).toBeGreaterThan(0);
+  });
+
+  it('keeps the runbook, with a message, when its own filters match nothing, so they can be cleared', async () => {
+    timeline();
+    await enter(screen.getByRole('combobox', { name: 'Search tasks in Interfaces' }), 'no such task');
+    expect(panel('rb2')).toHaveTextContent('No tasks in this runbook match.');
+    expect(rowsIn('rb2')).toEqual([]);
+    await userEvent.click(screen.getByRole('button', { name: 'Clear filters in Interfaces' }));
+    expect(rowsIn('rb2').length).toBeGreaterThan(0);
+  });
+
+  it('collapses and expands every stage in one runbook, leaving the others', async () => {
+    timeline();
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse all stages in Payroll cutover' }));
+    expect(rowsIn('rb1')).toEqual([]);
+    expect(rowsIn('rb2').length).toBeGreaterThan(0);
+    expect(within(panel('rb1')).getAllByRole('button', { name: /^Stage / }).every((b) => b.getAttribute('aria-expanded') === 'false')).toBe(true);
+    await userEvent.click(screen.getByRole('button', { name: 'Expand all stages in Payroll cutover' }));
+    expect(rowsIn('rb1').length).toBeGreaterThan(0);
+  });
+});
+
+describe('RbmTaskTimeline stage summary', () => {
+  it('shows progress, in-focus count and forecast end with its gap on each stage row', () => {
+    timeline();
+    const stage = mockTimelineRunbooks()[0]!.stages[0]!;
+    const row = screen.getByRole('button', { name: /^Stage 1\.3 Application failover/ });
+    const p = stageProgress(stage);
+    expect(within(row).getByTestId('rbm-stage-progress')).toHaveTextContent(`PROGRESS${p.percent}%${stage.complete} of ${stage.total}`);
+    expect(row).toHaveTextContent('FORECAST END04:42+12m');
+    expect(row).toHaveTextContent(/02:00 – 04:42 · \d+ in focus/);
+    expect(row.getAttribute('aria-label')).toMatch(new RegExp(`, \\d+ in focus, ${p.percent}% complete, ${stage.complete} of ${stage.total} tasks, forecast end 04:42, \\+12m$`));
+  });
+
+  it('shows the forecast without a gap when the engine gives none', () => {
+    const runbooks = mockTimelineRunbooks().map((r) => ({ ...r, stages: r.stages.map(({ plannedEnd: _p, gapMinutes: _g, rag: _r, ...s }) => s) }));
+    timeline({ runbooks });
+    const row = screen.getByRole('button', { name: /^Stage 1\.3 Application failover/ });
+    expect(row).toHaveTextContent('FORECAST END04:42');
+    expect(row).not.toHaveTextContent('+12m');
+  });
+});
+
 describe('RbmTaskTimeline runbook progress', () => {
   it('works out the progress of a runbook from its stages, rounding down', () => {
     const stage = (complete: number, total: number) => ({ complete, total }) as RbmTaskTimelineProps['runbooks'][number]['stages'][number];
@@ -146,7 +227,7 @@ describe('RbmTaskTimeline runbook progress', () => {
     const band = document.querySelector<HTMLElement>(`[data-runbook="${r.id}"] > button`)!;
     const block = within(band).getByTestId('rbm-runbook-progress');
     expect(block).toHaveTextContent(`PROGRESS${p.percent}%${p.complete} of ${p.total}`);
-    expect(block.querySelector<HTMLElement>('[style]')!.style.width).toBe(`${p.percent}%`);
+    expect(Array.from(block.querySelectorAll<HTMLElement>('span')).some((el) => el.style.width === `${p.percent}%`)).toBe(true);
     expect(band.getAttribute('aria-label')).toContain(`, ${p.percent}% complete, ${p.complete} of ${p.total} tasks, forecast end`);
   });
 
@@ -189,7 +270,7 @@ describe('RbmTaskTimeline', () => {
   it('collapses to one line with the focus, late and blocked counts, matching the chips', async () => {
     const onCollapsedChange = vi.fn();
     timeline({ onCollapsedChange });
-    const chipCount = (name: string) => Number(screen.getByRole('button', { name: new RegExp(`^${name}`) }).textContent!.replace(/\D/g, '') || 0);
+    const chipCount = (name: string) => Number(screen.getByRole('button', { name: new RegExp(`^${name}( ?\\d+)?$`) }).textContent!.replace(/\D/g, '') || 0);
     const late = chipCount('Late');
     const blocked = chipCount('Blocked');
     const inFocus = Number(/Showing (\d+) of/.exec(summary().textContent!)![1]);
@@ -401,7 +482,7 @@ describe('RbmRunbookFilter', () => {
     const many = Array.from({ length: 7 }, (_, i) => ({ ...options[0]!, id: `r${i}`, wbs: String(i + 1), name: `Runbook ${i + 1}` }));
     renderUi(<RbmRunbookFilter runbooks={many} selected={[]} onChange={vi.fn()} />);
     await userEvent.click(screen.getByRole('button', { name: 'All runbooks' }));
-    await userEvent.type(screen.getByRole('textbox', { name: 'Search runbooks' }), 'Runbook 7');
+    await enter(screen.getByRole('textbox', { name: 'Search runbooks' }), 'Runbook 7');
     expect(screen.getAllByRole('checkbox')).toHaveLength(1);
   });
 });

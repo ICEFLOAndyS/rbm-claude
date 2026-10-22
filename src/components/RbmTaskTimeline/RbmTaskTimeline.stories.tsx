@@ -67,7 +67,7 @@ export const SearchOutsideFocus: Story = {
   },
 };
 
-/** Collapse all: every runbook band folded; Expand all opens them again. */
+/** Collapse all: every runbook band folded, each with its progress and forecast end, so progress across runbooks reads at a glance. */
 export const AllRunbooksCollapsed: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Collapse all runbooks' }));

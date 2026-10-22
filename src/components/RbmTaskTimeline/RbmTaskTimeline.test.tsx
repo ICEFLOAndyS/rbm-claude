@@ -2,7 +2,7 @@ import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
-import { RbmTaskTimeline, type RbmTaskTimelineProps } from './RbmTaskTimeline';
+import { RbmTaskTimeline, runbookProgress, type RbmTaskTimelineProps } from './RbmTaskTimeline';
 import { RbmRunbookFilter } from './RbmRunbookFilter';
 import { mockManyUpNext, mockTimelineRunbooks, mockTimelineTasks } from '../../mocks/timeline';
 import { tasksNow } from '../../mocks/tasks';
@@ -90,6 +90,33 @@ describe('RbmTaskTimeline search', () => {
     await userEvent.type(search(), 'verify interface');
     expect(rowIds()).toContain('1.4.16');
     expect(screen.queryByRole('button', { name: /more up next/ })).not.toBeInTheDocument();
+  });
+});
+
+describe('RbmTaskTimeline runbook progress', () => {
+  it('works out the progress of a runbook from its stages, rounding down', () => {
+    const stage = (complete: number, total: number) => ({ complete, total }) as RbmTaskTimelineProps['runbooks'][number]['stages'][number];
+    expect(runbookProgress({ stages: [stage(10, 30), stage(5, 19)] })).toEqual({ complete: 15, total: 49, percent: 30 });
+    expect(runbookProgress({ stages: [stage(2, 3)] }).percent).toBe(66); // never rounds up to look further on
+    expect(runbookProgress({ stages: [] })).toEqual({ complete: 0, total: 0, percent: 0 });
+  });
+
+  it('shows the percentage, count and bar on each runbook band, and says it to screen readers', () => {
+    timeline();
+    const r = mockTimelineRunbooks()[0]!;
+    const p = runbookProgress(r);
+    const band = document.querySelector<HTMLElement>(`[data-runbook="${r.id}"] > button`)!;
+    const block = within(band).getByTestId('rbm-runbook-progress');
+    expect(block).toHaveTextContent(`PROGRESS${p.percent}%${p.complete} of ${p.total}`);
+    expect(block.querySelector<HTMLElement>('[style]')!.style.width).toBe(`${p.percent}%`);
+    expect(band.getAttribute('aria-label')).toContain(`, ${p.percent}% complete, ${p.complete} of ${p.total} tasks, forecast end`);
+  });
+
+  it('keeps the progress on the bands when every runbook is collapsed', async () => {
+    timeline();
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse all runbooks' }));
+    expect(rowIds()).toEqual([]);
+    expect(screen.getAllByTestId('rbm-runbook-progress').length).toBe(document.querySelectorAll('[data-runbook]').length);
   });
 });
 

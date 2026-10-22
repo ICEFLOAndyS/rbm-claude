@@ -64,6 +64,13 @@ export interface RbmTaskTimelineProps {
   onCollapsedChange?: (collapsed: boolean) => void;
 }
 
+/** A runbook's progress: tasks complete of all its tasks, from its stages' counts. */
+export function runbookProgress(r: Pick<RbmTimelineRunbook, 'stages'>) {
+  const complete = r.stages.reduce((n, s) => n + s.complete, 0);
+  const total = r.stages.reduce((n, s) => n + s.total, 0);
+  return { complete, total, percent: total ? Math.floor((complete / total) * 100) : 0 };
+}
+
 /** Above this many tasks in view, rows are drawn only near the screen and quiet runbooks start collapsed. */
 export const LARGE_TIMELINE = 200;
 const ROW = 52;
@@ -480,12 +487,13 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
         )}
         {groups.map(({ r, stages, inFocus }) => {
           const rOpen = !isClosed(r.id, r.id);
+          const progress = runbookProgress(r);
           return (
             <Box key={r.id} data-runbook={r.id} sx={{ border: `1px solid ${colour.silver}`, borderRadius: `${radius.control}px`, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 2px rgba(31,36,48,0.06)' }}>
               <ButtonBase
                 onClick={() => setCollapsed(flip(collapsed, r.id))}
                 aria-expanded={rOpen}
-                aria-label={`${r.wbs} ${r.name}, ${r.recordId}, ${inFocus} in focus, forecast end ${timeOf(r.forecastEnd, timeZone)}, ${shortGap(r.gapMinutes)}`}
+                aria-label={`${r.wbs} ${r.name}, ${r.recordId}, ${inFocus} in focus${progress.total ? `, ${progress.percent}% complete, ${progress.complete} of ${progress.total} tasks` : ''}, forecast end ${timeOf(r.forecastEnd, timeZone)}, ${shortGap(r.gapMinutes)}`}
                 sx={{ width: '100%', display: 'flex', alignItems: 'center', gap: 3, height: 60, px: 5, bgcolor: 'primary.main', color: colour.white, textAlign: 'left', fontFamily: 'inherit', '&.Mui-focusVisible': { outlineOffset: -4, outlineColor: colour.white } }}
               >
                 <Icon stroke={colour.white}>{chevron(rOpen)}</Icon>
@@ -502,7 +510,22 @@ export function RbmTaskTimeline(props: RbmTaskTimelineProps) {
                   </Box>
                 </Box>
                 <Box sx={{ flex: 1 }} />
-                <Box component="span" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1px' }}>
+                {/* Not drawn (flagged): the runbook's progress, so Collapse all still shows how far each runbook has got. Fixed widths here and on the forecast keep the bars in one column. */}
+                {progress.total > 0 && (
+                  <Box component="span" aria-hidden="true" data-testid="rbm-runbook-progress" sx={{ display: 'flex', flexDirection: 'column', gap: '3px', mr: 8, flex: 'none' }}>
+                    <Box component="span" sx={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: colour.blueLight }}>PROGRESS</Box>
+                    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 2.5, fontVariantNumeric: 'tabular-nums' }}>
+                      <Box component="span" sx={{ width: 160, height: 8, borderRadius: '4px', bgcolor: 'rgba(255,255,255,0.22)', overflow: 'hidden', display: 'inline-block' }}>
+                        <Box component="span" style={{ width: `${progress.percent}%` }} sx={{ display: 'block', height: '100%', borderRadius: '4px', bgcolor: palette.status.complete.signal }} />
+                      </Box>
+                      <Box component="span" sx={{ fontSize: 16, fontWeight: 800, minWidth: 44, textAlign: 'right' }}>{progress.percent}%</Box>
+                      <Box component="span" sx={{ fontSize: 12, color: 'rgba(255,255,255,0.72)', whiteSpace: 'nowrap', minWidth: 76 }}>
+                        {progress.complete} of {progress.total}
+                      </Box>
+                    </Box>
+                  </Box>
+                )}
+                <Box component="span" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1px', minWidth: 124 }}>
                   <Box component="span" sx={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: colour.blueLight }}>FORECAST END</Box>
                   <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '7px', fontVariantNumeric: 'tabular-nums' }}>
                     <Box component="span" sx={{ fontSize: 16, fontWeight: 800 }}>{timeOf(r.forecastEnd, timeZone)}</Box>

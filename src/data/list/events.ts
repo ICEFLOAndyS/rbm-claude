@@ -10,11 +10,11 @@
  */
 import { status as statusTokens } from '../../theme/tokens';
 import { defineRecordSpec, type RecordSpec } from './recordSpec';
+import { formatWindow, shortName } from './format';
 import type {
   ColumnDef,
   ColumnState,
   Environment,
-  PersonRef,
   EventColumnField,
   EventFilters,
   EventState,
@@ -34,18 +34,7 @@ export const ENVIRONMENT_LABELS: Record<Environment, string> = { production: 'Pr
  */
 export const STATUS_LABELS: Record<EventStatus, string> = { ...(Object.fromEntries(EVENT_STATUSES.map((s) => [s, statusTokens[s].label])) as Record<EventStatus, string>), active: 'In progress', pending: 'Pending' };
 
-/** "A. Smith", as the grid shows owners. */
-export function shortName(person: PersonRef): string {
-  const words = person.name.trim().split(/\s+/);
-  return words.length < 2 ? person.name : `${words[0]![0]}. ${words.slice(1).join(' ')}`;
-}
-
-const dateFormat = (timeZone: string) => new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', timeZone });
-const timeFormat = (timeZone: string) => new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone });
-/** "24 Oct 22:00". */
-export const formatWhen = (iso: string, timeZone = 'UTC') => `${dateFormat(timeZone).format(new Date(iso))} ${timeFormat(timeZone).format(new Date(iso))}`;
-/** "24 Oct 22:00 – 25 Oct 06:00". */
-export const formatWindow = (start: string, end: string, timeZone = 'UTC') => `${formatWhen(start, timeZone)} – ${formatWhen(end, timeZone)}`;
+export { shortName, formatWhen, formatWindow } from './format';
 
 // ---------------------------------------------------------------------------
 // Grid

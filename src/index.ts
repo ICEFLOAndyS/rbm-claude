@@ -53,3 +53,6 @@ export { RbmLayoutPanel, DEFAULT_LAYOUT, regionInfo } from './components/RbmLayo
 export type { RbmLayoutPanelProps, RbmRegion, RbmMovableRegion } from './components/RbmLayoutPanel/RbmLayoutPanel';
 export { RbmCommandCentre, TIMELINE_MIN_HEIGHT, formatWindow } from './components/RbmCommandCentre/RbmCommandCentre';
 export type { RbmCommandCentreProps, RbmCommandCentreEvent, RbmEventAction } from './components/RbmCommandCentre/RbmCommandCentre';
+export { RbmDataGrid, GRID_HEADER_HEIGHT, GRID_ROW_HEIGHT } from './components/RbmDataGrid/RbmDataGrid';
+export type { RbmDataGridProps, RbmDataGridHandle, RbmGridRowAction } from './components/RbmDataGrid/RbmDataGrid';
+export { applyMuiXLicence } from './components/RbmDataGrid/licence';

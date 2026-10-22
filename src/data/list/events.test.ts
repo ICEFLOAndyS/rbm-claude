@@ -16,3 +16,11 @@ describe('the Events list, as drawn on the Page templates board (Runbooks replac
     expect(active!.filters.status).not.toContain('complete');
   });
 });
+
+describe('list formats', () => {
+  it('writes dates as the board does, with three-letter months', async () => {
+    const { formatDay } = await import('./format');
+    expect(formatDay('2026-10-24T22:00:00Z')).toBe('24 Oct');
+    expect(formatDay('2026-09-03T22:00:00Z')).toBe('03 Sep');
+  });
+});

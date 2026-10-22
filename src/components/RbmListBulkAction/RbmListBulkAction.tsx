@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { Button, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
+import { useId, useState, type ReactNode } from 'react';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
 import { colour, stroke } from '../../theme/tokens';
 import { useDensity } from '../../theme/RbmDensity';
 
@@ -23,6 +23,8 @@ export interface RbmBulkAction {
   disabledReason?: string;
   /** "danger" for an action that removes or cannot be undone. */
   tone?: 'default' | 'danger';
+  /** Asks first, in MUI's default dialog (not drawn). The action runs only on the confirm button. */
+  confirm?: { title: string; body: string; confirmLabel: string };
 }
 
 export interface RbmListBulkActionProps {
@@ -36,60 +38,87 @@ export interface RbmListBulkActionProps {
 
 export function RbmListBulkAction({ count, noun, actions, onClear }: RbmListBulkActionProps) {
   const d = useDensity();
+  const [asking, setAsking] = useState<RbmBulkAction | null>(null);
+  const dialogId = useId();
   const text = `${count} ${count === 1 ? noun.one : noun.many} selected`;
+  const run = (a: RbmBulkAction) => (a.confirm ? setAsking(a) : a.onSelect());
   return (
-    <Toolbar
-      role="toolbar"
-      aria-label={`Actions for ${text}`}
-      disableGutters
-      sx={{
-        // One row tall, like the list toolbar, so the grid stays where it is.
-        minHeight: `${d.row}px !important`,
-        height: d.row,
-        gap: `${d.gap}px`,
-        px: `${d.padX}px`,
-        borderRadius: `${d.radius}px`,
-        // MUI's selected tint, in Deep Blue, as the toolbar's "on" filters use.
-        bgcolor: 'rgba(35,50,111,0.08)',
-        border: `${stroke.thin}px solid ${colour.deepBlue}`,
-        boxSizing: 'border-box',
-        flexWrap: 'nowrap',
-        overflowX: 'auto',
-      }}
-    >
-      <Typography component="span" aria-live="polite" sx={{ fontSize: d.body, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap', flex: '1 1 auto' }}>
-        {text}
-      </Typography>
-      {actions.map((a) => {
-        const button = (
-          <Button
-            key={a.id}
-            variant="outlined"
-            color={a.tone === 'danger' ? 'error' : 'primary'}
-            startIcon={a.icon}
-            disabled={a.disabled}
-            onClick={a.onSelect}
-            sx={{ height: d.control, px: 3, fontSize: d.body, borderWidth: stroke.thin, whiteSpace: 'nowrap', flex: 'none', bgcolor: colour.white, '&:hover': { borderWidth: stroke.thin } }}
-          >
-            {a.label}
+    <>
+      <Toolbar
+        role="toolbar"
+        aria-label={`Actions for ${text}`}
+        disableGutters
+        sx={{
+          // One row tall, like the list toolbar, so the grid stays where it is.
+          minHeight: `${d.row}px !important`,
+          height: d.row,
+          gap: `${d.gap}px`,
+          px: `${d.padX}px`,
+          borderRadius: `${d.radius}px`,
+          // MUI's selected tint, in Deep Blue, as the toolbar's "on" filters use.
+          bgcolor: 'rgba(35,50,111,0.08)',
+          border: `${stroke.thin}px solid ${colour.deepBlue}`,
+          boxSizing: 'border-box',
+          flexWrap: 'nowrap',
+          overflowX: 'auto',
+        }}
+      >
+        <Typography component="span" aria-live="polite" sx={{ fontSize: d.body, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap', flex: '1 1 auto' }}>
+          {text}
+        </Typography>
+        {actions.map((a) => {
+          const button = (
+            <Button
+              key={a.id}
+              variant="outlined"
+              color={a.tone === 'danger' ? 'error' : 'primary'}
+              startIcon={a.icon}
+              disabled={a.disabled}
+              onClick={() => run(a)}
+              sx={{ height: d.control, px: 3, fontSize: d.body, borderWidth: stroke.thin, whiteSpace: 'nowrap', flex: 'none', bgcolor: colour.white, '&:hover': { borderWidth: stroke.thin } }}
+            >
+              {a.label}
+            </Button>
+          );
+          return a.disabled && a.disabledReason ? (
+            <Tooltip key={a.id} title={a.disabledReason}>
+              {/* A disabled button takes no pointer events; the span carries the tooltip. */}
+              <span style={{ display: 'inline-flex' }}>{button}</span>
+            </Tooltip>
+          ) : (
+            button
+          );
+        })}
+        <Tooltip title="Clear selection">
+          <IconButton onClick={onClear} aria-label="Clear selection" sx={{ color: 'primary.main', flex: 'none', width: d.control, height: d.control }}>
+            <svg width={d.icon} height={d.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </IconButton>
+        </Tooltip>
+      </Toolbar>
+      <Dialog open={!!asking} onClose={() => setAsking(null)} aria-labelledby={dialogId} aria-describedby={`${dialogId}-body`} fullWidth maxWidth="xs">
+        <DialogTitle id={dialogId}>{asking?.confirm?.title}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id={`${dialogId}-body`}>{asking?.confirm?.body}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="text" onClick={() => setAsking(null)} autoFocus>
+            Cancel
           </Button>
-        );
-        return a.disabled && a.disabledReason ? (
-          <Tooltip key={a.id} title={a.disabledReason}>
-            {/* A disabled button takes no pointer events; the span carries the tooltip. */}
-            <span style={{ display: 'inline-flex' }}>{button}</span>
-          </Tooltip>
-        ) : (
-          button
-        );
-      })}
-      <Tooltip title="Clear selection">
-        <IconButton onClick={onClear} aria-label="Clear selection" sx={{ color: 'primary.main', flex: 'none', width: d.control, height: d.control }}>
-          <svg width={d.icon} height={d.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M6 6l12 12M18 6L6 18" />
-          </svg>
-        </IconButton>
-      </Tooltip>
-    </Toolbar>
+          <Button
+            variant="contained"
+            color={asking?.tone === 'danger' ? 'error' : 'primary'}
+            onClick={() => {
+              const a = asking;
+              setAsking(null);
+              a?.onSelect();
+            }}
+          >
+            {asking?.confirm?.confirmLabel}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }

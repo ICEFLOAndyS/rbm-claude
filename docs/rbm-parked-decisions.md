@@ -491,6 +491,15 @@ Built as drawn on the Page templates board ("1 · List of records", zone 4): the
 - **Not drawn (MUI's default, the agreed fallback):** the page size picker (MUI's standard select, without an underline) and its choices (25, 50, 100).
 - **Grid proof story:** the stand-in pager is replaced by `RbmPagination` in the grid's footer, paging the 128 and 15,000-event lists through the mock server.
 
+### 22 Oct 2026: the Events list's bulk actions, Export and Delete (decided by Andy Smith: "Export, Delete only at this stage")
+- **Data contract:**
+  - `exportCsv` takes the selected ids and exports exactly those rows, whatever the filters (rows stay selected across pages).
+  - `deleteRows(ids)` is new. It returns the rows deleted, and for each row refused, its number and the reason.
+- **Which events may be deleted (proposed, not decided):** the mock refuses any event that has started (active, paused or complete): "It has started, so it is part of the audit trail." Events that have not started are deleted. The real rule belongs to the server.
+- **Bulk bar:** an action can ask first (`confirm`), in MUI's default dialog, with Cancel focused. Delete asks: "Delete 2 events?", "They are removed for everyone. Events that have started stay, as part of the audit trail.", then Delete in the error colour.
+- **Feedback:** `src/app/eventBulkActions.ts` builds the two actions for a list page. After an action it says what happened, in a short message for the page. Examples: "2 events exported." or "1 event deleted. 1 not deleted. REV000001: It has started, so it is part of the audit trail." Deleted rows leave the selection. The story shows the message in MUI's default snackbar; the list page will do the same.
+- **Not drawn (flagged):** the confirmation dialog, the messages and the snackbar.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?
@@ -516,4 +525,4 @@ Built as drawn on the Page templates board ("1 · List of records", zone 4): the
 - **Command board:** redraw the page header and the compact event bar with REV000009 instead of E12345, and every region at its density (D1 header and vitals, D2 elsewhere).
 - **Compact event bar at 56 px** (22 Oct 2026): assess the visual impact of the larger forecast time.
 - **MUI X licence.** A real Pro key is needed before release (D4).
-- **Bulk actions for the Events list:** which ones (Export selected, Change owner, Change environment, Delete)? Each but export needs a data contract addition.
+- **Which events may be deleted?** The mock refuses any event that has started (active, paused or complete), as part of the audit trail. Proposed; the real rule belongs to the server.

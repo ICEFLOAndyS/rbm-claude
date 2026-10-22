@@ -225,3 +225,25 @@ describe('mock Events server: export', () => {
     expect(file.csv.split('\r\n')[1]).toBe('REV000001,"Cutover, ""phase 2"""');
   });
 });
+
+describe('mock Events server: bulk actions (Export, Delete)', () => {
+  it('exports exactly the selected rows, whatever the filters, in the sort given', async () => {
+    const s = server(eventsBoard());
+    const file = await s.exportCsv({ filters: { ...EMPTY_EVENT_FILTERS, status: ['complete'] }, sort: [{ field: 'number', direction: 'desc' }], columns: ['number', 'name'], ids: ['ev-00001', 'ev-00005'] });
+    expect(file.csv.trimEnd().split('\r\n')).toEqual(['Event ID,Event', 'REV000005,Warehouse Mgmt Cutover', 'REV000001,Q4 Data Centre Cutover']);
+  });
+
+  it('deletes events that have not started, and refuses the rest with the reason', async () => {
+    const s = server(eventsBoard());
+    // REV000005 has not started; REV000001 is running; REV000004 is complete.
+    const result = await s.deleteRows(['ev-00005', 'ev-00001', 'ev-00004', 'nope']);
+    expect(result.deleted).toEqual(['ev-00005']);
+    expect(result.refused).toEqual([
+      { id: 'ev-00001', number: 'REV000001', reason: 'It has started, so it is part of the audit trail.' },
+      { id: 'ev-00004', number: 'REV000004', reason: 'It has started, so it is part of the audit trail.' },
+      { id: 'nope', number: 'nope', reason: 'This event no longer exists.' },
+    ]);
+    expect((await s.query(q())).total).toBe(7);
+    await expect(s.readRecord('ev-00005')).rejects.toMatchObject({ kind: 'notFound' });
+  });
+});

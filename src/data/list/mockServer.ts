@@ -6,10 +6,11 @@
  *
  * A ServiceNow source implementing `ListData` replaces it later. Delete this file then.
  */
-import type { ListData, RequestOptions } from './interfaces';
+import type { DeleteResult, ListData, RequestOptions } from './interfaces';
 import { editableKeys, validateSection } from './recordSpec';
 import { ENVIRONMENT_LABELS, EVENT_COLUMNS, STATE_LABELS, STATUS_LABELS, formatWhen, eventRecordSpec, eventSystemViews } from './events';
 import {
+  EMPTY_EVENT_FILTERS,
   ListDataError,
   type FieldChange,
   type ListFailureKind,
@@ -28,7 +29,7 @@ import {
 import { buildEventRecord } from '../../fixtures/events/build';
 
 export type EventListData = ListData<EventRow, EventFilters, EventColumnField, EventRecord, EventEditable>;
-export type MockOperation = 'query' | 'readRecord' | 'saveSection' | 'listViews' | 'saveView' | 'deleteView' | 'exportCsv';
+export type MockOperation = 'query' | 'readRecord' | 'saveSection' | 'listViews' | 'saveView' | 'deleteView' | 'exportCsv' | 'deleteRows';
 
 export interface MockServerOptions {
   /** Pretend server time for every call, in ms. The demo sets it from ?latency=. */
@@ -203,10 +204,13 @@ export function createMockEventServer(fixture: EventListFixture, options: MockSe
   }
 
   return {
-    async exportCsv({ filters, sort, columns }, opts) {
+    async exportCsv({ filters, sort, columns, ids }, opts) {
       await serve('exportCsv', opts);
       const defs = columns.map((f) => EVENT_COLUMNS.find((c) => c.field === f)).filter((c): c is (typeof EVENT_COLUMNS)[number] => !!c);
-      const lines = [defs.map((c) => csvCell(c.header)), ...matching(filters, sort).map((r) => defs.map((c) => csvCell(exportValue(r, c.field))))];
+      // The selection is exported whatever the filters: rows stay selected across pages and filter changes.
+      const chosen = ids ? new Set(ids) : null;
+      const found = chosen ? matching(EMPTY_EVENT_FILTERS, sort).filter((r) => chosen.has(r.id)) : matching(filters, sort);
+      const lines = [defs.map((c) => csvCell(c.header)), ...found.map((r) => defs.map((c) => csvCell(exportValue(r, c.field))))];
       return { filename: `events-${now().toISOString().slice(0, 10)}.csv`, csv: lines.map((l) => l.join(',')).join('\r\n') + '\r\n' };
     },
 
@@ -256,6 +260,24 @@ export function createMockEventServer(fixture: EventListFixture, options: MockSe
       const saved: EventView = { ...structuredClone(view), name, kind: 'user', id: existing ? view.id : `view-${++viewCount}` };
       userViews = existing ? userViews.map((v) => (v.id === saved.id ? saved : v)) : [...userViews, saved];
       return structuredClone(saved);
+    },
+
+    async deleteRows(ids, opts) {
+      await serve('deleteRows', opts);
+      // Proposed rule (not decided): an event that has started is part of the audit trail and stays.
+      const result: DeleteResult = { deleted: [], refused: [] };
+      for (const id of ids) {
+        const row = rowById.get(id);
+        if (!row) result.refused.push({ id, number: id, reason: 'This event no longer exists.' });
+        else if (row.state !== 'not_started') result.refused.push({ id, number: row.number, reason: 'It has started, so it is part of the audit trail.' });
+        else {
+          rows.splice(rows.indexOf(row), 1);
+          rowById.delete(id);
+          records.delete(id);
+          result.deleted.push(id);
+        }
+      }
+      return result;
     },
 
     async deleteView(id, opts) {

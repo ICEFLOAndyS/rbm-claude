@@ -30,6 +30,16 @@ export interface ListData<Row, Filters, F extends string, R, Editable> {
    * Smith, 22 Oct 2026). The server builds it, so it is not limited to the page on screen.
    */
   exportCsv(request: ExportRequest<Filters, F>, options?: RequestOptions): Promise<ExportFile>;
+  /**
+   * Deletes rows (a bulk action, decided by Andy Smith, 22 Oct 2026). The server decides which may go;
+   * the result says, for each row, whether it was deleted or why not.
+   */
+  deleteRows(ids: string[], options?: RequestOptions): Promise<DeleteResult>;
+}
+
+export interface DeleteResult {
+  deleted: string[];
+  refused: { id: string; number: string; reason: string }[];
 }
 
 export interface ExportRequest<Filters, F extends string> {
@@ -37,6 +47,8 @@ export interface ExportRequest<Filters, F extends string> {
   sort: SortItem<F>[];
   /** The visible columns, in order. */
   columns: F[];
+  /** Only these rows (the selection), whatever the filters. In the sort given. */
+  ids?: string[];
 }
 
 export interface ExportFile {

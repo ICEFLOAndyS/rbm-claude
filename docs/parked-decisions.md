@@ -198,12 +198,13 @@ See [prototype.md](prototype.md) and [data-model.md](data-model.md). The data co
 - **Ribbon:** a Critical path filter, off by default. When on, the ribbon shows only critical stages, and milestones and checkpoints on the critical path. Critical stages are packed again, so lanes need fewer sub-rows.
   - Every lane stays, because the ribbon always shows every runbook.
   - A lane with no critical stages says "No stages on the critical path" and keeps its forecast, without a floating overrun or planned-end tick.
-  - The page holds the setting; it is not remembered between visits.
+  - The setting is saved per user, in `LayoutPreference` beside the region order and the collapsed ribbon.
 - **Not drawn:** the ribbon's filters. The control is a chip in the Task Timeline toolbar's style at 24 px, at the top left of the ribbon, with a tick when on. It is not shown on the collapsed ribbon.
-- **Open questions:**
-  - Should the critical path be event-wide (as built) or per runbook?
-  - Should the filter be remembered with the layout?
-  - Should critical stages also be marked when the filter is off?
+- **Answers (Andy Smith, 22 Oct 2026):**
+  - The planning engine computes the critical path event-wide. There is no runbook critical path.
+  - Save the filter at user level. Done: `ribbonCriticalOnly` in `LayoutPreference`.
+  - Mark the stages on the critical path, whether the filter is on or off.
+- **Not drawn (flagged): the critical-stage mark.** A critical stage bar has a 2 px Ink outline with a 1 px gap, so it shows on every state colour and is not a colour signal. The legend adds "On the critical path". Screen readers hear "…, on the critical path" at the end of the stage's name, and the tooltip says the same. Markers are not outlined; their nodes are drawn and the filter covers them.
 
 ## Open questions
 - Should the Hot-topics cards (Blockers, Next checkpoint and so on) also be reorderable in the Layout panel, or only the three regions?

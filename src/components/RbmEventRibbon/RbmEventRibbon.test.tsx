@@ -170,6 +170,19 @@ describe('RbmEventRibbon', () => {
   });
 
   describe('the Critical path filter', () => {
+    it('marks critical stages with an outline and in their name, with the filter off', () => {
+      renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" />);
+      const marked = Array.from(document.querySelectorAll<HTMLElement>('[data-critical]'));
+      expect(marked.map((s) => s.dataset.stage)).toEqual(['1.1', '1.2', '1.3', '1.4', '1.5']);
+      expect(marked[0]!.getAttribute('style')).toMatch(/outline: 2px solid/);
+      expect(marked[0]).toHaveAccessibleName(/^Stage 1.1 .*, on the critical path$/);
+      const plain = Array.from(document.querySelectorAll<HTMLElement>('[data-stage]:not([data-critical])'));
+      expect(plain).toHaveLength(2);
+      expect(plain[0]!.getAttribute('style')).not.toMatch(/outline/);
+      expect(plain[0]!.getAttribute('aria-label')).not.toMatch(/critical path/);
+      expect(screen.getByText('On the critical path')).toBeInTheDocument();
+    });
+
     it('is off by default and shows every stage', () => {
       renderRibbon(<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" />);
       expect(screen.getByRole('button', { name: 'Critical path' })).toHaveAttribute('aria-pressed', 'false');

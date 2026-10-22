@@ -34,6 +34,8 @@ export interface LayoutPreference {
   order: RbmRegion[];
   /** The Event ribbon folded to its 56 px summary line. Open by default. */
   ribbonCollapsed: boolean;
+  /** The Event ribbon's Critical path filter: only stages and markers on the event's critical path. Off by default. */
+  ribbonCriticalOnly: boolean;
 }
 
 /** Saved to the user's profile. localStorage in the prototype; a ServiceNow user preference later. */

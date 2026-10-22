@@ -34,7 +34,6 @@ export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds =
   const snapshot = useSyncExternalStore(data.subscribe, data.getSnapshot);
   const [pref, setPref] = useState<LayoutPreference>(DEFAULT_PREFERENCE);
   const [runbookFilter, setRunbookFilter] = useState<string[]>([]);
-  const [criticalOnly, setCriticalOnly] = useState(false);
   const [notice, setNotice] = useState<{ message: string } | undefined>();
 
   useEffect(() => {
@@ -134,7 +133,7 @@ export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds =
           onRaiseIssue={notBuilt('Raise issue')}
         />
       }
-      ribbon={<RbmEventRibbon runbooks={ribbon} now={now} timeZone={timeZone} collapsed={pref.ribbonCollapsed} onCollapsedChange={(c) => savePref({ ...pref, ribbonCollapsed: c })} criticalOnly={criticalOnly} onCriticalOnlyChange={setCriticalOnly} />}
+      ribbon={<RbmEventRibbon runbooks={ribbon} now={now} timeZone={timeZone} collapsed={pref.ribbonCollapsed} onCollapsedChange={(c) => savePref({ ...pref, ribbonCollapsed: c })} criticalOnly={pref.ribbonCriticalOnly} onCriticalOnlyChange={(on) => savePref({ ...pref, ribbonCriticalOnly: on })} />}
       timeline={
         <RbmTaskTimeline
           runbooks={timeline.runbooks}

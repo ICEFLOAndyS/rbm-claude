@@ -64,7 +64,7 @@ interface Clock {                      // time, injectable and speedable
   subscribe(listener): () => void;
 }
 interface LayoutPreferenceStore {      // the user's own layout
-  get(): Promise<LayoutPreference>;    // { order, ribbonCollapsed }
+  get(): Promise<LayoutPreference>;    // { order, ribbonCollapsed, ribbonCriticalOnly }
   set(preference): Promise<void>;
   reset(): Promise<LayoutPreference>;
 }
@@ -108,7 +108,7 @@ The components built so far each have their own props (`RbmEventVitalsData`, `Rb
   - Red: gap > 15 minutes
 - The thresholds are settings. The board's examples (+12 Amber, +27 Red) fit them.
 
-**Critical path.** Walk back from the task with the latest forecast end, through the predecessor whose forecast end sets its start, to the first task. Those tasks are `critical`. **A stage is `critical` when any of its tasks is** (added 22 Oct 2026, for the Event ribbon's Critical path filter). The path is event-wide, so stages in runbooks that do not set the event's forecast end are not critical.
+**Critical path.** Walk back from the task with the latest forecast end, through the predecessor whose forecast end sets its start, to the first task. Those tasks are `critical`. **A stage is `critical` when any of its tasks is** (added 22 Oct 2026, for the Event ribbon's Critical path filter). The path is event-wide: the planning engine computes one critical path for the event, and there is no runbook critical path. Stages in runbooks that do not set the event's forecast end are not critical.
 
 **Flags.**
 - **Blocked:** the task has an open blocker.
@@ -158,3 +158,5 @@ The components built so far each have their own props (`RbmEventVitalsData`, `Rb
 4. **RAG thresholds:** Amber up to 15 minutes late, Red beyond. Agreed as the prototype's proposal; the real thresholds belong to the planning engine.
 5. **Dependencies and constraints:** finish-to-start only, and "not before" only. Agreed for the prototype.
 6. **The real components** from PRs #5–#17 are used (not stand-ins), on a branch built on them, fed by adapters. Agreed.
+7. **The ribbon's Critical path filter** is kept in `LayoutPreference` as `ribbonCriticalOnly` (off by default), so it is saved per user. A preference saved before the field existed reads as off. (22 Oct 2026)
+8. **The critical path is event-wide only.** There is no runbook critical path. (22 Oct 2026)

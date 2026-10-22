@@ -322,7 +322,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                     const clippedEnd = s.end > windowEnd;
                     const left = x(s.start) + (clippedStart ? 0 : 1);
                     const barWidth = Math.max(x(s.end) - left - (clippedEnd ? 0 : 1), 2);
-                    const label = `Stage ${s.wbs} ${s.name}, ${timeOf(s.start, timeZone)} to ${timeOf(s.end, timeZone)}, ${palette.status[s.state].label}`;
+                    const label = `Stage ${s.wbs} ${s.name}, ${timeOf(s.start, timeZone)} to ${timeOf(s.end, timeZone)}, ${palette.status[s.state].label}${s.critical ? ', on the critical path' : ''}`;
                     return (
                       <Box key={s.id}>
                         <Box aria-hidden="true" style={{ left: left + 3, top: rowTop(row) }} sx={{ position: 'absolute', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', color: 'text.secondary', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
@@ -332,6 +332,7 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                           aria-label={label}
                           data-stage={s.id}
                           data-row={row}
+                          data-critical={s.critical ? 'true' : undefined}
                           onClick={() => onSelectStage?.(s)}
                           {...tipFor(label)}
                           style={{
@@ -340,6 +341,8 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
                             width: barWidth,
                             backgroundColor: palette.status[s.state].signal,
                             borderRadius: `${clippedStart ? 0 : 7}px ${clippedEnd ? 0 : 7}px ${clippedEnd ? 0 : 7}px ${clippedStart ? 0 : 7}px`,
+                            // Not drawn on the board (flagged): a critical stage carries an Ink outline, so it reads without colour.
+                            ...(s.critical ? { outline: `2px solid ${palette.text.primary}`, outlineOffset: 1 } : {}),
                           }}
                           sx={{ position: 'absolute', height: lane.barHeight }}
                         />
@@ -453,6 +456,10 @@ export function RbmEventRibbon(props: RbmEventRibbonProps) {
         <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5 }}>
           <Box component="span" sx={{ width: 22, height: 12, borderRadius: '6px', background: hatch(palette.status.atRisk.signal), display: 'inline-block' }} />
           Forecast overrun
+        </Box>
+        <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5 }}>
+          <Box component="span" sx={{ width: 22, height: 12, borderRadius: '6px', bgcolor: palette.status.pending.signal, outline: `2px solid ${palette.text.primary}`, outlineOffset: '1px', display: 'inline-block' }} />
+          On the critical path
         </Box>
       </Box>
     </Box>

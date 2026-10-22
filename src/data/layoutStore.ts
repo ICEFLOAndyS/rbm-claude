@@ -1,7 +1,7 @@
 import type { LayoutPreference, LayoutPreferenceStore } from './interfaces';
 import { DEFAULT_LAYOUT, type RbmRegion } from '../components/RbmLayoutPanel/RbmLayoutPanel';
 
-export const DEFAULT_PREFERENCE: LayoutPreference = { order: [...DEFAULT_LAYOUT], ribbonCollapsed: false };
+export const DEFAULT_PREFERENCE: LayoutPreference = { order: [...DEFAULT_LAYOUT], ribbonCollapsed: false, ribbonCriticalOnly: false };
 
 const REGIONS = new Set<RbmRegion>(DEFAULT_LAYOUT);
 
@@ -9,7 +9,7 @@ const REGIONS = new Set<RbmRegion>(DEFAULT_LAYOUT);
 export function sanitise(value: unknown): LayoutPreference {
   const v = value as Partial<LayoutPreference> | null;
   const order = Array.isArray(v?.order) && v.order.length === REGIONS.size && new Set(v.order).size === REGIONS.size && v.order.every((r) => REGIONS.has(r)) ? [...v.order] : [...DEFAULT_LAYOUT];
-  return { order, ribbonCollapsed: v?.ribbonCollapsed === true };
+  return { order, ribbonCollapsed: v?.ribbonCollapsed === true, ribbonCriticalOnly: v?.ribbonCriticalOnly === true };
 }
 
 /**

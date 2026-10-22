@@ -56,7 +56,7 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
 
     it('loads a saved order, and keeps a change across a reload', async () => {
       const storage = memoryStorage();
-      await createLocalLayoutStore('test', storage).set({ order: ['hotTopics', 'timeline', 'ribbon'], ribbonCollapsed: false });
+      await createLocalLayoutStore('test', storage).set({ order: ['hotTopics', 'timeline', 'ribbon'], ribbonCollapsed: false, ribbonCriticalOnly: false });
       const first = setup(weekendPayrollCutover(), storage);
       await waitFor(() => expect(regionOrder()).toEqual(['hotTopics', 'timeline', 'ribbon']));
       // Reset to default from the Layout panel saves the default.
@@ -138,6 +138,18 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     await userEvent.click(screen.getByRole('button', { name: 'Critical path' }));
     const shown = Array.from(document.querySelectorAll<HTMLElement>('[data-stage]')).map((s) => s.dataset.stage);
     expect(shown).toEqual(['st-1.1', 'st-1.2', 'st-1.3', 'st-1.4', 'st-1.5']);
+  });
+
+  it('remembers the Critical path filter for the user across a reload', async () => {
+    const storage = memoryStorage();
+    const first = setup(weekendPayrollCutover(), storage);
+    await userEvent.click(screen.getByRole('button', { name: 'Critical path' }));
+    await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).ribbonCriticalOnly).toBe(true));
+    first.unmount();
+    first.clock.dispose();
+    setup(weekendPayrollCutover(), storage);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Critical path' })).toHaveAttribute('aria-pressed', 'true'));
+    expect(document.querySelectorAll('[data-stage]')).toHaveLength(5);
   });
 
   it('follows the clock: the now marker moves as simulated time passes', () => {

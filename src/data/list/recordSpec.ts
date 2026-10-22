@@ -34,9 +34,20 @@ export interface FieldSpec<R> {
 }
 
 /** A read-only table inside a section (the wide panel's Dependencies and Assignments). */
+/** A table column. Objects show their name (a person) or number and name (a record). */
+export interface TableColumnSpec {
+  key: string;
+  label: string;
+  kind: FieldKind;
+  /** Words for `enum` and `status` values. */
+  labels?: Record<string, string>;
+  /** For `status`: the semantic state each value is drawn as (dot and label). */
+  states?: Record<string, RbmState>;
+}
+
 export interface TableSpec<R> {
   key: keyof R & string;
-  columns: readonly { key: string; label: string; kind: FieldKind }[];
+  columns: readonly TableColumnSpec[];
   /** Shown when the table has no rows. */
   empty: string;
 }

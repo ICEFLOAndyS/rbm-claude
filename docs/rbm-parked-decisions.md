@@ -500,6 +500,16 @@ Built as drawn on the Page templates board ("1 · List of records", zone 4): the
 - **Feedback:** `src/app/eventBulkActions.ts` builds the two actions for a list page. After an action it says what happened, in a short message for the page. Examples: "2 events exported." or "1 event deleted. 1 not deleted. REV000001: It has started, so it is part of the audit trail." Deleted rows leave the selection. The story shows the message in MUI's default snackbar; the list page will do the same.
 - **Not drawn (flagged):** the confirmation dialog, the messages and the snackbar.
 
+### 22 Oct 2026: `RbmRecord` and `RbmRecordDrawer`
+- **Built as drawn** (Pattern: List to record, and the board in use): the slide-in (480 px) and the wide panel (800 px), the header (number, name, status with its label, previous, next, widen, open full, close), the summary block, tabs with counts and an alert dot, the section cards with Edit, "Editing" and the blue border, "Locked while editing" on the other sections, a lock with its reason on a locked section, Expand all and Collapse all, the wide panel's vertical tabs with "On this tab", and the footer (the primary action, or Discard and Save while editing, and "Saved …").
+- **Density:** the panel is D2 (Compact), as the list page.
+- **Date fields (decided by Andy Smith):** MUI X Date Pickers 9 with date-fns 4. Times show and are edited in the event's time zone; the field converts to and from UTC.
+- **Escape and leaving:** Escape closes the panel, but asks first ("Discard unsaved changes?") if a section has unsaved changes. Previous, next, close and the drawer's backdrop ask the same way.
+- **Deep link:** the panel reports its tab and section so the page can keep them in the address (`?record=…&tab=…&section=…`).
+- **Not drawn (MUI defaults, flagged):** the conflict alert ("Someone else saved this section", the list of what changed, Reload), the History list, the discard dialog, and the date and time picker.
+- **Proposed (not drawn), needs sign-off:** the panel sits beside the list when there is room for a 640 px list (from 1,120 px for the slide-in, 1,440 px for the wide panel), overlays the list below that, and fills the screen under 640 px (the 640 px is drawn).
+- **Proposed (not drawn):** while a section is open for edit but unchanged, the footer says "Editing Details" with Save disabled.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

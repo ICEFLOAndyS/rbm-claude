@@ -25,7 +25,9 @@
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^9.5.0",
     "@mui/x-data-grid-pro": "^9.16.0",
+    "@mui/x-date-pickers": "^9.16.0",
     "@mui/x-license": "^9.16.0",
+    "date-fns": "^4.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "zod": "^4.6.7"

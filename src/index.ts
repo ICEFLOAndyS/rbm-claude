@@ -58,6 +58,10 @@ export { RbmListToolbar, downloadCsv } from './components/RbmListToolbar/RbmList
 export type { RbmListToolbarProps, RbmToolbarFilter, RbmToolbarView } from './components/RbmListToolbar/RbmListToolbar';
 export { RbmListBulkAction } from './components/RbmListBulkAction/RbmListBulkAction';
 export { RbmPagination, rangeText } from './components/RbmPagination/RbmPagination';
+export { RbmRecord } from './components/RbmRecord/RbmRecord';
+export type { RbmRecordProps, RbmRecordHandle, RbmRecordContainer, RbmRecordLocation } from './components/RbmRecord/RbmRecord';
+export { RbmRecordDrawer, drawerMode, PANEL_WIDTH } from './components/RbmRecord/RbmRecordDrawer';
+export type { RbmRecordDrawerProps } from './components/RbmRecord/RbmRecordDrawer';
 export type { RbmPaginationProps } from './components/RbmPagination/RbmPagination';
 export type { RbmListBulkActionProps, RbmBulkAction } from './components/RbmListBulkAction/RbmListBulkAction';
 export { RbmDensity, useDensity, densityTheme, densityComponents, densityLineHeight } from './theme/RbmDensity';

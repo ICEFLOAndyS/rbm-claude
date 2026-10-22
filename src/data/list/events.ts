@@ -70,6 +70,12 @@ export const DEFAULT_EVENT_VIEW_ID = 'active';
 // Record spec (Proposed, Not drawn)
 // ---------------------------------------------------------------------------
 
+const RESPONSE_LABELS = { accepted: 'Accepted', awaiting: 'Awaiting response', declined: 'Declined' };
+const RELATIONSHIP_LABELS = { waitsFor: 'Waits for', runsWith: 'Runs with' };
+const REASON_LABELS = { blocked: 'Blocked', late: 'Late', atRisk: 'At risk', hasIssue: 'Has an issue' };
+const REASON_STATES = { blocked: 'blocked', late: 'atRisk', atRisk: 'atRisk', hasIssue: 'atRisk' } as const;
+const STATUS_STATES = Object.fromEntries(EVENT_STATUSES.map((s) => [s, s])) as Record<EventStatus, EventStatus>;
+
 const options = <T extends string>(labels: Record<T, string>) => Object.entries(labels).map(([value, label]) => ({ value, label: label as string }));
 const RUNNING: EventStatus[] = ['active', 'atRisk', 'blocked', 'paused'];
 export const isRunning = (s: EventStatus) => RUNNING.includes(s);
@@ -85,7 +91,7 @@ export function eventRecordSpec(timeZone = 'UTC'): RecordSpec<EventRecord, Event
     noun: 'event',
     number: (r) => r.number,
     title: (r) => r.name,
-    status: (r) => ({ state: r.status }),
+    status: (r) => ({ state: r.status, label: STATUS_LABELS[r.status] }),
     summary: [
       { label: 'Owner', value: (r) => shortName(r.owner) },
       { label: 'Window', value: (r) => formatWindow(r.windowStart, r.windowEnd, timeZone) },
@@ -141,7 +147,7 @@ export function eventRecordSpec(timeZone = 'UTC'): RecordSpec<EventRecord, Event
               columns: [
                 { key: 'role', label: 'Role', kind: 'text' },
                 { key: 'person', label: 'Assignee', kind: 'person' },
-                { key: 'response', label: 'Response', kind: 'enum' },
+                { key: 'response', label: 'Response', kind: 'enum', labels: RESPONSE_LABELS },
               ],
               empty: 'No other roles assigned.',
             },
@@ -177,7 +183,7 @@ export function eventRecordSpec(timeZone = 'UTC'): RecordSpec<EventRecord, Event
               columns: [
                 { key: 'wbs', label: 'WBS', kind: 'text' },
                 { key: 'title', label: 'Task', kind: 'text' },
-                { key: 'reason', label: 'Why', kind: 'status' },
+                { key: 'reason', label: 'Why', kind: 'status', labels: REASON_LABELS, states: REASON_STATES },
                 { key: 'detail', label: 'Detail', kind: 'text' },
               ],
               empty: 'Nothing needs attention.',
@@ -202,8 +208,8 @@ export function eventRecordSpec(timeZone = 'UTC'): RecordSpec<EventRecord, Event
               key: 'upstream',
               columns: [
                 { key: 'event', label: 'Event', kind: 'text' },
-                { key: 'relationship', label: 'Relationship', kind: 'enum' },
-                { key: 'status', label: 'Status', kind: 'status' },
+                { key: 'relationship', label: 'Relationship', kind: 'enum', labels: RELATIONSHIP_LABELS },
+                { key: 'status', label: 'Status', kind: 'status', labels: STATUS_LABELS, states: STATUS_STATES },
               ],
               empty: 'This event waits for no other event.',
             },
@@ -215,8 +221,8 @@ export function eventRecordSpec(timeZone = 'UTC'): RecordSpec<EventRecord, Event
               key: 'downstream',
               columns: [
                 { key: 'event', label: 'Event', kind: 'text' },
-                { key: 'relationship', label: 'Relationship', kind: 'enum' },
-                { key: 'status', label: 'Status', kind: 'status' },
+                { key: 'relationship', label: 'Relationship', kind: 'enum', labels: RELATIONSHIP_LABELS },
+                { key: 'status', label: 'Status', kind: 'status', labels: STATUS_LABELS, states: STATUS_STATES },
               ],
               empty: 'No other event waits for this one.',
             },

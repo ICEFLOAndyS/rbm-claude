@@ -160,7 +160,7 @@ describe('RbmDataGrid', () => {
     unmount();
   });
 
-  it('is the only component that imports MUI X (decision D4)', () => {
+  it('is the only component that imports the MUI X grid (decision D4)', () => {
     const root = join(__dirname, '..', '..');
     const files: string[] = [];
     const walk = (dir: string) => {
@@ -171,7 +171,8 @@ describe('RbmDataGrid', () => {
       }
     };
     walk(root);
-    const importers = files.filter((f) => /from '@mui\/x-/.test(readFileSync(f, 'utf8'))).map((f) => f.slice(root.length + 1).replaceAll('\\', '/'));
+    // The grid only: the record panel's date pickers are MUI X too, and are kept to their own file.
+    const importers = files.filter((f) => /from '@mui\/x-data-grid/.test(readFileSync(f, 'utf8'))).map((f) => f.slice(root.length + 1).replaceAll('\\', '/'));
     expect(importers.every((f) => f.startsWith('components/RbmDataGrid/'))).toBe(true);
   });
 });

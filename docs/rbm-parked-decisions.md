@@ -431,6 +431,40 @@ Built from the Page templates board ("1 · List of records") at D2 Compact, on M
 - **Command board to redraw:** the Task Timeline, Event ribbon, Hot-topics panel and compact event bar at the D2 sizes above; the Page header and Event vitals at D1.
 - **Tests:** each converted component is tested in its region, and new tests pin the D2 sizes of the task row, the Task Timeline, the tags and the countdown, and the D1 figure. Visual check: the Weekend Payroll Cutover story, screenshotted at 1600 px.
 
+### 22 Oct 2026: `RbmListToolbar`
+Built from the Page templates board ("1 · List of records", zone 2) at D2 Compact, with Runbooks replaced by Events.
+- **As drawn, in one row:**
+  - the search field (260 px, "Search events");
+  - the Status, Owner and Environment pills;
+  - the view pill on the right ("View: Active", Deep Blue border on white);
+  - two square tool buttons: Columns, with the drawn columns icon, and Export, with the download icon.
+  The row never wraps; on a narrow screen it scrolls sideways. Filters stay above the grid, never in a drawer.
+- **Sizes from the D2 tokens:** controls 36 px (drawn: pills 32, field 36), body text 14 px (drawn 13), gaps 12 px (drawn 10). Glyphs in the field and pills keep their drawn sizes; the tool buttons' icons are standalone, at 20 px.
+- **Filters (decided by Andy Smith): in the style of the Task Timeline's runbook filter.**
+  - A checkbox list with Select all and Clear, and a search field when there are more than six options (Owner).
+  - A filter that is on takes the Deep Blue border and tint, and counts its choices: "Status · 2".
+  - Nothing chosen means any value.
+- **Saved views (decided: choose and save), with MUI's default menu and dialogs:**
+  - The menu lists the system views, then "Your views", with the current one checked.
+  - "Save as new view…" asks for a name. It must not be empty or a name already taken, and the message says why.
+  - "Save changes to <view>" appears only for the user's own view, once it has changed.
+  - "Delete <view>…" asks first.
+  - The pill adds "(changed)" when the filters, columns or sort differ from the view.
+  - A view keeps the filters, columns and sort.
+- **Export (decided: CSV of every matching row):** `ListData.exportCsv` is added to the data contract. The server builds the file from the filters, sort and visible columns, so it is not limited to the page on screen (no Premium features). The mock writes the grid's text (status and state labels, the owner's full name, "24 Oct 22:00") and quotes cells holding commas or quotes. `downloadCsv` saves it. Export is disabled, named "Exporting…", while the file is built.
+- **Columns** opens the grid's column chooser (`RbmDataGrid.openColumnChooser`, MUI's default panel).
+- **Keyboard and screen readers:**
+  - The toolbar is a group named "Find events".
+  - The search field is a search box: Escape clears it, and so does the clear button.
+  - The pills say whether they open a dialog or a menu, and whether it is open.
+  - The tool buttons have names and tooltips.
+- **Not drawn (flagged):**
+  - The filter lists, the views menu and its dialogs (above).
+  - The search field's clear button.
+  - The "(changed)" mark on the view pill.
+  - The focus ring around the search field (the Proposed 2 px Blue Dark).
+- **Tests:** the toolbar's parts and sizes, search, filters, views, columns and export. The proof story is also run as a test: the toolbar driving the grid through the mock server.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

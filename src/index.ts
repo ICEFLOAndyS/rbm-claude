@@ -54,6 +54,8 @@ export type { RbmLayoutPanelProps, RbmRegion, RbmMovableRegion } from './compone
 export { RbmCommandCentre, TIMELINE_MIN_HEIGHT, formatWindow } from './components/RbmCommandCentre/RbmCommandCentre';
 export type { RbmCommandCentreProps, RbmCommandCentreEvent, RbmEventAction } from './components/RbmCommandCentre/RbmCommandCentre';
 export { RbmDataGrid, GRID_HEADER_HEIGHT } from './components/RbmDataGrid/RbmDataGrid';
+export { RbmListToolbar, downloadCsv } from './components/RbmListToolbar/RbmListToolbar';
+export type { RbmListToolbarProps, RbmToolbarFilter, RbmToolbarView } from './components/RbmListToolbar/RbmListToolbar';
 export { RbmDensity, useDensity, densityTheme, densityComponents, densityLineHeight } from './theme/RbmDensity';
 export type { RbmDensityProps, DensityTokens } from './theme/RbmDensity';
 export type { RbmDataGridProps, RbmDataGridHandle, RbmGridRowAction } from './components/RbmDataGrid/RbmDataGrid';

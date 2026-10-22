@@ -1,4 +1,4 @@
-import type { ColumnState, ListPage, ListQuery, PageSize, SaveResult, SavedView } from './types';
+import type { ColumnState, ListPage, ListQuery, PageSize, SaveResult, SavedView, SortItem } from './types';
 
 /** Options every request takes. Aborting stops the page waiting (the RbmBusy Cancel). */
 export interface RequestOptions {
@@ -25,6 +25,23 @@ export interface ListData<Row, Filters, F extends string, R, Editable> {
   saveView(view: Omit<SavedView<Filters, F>, 'kind'>, options?: RequestOptions): Promise<SavedView<Filters, F>>;
   /** Deletes one of the user's views. */
   deleteView(id: string, options?: RequestOptions): Promise<void>;
+  /**
+   * Every row matching the filters, in the sort given, as CSV of the given columns (decided by Andy
+   * Smith, 22 Oct 2026). The server builds it, so it is not limited to the page on screen.
+   */
+  exportCsv(request: ExportRequest<Filters, F>, options?: RequestOptions): Promise<ExportFile>;
+}
+
+export interface ExportRequest<Filters, F extends string> {
+  filters: Filters;
+  sort: SortItem<F>[];
+  /** The visible columns, in order. */
+  columns: F[];
+}
+
+export interface ExportFile {
+  filename: string;
+  csv: string;
 }
 
 /** Which container the record opens in. Width is remembered per user. */

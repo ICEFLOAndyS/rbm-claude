@@ -8,7 +8,7 @@
  */
 import type { ListData, RequestOptions } from './interfaces';
 import { editableKeys, validateSection } from './recordSpec';
-import { ENVIRONMENT_LABELS, formatWhen, eventRecordSpec, eventSystemViews } from './events';
+import { ENVIRONMENT_LABELS, EVENT_COLUMNS, STATE_LABELS, STATUS_LABELS, formatWhen, eventRecordSpec, eventSystemViews } from './events';
 import {
   ListDataError,
   type FieldChange,
@@ -23,11 +23,12 @@ import {
   type EventRow,
   type EventView,
   type SaveResult,
+  type SortItem,
 } from './types';
 import { buildEventRecord } from '../../fixtures/events/build';
 
 export type EventListData = ListData<EventRow, EventFilters, EventColumnField, EventRecord, EventEditable>;
-export type MockOperation = 'query' | 'readRecord' | 'saveSection' | 'listViews' | 'saveView' | 'deleteView';
+export type MockOperation = 'query' | 'readRecord' | 'saveSection' | 'listViews' | 'saveView' | 'deleteView' | 'exportCsv';
 
 export interface MockServerOptions {
   /** Pretend server time for every call, in ms. The demo sets it from ?latency=. */
@@ -76,6 +77,25 @@ function display(key: keyof EventEditable, value: unknown): string {
 }
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+
+/** A cell's text in the export: what the grid shows, with the owner's full name and the date and time. */
+function exportValue(row: EventRow, field: EventColumnField): string {
+  switch (field) {
+    case 'status':
+      return STATUS_LABELS[row.status];
+    case 'state':
+      return STATE_LABELS[row.state];
+    case 'owner':
+      return row.owner.name;
+    case 'windowStart':
+      return formatWhen(row.windowStart);
+    default:
+      return String(row[field]);
+  }
+}
+
+/** RFC 4180: quote a cell holding a comma, quote or line break, doubling its quotes. */
+const csvCell = (text: string) => (/[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text);
 
 export function createMockEventServer(fixture: EventListFixture, options: MockServerOptions = {}): EventListData & MockServerControls {
   const spec = eventRecordSpec();
@@ -165,21 +185,34 @@ export function createMockEventServer(fixture: EventListFixture, options: MockSe
     return changes;
   }
 
+  /** The rows matching the filters, sorted. Shared by a page and an export, so they always agree. */
+  function matching(filters: EventFilters, sort: SortItem<EventColumnField>[]): EventRow[] {
+    const terms = words(filters.search);
+    const found = rows.filter((r) => matches(r, filters, terms));
+    // With no sort, rows keep the server's own order (the fixture's, so the board's rows come as drawn).
+    // Ties keep it too, as Array.prototype.sort is stable.
+    found.sort((a, b) => {
+      for (const s of sort) {
+        const x = sortValue(a, s.field);
+        const y = sortValue(b, s.field);
+        if (x !== y) return (x < y ? -1 : 1) * (s.direction === 'asc' ? 1 : -1);
+      }
+      return 0;
+    });
+    return found;
+  }
+
   return {
+    async exportCsv({ filters, sort, columns }, opts) {
+      await serve('exportCsv', opts);
+      const defs = columns.map((f) => EVENT_COLUMNS.find((c) => c.field === f)).filter((c): c is (typeof EVENT_COLUMNS)[number] => !!c);
+      const lines = [defs.map((c) => csvCell(c.header)), ...matching(filters, sort).map((r) => defs.map((c) => csvCell(exportValue(r, c.field))))];
+      return { filename: `events-${now().toISOString().slice(0, 10)}.csv`, csv: lines.map((l) => l.join(',')).join('\r\n') + '\r\n' };
+    },
+
     async query(q: EventQuery, opts) {
       await serve('query', opts);
-      const terms = words(q.filters.search);
-      const found = rows.filter((r) => matches(r, q.filters, terms));
-      // With no sort, rows keep the server's own order (the fixture's, so the board's rows come as drawn).
-      // Ties keep it too, as Array.prototype.sort is stable.
-      found.sort((a, b) => {
-        for (const s of q.sort) {
-          const x = sortValue(a, s.field);
-          const y = sortValue(b, s.field);
-          if (x !== y) return (x < y ? -1 : 1) * (s.direction === 'asc' ? 1 : -1);
-        }
-        return 0;
-      });
+      const found = matching(q.filters, q.sort);
       const lastPage = Math.max(0, Math.ceil(found.length / q.pageSize) - 1);
       const page = Math.min(Math.max(0, Math.floor(q.page)), lastPage);
       return { rows: structuredClone(found.slice(page * q.pageSize, (page + 1) * q.pageSize)), total: found.length, page, pageSize: q.pageSize };

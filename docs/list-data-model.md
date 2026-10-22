@@ -131,6 +131,7 @@ interface ListData<Row, Filters, F, R, Editable> {
   listViews({ signal? }): Promise<SavedView[]>;
   saveView(view, { signal? }): Promise<SavedView>;   // new, or replaces a user view
   deleteView(id, { signal? }): Promise<void>;
+  exportCsv({ filters, sort, columns }, { signal? }): Promise<{ filename; csv }>;   // every matching row, built by the server (22 Oct 2026)
 }
 interface ListPreferenceStore<F> { get(); set(p); reset() }   // async, as LayoutPreferenceStore
 interface ListPreference<F> { panel: 'slideIn' | 'wide'; columns: ColumnState<F> | null; lastViewId: string | null; pageSize }

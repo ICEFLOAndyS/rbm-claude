@@ -202,3 +202,26 @@ describe('mock Events server: saved views', () => {
     await expect(s.deleteView('active')).rejects.toMatchObject({ kind: 'noAccess' });
   });
 });
+
+describe('mock Events server: export', () => {
+  it('exports every matching row, not just a page, in the visible columns and the sort, as CSV', async () => {
+    const s = server();
+    const filters = { ...EMPTY_EVENT_FILTERS, environment: ['production' as const] };
+    const page = await s.query(q({ filters, pageSize: 25 }));
+    const file = await s.exportCsv({ filters, sort: [{ field: 'number', direction: 'desc' }], columns: ['number', 'name', 'status', 'owner'] });
+    const lines = file.csv.trimEnd().split('\r\n');
+    expect(file.filename).toBe('events-2026-10-25.csv');
+    expect(lines[0]).toBe('Event ID,Event,Status,Owner');
+    expect(lines).toHaveLength(page.total + 1);
+    expect(page.total).toBeGreaterThan(25);
+    expect(lines[1]!.split(',')[0]! > lines[2]!.split(',')[0]!).toBe(true);
+    expect(lines.slice(1).some((l) => l.includes(',In progress,'))).toBe(true);
+  });
+
+  it('quotes cells holding commas or quotes', async () => {
+    const fixture = eventsBoard();
+    fixture.rows[0]!.name = 'Cutover, "phase 2"';
+    const file = await server(fixture).exportCsv({ filters: EMPTY_EVENT_FILTERS, sort: [], columns: ['number', 'name'] });
+    expect(file.csv.split('\r\n')[1]).toBe('REV000001,"Cutover, ""phase 2"""');
+  });
+});

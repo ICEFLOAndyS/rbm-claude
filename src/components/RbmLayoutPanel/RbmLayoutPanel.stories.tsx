@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Box } from '@mui/material';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
-import { DEFAULT_LAYOUT, RbmLayoutPanel, regionInfo, type RbmRegion } from './RbmLayoutPanel';
+import { DEFAULT_LAYOUT, RbmLayoutPanel, regionInfo, type RbmMovableRegion, type RbmRegion } from './RbmLayoutPanel';
 
 const meta: Meta<typeof RbmLayoutPanel> = {
   title: 'Command/RbmLayoutPanel',
@@ -13,15 +13,15 @@ export default meta;
 
 type Story = StoryObj<typeof RbmLayoutPanel>;
 
-/** The default order: Event ribbon, Task Timeline, Hot-topics strip. */
+/** The default order: Event ribbon, then Task Timeline. The Hot-topics panel is on the right. */
 export const Default: Story = {};
 
 /** A user's own order. */
-export const Reordered: Story = { args: { order: ['timeline', 'ribbon', 'hotTopics'] } };
+export const Reordered: Story = { args: { order: ['timeline', 'ribbon'] } };
 
 /** Mid-drag, as drawn: the Event ribbon lifted and moving up above the Task Timeline. */
 export const MidDrag: Story = {
-  args: { order: ['timeline', 'ribbon', 'hotTopics'] },
+  args: { order: ['timeline', 'ribbon'] },
   play: async ({ canvas, userEvent }) => {
     canvas.getByRole('button', { name: /^Move Event ribbon/ }).focus();
     await userEvent.keyboard(' ');
@@ -32,7 +32,7 @@ export const MidDrag: Story = {
 /** Drag from the grip, or press Space on a grip, move with the arrow keys and press Space to drop. The page order on the right follows at once. */
 export const TryIt: Story = {
   render: function TryIt() {
-    const [order, setOrder] = useState<RbmRegion[]>(DEFAULT_LAYOUT);
+    const [order, setOrder] = useState<RbmMovableRegion[]>(DEFAULT_LAYOUT);
     return (
       <Box sx={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
         <RbmLayoutPanel order={order} onChange={setOrder} onClose={() => {}} />
@@ -42,6 +42,7 @@ export const TryIt: Story = {
           {order.map((r) => (
             <li key={r}><strong>{regionInfo[r].name}</strong></li>
           ))}
+          <li>{regionInfo.hotTopics.name} (on the right)</li>
         </Box>
       </Box>
     );

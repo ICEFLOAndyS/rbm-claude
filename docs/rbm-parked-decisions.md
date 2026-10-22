@@ -1,8 +1,6 @@
 # RBM design: parked decisions and backlog
 
-Copy of the project note `claude/rbm-parked-decisions.md` (Feature Factory v3.0 project), taken 21 Oct 2026. Claude Code records decisions here; copy new entries back to the project note, which stays the master.
-
-Source: RBM Design System canvas, Command & Control Centre board. Updated 20 Oct 2026.
+Source: RBM Design System canvas, Command & Control Centre board, and the component library (rbm-claude). Updated 22 Oct 2026. This project note is the master. Claude Code records decisions in its repository copy (`docs/`); copy new entries here. `prototype.md` and `data-model.md` are in the repository's `docs/` folder.
 
 ## Event Settings (to design on the Settings board)
 - **Completed task linger time.** A completed task stays in the Task Timeline for a short time before it leaves. Default 60 seconds. To become an Event Setting.
@@ -324,6 +322,18 @@ The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png
 - **Foundations story:** "Shape and spacing" shows the scale.
 - **Design board:** drafted on the Foundations board ("04 · Layout and theme", under Radius and Elevation), tagged Proposed, with a line in the MUI theme mapping and in "Where the guide stops". Needs sign-off.
 
+### 22 Oct 2026: Hot topics move to a collapsible panel on the right (asked by Andy Smith)
+- **Layout:** under the fixed Page header and Event vitals, the page has two columns. The Event ribbon and Task Timeline are in the main column, in the user's order, and are narrower. The Hot-topics panel is on the right, from under the Event vitals down. It replaces the Hot-topics strip under the timeline (decided by Andy Smith).
+- **Panel:** 340 px wide, with the five cards stacked in urgency order (Blockers, Next checkpoint, Milestones, Collaboration, Watchers), and "HOT TOPICS" with Collapse at the top.
+- **Sticky (decided by Andy Smith):** the panel stays in view while the page scrolls, pinned under the compact event bar. It is never taller than the screen, and its cards scroll inside it when they do not fit.
+- **Collapsed (decided by Andy Smith):** a 56 px rail with the expand button, "HOT TOPICS" written vertically, and one chip per card with its name and number (for example "Blockers 2"), written vertically. The Event ribbon and Task Timeline take the freed width. The rail is sticky too.
+- **Narrow screens:** below 1200 px there is no room for the panel, so it becomes the Hot-topics strip under the main column, with the same name and the same open or collapsed state.
+- **Layout panel:** only the Event ribbon and Task Timeline move. The Hot-topics panel has its own row under "Right panel", with no grip and with its Open switch.
+- **Saved layouts:** `LayoutPreference.order` now holds the two main-column regions. An order saved before this change still lists `hotTopics`; it is dropped and the rest of the order kept.
+- **Name:** the region is called the **Hot-topics panel** (the brief and the board say Hot-topics strip). Update the brief's region list and the Layout rule ("the user drags the Event ribbon, Task Timeline and Hot-topics strip") to match.
+- **Components:** new `RbmHotTopicsPanel` (exported with `HOT_TOPICS_PANEL_WIDTH`, `HOT_TOPICS_RAIL_WIDTH` and `HOT_TOPICS_PANEL_MIN_VIEWPORT`). `RbmHotTopicsStrip` stays, as the narrow-screen form, and takes an optional `title`. New type `RbmMovableRegion` ('ribbon' | 'timeline').
+- **Not drawn (flagged):** the two-column page, the panel and its header, the rail, the panel width, and the Layout panel's "Right panel" row. The Command board still shows the strip under the Task Timeline, so it needs redrawing.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?
@@ -333,3 +343,14 @@ The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png
 - ServiceNow real-time updates: needs a spike.
 - Status on-dark values: only Active has one drawn (Blue Mid). The Semantic board says a test should check every state has one.
 - The Semantic board's lint rule that bans hex values outside the theme package is not set up yet.
+- **Needs a drawing and sign-off:** the pills for At risk, Paused, Blocked and Skipped, and the ringed dot at 16 px inside the compact pill. Both are built but not on any board.
+- **Proposed token:** `amberInner` (#F36C00) needs sign-off on the Foundations and Semantic boards.
+- **Hairline grey.** The Command board uses #EEF0F4 for the hour grid, lane rules, card dividers and the "+3" avatar chip, but it is not in the brand palette. Should it become a token (`hairline`), and what should it be called?
+- **Summary line and lifted-row tints.** The Task Timeline summary line (#FBFCFE, `surfaceTint`) and the lifted row in the Layout panel (#EEF1FF, `liftTint`) are drawn but are not brand colours. Should they be tokens, or should they use existing ones?
+- **Red on the Deep Blue runbook band.** Red is hard to read on Deep Blue, and only Amber is drawn there. What should the Red (and Green) forecast marks look like on that band?
+- **Event ribbon on the board.** The build puts milestones and checkpoints on a thin line above the bars, as 18 px nodes, and adds a Collapse control and "+n more stages overlapping". Should the Command board be redrawn to match, along with the vertical budget (252 px plus 28 px per extra sub-row) and an overlapping example?
+- **Alert popover.** The build orders alerts Red before Amber and uses the Foundations menu shadow. Should the board's sample (a late forecast between two Red alerts) be redrawn to match?
+- **WBS numbers.** The build uses Slate, as the board's written rule says, because the drawn Silver is too faint on white (1.6:1). Should the drawing be corrected?
+- **Layout drop line.** The build puts the drop line where the row will land. The drawing shows it between the two rows. Which should it be?
+- **Gaps between regions.** The vertical budget says 16 px and the page drawing has 24 px. Which is right?
+- **Densities not drawn.** What sizes should nodes, buttons and the Event vitals use at D0 (Command) and D3 (Dense)?

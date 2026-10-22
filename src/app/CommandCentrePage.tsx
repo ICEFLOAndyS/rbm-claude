@@ -7,7 +7,8 @@ import { RbmCommandCentre } from '../components/RbmCommandCentre/RbmCommandCentr
 import { RbmEventVitals } from '../components/RbmEventVitals/RbmEventVitals';
 import { RbmEventRibbon } from '../components/RbmEventRibbon/RbmEventRibbon';
 import { RbmTaskTimeline } from '../components/RbmTaskTimeline/RbmTaskTimeline';
-import { RbmHotTopicsStrip, hotTopicsSummary } from '../components/RbmHotTopicsStrip/RbmHotTopicsStrip';
+import { hotTopicsSummary } from '../components/RbmHotTopicsStrip/RbmHotTopicsStrip';
+import { RbmHotTopicsPanel } from '../components/RbmHotTopicsStrip/RbmHotTopicsPanel';
 import type { RbmRegion } from '../components/RbmLayoutPanel/RbmLayoutPanel';
 import { RbmBlockers, RbmCollaboration, RbmMilestones, RbmNextCheckpoint, RbmWatchers } from '../components/RbmHotTopicsStrip/cards';
 import type { RbmTask } from '../components/RbmTaskRow/RbmTaskRow';
@@ -179,13 +180,13 @@ export function CommandCentrePage({ data, layoutStore, timeZone, lingerSeconds =
         />
       }
       hotTopics={
-        <RbmHotTopicsStrip collapsed={pref.collapsed.hotTopics} onCollapsedChange={(c) => setCollapsed('hotTopics', c)} summary={hotTopicsSummary(hot, now)}>
+        <RbmHotTopicsPanel collapsed={pref.collapsed.hotTopics} onCollapsedChange={(c) => setCollapsed('hotTopics', c)} summary={hotTopicsSummary(hot, now)}>
           <RbmBlockers blockers={hot.blockers} onOpen={(b) => notBuilt(b.recordId)()} onRaise={notBuilt('Raise blocker')} />
           <RbmNextCheckpoint checkpoint={hot.nextCheckpoint} now={now} timeZone={timeZone} onJoinCall={notBuilt('The call')} />
           <RbmMilestones milestones={hot.milestones} timeZone={timeZone} />
           <RbmCollaboration live={hot.collaboration.live} people={hot.collaboration.people} onJoinCall={notBuilt('The Collaboration call')} />
           <RbmWatchers watchers={hot.watchers} timeZone={timeZone} />
-        </RbmHotTopicsStrip>
+        </RbmHotTopicsPanel>
       }
     />
   );

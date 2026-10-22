@@ -5,9 +5,10 @@ import { RbmCommandCentre, type RbmCommandCentreProps } from './RbmCommandCentre
 import { RbmEventVitals } from '../RbmEventVitals/RbmEventVitals';
 import { RbmEventRibbon } from '../RbmEventRibbon/RbmEventRibbon';
 import { RbmTaskTimeline } from '../RbmTaskTimeline/RbmTaskTimeline';
-import { RbmHotTopicsStrip, hotTopicsSummary } from '../RbmHotTopicsStrip/RbmHotTopicsStrip';
+import { hotTopicsSummary } from '../RbmHotTopicsStrip/RbmHotTopicsStrip';
+import { RbmHotTopicsPanel } from '../RbmHotTopicsStrip/RbmHotTopicsPanel';
 import { RbmBlockers, RbmCollaboration, RbmMilestones, RbmNextCheckpoint, RbmWatchers } from '../RbmHotTopicsStrip/cards';
-import { DEFAULT_LAYOUT, type RbmRegion } from '../RbmLayoutPanel/RbmLayoutPanel';
+import { DEFAULT_LAYOUT, type RbmMovableRegion, type RbmRegion } from '../RbmLayoutPanel/RbmLayoutPanel';
 import { mockEventVitals } from '../../mocks/eventVitals';
 import { mockRibbon, ribbonNow, at } from '../../mocks/eventRibbon';
 import { mockTimelineRunbooks, mockTimelineTasks } from '../../mocks/timeline';
@@ -25,8 +26,8 @@ export default meta;
 type Story = StoryObj<typeof RbmCommandCentre>;
 
 /** The whole page with mock data from the Command board. Scroll down to see the compact event bar. */
-function Page({ layout: initial = DEFAULT_LAYOUT, collapsed: initialCollapsed = {}, ...over }: Partial<RbmCommandCentreProps> & { layout?: RbmRegion[]; collapsed?: Partial<Record<RbmRegion, boolean>> }) {
-  const [layout, setLayout] = useState<RbmRegion[]>(initial);
+function Page({ layout: initial = DEFAULT_LAYOUT, collapsed: initialCollapsed = {}, ...over }: Partial<RbmCommandCentreProps> & { layout?: RbmMovableRegion[]; collapsed?: Partial<Record<RbmRegion, boolean>> }) {
+  const [layout, setLayout] = useState<RbmMovableRegion[]>(initial);
   const [collapsed, setCollapsedState] = useState(initialCollapsed);
   const setCollapsed = (r: RbmRegion, c: boolean) => setCollapsedState((prev) => ({ ...prev, [r]: c }));
   return (
@@ -44,7 +45,7 @@ function Page({ layout: initial = DEFAULT_LAYOUT, collapsed: initialCollapsed = 
       ribbon={<RbmEventRibbon runbooks={mockRibbon()} now={ribbonNow} timeZone="UTC" collapsed={!!collapsed.ribbon} onCollapsedChange={(c) => setCollapsed('ribbon', c)} />}
       timeline={<RbmTaskTimeline runbooks={mockTimelineRunbooks()} tasks={mockTimelineTasks()} now={tasksNow} timeZone="UTC" onAction={fn()} collapsed={!!collapsed.timeline} onCollapsedChange={(c) => setCollapsed('timeline', c)} />}
       hotTopics={
-        <RbmHotTopicsStrip
+        <RbmHotTopicsPanel
           collapsed={!!collapsed.hotTopics}
           onCollapsedChange={(c) => setCollapsed('hotTopics', c)}
           summary={hotTopicsSummary({ blockers: mockBlockers(), nextCheckpoint: mockNextCheckpoint(), milestones: mockMilestones(), collaboration: { live: true }, watchers: mockWatchers() }, hotTopicsNow)}
@@ -54,7 +55,7 @@ function Page({ layout: initial = DEFAULT_LAYOUT, collapsed: initialCollapsed = 
           <RbmMilestones milestones={mockMilestones()} timeZone="UTC" />
           <RbmCollaboration live people={mockPeople()} onJoinCall={fn()} />
           <RbmWatchers watchers={mockWatchers()} timeZone="UTC" />
-        </RbmHotTopicsStrip>
+        </RbmHotTopicsPanel>
       }
       {...over}
     />
@@ -64,11 +65,14 @@ function Page({ layout: initial = DEFAULT_LAYOUT, collapsed: initialCollapsed = 
 /** As on the Command board, in the default order. */
 export const Default: Story = { render: () => <Page /> };
 
-/** Every movable region collapsed to its one line: the page fits on one screen. */
+/** The Event ribbon and Task Timeline collapsed to their one line, and the Hot-topics panel to its rail: the page fits on one screen. */
 export const AllCollapsed: Story = { render: () => <Page collapsed={{ ribbon: true, timeline: true, hotTopics: true }} /> };
 
 /** A user who put the Task Timeline first. */
-export const TimelineFirst: Story = { render: () => <Page layout={['timeline', 'ribbon', 'hotTopics']} /> };
+export const TimelineFirst: Story = { render: () => <Page layout={['timeline', 'ribbon']} /> };
+
+/** The Hot-topics panel folded to its rail: the Event ribbon and Task Timeline take the width. Not drawn. */
+export const HotTopicsRail: Story = { render: () => <Page collapsed={{ hotTopics: true }} /> };
 
 /** A user with few permissions: only Layout in the event actions menu. */
 export const ReadOnly: Story = { render: () => <Page eventActions={{}} /> };

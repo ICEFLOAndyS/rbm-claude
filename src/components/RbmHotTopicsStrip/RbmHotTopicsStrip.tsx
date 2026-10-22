@@ -20,6 +20,8 @@ export interface RbmHotTopicsStripProps {
   onCollapsedChange?: (collapsed: boolean) => void;
   /** What the collapsed line shows: one chip per card. See hotTopicsSummary. */
   summary?: RbmHotTopicsSummaryItem[];
+  /** The region's name. "Hot-topics strip" by default; the Hot-topics panel passes its own name when it falls back to the strip. */
+  title?: string;
 }
 
 /** The collapsed strip's chips, in card order, with the number each card's header shows. */
@@ -44,7 +46,7 @@ const drawn = '1.3fr 1fr 1.25fr 1.05fr 0.95fr';
  * below 1200 px it becomes two rows of cards, and below 900 px the cards stack. It never scrolls on its own.
  * It collapses as a whole to one line, like the Event ribbon.
  */
-export function RbmHotTopicsStrip({ children, collapsed: collapsedProp, onCollapsedChange, summary = [] }: RbmHotTopicsStripProps) {
+export function RbmHotTopicsStrip({ children, collapsed: collapsedProp, onCollapsedChange, summary = [], title = 'Hot-topics strip' }: RbmHotTopicsStripProps) {
   const [collapsedState, setCollapsedState] = useState(false);
   const collapsed = collapsedProp ?? collapsedState;
   const setCollapsed = (c: boolean) => {
@@ -55,7 +57,7 @@ export function RbmHotTopicsStrip({ children, collapsed: collapsedProp, onCollap
 
   if (collapsed) {
     return (
-      <RbmRegionCollapsed title="Hot-topics strip" onExpand={() => setCollapsed(false)}>
+      <RbmRegionCollapsed title={title} onExpand={() => setCollapsed(false)}>
         {summary.map((item) => (
           <RbmSummaryChip key={item.label} label={`${item.label} ${item.value}`}>
             <Box component="span" sx={{ color: 'text.secondary' }}>{item.label}</Box>
@@ -67,11 +69,11 @@ export function RbmHotTopicsStrip({ children, collapsed: collapsedProp, onCollap
   }
 
   return (
-    <Box role="region" aria-label="Hot-topics strip" sx={{ display: 'flex', flexDirection: 'column', gap: 2, lineHeight: 'normal' }}>
+    <Box role="region" aria-label={title} sx={{ display: 'flex', flexDirection: 'column', gap: 2, lineHeight: 'normal' }}>
       {/* Not drawn: the strip's own header, so it can collapse like the ribbon. */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 24, px: 1 }}>
-        <RbmEyebrow>Hot-topics strip</RbmEyebrow>
-        <RbmRegionToggle region="Hot-topics strip" collapsed={false} onChange={setCollapsed} />
+        <RbmEyebrow>{title}</RbmEyebrow>
+        <RbmRegionToggle region={title} collapsed={false} onChange={setCollapsed} />
       </Box>
       <Box
         sx={{

@@ -4,7 +4,8 @@ import { RbmStatusPill } from '../RbmStatusPill/RbmStatusPill';
 import { RbmAlertCounter, type RbmAlert } from '../RbmAlertCounter/RbmAlertCounter';
 import { RbmEventBar, type RbmEventSummary } from '../RbmEventBar/RbmEventBar';
 import type { RbmEventVitalsData } from '../RbmEventVitals/RbmEventVitals';
-import { DEFAULT_LAYOUT, RbmLayoutPanel, type RbmRegion } from '../RbmLayoutPanel/RbmLayoutPanel';
+import { DEFAULT_LAYOUT, RbmLayoutPanel, type RbmMovableRegion, type RbmRegion } from '../RbmLayoutPanel/RbmLayoutPanel';
+import { HOT_TOPICS_PANEL_MIN_VIEWPORT } from '../RbmHotTopicsStrip/RbmHotTopicsPanel';
 import { colour, elevation, hairline, radius, stroke } from '../../theme/tokens';
 
 /** Event-level actions in the menu at the right of the page header, in the drawn order. */
@@ -20,14 +21,14 @@ export interface RbmCommandCentreProps {
   alerts: RbmAlert[];
   /** The same data the Event vitals show; the compact event bar reads it too. */
   vitalsData: RbmEventVitalsData;
-  /** Typed slots, keyed by region name. The Page header and Event vitals are fixed at the top. */
+  /** Typed slots, keyed by region name. The Page header and Event vitals are fixed at the top; hotTopics is the right panel (RbmHotTopicsPanel). */
   vitals: ReactNode;
   ribbon: ReactNode;
   timeline: ReactNode;
   hotTopics: ReactNode;
-  /** The user's order for the movable regions, saved to their profile by the page. */
-  layout?: RbmRegion[];
-  onLayoutChange?: (order: RbmRegion[]) => void;
+  /** The user's order for the Event ribbon and Task Timeline, saved to their profile by the page. */
+  layout?: RbmMovableRegion[];
+  onLayoutChange?: (order: RbmMovableRegion[]) => void;
   /** Which movable regions are collapsed. With onCollapsedChange, the Layout panel can open and collapse them. */
   collapsed?: Partial<Record<RbmRegion, boolean>>;
   onCollapsedChange?: (region: RbmRegion, collapsed: boolean) => void;
@@ -92,15 +93,17 @@ function useOnScreen<T extends Element>() {
 }
 
 /**
- * The Command & Control Centre page template, as drawn on the Command board: the Page header and
- * Event vitals fixed at the top, then the Event ribbon, Task Timeline and Hot-topics strip in the
- * user's order. A compact event bar pins to the top once the Event vitals scroll away.
+ * The Command & Control Centre page template, from the Command board: the Page header and Event
+ * vitals fixed at the top, then the Event ribbon and Task Timeline in the user's order, with the
+ * Hot-topics panel on their right (not drawn, flagged: the board has a strip under the timeline).
+ * Below 1200 px the panel goes under the main column. A compact event bar pins to the top once the
+ * Event vitals scroll away.
  */
 export function RbmCommandCentre(props: RbmCommandCentreProps) {
   const { event, alerts, vitalsData, vitals, ribbon, timeline, hotTopics, eventActions = {}, timeZone } = props;
-  const [layoutState, setLayoutState] = useState<RbmRegion[]>(DEFAULT_LAYOUT);
+  const [layoutState, setLayoutState] = useState<RbmMovableRegion[]>(DEFAULT_LAYOUT);
   const layout = props.layout ?? layoutState;
-  const setLayout = (order: RbmRegion[]) => {
+  const setLayout = (order: RbmMovableRegion[]) => {
     setLayoutState(order);
     props.onLayoutChange?.(order);
   };
@@ -111,10 +114,9 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
   const [vitalsRef, vitalsOnScreen] = useOnScreen<HTMLDivElement>();
   const titleId = useId();
 
-  const regions: Record<RbmRegion, ReactNode> = {
+  const regions: Record<RbmMovableRegion, ReactNode> = {
     ribbon,
     timeline: props.collapsed?.timeline ? timeline : <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: TIMELINE_MIN_HEIGHT, '& > *': { flex: 1 } }}>{timeline}</Box>,
-    hotTopics,
   };
   const shown = actions.filter((a) => a.key === 'layout' || eventActions[a.key as RbmEventAction]);
 
@@ -215,11 +217,19 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
       {/* Event vitals (fixed) */}
       <Box ref={vitalsRef}>{vitals}</Box>
 
-      {layout.map((r) => (
-        <Box key={r} data-region={r} sx={{ minWidth: 0 }}>
-          {regions[r]}
+      {/* The main column and the Hot-topics panel. The panel's cell runs the full height, so the panel can stay in view as the page scrolls. */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: 6, alignItems: 'stretch', [`@media (max-width: ${HOT_TOPICS_PANEL_MIN_VIEWPORT - 0.02}px)`]: { gridTemplateColumns: 'minmax(0, 1fr)' } }}>
+        <Box data-testid="rbm-main-column" sx={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
+          {layout.map((r) => (
+            <Box key={r} data-region={r} sx={{ minWidth: 0 }}>
+              {regions[r]}
+            </Box>
+          ))}
         </Box>
-      ))}
+        <Box data-region="hotTopics" sx={{ minWidth: 0 }}>
+          {hotTopics}
+        </Box>
+      </Box>
     </Box>
   );
 }

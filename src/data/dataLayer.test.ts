@@ -9,29 +9,29 @@ function memoryStorage() {
 }
 
 describe('layout order (LayoutPreferenceStore)', () => {
-  it('starts with the default order: Event ribbon, Task Timeline, Hot-topics strip; ribbon open', async () => {
-    expect(await createLocalLayoutStore('k', memoryStorage()).get()).toEqual({ order: ['ribbon', 'timeline', 'hotTopics'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'all' });
+  it('starts with the default order: Event ribbon, then Task Timeline; every region open', async () => {
+    expect(await createLocalLayoutStore('k', memoryStorage()).get()).toEqual({ order: ['ribbon', 'timeline'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'all' });
   });
 
   it('keeps a changed order and survives a reload (a new store on the same storage)', async () => {
     const storage = memoryStorage();
-    await createLocalLayoutStore('k', storage).set({ order: ['timeline', 'hotTopics', 'ribbon'], collapsed: { ribbon: true, timeline: false, hotTopics: false }, ribbonView: 'all' });
-    expect(await createLocalLayoutStore('k', storage).get()).toEqual({ order: ['timeline', 'hotTopics', 'ribbon'], collapsed: { ribbon: true, timeline: false, hotTopics: false }, ribbonView: 'all' });
+    await createLocalLayoutStore('k', storage).set({ order: ['timeline', 'ribbon'], collapsed: { ribbon: true, timeline: false, hotTopics: false }, ribbonView: 'all' });
+    expect(await createLocalLayoutStore('k', storage).get()).toEqual({ order: ['timeline', 'ribbon'], collapsed: { ribbon: true, timeline: false, hotTopics: false }, ribbonView: 'all' });
   });
 
   it('puts the default back on reset', async () => {
     const storage = memoryStorage();
     const store = createLocalLayoutStore('k', storage);
-    await store.set({ order: ['hotTopics', 'timeline', 'ribbon'], collapsed: { ribbon: true, timeline: false, hotTopics: false }, ribbonView: 'all' });
-    expect(await store.reset()).toEqual({ order: ['ribbon', 'timeline', 'hotTopics'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'all' });
-    expect(await store.get()).toEqual({ order: ['ribbon', 'timeline', 'hotTopics'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'all' });
+    await store.set({ order: ['timeline', 'ribbon'], collapsed: { ribbon: true, timeline: false, hotTopics: false }, ribbonView: 'all' });
+    expect(await store.reset()).toEqual({ order: ['ribbon', 'timeline'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'all' });
+    expect(await store.get()).toEqual({ order: ['ribbon', 'timeline'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'all' });
   });
 
   it('keeps the ribbon view, and maps the two filters saved before it existed', async () => {
     const storage = memoryStorage();
-    await createLocalLayoutStore('k', storage).set({ order: ['ribbon', 'timeline', 'hotTopics'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'criticalPath' });
+    await createLocalLayoutStore('k', storage).set({ order: ['ribbon', 'timeline'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'criticalPath' });
     expect((await createLocalLayoutStore('k', storage).get()).ribbonView).toBe('criticalPath');
-    const order = ['ribbon', 'timeline', 'hotTopics'];
+    const order = ['ribbon', 'timeline'];
     expect(sanitise({ order, ribbonView: 'everything' }).ribbonView).toBe('all');
     expect(sanitise({ order }).ribbonView).toBe('all');
     expect(sanitise({ order, ribbonCriticalOnly: true }).ribbonView).toBe('criticalPath');
@@ -41,19 +41,25 @@ describe('layout order (LayoutPreferenceStore)', () => {
 
   it('keeps each region open or collapsed, and carries over a ribbon collapsed before 22 Oct 2026', async () => {
     const storage = memoryStorage();
-    await createLocalLayoutStore('k', storage).set({ order: ['ribbon', 'timeline', 'hotTopics'], collapsed: { ribbon: false, timeline: true, hotTopics: true }, ribbonView: 'all' });
+    await createLocalLayoutStore('k', storage).set({ order: ['ribbon', 'timeline'], collapsed: { ribbon: false, timeline: true, hotTopics: true }, ribbonView: 'all' });
     expect((await createLocalLayoutStore('k', storage).get()).collapsed).toEqual({ ribbon: false, timeline: true, hotTopics: true });
-    expect(sanitise({ order: ['ribbon', 'timeline', 'hotTopics'], ribbonCollapsed: true }).collapsed).toEqual({ ribbon: true, timeline: false, hotTopics: false });
-    expect(sanitise({ order: ['ribbon', 'timeline', 'hotTopics'], collapsed: { timeline: 'yes' } }).collapsed).toEqual({ ribbon: false, timeline: false, hotTopics: false });
+    expect(sanitise({ order: ['ribbon', 'timeline'], ribbonCollapsed: true }).collapsed).toEqual({ ribbon: true, timeline: false, hotTopics: false });
+    expect(sanitise({ order: ['ribbon', 'timeline'], collapsed: { timeline: 'yes' } }).collapsed).toEqual({ ribbon: false, timeline: false, hotTopics: false });
+  });
+
+  it('keeps the order of an older preference that still lists the Hot-topics strip, without it', () => {
+    expect(sanitise({ order: ['timeline', 'hotTopics', 'ribbon'] }).order).toEqual(['timeline', 'ribbon']);
+    expect(sanitise({ order: ['hotTopics', 'ribbon', 'timeline'] }).order).toEqual(['ribbon', 'timeline']);
   });
 
   it('ignores a stored order that is broken, and storage that throws', async () => {
-    expect(sanitise({ order: ['timeline', 'timeline', 'ribbon'] }).order).toEqual(['ribbon', 'timeline', 'hotTopics']);
-    expect(sanitise({ order: ['timeline', 'ribbon'] }).order).toEqual(['ribbon', 'timeline', 'hotTopics']);
+    expect(sanitise({ order: ['timeline', 'timeline', 'ribbon'] }).order).toEqual(['ribbon', 'timeline']);
+    expect(sanitise({ order: ['timeline'] }).order).toEqual(['ribbon', 'timeline']);
+    expect(sanitise({ order: ['timeline', 'ribbon', 'board'] }).order).toEqual(['ribbon', 'timeline']);
     const broken = { getItem: () => { throw new Error('blocked'); }, setItem: () => { throw new Error('blocked'); }, removeItem: () => {} };
     const store = createLocalLayoutStore('k', broken);
-    await expect(store.set({ order: ['timeline', 'ribbon', 'hotTopics'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'all' })).resolves.toBeUndefined();
-    expect((await store.get()).order).toEqual(['ribbon', 'timeline', 'hotTopics']);
+    await expect(store.set({ order: ['timeline', 'ribbon'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'all' })).resolves.toBeUndefined();
+    expect((await store.get()).order).toEqual(['ribbon', 'timeline']);
   });
 });
 

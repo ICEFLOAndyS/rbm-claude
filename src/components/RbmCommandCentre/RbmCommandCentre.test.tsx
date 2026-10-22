@@ -23,7 +23,8 @@ const page = (over: Partial<RbmCommandCentreProps> = {}) =>
       {...over}
     />,
   );
-const regionOrder = () => Array.from(document.querySelectorAll<HTMLElement>('section > [data-region]')).map((r) => r.dataset.region);
+// The main column's regions in order, then the Hot-topics panel beside them.
+const regionOrder = () => Array.from(document.querySelectorAll<HTMLElement>('[data-testid="rbm-main-column"] > [data-region], [data-testid="rbm-main-column"] + [data-region]')).map((r) => r.dataset.region);
 
 describe('formatWindow', () => {
   it('writes the window with days and times', () => {
@@ -54,8 +55,16 @@ describe('RbmCommandCentre', () => {
   });
 
   it('follows the user’s layout', () => {
-    page({ layout: ['timeline', 'hotTopics', 'ribbon'] });
-    expect(regionOrder()).toEqual(['timeline', 'hotTopics', 'ribbon']);
+    page({ layout: ['timeline', 'ribbon'] });
+    expect(regionOrder()).toEqual(['timeline', 'ribbon', 'hotTopics']);
+  });
+
+  it('puts the Hot-topics panel beside the main column, not in it', () => {
+    page();
+    const main = screen.getByTestId('rbm-main-column');
+    expect(main.querySelector('[data-region="hotTopics"]')).toBeNull();
+    expect(main.nextElementSibling).toHaveAttribute('data-region', 'hotTopics');
+    expect(main.nextElementSibling).toHaveTextContent('Hot topics');
   });
 
   it('keeps room for at least 8 rows of the Task Timeline', () => {
@@ -98,12 +107,12 @@ describe('RbmCommandCentre', () => {
 
   it('opens the Layout panel from the menu, and the page re-orders at once', async () => {
     const onLayoutChange = vi.fn();
-    page({ layout: ['hotTopics', 'timeline', 'ribbon'], onLayoutChange });
+    page({ layout: ['timeline', 'ribbon'], onLayoutChange });
     await userEvent.click(screen.getByRole('button', { name: 'Event actions' }));
     await userEvent.click(screen.getByRole('menuitem', { name: /Layout/ }));
     const panel = screen.getByRole('dialog', { name: 'Layout' });
     await userEvent.click(within(panel).getByRole('button', { name: 'Reset to default' }));
-    expect(onLayoutChange).toHaveBeenCalledWith(['ribbon', 'timeline', 'hotTopics']);
+    expect(onLayoutChange).toHaveBeenCalledWith(['ribbon', 'timeline']);
   });
 
   it('reorders by itself when the page does not hold the layout', async () => {
@@ -146,7 +155,7 @@ describe('RbmCommandCentre', () => {
     });
 
     it('stays the same whatever the layout order', () => {
-      page({ layout: ['hotTopics', 'timeline', 'ribbon'] });
+      page({ layout: ['timeline', 'ribbon'] });
       act(() => trigger(false));
       expect(screen.getByRole('banner', { name: 'Event summary' })).toBeInTheDocument();
     });

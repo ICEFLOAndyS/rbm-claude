@@ -5,16 +5,19 @@ import { CSS } from '@dnd-kit/utilities';
 import { useState, type ReactNode } from 'react';
 import { colour, elevation, liftTint, radius, stroke } from '../../theme/tokens';
 
-/** The three regions that move. The Page header and the Event vitals are fixed. */
+/** The regions that collapse. The Page header and the Event vitals are fixed and always open. */
 export type RbmRegion = 'ribbon' | 'timeline' | 'hotTopics';
 
-/** Reset to default puts the order back to Event ribbon, Task Timeline, Hot-topics strip. */
-export const DEFAULT_LAYOUT: RbmRegion[] = ['ribbon', 'timeline', 'hotTopics'];
+/** The regions that move, in the main column. The Hot-topics panel stays on the right. */
+export type RbmMovableRegion = Exclude<RbmRegion, 'hotTopics'>;
+
+/** Reset to default puts the order back to Event ribbon, then Task Timeline. */
+export const DEFAULT_LAYOUT: RbmMovableRegion[] = ['ribbon', 'timeline'];
 
 export const regionInfo: Record<RbmRegion, { name: string; detail: string }> = {
   ribbon: { name: 'Event ribbon', detail: 'One lane per runbook' },
   timeline: { name: 'Task Timeline', detail: 'The tasks that need attention' },
-  hotTopics: { name: 'Hot-topics strip', detail: 'Blockers, checkpoint, milestones and more' },
+  hotTopics: { name: 'Hot-topics panel', detail: 'On the right: blockers, checkpoint, milestones and more' },
 };
 
 const fixed = [
@@ -23,12 +26,12 @@ const fixed = [
 ];
 
 export interface RbmLayoutPanelProps {
-  order: RbmRegion[];
+  order: RbmMovableRegion[];
   /** Called with the new order when a row is dropped, and on Reset to default. The page re-orders at once. */
-  onChange: (order: RbmRegion[]) => void;
+  onChange: (order: RbmMovableRegion[]) => void;
   /** Done and the close button. */
   onClose?: () => void;
-  /** Which regions are collapsed. With onCollapsedChange, each movable row gets an Open switch. */
+  /** Which regions are collapsed. With onCollapsedChange, each movable row and the Hot-topics panel row get an Open switch. */
   collapsed?: Partial<Record<RbmRegion, boolean>>;
   onCollapsedChange?: (region: RbmRegion, collapsed: boolean) => void;
   /** Reset to default. Without it, Reset to default only puts the order back, through onChange. */
@@ -78,7 +81,7 @@ function OpenSwitch({ name, open, onChange }: { name: string; open: boolean; onC
   );
 }
 
-function SortableRow({ id, position, total, line, follow, open, onOpenChange }: { id: RbmRegion; position: number; total: number; line?: 'before' | 'after'; follow: boolean; open: boolean; onOpenChange?: (open: boolean) => void }) {
+function SortableRow({ id, position, total, line, follow, open, onOpenChange }: { id: RbmMovableRegion; position: number; total: number; line?: 'before' | 'after'; follow: boolean; open: boolean; onOpenChange?: (open: boolean) => void }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, isDragging } = useSortable({ id });
   const info = regionInfo[id];
   return (
@@ -118,16 +121,17 @@ function SortableRow({ id, position, total, line, follow, open, onOpenChange }: 
 
 /**
  * The Layout panel, as drawn on the Command board: the Page header and Event vitals fixed at the
- * top, then the Event ribbon, Task Timeline and Hot-topics strip, dragged from the grip into any
- * order. From the keyboard, Space picks a row up, the arrow keys move it and Space drops it.
+ * top, then the Event ribbon and Task Timeline, dragged from the grip into either order. From the
+ * keyboard, Space picks a row up, the arrow keys move it and Space drops it. The Hot-topics panel
+ * sits on the right and does not move, but opens and collapses from its row (not drawn, flagged).
  */
 export function RbmLayoutPanel({ order, onChange, onClose, collapsed = {}, onCollapsedChange, onReset }: RbmLayoutPanelProps) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
-  const [active, setActive] = useState<RbmRegion | null>(null);
-  const [over, setOver] = useState<RbmRegion | null>(null);
+  const [active, setActive] = useState<RbmMovableRegion | null>(null);
+  const [over, setOver] = useState<RbmMovableRegion | null>(null);
   const [byPointer, setByPointer] = useState(false);
   const name = (id: unknown) => regionInfo[id as RbmRegion]?.name ?? '';
-  const pos = (id: unknown) => order.indexOf(id as RbmRegion) + 1;
+  const pos = (id: unknown) => order.indexOf(id as RbmMovableRegion) + 1;
 
   // What a screen reader hears while a row moves.
   const announcements: Announcements = {
@@ -141,11 +145,11 @@ export function RbmLayoutPanel({ order, onChange, onClose, collapsed = {}, onCol
     setActive(null);
     setOver(null);
     if (!o || a.id === o.id) return;
-    onChange(arrayMove(order, order.indexOf(a.id as RbmRegion), order.indexOf(o.id as RbmRegion)));
+    onChange(arrayMove(order, order.indexOf(a.id as RbmMovableRegion), order.indexOf(o.id as RbmMovableRegion)));
   };
   const from = active ? order.indexOf(active) : -1;
   const to = over ? order.indexOf(over) : -1;
-  const lineFor = (id: RbmRegion): 'before' | 'after' | undefined => (active && over && id === over && from !== to ? (to < from ? 'before' : 'after') : undefined);
+  const lineFor = (id: RbmMovableRegion): 'before' | 'after' | undefined => (active && over && id === over && from !== to ? (to < from ? 'before' : 'after') : undefined);
 
   return (
     <Box role="dialog" aria-label="Layout" sx={{ border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', boxShadow: elevation.menu, overflow: 'hidden', width: 380, maxWidth: '100%', lineHeight: 'normal' }}>
@@ -177,10 +181,10 @@ export function RbmLayoutPanel({ order, onChange, onClose, collapsed = {}, onCol
         collisionDetection={closestCenter}
         accessibility={{ announcements, screenReaderInstructions: { draggable: 'Press Space to pick up the region. Use the arrow keys to move it, Space to drop it, or Escape to cancel.' } }}
         onDragStart={({ active: a, activatorEvent }: DragStartEvent) => {
-          setActive(a.id as RbmRegion);
+          setActive(a.id as RbmMovableRegion);
           setByPointer(!(activatorEvent instanceof KeyboardEvent));
         }}
-        onDragOver={({ over: o }: DragOverEvent) => setOver((o?.id as RbmRegion) ?? null)}
+        onDragOver={({ over: o }: DragOverEvent) => setOver((o?.id as RbmMovableRegion) ?? null)}
         onDragEnd={end}
         onDragCancel={() => {
           setActive(null);
@@ -197,6 +201,17 @@ export function RbmLayoutPanel({ order, onChange, onClose, collapsed = {}, onCol
           </Box>
         </SortableContext>
       </DndContext>
+
+      <Box sx={{ px: 4, pt: 1, mt: 4, fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'text.secondary' }}>Right panel</Box>
+      <Box component="ul" aria-label="Right panel" sx={{ m: 0, p: 0, px: 4, pt: 3, listStyle: 'none' }}>
+        <Box component="li" data-region="hotTopics" sx={{ ...rowSx, bgcolor: colour.white, border: `${stroke.thin}px solid ${colour.rule}` }}>
+          <Box component="span" sx={{ width: 14, display: 'inline-flex', justifyContent: 'center' }}>
+            <Icon><rect x="3" y="4" width="18" height="16" rx="3" /><path d="M15 4v16" /></Icon>
+          </Box>
+          <Text name={regionInfo.hotTopics.name} detail={regionInfo.hotTopics.detail} />
+          {onCollapsedChange && <OpenSwitch name={regionInfo.hotTopics.name} open={!collapsed.hotTopics} onChange={(open) => onCollapsedChange('hotTopics', !open)} />}
+        </Box>
+      </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 4, mt: 1, borderTop: 1, borderColor: 'divider' }}>
         <ButtonBase onClick={() => (onReset ? onReset() : onChange([...DEFAULT_LAYOUT]))} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5 }}>

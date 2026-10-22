@@ -1,6 +1,6 @@
 import type { RbmRibbonView } from '../components/RbmEventRibbon/RbmEventRibbon';
 import type { CommandCentreSnapshot, CommandResult, TaskCommand } from './types';
-import type { RbmRegion } from '../components/RbmLayoutPanel/RbmLayoutPanel';
+import type { RbmMovableRegion, RbmRegion } from '../components/RbmLayoutPanel/RbmLayoutPanel';
 
 /**
  * Where the page reads its data. The template never knows whether it came from a JSON fixture
@@ -31,9 +31,9 @@ export interface Clock {
 
 /** The user's own page preferences. Personal: they never change the page for anyone else. */
 export interface LayoutPreference {
-  /** Order of the three movable regions. */
-  order: RbmRegion[];
-  /** Each movable region folded to its 56 px summary line. All open by default. */
+  /** Order of the regions in the main column: Event ribbon and Task Timeline. */
+  order: RbmMovableRegion[];
+  /** Each region folded: the ribbon and timeline to a 56 px line, the Hot-topics panel to a rail. All open by default. */
   collapsed: Record<RbmRegion, boolean>;
   /** What the Event ribbon shows: all stages (the default), critical runbooks, or the critical path. */
   ribbonView: RbmRibbonView;

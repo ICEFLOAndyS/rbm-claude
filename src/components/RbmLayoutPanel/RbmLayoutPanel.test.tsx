@@ -2,11 +2,11 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import { useState, type ReactElement } from 'react';
-import { DEFAULT_LAYOUT, RbmLayoutPanel, type RbmRegion } from './RbmLayoutPanel';
+import { DEFAULT_LAYOUT, RbmLayoutPanel, type RbmMovableRegion } from './RbmLayoutPanel';
 import { rbmTheme } from '../../theme/theme';
 
 const renderUi = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{ui}</ThemeProvider>);
-const movable = () => Array.from(document.querySelectorAll<HTMLElement>('[data-region]')).map((r) => r.dataset.region);
+const movable = () => Array.from(screen.getByRole('list', { name: 'Movable regions' }).querySelectorAll<HTMLElement>('[data-region]')).map((r) => r.dataset.region);
 
 // jsdom has no layout. Give each movable row a box, stacked 64 px apart, so the keyboard sensor can move between them.
 function stackRows() {
@@ -24,8 +24,8 @@ function stackRows() {
   };
 }
 
-function Harness({ onChange }: { onChange?: (o: RbmRegion[]) => void }) {
-  const [order, setOrder] = useState<RbmRegion[]>(DEFAULT_LAYOUT);
+function Harness({ onChange }: { onChange?: (o: RbmMovableRegion[]) => void }) {
+  const [order, setOrder] = useState<RbmMovableRegion[]>(DEFAULT_LAYOUT);
   return (
     <RbmLayoutPanel
       order={order}
@@ -47,7 +47,7 @@ describe('RbmLayoutPanel', () => {
     expect(document.querySelector('[data-region="timeline"]')).toHaveTextContent('Collapsed');
     await userEvent.click(timeline);
     expect(onCollapsedChange).toHaveBeenCalledWith('timeline', false);
-    await userEvent.click(screen.getByRole('switch', { name: 'Hot-topics strip open' }));
+    await userEvent.click(screen.getByRole('switch', { name: 'Hot-topics panel open' }));
     expect(onCollapsedChange).toHaveBeenCalledWith('hotTopics', true);
   });
 
@@ -62,7 +62,7 @@ describe('RbmLayoutPanel', () => {
   it('hands Reset to default to the page when it asks for it', async () => {
     const onReset = vi.fn();
     const onChange = vi.fn();
-    renderUi(<RbmLayoutPanel order={['hotTopics', 'timeline', 'ribbon']} onChange={onChange} onReset={onReset} />);
+    renderUi(<RbmLayoutPanel order={['timeline', 'ribbon']} onChange={onChange} onReset={onReset} />);
     await userEvent.click(screen.getByRole('button', { name: 'Reset to default' }));
     expect(onReset).toHaveBeenCalledTimes(1);
     expect(onChange).not.toHaveBeenCalled();
@@ -78,11 +78,19 @@ describe('RbmLayoutPanel', () => {
     expect(within(fixedList).queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('lists the three movable regions in the given order, each with a grip', () => {
-    renderUi(<RbmLayoutPanel order={['timeline', 'ribbon', 'hotTopics']} onChange={vi.fn()} />);
-    expect(movable()).toEqual(['timeline', 'ribbon', 'hotTopics']);
-    expect(screen.getByRole('button', { name: 'Move Task Timeline, position 1 of 3' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Move Hot-topics strip, position 3 of 3' })).toBeInTheDocument();
+  it('lists the two movable regions in the given order, each with a grip', () => {
+    renderUi(<RbmLayoutPanel order={['timeline', 'ribbon']} onChange={vi.fn()} />);
+    expect(movable()).toEqual(['timeline', 'ribbon']);
+    expect(screen.getByRole('button', { name: 'Move Task Timeline, position 1 of 2' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Move Event ribbon, position 2 of 2' })).toBeInTheDocument();
+  });
+
+  it('shows the Hot-topics panel on its own as the right panel: it opens and collapses but does not move', () => {
+    renderUi(<RbmLayoutPanel order={DEFAULT_LAYOUT} onChange={vi.fn()} collapsed={{ hotTopics: true }} onCollapsedChange={vi.fn()} />);
+    const right = screen.getByRole('list', { name: 'Right panel' });
+    expect(right).toHaveTextContent('Hot-topics panelOn the right: blockers, checkpoint, milestones and moreCollapsed');
+    expect(within(right).queryByRole('button', { name: /^Move/ })).not.toBeInTheDocument();
+    expect(within(right).getByRole('switch', { name: 'Hot-topics panel open' })).not.toBeChecked();
   });
 
   it('moves a region from the keyboard: Space picks it up, arrows move it, Space drops it', async () => {
@@ -90,15 +98,15 @@ describe('RbmLayoutPanel', () => {
     const onChange = vi.fn();
     try {
       renderUi(<Harness onChange={onChange} />);
-      const grip = screen.getByRole('button', { name: 'Move Event ribbon, position 1 of 3' });
+      const grip = screen.getByRole('button', { name: 'Move Event ribbon, position 1 of 2' });
       grip.focus();
       await userEvent.keyboard(' ');
       await act(async () => {
         await userEvent.keyboard('{ArrowDown}');
       });
       await userEvent.keyboard(' ');
-      expect(onChange).toHaveBeenCalledWith(['timeline', 'ribbon', 'hotTopics']);
-      expect(movable()).toEqual(['timeline', 'ribbon', 'hotTopics']);
+      expect(onChange).toHaveBeenCalledWith(['timeline', 'ribbon']);
+      expect(movable()).toEqual(['timeline', 'ribbon']);
     } finally {
       restore();
     }
@@ -129,9 +137,9 @@ describe('RbmLayoutPanel', () => {
 
   it('puts the default order back with Reset to default', async () => {
     const onChange = vi.fn();
-    renderUi(<RbmLayoutPanel order={['hotTopics', 'timeline', 'ribbon']} onChange={onChange} />);
+    renderUi(<RbmLayoutPanel order={['timeline', 'ribbon']} onChange={onChange} />);
     await userEvent.click(screen.getByRole('button', { name: 'Reset to default' }));
-    expect(onChange).toHaveBeenCalledWith(['ribbon', 'timeline', 'hotTopics']);
+    expect(onChange).toHaveBeenCalledWith(['ribbon', 'timeline']);
   });
 
   it('closes with Done or the close button', async () => {

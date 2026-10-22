@@ -27,7 +27,8 @@ function setup(fixture: EventFixture = weekendPayrollCutover(), storage = memory
 }
 import { rbmTheme } from '../theme/theme';
 
-const regionOrder = () => Array.from(document.querySelectorAll<HTMLElement>('section > [data-region]')).map((r) => r.dataset.region);
+// The main column's regions in order, then the Hot-topics panel beside them.
+const regionOrder = () => Array.from(document.querySelectorAll<HTMLElement>('[data-testid="rbm-main-column"] > [data-region], [data-testid="rbm-main-column"] + [data-region]')).map((r) => r.dataset.region);
 
 describe('CommandCentrePage (connected to the fixture source and the fake engine)', () => {
   afterEach(() => vi.useRealTimers());
@@ -56,9 +57,9 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
 
     it('loads a saved order, and keeps a change across a reload', async () => {
       const storage = memoryStorage();
-      await createLocalLayoutStore('test', storage).set({ order: ['hotTopics', 'timeline', 'ribbon'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'all' });
+      await createLocalLayoutStore('test', storage).set({ order: ['timeline', 'ribbon'], collapsed: { ribbon: false, timeline: false, hotTopics: false }, ribbonView: 'all' });
       const first = setup(weekendPayrollCutover(), storage);
-      await waitFor(() => expect(regionOrder()).toEqual(['hotTopics', 'timeline', 'ribbon']));
+      await waitFor(() => expect(regionOrder()).toEqual(['timeline', 'ribbon', 'hotTopics']));
       // Reset to default from the Layout panel saves the default.
       await userEvent.click(screen.getByRole('button', { name: 'Event actions' }));
       await userEvent.click(screen.getByRole('menuitem', { name: /Layout/ }));
@@ -69,7 +70,7 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
       // Reload: a new page on the same storage.
       setup(weekendPayrollCutover(), storage);
       await waitFor(() => expect(regionOrder()).toEqual(['ribbon', 'timeline', 'hotTopics']));
-      expect((await createLocalLayoutStore('test', storage).get()).order).toEqual(['ribbon', 'timeline', 'hotTopics']);
+      expect((await createLocalLayoutStore('test', storage).get()).order).toEqual(['ribbon', 'timeline']);
     });
 
     it('remembers the collapsed ribbon', async () => {
@@ -84,23 +85,23 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     });
   });
 
-  it('collapses the Task Timeline and the Hot-topics strip, and remembers them across a reload', async () => {
+  it('collapses the Task Timeline and the Hot-topics panel, and remembers them across a reload', async () => {
     const storage = memoryStorage();
     const first = setup(weekendPayrollCutover(), storage);
     await userEvent.click(screen.getByRole('button', { name: 'Collapse Task Timeline' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Collapse Hot-topics strip' }));
-    expect(within(screen.getByRole('list', { name: 'Hot-topics strip summary' })).getByRole('listitem', { name: 'Blockers 2' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse Hot-topics panel' }));
+    expect(within(screen.getByRole('list', { name: 'Hot-topics panel summary' })).getByRole('listitem', { name: 'Blockers 2' })).toBeInTheDocument();
     await waitFor(async () => expect((await createLocalLayoutStore('test', storage).get()).collapsed).toEqual({ ribbon: false, timeline: true, hotTopics: true }));
     first.unmount();
     first.clock.dispose();
     setup(weekendPayrollCutover(), storage);
     expect(await screen.findByRole('button', { name: 'Expand Task Timeline' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Expand Hot-topics strip' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Expand Hot-topics panel' })).toBeInTheDocument();
   });
 
   it('Reset to default opens every region and keeps the ribbon view', async () => {
     const storage = memoryStorage();
-    await createLocalLayoutStore('test', storage).set({ order: ['hotTopics', 'timeline', 'ribbon'], collapsed: { ribbon: true, timeline: true, hotTopics: false }, ribbonView: 'criticalPath' });
+    await createLocalLayoutStore('test', storage).set({ order: ['timeline', 'ribbon'], collapsed: { ribbon: true, timeline: true, hotTopics: false }, ribbonView: 'criticalPath' });
     setup(weekendPayrollCutover(), storage);
     expect(await screen.findByRole('button', { name: 'Expand Event ribbon' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Event actions' }));
@@ -159,7 +160,7 @@ describe('CommandCentrePage (connected to the fixture source and the fake engine
     });
   });
 
-  it('filters the Hot-topics strip with the runbook filter, like the Task Timeline', async () => {
+  it('filters the Hot-topics panel with the runbook filter, like the Task Timeline', async () => {
     setup();
     const blockers = () => within(screen.getByRole('region', { name: 'Blockers' }));
     expect(blockers().getByText('BLK-102')).toBeInTheDocument();

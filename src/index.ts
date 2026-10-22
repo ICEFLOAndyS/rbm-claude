@@ -36,6 +36,8 @@ export type { RbmTimelineTask, RbmTaskFlags, RbmFocusReason } from './components
 export { mockTimelineRunbooks, mockTimelineTasks, mockManyUpNext } from './mocks/timeline';
 export { RbmHotTopicsStrip } from './components/RbmHotTopicsStrip/RbmHotTopicsStrip';
 export type { RbmHotTopicsStripProps } from './components/RbmHotTopicsStrip/RbmHotTopicsStrip';
+export { RbmHotTopicsPanel, HOT_TOPICS_PANEL_WIDTH, HOT_TOPICS_RAIL_WIDTH, HOT_TOPICS_PANEL_MIN_VIEWPORT } from './components/RbmHotTopicsStrip/RbmHotTopicsPanel';
+export type { RbmHotTopicsPanelProps } from './components/RbmHotTopicsStrip/RbmHotTopicsPanel';
 export { RbmHotTopicCard } from './components/RbmHotTopicsStrip/RbmHotTopicCard';
 export type { RbmHotTopicCardProps } from './components/RbmHotTopicsStrip/RbmHotTopicCard';
 export { RbmBlockers, RbmNextCheckpoint, RbmMilestones, RbmCollaboration, RbmWatchers, Severity, countdown, CARD_LIMIT } from './components/RbmHotTopicsStrip/cards';
@@ -48,6 +50,6 @@ export { RbmEventBar, barGap } from './components/RbmEventBar/RbmEventBar';
 export type { RbmEventBarProps, RbmEventSummary } from './components/RbmEventBar/RbmEventBar';
 export { mockEvent, mockAlerts } from './mocks/event';
 export { RbmLayoutPanel, DEFAULT_LAYOUT, regionInfo } from './components/RbmLayoutPanel/RbmLayoutPanel';
-export type { RbmLayoutPanelProps, RbmRegion } from './components/RbmLayoutPanel/RbmLayoutPanel';
+export type { RbmLayoutPanelProps, RbmRegion, RbmMovableRegion } from './components/RbmLayoutPanel/RbmLayoutPanel';
 export { RbmCommandCentre, TIMELINE_MIN_HEIGHT, formatWindow } from './components/RbmCommandCentre/RbmCommandCentre';
 export type { RbmCommandCentreProps, RbmCommandCentreEvent, RbmEventAction } from './components/RbmCommandCentre/RbmCommandCentre';

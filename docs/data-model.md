@@ -64,7 +64,7 @@ interface Clock {                      // time, injectable and speedable
   subscribe(listener): () => void;
 }
 interface LayoutPreferenceStore {      // the user's own layout
-  get(): Promise<LayoutPreference>;    // { order, collapsed: { ribbon, timeline, hotTopics }, ribbonView }
+  get(): Promise<LayoutPreference>;    // { order: [ribbon, timeline] in either order, collapsed: { ribbon, timeline, hotTopics }, ribbonView }
   set(preference): Promise<void>;
   reset(): Promise<LayoutPreference>;
 }

@@ -1,11 +1,11 @@
 /**
- * The RBM icon suite (Icon suite board, version 92; docs/icon-suite-brief.md): one typed registry, used
+ * The RBM icon suite (Icon suite board, 101 icons; docs/icon-suite-brief.md): one typed registry, used
  * through RbmIcon. Each icon is a file in ./svg/<group>/<name>.svg, drawn on the 24 px grid with 2 px round
  * strokes in currentColor; a test checks every file against those rules and against this list.
  *
  * Every icon is Proposed: first-pass drawings that need Andy Smith's sign-off.
  *
- *   object … taskType  the suite, copied from the Icon suite board (95 icons)
+ *   object … taskType  the suite, copied from the Icon suite board (101 icons)
  *   shell              copied from the App shell board; not yet in the suite (flagged)
  */
 export const rbmIconKeys = {
@@ -19,6 +19,7 @@ export const rbmIconKeys = {
   control: ['approve', 'start', 'pause', 'resume', 'complete', 'skip', 'fastForward', 'abandon', 'backOut'],
   display: ['search', 'filter', 'sort', 'expandAll', 'collapseAll', 'previous', 'next', 'widen', 'openFullPage', 'close', 'more'],
   nav: ['list', 'folder', 'setup', 'integrations', 'license', 'training', 'support'],
+  centre: ['base', 'commandControl', 'migration', 'executiveBriefing', 'verification', 'audit'],
   taskType: ['standard', 'scripted', 'automated', 'businessVerification', 'technicalVerification', 'checkpoint', 'notification', 'collaboration', 'approval', 'milestone'],
   shell: ['notifications', 'menu', 'sidebar', 'profile', 'signOut', 'environment', 'synced'],
 } as const;

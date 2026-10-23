@@ -23,6 +23,12 @@ const exceptions: Record<string, readonly string[]> = {
   'object/globalWorkstream.svg': [...smallBase, 'stroke-width="1.5"'],
   'object/localTeam.svg': smallBase,
   'object/localWorkstream.svg': smallBase,
+  // Centres: the four-tile base drawn small, with a badge, like the Global and Local objects.
+  'centre/commandControl.svg': [...smallBase, 'stroke-width="1.5"'],
+  'centre/migration.svg': [...smallBase, 'stroke-width="1.5"'],
+  'centre/executiveBriefing.svg': [...smallBase, 'stroke-width="1.5"'],
+  'centre/verification.svg': [...smallBase, 'stroke-width="1.5"'],
+  'centre/audit.svg': [...smallBase, 'stroke-width="1.5"'],
 };
 
 const svgRoot = join(__dirname, 'svg');

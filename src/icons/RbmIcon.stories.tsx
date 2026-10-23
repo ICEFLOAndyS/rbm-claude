@@ -22,6 +22,7 @@ const groupNames: Record<RbmIconGroup, string> = {
   control: 'Actions: Control',
   display: 'Actions: Display',
   nav: 'Navigation',
+  centre: 'Centres',
   taskType: 'Task types',
   shell: 'Shell',
 };
@@ -63,7 +64,7 @@ export const Single: Story = {};
 /** Informative: carries meaning alone, so it has a name for screen readers. */
 export const WithTitle: Story = { args: { name: 'state.paused', title: 'Paused' } };
 
-/** Every registered icon, by group: 95 in the suite and 7 shell icons outside it. */
+/** Every registered icon, by group: 101 in the suite and 7 shell icons outside it. */
 export const Registry: Story = {
   render: () => (
     <Box sx={{ display: 'grid', gap: 6 }}>
@@ -82,6 +83,7 @@ export const Construction = groupStory('construct');
 export const Control = groupStory('control');
 export const Display = groupStory('display');
 export const Navigation = groupStory('nav');
+export const Centres = groupStory('centre');
 export const TaskTypes = groupStory('taskType');
 export const Shell = groupStory('shell');
 
@@ -112,6 +114,8 @@ const lookAlikes: { title: string; names: RbmIconName[] }[] = [
   { title: 'Milestone against Decision', names: ['taskType.milestone', 'object.decision'] },
   { title: 'Move against Previous, Next and Sort', names: ['construct.moveUp', 'construct.moveDown', 'display.previous', 'display.next', 'display.sort'] },
   { title: 'Task against Approve', names: ['object.task', 'control.approve'] },
+  { title: 'Centre badges: crosshair and star', names: ['centre.commandControl', 'centre.executiveBriefing', 'centre.verification', 'centre.audit', 'centre.migration', 'centre.base'] },
+  { title: 'Centre base against Template', names: ['centre.base', 'object.template', 'nav.list'] },
 ];
 
 /** Look-alikes at 16, 20 and 24 px, for the designer's review. */

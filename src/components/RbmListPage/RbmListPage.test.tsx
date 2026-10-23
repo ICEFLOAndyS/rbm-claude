@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
 import { RbmListPage, type RbmListPageProps } from './RbmListPage';
@@ -58,9 +59,25 @@ describe('RbmListPage', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Events' })).toBeInTheDocument();
   });
 
-  it('opens the record panel in its drawer', () => {
-    renderPage(<RbmListPage {...slots} record={{ container: 'slideIn', onClose: vi.fn(), panel: <section aria-label="REV000001" /> }} />);
-    expect(screen.getByRole('region', { name: 'REV000001' })).toBeInTheDocument();
+  it('opens the record panel in the slide-in region, over the list', () => {
+    renderPage(<RbmListPage {...slots} record={{ container: 'slideIn', label: 'REV000001 Q4 Data Centre Cutover', onClose: vi.fn(), panel: <section aria-label="REV000001" /> }} />);
+    const dialog = screen.getByRole('dialog', { name: 'REV000001 Q4 Data Centre Cutover' });
+    expect(dialog).toHaveStyle({ width: '480px' });
+    expect(within(dialog).getByRole('region', { name: 'REV000001' })).toBeInTheDocument();
+  });
+
+  it('is 800 px for the wide panel', () => {
+    renderPage(<RbmListPage {...slots} record={{ container: 'wide', label: 'REV000001', onClose: vi.fn(), panel: <section aria-label="REV000001" /> }} />);
+    expect(screen.getByRole('dialog', { name: 'REV000001' })).toHaveStyle({ width: '800px' });
+  });
+
+  it('leaves Escape to the panel, and closes on a click on the list behind', async () => {
+    const onClose = vi.fn();
+    renderPage(<RbmListPage {...slots} record={{ container: 'slideIn', label: 'REV000001', onClose, panel: <section aria-label="REV000001" /> }} />);
+    await userEvent.keyboard('{Escape}');
+    expect(onClose).not.toHaveBeenCalled();
+    await userEvent.click(document.querySelector('.MuiBackdrop-root')!);
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('shows a message after an action', () => {

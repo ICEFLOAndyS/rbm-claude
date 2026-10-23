@@ -14,6 +14,12 @@ import { CommandCentrePage } from '../src/app/CommandCentrePage';
 import { RbmAppShell } from '../src/components/RbmAppShell/RbmAppShell';
 import { useScrollContainer } from '../src/components/RbmAppShell/shellContext';
 import { RbmPageHeader } from '../src/components/RbmPageHeader/RbmPageHeader';
+import { EventsListPage, type EventsListAddress } from '../src/app/EventsListPage';
+import { createMockEventServer, type EventListData } from '../src/data/list/mockServer';
+import { createLocalListPreferenceStore } from '../src/data/list/preferenceStore';
+import { validateEventFixture } from '../src/data/list/schema';
+import { EVENT_COLUMNS } from '../src/data/list/events';
+import type { EventColumnField, EventListFixture } from '../src/data/list/types';
 import type { RbmUser } from '../src/components/RbmTopBar/RbmAccountMenu';
 import { navLocation, rbmNav } from '../src/data/nav/nav';
 import { createMockNavData } from '../src/data/nav/navData';
@@ -23,6 +29,8 @@ import pkg from '../package.json';
 import weekend from '../src/fixtures/weekend-payroll-cutover.json';
 import healthy from '../src/fixtures/healthy-event.json';
 import late from '../src/fixtures/badly-late-event.json';
+import events128 from '../src/fixtures/events/events-128.json';
+import eventsBoard from '../src/fixtures/events/events-board.json';
 
 /** Fixtures the Command Centre can open, by fixture name. The large event is loaded only when chosen. */
 const fixtures: Record<CommandCentreEventRef['fixture'], { label: string; load: () => Promise<unknown> }> = {
@@ -61,6 +69,36 @@ const user: RbmUser = { id: 'a.smith', name: 'Andy Smith', role: 'Cutover Manage
 const navData = createMockNavData();
 const sidebarStore = createLocalSidebarStore(user.id);
 const DEFAULT_PATH = '/events';
+
+/** The Events list's fixtures: ?events=128 (the default), board or large (15,000 rows, loaded only when chosen). */
+const eventLists: Record<string, () => Promise<unknown>> = {
+  '128': async () => events128,
+  board: async () => eventsBoard,
+  large: async () => (await import('../src/fixtures/events/events-large.json')).default,
+};
+const eventListName = params.get('events') ?? '128';
+const listPreferences = createLocalListPreferenceStore<EventColumnField>('rbm.demo.events', EVENT_COLUMNS.map((c) => c.field));
+/** One mock server for the session, so changes made in the list (saved views, deletes) survive leaving the page. */
+let listServer: Promise<{ data: EventListData; fixture: EventListFixture }> | null = null;
+function eventListServer() {
+  listServer ??= (eventLists[eventListName] ?? eventLists['128']!)().then((raw) => {
+    const { fixture, errors } = validateEventFixture(raw);
+    if (!fixture) throw new Error(errors.join('; '));
+    // ?listLatency=0 turns off the pretend server wait (400 ms by default).
+    return { data: createMockEventServer(fixture, { latencyMs: Number(params.get('listLatency') ?? 400) }), fixture };
+  });
+  return listServer;
+}
+
+/** The open record in the address: #/events?record=ev-00001&tab=…&section=… */
+const readAddress = (path: string): EventsListAddress => {
+  const q = new URLSearchParams(path.split('?')[1] ?? '');
+  return { record: q.get('record') ?? undefined, tab: q.get('tab') ?? undefined, section: q.get('section') ?? undefined };
+};
+const writeAddress = (a: EventsListAddress) => {
+  const q = new URLSearchParams(Object.entries(a).filter((e): e is [string, string] => !!e[1]));
+  return q.size ? `/events?${q}` : '/events';
+};
 
 /** The route from the hash, for example '/events/REV000009'. The old '#/command-centre' opens REV000009. */
 function readPath() {
@@ -247,8 +285,8 @@ function Demo() {
             ) : (
               <CommandCentrePage key={`${ref.fixture}-${run}`} data={live.source} layoutStore={layoutStore} timeZone="UTC" loadAllDelayMs={latency} />
             )
-          ) : path === '/events' ? (
-            <EventsStandIn />
+          ) : path.split('?')[0] === '/events' ? (
+            <EventsRoute path={path} navigate={navigate} />
           ) : (
             <NotBuilt path={path} />
           )}
@@ -270,21 +308,38 @@ function ScrollOnLoad({ ready }: { ready: boolean }) {
   return null;
 }
 
-/** Until the Events list comes into the demo (next step): the events the Command Centre can open. */
-function EventsStandIn() {
+/**
+ * The Events list, on the mock server. The open record is kept in the address, and the Command Centre icon on
+ * a running event (and the record panel's Open Command Centre) opens #/events/REVnnnnnn.
+ */
+function EventsRoute({ path, navigate }: { path: string; navigate: (to: string) => void }) {
+  const [server, setServer] = useState<{ data: EventListData; fixture: EventListFixture } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    eventListServer().then(
+      (s) => live && setServer(s),
+      (e: unknown) => live && setError(`Could not load the Events list (${eventListName}): ${String(e)}. Run npm run fixtures.`),
+    );
+    return () => {
+      live = false;
+    };
+  }, []);
+  if (error) return <Box component="pre" sx={{ p: 8, color: colour.redInner, whiteSpace: 'pre-wrap' }}>{error}</Box>;
+  if (!server) return <Box sx={{ p: 8, color: 'text.secondary' }}>Loading events…</Box>;
   return (
-    <Box sx={{ p: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <RbmPageHeader title="Events" metadata="The Events list moves into the prototype in the next step." />
-      <Box component="ul" sx={{ m: 0, pl: 5, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {COMMAND_CENTRE_EVENTS.map((e) => (
-          <li key={e.number}>
-            <Link href={`#/events/${e.number}`} sx={{ fontWeight: 600 }}>
-              {e.number} · {e.name}
-            </Link>
-          </li>
-        ))}
-      </Box>
-    </Box>
+    <EventsListPage
+      data={server.data}
+      preferences={listPreferences}
+      people={server.fixture.people}
+      address={readAddress(path)}
+      onAddressChange={(a) => navigate(writeAddress(a))}
+      onOpenCommandCentre={(e) => navigate(`/events/${e.number}`)}
+      onNew={() => {}}
+      onImport={() => {}}
+      onOpenFull={() => {}}
+      onPrimaryAction={() => {}}
+    />
   );
 }
 

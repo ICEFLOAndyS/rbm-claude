@@ -1,5 +1,5 @@
 import { useImperativeHandle, useMemo, type ReactNode, type Ref } from 'react';
-import { Box, useTheme } from '@mui/material';
+import { Box, IconButton, Tooltip, useTheme } from '@mui/material';
 import {
   DataGridPro,
   GridActionsCellItem,
@@ -16,6 +16,8 @@ import { formatDay, shortName } from '../../data/list/format';
 import type { RbmState } from '../../theme/tokens';
 import { colour, radius, stroke } from '../../theme/tokens';
 import { densityLineHeight, useDensity } from '../../theme/RbmDensity';
+import { RbmIcon } from '../../icons/RbmIcon';
+import type { RbmIconName } from '../../icons/registry';
 
 /**
  * The one grid on a list page (Page templates board, "1 · List of records"), on MUI X Data Grid Pro
@@ -35,6 +37,16 @@ export const GRID_HEADER_HEIGHT = 40;
 export interface RbmGridRowAction {
   id: string;
   label: string;
+  onSelect: () => void;
+}
+
+/** An icon button on a row that goes somewhere, such as an event's Command Centre (not drawn). */
+export interface RbmGridRowLink {
+  /** What it does, shown in the tooltip: "Open Command Centre". */
+  label: string;
+  /** The button's name for screen readers, naming the row: "Open Command Centre, REV000009". */
+  name: string;
+  icon: RbmIconName;
   onSelect: () => void;
 }
 
@@ -62,6 +74,10 @@ export interface RbmDataGridProps<Row extends { id: string }, F extends string> 
   selectable?: boolean;
   selectedIds?: readonly string[];
   onSelectedIdsChange?: (ids: string[]) => void;
+  /** An icon button before the "more" button, for rows that have one (null for a row without). */
+  rowLink?: (row: Row) => RbmGridRowLink | null;
+  /** The icon column's name for screen readers (its header is blank, like the "more" column's). */
+  rowLinkHeader?: string;
   /** The drawn "more" button at the end of each row. Leave out for no button. */
   rowActions?: (row: Row) => RbmGridRowAction[];
   loading?: boolean;
@@ -76,6 +92,7 @@ export interface RbmDataGridProps<Row extends { id: string }, F extends string> 
 }
 
 const ACTIONS = '__actions';
+const LINK = '__link';
 
 /**
  * The semantic dot and label at the region's dot size (10 px at D1 and D2), or the Semantic board's
@@ -111,8 +128,8 @@ function MoreIcon() {
   );
 }
 
-/** Read by screen readers, not shown. */
-const visuallyHidden = { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0, p: 0, m: '-1px' } as const;
+/** Read by screen readers, not shown. In sx, width: 1 would mean 100%: the size is given in px. */
+const visuallyHidden = { position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0, p: 0, m: '-1px' } as const;
 
 const ellipsis = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as const;
 
@@ -165,6 +182,8 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
   selectable = false,
   selectedIds = [],
   onSelectedIdsChange,
+  rowLink,
+  rowLinkHeader = 'Open',
   rowActions,
   loading = false,
   noRowsLabel = 'Nothing to show.',
@@ -193,6 +212,38 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
         renderCell: renderCell(c, timeZone),
       };
     });
+    if (rowLink) {
+      defs.push({
+        field: LINK,
+        headerName: rowLinkHeader,
+        renderHeader: () => <Box component="span" sx={visuallyHidden}>{rowLinkHeader}</Box>,
+        sortable: false,
+        hideable: false,
+        resizable: false,
+        width: d.target + 2 * d.padX,
+        renderCell: (params) => {
+          const link = rowLink(params.row as Row);
+          if (!link) return null;
+          return (
+            <Tooltip title={link.label}>
+              <IconButton
+                aria-label={link.name}
+                // The grid moves focus between cells; the button takes it only while its cell has it.
+                tabIndex={params.hasFocus ? 0 : -1}
+                onClick={(e) => {
+                  // The icon goes to its own place; it does not also open the row.
+                  e.stopPropagation();
+                  link.onSelect();
+                }}
+                sx={{ width: d.target, height: d.target, color: colour.deepBlue }}
+              >
+                <RbmIcon name={link.icon} />
+              </IconButton>
+            </Tooltip>
+          );
+        },
+      });
+    }
     if (rowActions) {
       defs.push({
         field: ACTIONS,
@@ -207,7 +258,7 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
       });
     }
     return defs;
-  }, [ordered, columnState.widths, rowActions, timeZone]);
+  }, [ordered, columnState.widths, rowLink, rowLinkHeader, rowActions, timeZone, d.target, d.padX]);
 
   const visibility = useMemo<GridColumnVisibilityModel>(() => Object.fromEntries(columns.map((c) => [c.field, columnState.visible.includes(c.field)])), [columns, columnState.visible]);
   const sortModel = useMemo<GridSortModel>(() => sort.map((s) => ({ field: s.field, sort: s.direction })), [sort]);
@@ -251,7 +302,17 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
         }}
         onRowClick={(params) => onOpenRow?.(params.row as Row)}
         onCellKeyDown={(params, event) => {
-          if (event.key !== 'Enter' || !onOpenRow || params.field === ACTIONS || params.field === '__check__') return;
+          if (event.key !== 'Enter') return;
+          if (params.field === LINK) {
+            // Enter on the cell follows the link; on the button itself, the button's own click does.
+            const link = rowLink?.(params.row as Row);
+            if (link && !(event.target instanceof HTMLButtonElement)) {
+              event.preventDefault();
+              link.onSelect();
+            }
+            return;
+          }
+          if (!onOpenRow || params.field === ACTIONS || params.field === '__check__') return;
           event.preventDefault();
           onOpenRow(params.row as Row);
         }}

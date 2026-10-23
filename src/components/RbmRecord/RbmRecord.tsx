@@ -25,6 +25,9 @@ import { FieldEditor, FieldView } from './fields';
 
 export type RbmRecordContainer = 'slideIn' | 'wide';
 
+/** The panel's width in each container (List to record board): the slide-in and the wide panel. */
+export const PANEL_WIDTH: Record<RbmRecordContainer, number> = { slideIn: 480, wide: 800 };
+
 /** Where the panel is, for the address: the record (the page's), the tab and the section. */
 export interface RbmRecordLocation {
   groupId?: string;

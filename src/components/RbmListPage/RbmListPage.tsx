@@ -2,8 +2,8 @@ import type { ReactNode } from 'react';
 import { Box, Snackbar } from '@mui/material';
 import { colour } from '../../theme/tokens';
 import { RbmDensity } from '../../theme/RbmDensity';
-import { RbmRecordDrawer, PANEL_WIDTH, useDrawerMode } from '../RbmRecord/RbmRecordDrawer';
-import type { RbmRecordContainer } from '../RbmRecord/RbmRecord';
+import { PANEL_WIDTH, type RbmRecordContainer } from '../RbmRecord/RbmRecord';
+import { RbmSlideInRegion } from '../RbmSlideInRegion/RbmSlideInRegion';
 
 /**
  * The List of records template (Page templates board, "1 · List of records"). One component that
@@ -16,14 +16,16 @@ import type { RbmRecordContainer } from '../RbmRecord/RbmRecord';
  *
  * The page swaps the toolbar for the bulk bar while rows are selected (board rule), shows the empty
  * state in place of the grid, and the error (or no access) state in place of the toolbar and grid.
- * The record panel opens in its drawer; beside the list, the list makes room for it.
- *
- * The app shell (top bar and rail) is not part of this template.
+ * The record panel opens in the slide-in region, over the list (App shell board, decided by Andy Smith,
+ * 23 Oct 2026; it replaces the record drawer, which put the panel beside the list on wide screens).
+ * Inside RbmAppShell the region is the shell's content area; on its own, the window.
  */
 
 export interface RbmListPageRecord {
   container: RbmRecordContainer;
-  /** The backdrop of the overlay closes the panel. Pass a guarded close (RbmRecord.confirmLeave). */
+  /** The panel's name for screen readers: the record's ID and title. */
+  label: string;
+  /** A click on the list behind closes the panel. Pass a guarded close (RbmRecord.confirmLeave). Escape is the panel's own. */
   onClose: () => void;
   /** The RbmRecord panel. */
   panel: ReactNode;
@@ -58,8 +60,6 @@ const PAGE_PADDING = 24;
 const ZONE_GAP = 18;
 
 export function RbmListPage({ title, count, actions, toolbar, bulkBar, grid, record, emptyState, errorState, breadcrumb = [title], message }: RbmListPageProps) {
-  const mode = useDrawerMode(record?.container ?? 'slideIn');
-  const beside = !!record && mode === 'beside';
   return (
     <RbmDensity level="compact">
       <Box
@@ -69,8 +69,6 @@ export function RbmListPage({ title, count, actions, toolbar, bulkBar, grid, rec
           boxSizing: 'border-box',
           bgcolor: colour.mist,
           p: `${PAGE_PADDING}px`,
-          // Beside the list, the panel takes its width from the page rather than covering the grid.
-          pr: beside ? `${PAGE_PADDING + PANEL_WIDTH[record.container]}px` : `${PAGE_PADDING}px`,
           display: 'flex',
           flexDirection: 'column',
           gap: `${ZONE_GAP}px`,
@@ -101,9 +99,10 @@ export function RbmListPage({ title, count, actions, toolbar, bulkBar, grid, rec
         )}
       </Box>
 
-      <RbmRecordDrawer open={!!record} container={record?.container ?? 'slideIn'} onClose={() => record?.onClose()}>
+      {/* Escape belongs to the panel, which asks about unsaved work first; a click behind is a guarded close. */}
+      <RbmSlideInRegion open={!!record} width={PANEL_WIDTH[record?.container ?? 'slideIn']} closeOnEscape={false} label={record?.label ?? title} onClose={() => record?.onClose()}>
         {record?.panel}
-      </RbmRecordDrawer>
+      </RbmSlideInRegion>
 
       <Snackbar open={!!message} message={message?.text} autoHideDuration={8000} onClose={() => message?.onClose()} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} />
     </RbmDensity>

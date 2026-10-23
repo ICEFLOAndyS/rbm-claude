@@ -3,7 +3,7 @@ import { Button } from '@mui/material';
 import { RbmListPage } from '../components/RbmListPage/RbmListPage';
 import { RbmListToolbar, downloadCsv, type RbmToolbarFilter } from '../components/RbmListToolbar/RbmListToolbar';
 import { RbmListBulkAction } from '../components/RbmListBulkAction/RbmListBulkAction';
-import { RbmDataGrid, type RbmDataGridHandle } from '../components/RbmDataGrid/RbmDataGrid';
+import { RbmDataGrid, type RbmDataGridHandle, type RbmGridRowLink } from '../components/RbmDataGrid/RbmDataGrid';
 import { RbmPagination } from '../components/RbmPagination/RbmPagination';
 import { RbmRecord, type RbmRecordContainer, type RbmRecordHandle, type RbmRecordLocation } from '../components/RbmRecord/RbmRecord';
 import { RbmListEmpty, RbmListFailure, RbmListLoading } from '../components/RbmListState/RbmListState';
@@ -41,8 +41,13 @@ export interface EventsListPageProps {
   onImport?: () => void;
   /** "Open in full": the record page (RbmRecordPage), a link only. */
   onOpenFull?: (id: string) => void;
-  /** The panel's primary action: Open Command Centre, or Start run. */
+  /** The panel's primary action other than Open Command Centre: Start run. */
   onPrimaryAction?: (id: string) => void;
+  /**
+   * Opens an event's Command & Control Centre: from the row's icon (`centre.commandControl`) on a running
+   * event, and from the record panel's "Open Command Centre". Without it there is no row icon.
+   */
+  onOpenCommandCentre?: (event: { id: string; number: string }) => void;
   /** For tests in jsdom, which has no layout. */
   disableVirtualization?: boolean;
 }
@@ -74,7 +79,13 @@ export function countLine(total: number, filters: EventFilters, view: EventFilte
   return parts.join(' · ');
 }
 
-export function EventsListPage({ data, preferences, people, timeZone = 'UTC', address = {}, onAddressChange, onNew, onImport, onOpenFull, onPrimaryAction, disableVirtualization }: EventsListPageProps) {
+/**
+ * The events with a Command Centre to open: those running (Active or Paused). Proposed (not drawn): the row
+ * does not carry the server's allowed actions as the record does, so the State column decides here.
+ */
+const hasCommandCentre = (row: EventRow) => row.state === 'active' || row.state === 'paused';
+
+export function EventsListPage({ data, preferences, people, timeZone = 'UTC', address = {}, onAddressChange, onNew, onImport, onOpenFull, onPrimaryAction, onOpenCommandCentre, disableVirtualization }: EventsListPageProps) {
   const spec = useMemo(() => eventRecordSpec(timeZone), [timeZone]);
   const grid = useRef<RbmDataGridHandle>(null);
   const panel = useRef<RbmRecordHandle>(null);
@@ -340,6 +351,13 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
         }}
         openRowId={openId}
         onOpenRow={(r) => void open(r.id)}
+        rowLink={
+          onOpenCommandCentre
+            ? (r): RbmGridRowLink | null =>
+                hasCommandCentre(r) ? { label: 'Open Command Centre', name: `Open Command Centre, ${r.number}`, icon: 'centre.commandControl', onSelect: () => onOpenCommandCentre(r) } : null
+            : undefined
+        }
+        rowLinkHeader="Command Centre"
         selectable
         selectedIds={selected}
         onSelectedIdsChange={setSelected}
@@ -410,6 +428,7 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
         record && openId
           ? {
               container,
+              label: `${record.number} ${record.name}`,
               onClose: () => void guardedClose(),
               panel: (
                 <RbmRecord
@@ -436,7 +455,7 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
                     return r;
                   }}
                   onReload={() => void data.readRecord(record.id).then(setRecord)}
-                  onPrimaryAction={onPrimaryAction}
+                  onPrimaryAction={(id) => (id === 'openCommandCentre' && onOpenCommandCentre ? onOpenCommandCentre(record) : onPrimaryAction?.(id))}
                   people={people}
                   listName="Events"
                   timeZone={timeZone}

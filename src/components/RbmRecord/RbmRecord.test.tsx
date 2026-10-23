@@ -224,22 +224,13 @@ describe('RbmRecord: the wide panel', () => {
   });
 });
 
-describe('RbmRecordDrawer', () => {
-  it('sits beside the list when there is room for a 640 px list, overlays below that, and fills the screen under 640 px', async () => {
-    const { drawerMode } = await import('./RbmRecordDrawer');
-    expect(drawerMode('slideIn', 1440)).toBe('beside');
-    expect(drawerMode('slideIn', 1120)).toBe('beside');
-    expect(drawerMode('slideIn', 1000)).toBe('overlay');
-    expect(drawerMode('wide', 1300)).toBe('overlay');
-    expect(drawerMode('wide', 1440)).toBe('beside');
-    expect(drawerMode('slideIn', 600)).toBe('fullScreen');
-  });
-
+describe('RbmRecord in the slide-in region (RbmListPage)', () => {
   it('is 480 px as a slide-in and 800 px wide', async () => {
-    const { RbmRecordDrawer } = await import('./RbmRecordDrawer');
-    const { rerender } = render(<ThemeProvider theme={rbmTheme}><RbmRecordDrawer open container="slideIn" onClose={() => {}}><p>Panel</p></RbmRecordDrawer></ThemeProvider>);
-    expect(screen.getByText('Panel').closest('.MuiDrawer-paper')).toHaveStyle({ width: '480px' });
-    rerender(<ThemeProvider theme={rbmTheme}><RbmRecordDrawer open container="wide" onClose={() => {}}><p>Panel</p></RbmRecordDrawer></ThemeProvider>);
-    expect(screen.getByText('Panel').closest('.MuiDrawer-paper')).toHaveStyle({ width: '800px' });
+    const { RbmSlideInRegion } = await import('../RbmSlideInRegion/RbmSlideInRegion');
+    const { PANEL_WIDTH } = await import('./RbmRecord');
+    const { rerender } = render(<ThemeProvider theme={rbmTheme}><RbmSlideInRegion open width={PANEL_WIDTH.slideIn} label="Record" onClose={() => {}}><p>Panel</p></RbmSlideInRegion></ThemeProvider>);
+    expect(screen.getByRole('dialog', { name: 'Record' })).toHaveStyle({ width: '480px' });
+    rerender(<ThemeProvider theme={rbmTheme}><RbmSlideInRegion open width={PANEL_WIDTH.wide} label="Record" onClose={() => {}}><p>Panel</p></RbmSlideInRegion></ThemeProvider>);
+    expect(screen.getByRole('dialog', { name: 'Record' })).toHaveStyle({ width: '800px' });
   });
 });

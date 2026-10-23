@@ -914,6 +914,30 @@ Source: the icon suite brief, v2 (now `docs/icon-suite-brief.md`), and the proje
 - **Earlier components not changed** (their icons are refreshed in a separate cycle).
 - **Next use:** `centre.commandControl` is the icon on the Events list row that opens the event's Command Centre (app shell, step 9).
 
+### 23 Oct 2026: the Events list in the demo, and the Command Centre from a row (app shell, step 9)
+- **The Events list in the shell:** `#/events` is `EventsListPage` on the mock server, inside `RbmAppShell`.
+  - The 128-event fixture by default; `?events=large` for 15,000 rows and `?events=board` for the eight drawn events.
+  - The open record, tab and section are kept in the address (`#/events?record=ev-00009`), so a deep link opens the panel.
+- **The record panel is in the slide-in region** (decided by Andy Smith today: the Shell board's rule wins). `RbmListPage` hosts `RbmRecord` in `RbmSlideInRegion`:
+  - 480 px, or 800 px for the wide panel, over the list, between the top bar and the footer;
+  - full width from 600 to 899 px, and a full-screen page under 600.
+  - The list no longer makes room beside the panel. Escape stays the panel's own (it asks about unsaved work), and a click on the list behind is a guarded close.
+  - **Removed:** `RbmRecordDrawer` (`drawerMode`, `useDrawerMode`), whose rule this replaces. `PANEL_WIDTH` moves to `RbmRecord`.
+- **The Command Centre from a row (asked by Andy Smith):** a `centre.commandControl` icon button at the end of each running event's row (State Active or Paused). The Command Centre opens at `#/events/REVnnnnnn`, with Events › List still marked active.
+  - Its tooltip is "Open Command Centre", its name for screen readers "Open Command Centre, REV000009", and its column's hidden name "Command Centre".
+  - A click or Enter on its cell goes to the Command Centre and does not also open the record.
+  - The record panel's **Open Command Centre** goes to the same place.
+- **`RbmDataGrid`** gains `rowLink`, an icon button on the rows that have one, before the "more" menu. Its hidden header text is now 1 px, the `width: 1` bug found in the footer (step 7).
+- **Not drawn (proposed, flagged):**
+  - the row icon itself, its column and its place in the row;
+  - which events show it: the row does not carry the server's allowed actions as the record does (`actions: ['openCommandCentre']`), so the State column decides. Better: the row carries the same actions, so the platform decides, as for everything else.
+- **In the prototype only:** REV000009 to REV000012 have Command Centre data. Opening another running event's Command Centre says it has none.
+- **Checked in headless Edge** (the demo, D2):
+  - **The list:** the icons show on running rows only.
+  - **REV000009's icon** opens its Command Centre.
+  - **The record panel:** at 1280 px a 480 px panel between the bar and the footer (800, 56 to 1280, 768); at 800 px the full content width; at 390 px a full-screen page.
+  - **The panel's Open Command Centre** opens the same Command Centre. The page never scrolls sideways.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

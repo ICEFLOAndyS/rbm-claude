@@ -84,6 +84,39 @@ describe('RbmDataGrid', () => {
     expect(onOpenRow).toHaveBeenLastCalledWith(expect.objectContaining({ number: 'REV000002' }));
   });
 
+  describe('a row link (an icon button that goes somewhere)', () => {
+    const link = (onSelect: () => void) => (r: (typeof rows)[number]) =>
+      r.number === 'REV000002' ? { label: 'Open Command Centre', name: `Open Command Centre, ${r.number}`, icon: 'centre.commandControl' as const, onSelect } : null;
+
+    it('shows the icon on the rows that have one, named for the row, with a hidden column name', () => {
+      renderGrid({ rowLink: link(vi.fn()), rowLinkHeader: 'Command Centre' });
+      const button = within(rowOf('Payments DB Failover')).getByRole('button', { name: 'Open Command Centre, REV000002' });
+      expect(button.querySelector('svg')).toHaveAttribute('data-icon', 'centre.commandControl');
+      expect(within(rowOf('Q4 Data Centre Cutover')).queryByRole('button', { name: /Open Command Centre/ })).toBeNull();
+      expect(screen.getByText('Command Centre')).toHaveStyle({ width: '1px' });
+    });
+
+    it('a click follows the link and does not open the row', async () => {
+      const onSelect = vi.fn();
+      const onOpenRow = vi.fn();
+      renderGrid({ rowLink: link(onSelect), onOpenRow });
+      await userEvent.click(screen.getByRole('button', { name: 'Open Command Centre, REV000002' }));
+      expect(onSelect).toHaveBeenCalledTimes(1);
+      expect(onOpenRow).not.toHaveBeenCalled();
+    });
+
+    it('Enter on its cell follows the link, once, and does not open the row', async () => {
+      const onSelect = vi.fn();
+      const onOpenRow = vi.fn();
+      renderGrid({ rowLink: link(onSelect), onOpenRow });
+      const cell = screen.getByRole('button', { name: 'Open Command Centre, REV000002' }).closest<HTMLElement>('[role="gridcell"]')!;
+      act(() => cell.focus());
+      await userEvent.keyboard('{Enter}');
+      expect(onSelect).toHaveBeenCalledTimes(1);
+      expect(onOpenRow).not.toHaveBeenCalled();
+    });
+  });
+
   it('keeps the approved highlight on the row open in the panel', () => {
     renderGrid({ openRowId: 'ev-00002' });
     expect(rowOf('Payments DB Failover')).toHaveClass('rbm-open');

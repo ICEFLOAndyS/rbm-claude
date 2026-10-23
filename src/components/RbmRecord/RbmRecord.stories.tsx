@@ -3,7 +3,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { userEvent, within } from 'storybook/test';
 import { Box } from '@mui/material';
 import { RbmRecord, type RbmRecordContainer, type RbmRecordHandle, type RbmRecordLocation } from './RbmRecord';
-import { RbmRecordDrawer } from './RbmRecordDrawer';
+import { RbmSlideInRegion } from '../RbmSlideInRegion/RbmSlideInRegion';
+import { PANEL_WIDTH } from './RbmRecord';
 import { RbmDataGrid } from '../RbmDataGrid/RbmDataGrid';
 import { RbmDensity } from '../../theme/RbmDensity';
 import { createMockEventServer } from '../../data/list/mockServer';
@@ -123,7 +124,7 @@ function BesideTheList() {
       <Box sx={{ maxWidth: 1100 }}>
         <RbmDataGrid label="Events" columns={EVENT_COLUMNS} rows={rows} sort={[]} onSortChange={() => {}} columnState={columns} onColumnStateChange={setColumns} openRowId={openId} onOpenRow={(r) => void open(r.id)} />
       </Box>
-      <RbmRecordDrawer open={!!record} container={container} onClose={() => void close()}>
+      <RbmSlideInRegion open={!!record} width={PANEL_WIDTH[container]} closeOnEscape={false} label={record ? `${record.number} ${record.name}` : 'Record'} onClose={() => void close()}>
         {record && (
           <RbmRecord
             ref={panel}
@@ -149,7 +150,7 @@ function BesideTheList() {
             listName="Events"
           />
         )}
-      </RbmRecordDrawer>
+      </RbmSlideInRegion>
     </Box>
   );
 }

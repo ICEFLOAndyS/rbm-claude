@@ -69,6 +69,36 @@ describe('EventsListPage', () => {
     await waitFor(() => expect(document.activeElement?.closest('.MuiDataGrid-row')?.getAttribute('data-id')).toBe(id));
   });
 
+  it('puts the Command Centre icon on running events only, and it opens that event, not the record', async () => {
+    const onOpenCommandCentre = vi.fn();
+    render(<Harness over={{ onOpenCommandCentre }} />);
+    await waitFor(() => expect(dataRows().length).toBeGreaterThan(0));
+    const rows = eventsBoard().rows;
+    const running = rows.find((r) => r.state === 'active')!;
+    const notRunning = rows.find((r) => r.state !== 'active' && r.state !== 'paused');
+    const button = await screen.findByRole('button', { name: `Open Command Centre, ${running.number}` });
+    if (notRunning) expect(screen.queryByRole('button', { name: `Open Command Centre, ${notRunning.number}` })).toBeNull();
+    await userEvent.click(button);
+    expect(onOpenCommandCentre).toHaveBeenCalledWith(expect.objectContaining({ id: running.id, number: running.number }));
+    // The icon goes to the Command Centre; it does not also open the record.
+    expect(screen.getByTestId('address')).toHaveTextContent('{}');
+  });
+
+  it('has no Command Centre icon without a handler', async () => {
+    render(<Harness />);
+    await waitFor(() => expect(dataRows().length).toBeGreaterThan(0));
+    expect(screen.queryByRole('button', { name: /Open Command Centre/ })).toBeNull();
+  });
+
+  it('opens the Command Centre from the record panel too', async () => {
+    const onOpenCommandCentre = vi.fn();
+    const running = eventsBoard().records.find((r) => r.actions.includes('openCommandCentre'))!;
+    render(<Harness over={{ onOpenCommandCentre }} start={{ record: running.id }} />);
+    const dialog = await screen.findByRole('dialog', { name: `${running.number} ${running.name}` });
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Open Command Centre' }));
+    expect(onOpenCommandCentre).toHaveBeenCalledWith(expect.objectContaining({ id: running.id, number: running.number }));
+  });
+
   it('opens the record in the address straight away (deep link)', async () => {
     const id = eventsBoard().rows[0]!.id;
     render(<Harness start={{ record: id }} />);

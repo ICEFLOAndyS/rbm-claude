@@ -54,9 +54,19 @@ describe('RbmFooter', () => {
     expect(hidden).toHaveStyle({ position: 'absolute', width: '1px', height: '1px' });
   });
 
-  it('leaves out a link without an address', () => {
-    renderFooter({ links: { support: links.support } });
-    expect(screen.getAllByRole('link')).toHaveLength(1);
+  it('goes to the customer portal by default (brief section 5a), in the drawn order', () => {
+    renderFooter({ links: undefined });
+    expect(screen.getAllByRole('link').map((l) => l.getAttribute('href'))).toEqual([
+      'https://customer.iceflo.com/privacy',
+      'https://customer.iceflo.com/portal',
+      'https://customer.iceflo.com/knowledge',
+    ]);
+  });
+
+  it('lets one address be overridden, keeping the others', () => {
+    renderFooter({ links: { support: 'https://test.example/support' } });
+    expect(screen.getByRole('link', { name: 'Support (opens in a new tab)' })).toHaveAttribute('href', 'https://test.example/support');
+    expect(screen.getByRole('link', { name: 'Privacy (opens in a new tab)' })).toHaveAttribute('href', 'https://customer.iceflo.com/privacy');
   });
 
   it('has no buttons: no actions in the footer', () => {

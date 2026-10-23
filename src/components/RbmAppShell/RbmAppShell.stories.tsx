@@ -43,7 +43,7 @@ function Page() {
 
 function Shell({ density, admin, reconnecting, environment, path: start }: Args) {
   const [path, setPath] = useState(start);
-  const navData = useMemo(() => createMockNavData({ permissions: admin ? ['admin'] : [] }), [admin]);
+  const navData = useMemo(() => createMockNavData({ permissions: admin ? ['rbmAdmin', 'techAdmin'] : [] }), [admin]);
   const store = useMemo(() => createMemorySidebarStore(), []);
   return (
     <Box sx={{ height: '100vh' }}>
@@ -80,7 +80,7 @@ const meta: Meta<Args> = {
   argTypes: {
     density: { control: 'inline-radio', options: ['comfortable', 'compact', 'dense', 'command'] },
     environment: { control: 'inline-radio', options: ['Production', 'UAT', 'Test'] },
-    path: { control: 'select', options: ['/events', '/events/REV000009', '/library/templates', '/admin/licences', '/help/support'] },
+    path: { control: 'select', options: ['/events', '/events/REV000009', '/library/content-packs', '/rbm-admin/licences', '/tech-admin/setup', '/help/versions'] },
   },
   parameters: { layout: 'fullscreen' },
 };
@@ -102,6 +102,6 @@ export const Command: Story = { name: 'D0 Command', args: { density: 'command' }
 /** A user without the admin permission. */
 export const WithoutAdmin: Story = { args: { admin: false } };
 /** A deep link: the item and its group heading are brought into view. */
-export const DeepLink: Story = { args: { path: '/admin/licences' } };
+export const DeepLink: Story = { args: { path: '/tech-admin/setup' } };
 /** A lost connection and a UAT environment, in the footer. */
 export const ReconnectingInUat: Story = { name: 'Reconnecting, UAT', args: { reconnecting: true, environment: 'UAT' } };

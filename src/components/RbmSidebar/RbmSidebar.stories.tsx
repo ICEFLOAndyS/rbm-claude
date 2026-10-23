@@ -12,7 +12,7 @@ type Args = Omit<RbmSidebarProps, 'data'> & { level: DensityLevel; admin: boolea
 
 /** The board draws the sidebar 820 px tall. */
 function Frame({ level, admin, count, ...props }: Args) {
-  const data = useMemo(() => createMockNavData({ permissions: admin ? ['admin'] : [], counts: count ? { events: count } : {} }), [admin, count]);
+  const data = useMemo(() => createMockNavData({ permissions: admin ? ['rbmAdmin', 'techAdmin'] : [], counts: count ? { events: count } : {} }), [admin, count]);
   return (
     <RbmDensity level={level}>
       <Box sx={{ height: 820, display: 'flex' }}>
@@ -29,7 +29,7 @@ const meta: Meta<Args> = {
   argTypes: {
     variant: { control: 'inline-radio', options: ['expanded', 'rail'] },
     level: { control: 'inline-radio', options: ['comfortable', 'compact', 'dense', 'command'] },
-    path: { control: 'select', options: ['/events', '/events/REV000009', '/events/folders', '/library/templates', '/library/folders', '/admin/licences', '/help/support', '/unknown'] },
+    path: { control: 'select', options: ['/events', '/events/REV000009', '/events/folders', '/library/templates', '/library/content-packs', '/rbm-admin/folders', '/rbm-admin/licences', '/tech-admin/setup', '/help/versions', '/unknown'] },
     nav: { table: { disable: true } },
   },
   parameters: { layout: 'fullscreen' },

@@ -1,13 +1,14 @@
 import type { RbmIconName } from '../../icons/registry';
+import { footerHref } from './footerLinks';
 
 /**
  * The app shell's navigation, as data (App shell board, "Navigation" and "React and MUI"; app shell brief,
- * section 4). Four groups, decided by Andy Smith, 22 Oct 2026. The sidebar draws whatever this holds, so
- * pages never build their own menu.
+ * section 4). Five groups, decided by Andy Smith on 22 and 23 Oct 2026. The sidebar draws whatever this holds,
+ * so pages never build their own menu.
  */
 
 /** A platform permission that decides whether an item shows. The platform's API says; the UI never decides. */
-export type RbmNavPermission = 'admin';
+export type RbmNavPermission = 'rbmAdmin' | 'techAdmin';
 
 /** A second-level item: indented under its parent while the parent is active. There is no third level. */
 export interface RbmNavChild {
@@ -16,7 +17,10 @@ export interface RbmNavChild {
   label: string;
   /** A registry key, not a component, so pages cannot choose their own icons. */
   icon: RbmIconName;
-  /** The route, from the root, for example '/events'. */
+  /**
+   * The route, from the root, for example '/events'. Or a full address outside RBM (https://…), which opens in
+   * a new tab and is never the active item (Help › Support, the customer portal).
+   */
   to: string;
   /** Shown only to users the platform grants this permission. */
   permission?: RbmNavPermission;
@@ -43,9 +47,10 @@ export type RbmNavCounts = Readonly<Partial<Record<string, number>>>;
 export const NAV_GROUP_MAX = 4;
 
 /**
- * The RBM menu, exactly as the App shell board's `rbmNav` sample (design version 78), with the Admin items
- * marked for the admin permission (proposed in the brief: Admin shows only to users whose platform roles
- * allow it). "License Management" is Andy Smith's wording (US spelling).
+ * The RBM menu (app shell brief v4, section 4; Andy Smith, 23 Oct 2026). Five groups in this order, thirteen
+ * destinations, routes as proposed and accepted. RBM Admin and Tech Admin each show only to users the
+ * platform grants their own permission. Help › Support opens the customer portal, as the footer's Support
+ * does. "License Management" is Andy Smith's wording (US spelling).
  */
 export const rbmNav: RbmNavConfig = [
   {
@@ -59,27 +64,37 @@ export const rbmNav: RbmNavConfig = [
     group: 'Library',
     items: [
       { id: 'templates', label: 'Templates', icon: 'object.template', to: '/library/templates' },
-      { id: 'library-folders', label: 'Folders', icon: 'nav.folder', to: '/library/folders' },
-      { id: 'teams', label: 'Teams', icon: 'object.team', to: '/library/teams' },
-      { id: 'workstreams', label: 'Workstreams', icon: 'object.workstream', to: '/library/workstreams' },
+      { id: 'content-packs', label: 'Content Packs', icon: 'object.contentPack', to: '/library/content-packs' },
     ],
   },
   {
-    group: 'Admin',
+    group: 'RBM Admin',
     items: [
-      { id: 'setup', label: 'Setup', icon: 'nav.setup', to: '/admin/setup', permission: 'admin' },
-      { id: 'integrations', label: 'Integrations', icon: 'nav.integrations', to: '/admin/integrations', permission: 'admin' },
-      { id: 'licences', label: 'License Management', icon: 'nav.license', to: '/admin/licences', permission: 'admin' },
+      { id: 'teams', label: 'Teams', icon: 'object.team', to: '/rbm-admin/teams', permission: 'rbmAdmin' },
+      { id: 'workstreams', label: 'Workstreams', icon: 'object.workstream', to: '/rbm-admin/workstreams', permission: 'rbmAdmin' },
+      { id: 'licences', label: 'License Management', icon: 'nav.license', to: '/rbm-admin/licences', permission: 'rbmAdmin' },
+      { id: 'rbm-folders', label: 'Folders', icon: 'nav.folder', to: '/rbm-admin/folders', permission: 'rbmAdmin' },
+    ],
+  },
+  {
+    group: 'Tech Admin',
+    items: [
+      { id: 'setup', label: 'Setup', icon: 'nav.setup', to: '/tech-admin/setup', permission: 'techAdmin' },
+      { id: 'integrations', label: 'Integrations', icon: 'nav.integrations', to: '/tech-admin/integrations', permission: 'techAdmin' },
     ],
   },
   {
     group: 'Help',
     items: [
       { id: 'training', label: 'Training', icon: 'nav.training', to: '/help/training' },
-      { id: 'support', label: 'Support & Versions', icon: 'nav.support', to: '/help/support' },
+      { id: 'support', label: 'Support', icon: 'nav.support', to: footerHref('support') },
+      { id: 'versions', label: 'Versions', icon: 'nav.versions', to: '/help/versions' },
     ],
   },
 ];
+
+/** True for an address outside RBM, which opens in a new tab. */
+export const isExternal = (item: Pick<RbmNavChild, 'to'>) => /^https?:\/\//.test(item.to);
 
 /** Every item, parents before their children. */
 export function navItems(config: RbmNavConfig): RbmNavChild[] {
@@ -100,7 +115,7 @@ export function checkNavConfig(config: RbmNavConfig): string[] {
     ids.add(item.id);
     if (routes.has(item.to)) problems.push(`duplicate route ${item.to}`);
     routes.add(item.to);
-    if (!/^\/[\w/-]*$/.test(item.to) || (item.to.length > 1 && item.to.endsWith('/'))) problems.push(`route ${item.to} of ${item.id} is not a plain path from the root`);
+    if (!isExternal(item) && (!/^\/[\w/-]*$/.test(item.to) || (item.to.length > 1 && item.to.endsWith('/')))) problems.push(`route ${item.to} of ${item.id} is not a plain path from the root`);
   }
   return problems;
 }
@@ -131,6 +146,8 @@ export function activeNavItem(config: RbmNavConfig, path: string): RbmNavChild |
   const p = cleanPath(path);
   let best: RbmNavChild | undefined;
   for (const item of navItems(config)) {
+    // An address outside RBM is never the page the user is on.
+    if (isExternal(item)) continue;
     const hit = p === item.to || p.startsWith(item.to === '/' ? '/' : `${item.to}/`);
     if (hit && (!best || item.to.length > best.to.length)) best = item;
   }

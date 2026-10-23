@@ -37,17 +37,18 @@ describe('RbmSidebar: expanded', () => {
     expect(screen.getByRole('navigation', { name: 'Main' })).toBeInTheDocument();
   });
 
-  it('shows the four groups, named by their headings, with their items in order', () => {
+  it('shows the five groups, named by their headings, with their items in order', () => {
     renderSidebar();
     const groups = screen.getAllByRole('group');
-    expect(groups.map((g) => g.getAttribute('aria-labelledby') && document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent)).toEqual(['Events', 'Library', 'Admin', 'Help']);
-    expect(within(screen.getByRole('group', { name: 'Library' })).getAllByRole('link').map((l) => l.textContent)).toEqual(['Templates', 'Folders', 'Teams', 'Workstreams']);
+    expect(groups.map((g) => g.getAttribute('aria-labelledby') && document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent)).toEqual(['Events', 'Library', 'RBM Admin', 'Tech Admin', 'Help']);
+    expect(within(screen.getByRole('group', { name: 'RBM Admin' })).getAllByRole('link').map((l) => l.textContent)).toEqual(['Teams', 'Workstreams', 'License Management', 'Folders']);
+    expect(within(screen.getByRole('group', { name: 'Help' })).getAllByRole('link').map((l) => l.textContent)).toEqual(['Training', 'Support', 'Versions']);
     // Headings are text, not links.
     expect(screen.queryByRole('link', { name: 'Events' })).toBeNull();
   });
 
   it('marks the item for the route with aria-current, and only that one', () => {
-    renderSidebar({ path: '/library/teams' });
+    renderSidebar({ path: '/rbm-admin/teams' });
     expect(screen.getByRole('link', { name: 'Teams' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getAllByRole('link').filter((l) => l.hasAttribute('aria-current'))).toHaveLength(1);
   });
@@ -58,45 +59,60 @@ describe('RbmSidebar: expanded', () => {
   });
 
   it('marks the right Folders: the two share a label and an icon', () => {
-    renderSidebar({ path: '/library/folders' });
-    expect(within(screen.getByRole('group', { name: 'Library' })).getByRole('link', { name: 'Folders' })).toHaveAttribute('aria-current', 'page');
+    renderSidebar({ path: '/rbm-admin/folders' });
+    expect(within(screen.getByRole('group', { name: 'RBM Admin' })).getByRole('link', { name: 'Folders' })).toHaveAttribute('aria-current', 'page');
     expect(within(screen.getByRole('group', { name: 'Events' })).getByRole('link', { name: 'Folders' })).not.toHaveAttribute('aria-current');
   });
 
   it('links to each route, through hrefFor', () => {
     renderSidebar({ hrefFor: (to) => `#${to}` });
-    expect(screen.getByRole('link', { name: 'License Management' })).toHaveAttribute('href', '#/admin/licences');
+    expect(screen.getByRole('link', { name: 'License Management' })).toHaveAttribute('href', '#/rbm-admin/licences');
+  });
+
+  it('opens Help › Support, the customer portal, in a new tab and says so, without onNavigate', async () => {
+    const onNavigate = vi.fn();
+    renderSidebar({ onNavigate, hrefFor: (to) => `#${to}` });
+    const support = screen.getByRole('link', { name: 'Support (opens in a new tab)' });
+    expect(support).toHaveAttribute('href', 'https://customer.iceflo.com/portal');
+    expect(support).toHaveAttribute('target', '_blank');
+    expect(support).toHaveAttribute('rel', 'noopener noreferrer');
+    support.addEventListener('click', (e) => e.preventDefault());
+    await userEvent.click(support);
+    expect(onNavigate).not.toHaveBeenCalled();
   });
 
   it('draws each item with its registry icon, hidden from screen readers', () => {
     renderSidebar();
-    const icon = screen.getByRole('link', { name: 'Support & Versions' }).querySelector('svg')!;
-    expect(icon).toHaveAttribute('data-icon', 'nav.support');
+    const icon = screen.getByRole('link', { name: 'Versions' }).querySelector('svg')!;
+    expect(icon).toHaveAttribute('data-icon', 'nav.versions');
     expect(icon).toHaveAttribute('aria-hidden', 'true');
   });
 });
 
 describe('RbmSidebar: permissions', () => {
-  it('shows Admin to a user the platform grants admin', () => {
-    renderSidebar({ data: createMockNavData({ permissions: ['admin'] }) });
-    expect(screen.getByRole('group', { name: 'Admin' })).toBeInTheDocument();
+  it('shows each admin group to a user the platform grants its permission', () => {
+    renderSidebar({ data: createMockNavData({ permissions: ['rbmAdmin'] }) });
+    expect(screen.getByRole('group', { name: 'RBM Admin' })).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Tech Admin' })).toBeNull();
   });
 
-  it('hides the Admin items and heading from everyone else', () => {
+  it('hides both admin groups, items and headings, from everyone else', () => {
     renderSidebar({ data: createMockNavData({ permissions: [] }) });
-    expect(screen.queryByRole('group', { name: 'Admin' })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'RBM Admin' })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Tech Admin' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Setup' })).toBeNull();
   });
 
-  it('hides Admin until the platform answers', () => {
+  it('hides the admin groups until the platform answers', () => {
     renderSidebar({ data: undefined });
-    expect(screen.queryByRole('group', { name: 'Admin' })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'RBM Admin' })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Tech Admin' })).toBeNull();
   });
 
   it('follows a change in permissions', () => {
     const data = createMockNavData({ permissions: [] });
     renderSidebar({ data });
-    act(() => data.setPermissions(['admin']));
+    act(() => data.setPermissions(['techAdmin']));
     expect(screen.getByRole('link', { name: 'Setup' })).toBeInTheDocument();
   });
 });
@@ -189,7 +205,7 @@ describe('RbmSidebar: following a link', () => {
     renderSidebar({ onNavigate });
     act(() => screen.getByRole('link', { name: 'Teams' }).focus());
     await userEvent.keyboard('{Enter}');
-    expect(onNavigate).toHaveBeenCalledWith('/library/teams');
+    expect(onNavigate).toHaveBeenCalledWith('/rbm-admin/teams');
   });
 
   it('shows a disabled item, not as a link', () => {
@@ -206,13 +222,13 @@ describe('RbmSidebar: children', () => {
       group: 'Library',
       items: [
         { id: 'templates', label: 'Templates', icon: 'object.template', to: '/library/templates', children: [{ id: 'drafts', label: 'Drafts', icon: 'object.template', to: '/library/templates/drafts' }] },
-        { id: 'teams', label: 'Teams', icon: 'object.team', to: '/library/teams' },
+        { id: 'teams', label: 'Teams', icon: 'object.team', to: '/rbm-admin/teams' },
       ],
     },
   ];
 
   it('shows children only under the active parent', () => {
-    const { unmount } = renderSidebar({ nav, path: '/library/teams' });
+    const { unmount } = renderSidebar({ nav, path: '/rbm-admin/teams' });
     expect(screen.queryByRole('link', { name: 'Drafts' })).toBeNull();
     unmount();
     renderSidebar({ nav, path: '/library/templates/drafts' });
@@ -266,6 +282,20 @@ describe('RbmSidebar: drawer', () => {
     setWidth(390);
     render(<RbmSidebar nav={rbmNav} path="/events" variant="drawer" open />);
     expect(screen.getByRole('navigation')).toHaveStyle({ width: '280px' });
+  });
+
+  it('carries the footer links at the bottom, each opening in a new tab, and only in the drawer', () => {
+    setWidth(800);
+    const links = [{ label: 'Privacy', href: 'https://customer.iceflo.com/privacy' }];
+    const { unmount } = render(<RbmSidebar nav={rbmNav} path="/events" variant="drawer" open drawerLinks={links} />);
+    const privacy = within(screen.getByRole('list', { name: 'Help and legal' })).getByRole('link', { name: 'Privacy (opens in a new tab)' });
+    expect(privacy).toHaveAttribute('href', 'https://customer.iceflo.com/privacy');
+    expect(privacy).toHaveAttribute('target', '_blank');
+    expect(privacy).toHaveAttribute('rel', 'noopener noreferrer');
+    unmount();
+    setWidth(1280);
+    render(<RbmSidebar nav={rbmNav} path="/events" variant="expanded" drawerLinks={links} />);
+    expect(screen.queryByRole('list', { name: 'Help and legal' })).toBeNull();
   });
 
   it('has no Collapse item', () => {
@@ -372,8 +402,8 @@ describe('RbmSidebar: deep links', () => {
       scrolled.push(this);
     };
     try {
-      renderSidebar({ path: '/admin/licences' });
-      expect(scrolled.at(-1)).toBe(screen.getByRole('group', { name: 'Admin' }));
+      renderSidebar({ path: '/rbm-admin/licences' });
+      expect(scrolled.at(-1)).toBe(screen.getByRole('group', { name: 'RBM Admin' }));
     } finally {
       Element.prototype.scrollIntoView = original;
     }

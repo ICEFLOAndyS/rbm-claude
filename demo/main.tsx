@@ -272,7 +272,7 @@ function Demo() {
           }
           programme="Q4 Data Centre Migration"
           clock={clockText || undefined}
-          footer={{ version: pkg.version, updatedAt: clockText || undefined, environment: { name: 'Development', production: false }, links: { privacy: 'https://iceflo.com', support: 'https://iceflo.com', knowledge: 'https://iceflo.com' } }}
+          footer={{ version: pkg.version, updatedAt: clockText || undefined, environment: { name: 'Development', production: false } }}
         >
           <ScrollOnLoad ready={!!live} />
           {number ? (

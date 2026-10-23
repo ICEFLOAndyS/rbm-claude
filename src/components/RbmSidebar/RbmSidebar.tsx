@@ -3,7 +3,7 @@ import { Box, Drawer, ListItemButton, Tooltip, useMediaQuery } from '@mui/materi
 import { RbmIcon } from '../../icons/RbmIcon';
 import { useDensity } from '../../theme/RbmDensity';
 import { colour, onDeepBlue, shellSize, stroke } from '../../theme/tokens';
-import { activeNavItem, navLocation, visibleNav, type RbmNavChild, type RbmNavConfig } from '../../data/nav/nav';
+import { activeNavItem, isExternal, navLocation, visibleNav, type RbmNavChild, type RbmNavConfig } from '../../data/nav/nav';
 import { useNavCounts, useNavPermissions, type NavData } from '../../data/nav/navData';
 import type { SidebarPreferenceStore } from '../../data/nav/sidebarPreference';
 
@@ -19,6 +19,9 @@ import type { SidebarPreferenceStore } from '../../data/nav/sidebarPreference';
  */
 
 export type RbmSidebarVariant = 'expanded' | 'rail' | 'drawer';
+
+/** Read by screen readers, not shown. In sx, width: 1 would mean 100%: the size is given in px. */
+const visuallyHidden = { position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0, p: 0, m: '-1px' } as const;
 
 /** Widths at which the form changes (App shell board, "Responsive behaviour"). */
 export const SIDEBAR_EXPANDED_FROM = 1200;
@@ -51,11 +54,16 @@ export interface RbmSidebarProps {
   drawerTop?: number;
   /** The navigation landmark's name. */
   label?: string;
+  /**
+   * Links shown at the bottom of the drawer only: the footer's Privacy, Support and Knowledge, which the footer
+   * hides below 900 px (Andy Smith, 23 Oct 2026). Each opens in a new tab.
+   */
+  drawerLinks?: readonly { label: string; href: string }[];
   /** The landmark's id, so the top bar's menu button can name the drawer it opens (aria-controls). */
   id?: string;
 }
 
-export function RbmSidebar({ nav, data, path, variant, hrefFor = (to) => to, onNavigate, onToggleCollapse, open = false, onClose, drawerTop = 0, label = 'Main', id }: RbmSidebarProps) {
+export function RbmSidebar({ nav, data, path, variant, hrefFor = (to) => to, onNavigate, onToggleCollapse, open = false, onClose, drawerTop = 0, label = 'Main', drawerLinks = [], id }: RbmSidebarProps) {
   const d = useDensity();
   const phone = useMediaQuery(`(max-width: ${PHONE_BELOW - 0.02}px)`, { noSsr: true });
   const can = useNavPermissions(data);
@@ -75,8 +83,10 @@ export function RbmSidebar({ nav, data, path, variant, hrefFor = (to) => to, onN
   const active = activeNavItem(menu, path);
   const at = navLocation(menu, path);
 
+  // An address outside RBM is followed by the browser, in a new tab; a route goes through onNavigate.
+  const linkFor = (to: string) => (isExternal({ to }) ? to : hrefFor(to));
   const navigate = (to: string) => (e: MouseEvent) => {
-    if (onNavigate && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+    if (onNavigate && !isExternal({ to }) && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
       e.preventDefault();
       onNavigate(to);
     }
@@ -113,12 +123,12 @@ export function RbmSidebar({ nav, data, path, variant, hrefFor = (to) => to, onN
               const showChildren = !rail && item.children && item.children.length > 0 && at?.parent.id === item.id;
               return (
                 <li key={item.id}>
-                  <NavLink item={item} active={isActive} rail={rail} count={counts[item.id]} href={hrefFor(item.to)} onClick={navigate(item.to)} />
+                  <NavLink item={item} active={isActive} rail={rail} count={counts[item.id]} href={linkFor(item.to)} onClick={navigate(item.to)} />
                   {showChildren && (
                     <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0 }}>
                       {item.children!.map((child) => (
                         <li key={child.id}>
-                          <NavLink item={child} active={active?.id === child.id} rail={false} count={counts[child.id]} href={hrefFor(child.to)} onClick={navigate(child.to)} indent />
+                          <NavLink item={child} active={active?.id === child.id} rail={false} count={counts[child.id]} href={linkFor(child.to)} onClick={navigate(child.to)} indent />
                         </li>
                       ))}
                     </Box>
@@ -130,6 +140,19 @@ export function RbmSidebar({ nav, data, path, variant, hrefFor = (to) => to, onN
         ))}
       </Box>
       {onToggleCollapse && variant !== 'drawer' && <CollapseItem rail={rail} onClick={onToggleCollapse} />}
+      {variant === 'drawer' && drawerLinks.length > 0 && (
+        // Not drawn (proposed): the footer's links, quiet, at the bottom of the drawer.
+        <Box component="ul" aria-label="Help and legal" sx={{ listStyle: 'none', m: 0, p: '10px 16px 14px', display: 'flex', flexWrap: 'wrap', gap: 4, borderTop: `${stroke.thin}px solid ${onDeepBlue.divider}`, fontSize: d.caption }}>
+          {drawerLinks.map((l) => (
+            <li key={l.href}>
+              <Box component="a" href={l.href} target="_blank" rel="noopener noreferrer" onClick={() => onClose?.()} sx={{ color: colour.blueLight, fontWeight: 600, textDecoration: 'none', '&:hover': { textDecoration: 'underline' }, '&:focus-visible': { outline: `${stroke.thick}px solid ${colour.white}`, outlineOffset: 2, borderRadius: '4px' } }}>
+                {l.label}
+                <Box component="span" sx={visuallyHidden}> (opens in a new tab)</Box>
+              </Box>
+            </li>
+          ))}
+        </Box>
+      )}
     </Box>
   );
 
@@ -181,6 +204,7 @@ interface NavLinkProps {
 }
 
 function NavLink({ item, active, rail, count, href, onClick, indent }: NavLinkProps) {
+  const external = isExternal(item);
   const d = useDensity();
   const size = shellSize[d.level];
   const hasCount = count !== undefined && count > 0;
@@ -188,11 +212,12 @@ function NavLink({ item, active, rail, count, href, onClick, indent }: NavLinkPr
     <ListItemButton
       component={item.disabled ? 'div' : 'a'}
       {...(item.disabled ? {} : { href })}
+      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
       onClick={item.disabled ? undefined : onClick}
       disabled={item.disabled}
       selected={active}
       aria-current={active ? 'page' : undefined}
-      aria-label={hasCount ? `${item.label} (${count})` : item.label}
+      aria-label={`${item.label}${hasCount ? ` (${count})` : ''}${external ? ' (opens in a new tab)' : ''}`}
       disableGutters
       sx={{
         position: 'relative',

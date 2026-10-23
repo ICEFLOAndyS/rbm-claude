@@ -1,42 +1,54 @@
 import { act, renderHook } from '@testing-library/react';
-import { activeNavItem, checkNavConfig, NAV_GROUP_MAX, navItems, navLocation, rbmNav, visibleNav, type RbmNavConfig } from './nav';
+import { activeNavItem, checkNavConfig, isExternal, NAV_GROUP_MAX, navItems, navLocation, rbmNav, visibleNav, type RbmNavConfig } from './nav';
+import { RBM_FOOTER_LINKS } from './footerLinks';
 import { createMockNavData, useNavCounts, useNavPermissions } from './navData';
 import { rbmIconNames } from '../../icons/registry';
 
 describe('rbmNav', () => {
-  it('has the four groups in order', () => {
-    expect(rbmNav.map((g) => g.group)).toEqual(['Events', 'Library', 'Admin', 'Help']);
+  it('has the five groups in order', () => {
+    expect(rbmNav.map((g) => g.group)).toEqual(['Events', 'Library', 'RBM Admin', 'Tech Admin', 'Help']);
   });
 
-  it('has the eleven items, labels and routes from the brief', () => {
+  it('has the thirteen items, labels and routes from the brief (v4) and the accepted routes', () => {
     expect(navItems(rbmNav).map((i) => [i.label, i.to])).toEqual([
       ['List', '/events'],
       ['Folders', '/events/folders'],
       ['Templates', '/library/templates'],
-      ['Folders', '/library/folders'],
-      ['Teams', '/library/teams'],
-      ['Workstreams', '/library/workstreams'],
-      ['Setup', '/admin/setup'],
-      ['Integrations', '/admin/integrations'],
-      ['License Management', '/admin/licences'],
+      ['Content Packs', '/library/content-packs'],
+      ['Teams', '/rbm-admin/teams'],
+      ['Workstreams', '/rbm-admin/workstreams'],
+      ['License Management', '/rbm-admin/licences'],
+      ['Folders', '/rbm-admin/folders'],
+      ['Setup', '/tech-admin/setup'],
+      ['Integrations', '/tech-admin/integrations'],
       ['Training', '/help/training'],
-      ['Support & Versions', '/help/support'],
+      ['Support', 'https://customer.iceflo.com/portal'],
+      ['Versions', '/help/versions'],
     ]);
   });
 
   it('uses the icons from the brief (section 6a), and every one is registered', () => {
     expect(navItems(rbmNav).map((i) => i.icon)).toEqual([
       'nav.list', 'nav.folder',
-      'object.template', 'nav.folder', 'object.team', 'object.workstream',
-      'nav.setup', 'nav.integrations', 'nav.license',
-      'nav.training', 'nav.support',
+      'object.template', 'object.contentPack',
+      'object.team', 'object.workstream', 'nav.license', 'nav.folder',
+      'nav.setup', 'nav.integrations',
+      'nav.training', 'nav.support', 'nav.versions',
     ]);
     for (const item of navItems(rbmNav)) expect(rbmIconNames).toContain(item.icon);
   });
 
-  it('marks only the Admin items for the admin permission', () => {
-    const admin = navItems(rbmNav).filter((i) => i.permission === 'admin').map((i) => i.id);
-    expect(admin).toEqual(['setup', 'integrations', 'licences']);
+  it('gives each admin group its own permission, and nothing else a permission', () => {
+    const by = (p: string) => navItems(rbmNav).filter((i) => i.permission === p).map((i) => i.id);
+    expect(by('rbmAdmin')).toEqual(['teams', 'workstreams', 'licences', 'rbm-folders']);
+    expect(by('techAdmin')).toEqual(['setup', 'integrations']);
+    expect(navItems(rbmNav).filter((i) => i.permission).length).toBe(6);
+  });
+
+  it('sends Help › Support to the customer portal, as the footer does', () => {
+    const support = navItems(rbmNav).find((i) => i.id === 'support')!;
+    expect(isExternal(support)).toBe(true);
+    expect(support.to).toBe(RBM_FOOTER_LINKS.find((l) => l.key === 'support')!.href);
   });
 
   it('passes its own rules', () => {
@@ -67,14 +79,19 @@ describe('checkNavConfig', () => {
 });
 
 describe('visibleNav', () => {
-  it('shows Admin to a user the platform grants admin', () => {
-    expect(visibleNav(rbmNav, () => true).map((g) => g.group)).toEqual(['Events', 'Library', 'Admin', 'Help']);
+  it('shows both admin groups to a user the platform grants both', () => {
+    expect(visibleNav(rbmNav, () => true).map((g) => g.group)).toEqual(['Events', 'Library', 'RBM Admin', 'Tech Admin', 'Help']);
   });
 
-  it('hides the Admin items, and so the Admin heading, from everyone else', () => {
+  it('shows one admin group without the other (Andy Smith: separate permissions)', () => {
+    expect(visibleNav(rbmNav, (p) => p === 'rbmAdmin').map((g) => g.group)).toEqual(['Events', 'Library', 'RBM Admin', 'Help']);
+    expect(visibleNav(rbmNav, (p) => p === 'techAdmin').map((g) => g.group)).toEqual(['Events', 'Library', 'Tech Admin', 'Help']);
+  });
+
+  it('hides both admin groups, headings and all, from everyone else', () => {
     const nav = visibleNav(rbmNav, () => false);
     expect(nav.map((g) => g.group)).toEqual(['Events', 'Library', 'Help']);
-    expect(navItems(nav)).toHaveLength(8);
+    expect(navItems(nav)).toHaveLength(7);
   });
 
   it('keeps a group that still has items, and hides children too', () => {
@@ -82,8 +99,8 @@ describe('visibleNav', () => {
       {
         group: 'G',
         items: [
-          { id: 'a', label: 'A', icon: 'nav.list', to: '/a', children: [{ id: 'a1', label: 'A1', icon: 'nav.list', to: '/a/1', permission: 'admin' }] },
-          { id: 'b', label: 'B', icon: 'nav.list', to: '/b', permission: 'admin' },
+          { id: 'a', label: 'A', icon: 'nav.list', to: '/a', children: [{ id: 'a1', label: 'A1', icon: 'nav.list', to: '/a/1', permission: 'rbmAdmin' }] },
+          { id: 'b', label: 'B', icon: 'nav.list', to: '/b', permission: 'rbmAdmin' },
         ],
       },
     ];
@@ -101,20 +118,23 @@ describe('activeNavItem: the route marks the item', () => {
     ['/events/folders/f-12', 'event-folders'],
     // A deep link to an event's Command Centre marks Events › List (decided by Andy Smith, 23 Oct 2026).
     ['/events/REV000009', 'events'],
-    ['/library/folders', 'library-folders'],
-    ['/admin/licences', 'licences'],
-    ['/help/support', 'support'],
+    ['/library/content-packs', 'content-packs'],
+    ['/rbm-admin/folders', 'rbm-folders'],
+    ['/rbm-admin/licences', 'licences'],
+    ['/tech-admin/setup', 'setup'],
+    ['/help/versions', 'versions'],
   ])('%s marks %s', (path, id) => {
     expect(activeNavItem(rbmNav, path)?.id).toBe(id);
   });
 
-  it.each(['/', '/eventsx', '/library', '/unknown/page'])('%s marks nothing', (path) => {
+  // The old routes, and Help › Support, which is the portal and never the page the user is on.
+  it.each(['/', '/eventsx', '/library', '/unknown/page', '/library/folders', '/admin/setup', '/help/support'])('%s marks nothing', (path) => {
     expect(activeNavItem(rbmNav, path)).toBeUndefined();
   });
 
   it('finds the group, so its heading can be shown', () => {
-    const at = navLocation(rbmNav, '/library/teams');
-    expect(at?.group.group).toBe('Library');
+    const at = navLocation(rbmNav, '/rbm-admin/teams');
+    expect(at?.group.group).toBe('RBM Admin');
     expect(at?.parent.id).toBe('teams');
   });
 
@@ -129,17 +149,19 @@ describe('activeNavItem: the route marks the item', () => {
 });
 
 describe('NavData hooks', () => {
-  it('grants admin to the mock user by default, and follows a change', () => {
+  it('grants both admin permissions to the mock user by default, and follows a change', () => {
     const data = createMockNavData();
     const { result } = renderHook(() => useNavPermissions(data));
-    expect(result.current('admin')).toBe(true);
-    act(() => data.setPermissions([]));
-    expect(result.current('admin')).toBe(false);
+    expect(result.current('rbmAdmin')).toBe(true);
+    expect(result.current('techAdmin')).toBe(true);
+    act(() => data.setPermissions(['rbmAdmin']));
+    expect(result.current('techAdmin')).toBe(false);
   });
 
   it('grants nothing without data, so Admin stays hidden until the platform answers', () => {
     const { result } = renderHook(() => useNavPermissions(undefined));
-    expect(result.current('admin')).toBe(false);
+    expect(result.current('rbmAdmin')).toBe(false);
+    expect(result.current('techAdmin')).toBe(false);
   });
 
   it('has no counts by default, and follows live counts', () => {

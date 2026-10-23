@@ -202,7 +202,7 @@ describe('RbmAppShell: what a page gets', () => {
     const onNavigate = vi.fn();
     renderShell({ onNavigate });
     await userEvent.click(screen.getByRole('link', { name: 'Teams' }));
-    expect(onNavigate).toHaveBeenCalledWith('/library/teams');
+    expect(onNavigate).toHaveBeenCalledWith('/rbm-admin/teams');
   });
 
   it('reports the account menu', async () => {
@@ -218,9 +218,20 @@ describe('RbmAppShell: what a page gets', () => {
     expect(screen.getByRole('button', { name: 'Notifications (3 new)' })).toBeInTheDocument();
   });
 
-  it('hides Admin from a user the platform does not grant it', () => {
+  it('hides the admin groups from a user the platform does not grant them', () => {
     renderShell({ navData: createMockNavData({ permissions: [] }) });
     act(() => {});
-    expect(screen.queryByRole('group', { name: 'Admin' })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'RBM Admin' })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Tech Admin' })).toBeNull();
+  });
+
+  it('below 900 px puts the footer links in the drawer, with the footer addresses', async () => {
+    setWidth(800);
+    renderShell({ footer: { ...footer, links: { support: 'https://test.example/support' } } });
+    expect(within(screen.getByRole('contentinfo')).queryAllByRole('link')).toEqual([]);
+    await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
+    const list = screen.getByRole('list', { name: 'Help and legal' });
+    expect(within(list).getByRole('link', { name: 'Support (opens in a new tab)' })).toHaveAttribute('href', 'https://test.example/support');
+    expect(within(list).getByRole('link', { name: 'Privacy (opens in a new tab)' })).toHaveAttribute('href', 'https://customer.iceflo.com/privacy');
   });
 });

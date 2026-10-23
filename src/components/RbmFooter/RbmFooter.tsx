@@ -3,6 +3,7 @@ import { RbmIcon } from '../../icons/RbmIcon';
 import { RbmStatusDot } from '../RbmStatusPill/RbmStatusPill';
 import { useDensity } from '../../theme/RbmDensity';
 import { colour, shellSize, stroke, type DensityLevel } from '../../theme/tokens';
+import { RBM_FOOTER_LINKS, footerHref, type RbmFooterLinkKey } from '../../data/nav/footerLinks';
 
 /**
  * The footer (App shell board, "Footer"): fixed to the bottom, always visible, always quiet. Left to right:
@@ -16,14 +17,13 @@ import { colour, shellSize, stroke, type DensityLevel } from '../../theme/tokens
  *   D0 Command        Deep Blue: connection, sync time and version
  */
 
-export type RbmFooterLink = 'privacy' | 'support' | 'knowledge';
+/** A footer link: privacy, support or knowledge. */
+export type RbmFooterLink = RbmFooterLinkKey;
 
-const linkLabels: Record<RbmFooterLink, string> = { privacy: 'Privacy', support: 'Support', knowledge: 'Knowledge' };
 /** Read by screen readers, not shown. */
 // In sx, width: 1 would mean 100%: the size is given in px.
 const visuallyHidden = { position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0, p: 0, m: '-1px' } as const;
 
-const linkOrder: readonly RbmFooterLink[] = ['privacy', 'support', 'knowledge'];
 
 /** Side padding as drawn at each level (page chrome, not on the density scale). */
 const padX: Record<DensityLevel, number> = { command: 32, comfortable: 24, compact: 20, dense: 16 };
@@ -38,7 +38,7 @@ export interface RbmFooterProps {
   /** A lost connection shows "Reconnecting" in place of the sync time. */
   connection?: 'live' | 'reconnecting';
   environment?: { name: string; production: boolean };
-  /** Where each link goes. A link without an address is not shown. */
+  /** Overrides a link's address (for a test or another environment). By default each goes to the customer portal (RBM_FOOTER_LINKS). */
   links?: Partial<Record<RbmFooterLink, string>>;
 }
 
@@ -84,7 +84,6 @@ export function RbmFooter({ version, year = new Date().getFullYear(), updatedAt,
     );
   }
 
-  const shownLinks = linkOrder.filter((k) => links[k]);
   return (
     <Box
       component="footer"
@@ -131,11 +130,11 @@ export function RbmFooter({ version, year = new Date().getFullYear(), updatedAt,
             sx={{ height: 20, fontSize: 12, fontWeight: 700, color: colour.ink, borderColor: colour.silver, '& .MuiChip-icon': { color: colour.slate, ml: '6px' } }}
           />
         ))}
-      {showLinks && shownLinks.length > 0 && (
+      {showLinks && (
         <Box component="nav" aria-label="Help and legal" sx={{ display: 'inline-flex', gap: 4 }}>
-          {shownLinks.map((k) => (
-            <Link key={k} href={links[k]} target="_blank" rel="noopener noreferrer" underline="hover" sx={{ fontWeight: 600, color: colour.deepBlue }}>
-              {linkLabels[k]}
+          {RBM_FOOTER_LINKS.map(({ key, label }) => (
+            <Link key={key} href={footerHref(key, links)} target="_blank" rel="noopener noreferrer" underline="hover" sx={{ fontWeight: 600, color: colour.deepBlue }}>
+              {label}
               <NewTab />
             </Link>
           ))}

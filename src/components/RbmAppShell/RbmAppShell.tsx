@@ -9,6 +9,7 @@ import { colour, shellSize, stroke, type DensityLevel } from '../../theme/tokens
 import type { RbmNavConfig } from '../../data/nav/nav';
 import type { NavData } from '../../data/nav/navData';
 import type { SidebarPreferenceStore } from '../../data/nav/sidebarPreference';
+import { RBM_FOOTER_LINKS, footerHref } from '../../data/nav/footerLinks';
 import { ShellFrameContext } from './shellContext';
 
 /**
@@ -154,6 +155,8 @@ function Frame({ nav, navData, user, path, hrefFor, onNavigate, footer, density 
           open={sidebar.drawerOpen}
           onClose={sidebar.closeDrawer}
           drawerTop={size.topBar}
+          // Below 900 px the footer hides its links, so the drawer carries them (Andy Smith, 23 Oct 2026).
+          drawerLinks={RBM_FOOTER_LINKS.map((l) => ({ label: l.label, href: footerHref(l.key, footer.links) }))}
         />
       </Box>
       {/* The content frame hosts the slide-in region; the scroller inside it holds the page. */}

@@ -88,3 +88,5 @@ export { RbmTopBar } from './components/RbmTopBar/RbmTopBar';
 export type { RbmTopBarProps } from './components/RbmTopBar/RbmTopBar';
 export { RbmAccountMenu } from './components/RbmTopBar/RbmAccountMenu';
 export type { RbmAccountMenuProps, RbmUser, RbmAccountAction } from './components/RbmTopBar/RbmAccountMenu';
+export { RbmPageHeader } from './components/RbmPageHeader/RbmPageHeader';
+export type { RbmPageHeaderProps, RbmPageAction, RbmCrumb, RbmCrumbs, RbmProgramme } from './components/RbmPageHeader/RbmPageHeader';

@@ -736,6 +736,29 @@ Built from the App shell board ("Top bar": D1, D2, D3, rail collapsed, account m
 - **Not built:** the search command palette on the / key. It is described on the board but not drawn, and is not part of this step.
 - **Visual check:** D1, D2, the rail, the narrow bar at 600 px and D0 were captured in headless Edge and match the board. Headless Edge cannot go below about 500 px wide, so 390 px is checked in the shell (step 8).
 
+### 23 Oct 2026: `RbmPageHeader` (app shell, step 5)
+Built from the App shell board ("Page header"). As decided today, the Command Centre and the Events list keep their own headers for now, so no page uses this one yet.
+- **Context row:**
+  - The programme, with a switcher when there is more than one: "PROGRAMME" in the eyebrow type, the name in Deep Blue and the chevron.
+  - A 1 px Silver divider.
+  - On event pages, "EVENT" with the event's name and its status pill.
+  - Without a programme or an event, there is no context row.
+- **Breadcrumb:** the parents as Deep Blue links with Silver "/" separators, then the page in Slate, not a link, with `aria-current="page"`. The types allow at most three parents, so at most four levels. The page's crumb is the title, as drawn.
+- **Title:** the only `h1`, at the shell table's size (28, 24, 20 px), 800, Ink, with the status pill beside it when the page has a status.
+- **Metadata:** one line in Slate, cut with an ellipsis (the full text in a tooltip).
+- **Actions:** typed as data, so the board's rule holds: `actions` (secondary, first) and one `primaryAction`, the green CTA, last. Buttons take the density's control height.
+- **Sizes:** the context row, breadcrumb and metadata keep the drawn sizes (13 px; labels 11 px), because page headers are region chrome (density.md). Both pills are `RbmStatusPill` compact, 24 px as drawn.
+- **Differs from the board (flagged):**
+  - **Secondary button:** "Edit" is drawn white with a 1 px Silver border and 700 text. The build uses the library's outlined button (Deep Blue 2 px outline), as the list page's Import does. One of the two drawings should change.
+  - **Button height:** 48 px at D1 and 36 px at D2 (density), drawn 40.
+- **Not drawn (MUI defaults or proposed, flagged):**
+  - the programme switcher's menu (MUI's menu, with the current programme selected);
+  - the switcher's focus ring (Blue Dark, as elsewhere on light backgrounds);
+  - narrow widths: the actions move under the title, and the divider in the context row can be left at the end of a line when the row wraps;
+  - long titles wrap;
+  - the event has no switcher (none is drawn).
+- **Visual check:** the D1 event page was captured in headless Edge and matches the board, except for the Edit button above.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

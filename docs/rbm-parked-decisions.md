@@ -676,6 +676,24 @@ Icon suite board, design version 76; the suite is now 73 icons. Objects go from 
 - To check: against Open full page (both are an arrow leaving a frame) at 16 px.
 - Still not in the suite: the other Profile menu icons (Profile, Settings, Notification preferences), the bell, the menu button, collapse and expand, the programme switcher chevron, and the footer sync and environment icons.
 
+### 23 Oct 2026: RBM Admin becomes two pages of domain cards (decided by Andy Smith)
+- RBM Admin now has two menu items: **Admin Centre** and **Setup & Config**. Each opens a page in the main region, mostly an array of cards, one per **admin domain**. The pattern repeats.
+- Admin Centre domains: Teams, Workstreams, License Management, Folders. Setup & Config domains: System Properties, Integrations, Diagnostics (Andy said "will include", so the list is open).
+- **The Tech Admin group is gone** (my reading: Setup and Integrations are now Setup & Config domains, so it would be empty). Confirm.
+- The menu is now four groups, nine destinations: Events (List, Folders); Library (Templates, Content Packs); RBM Admin (Admin Centre, Setup & Config); Help (Training, Support, Versions).
+- New Admin pages section on the Icon suite board. Three new icons, all Proposed: **Admin Centre** (`centre.admin`, the Centre base with a shield badge, so it joins the Centre family), **System Properties** (`admin.systemProperties`, curly braces) and **Diagnostics** (`admin.diagnostics`, a pulse line). Everything else reuses an existing icon (Team, Workstream, License, Folder, Integrations, and Setup for Setup & Config). Suite is now 107 icons.
+- My choice, not Andy's: curly braces for System Properties, because a gear would be too close to the Automated task type; and a plain shield badge for Admin Centre (no tick, so not the Approved state).
+- App shell board updated (sidebars, rail, drawer, sample code, rules text). The sidebars are shorter again. Shell brief has a new section 4a (typed `RbmAdminPage` and `RbmAdminDomain` data) and new routes: `/rbm-admin/centre`, `/rbm-admin/setup-config` and a page per domain.
+- Not drawn: the admin page itself and the domain card. The brief says to use the clickable card and flag it.
+
+### 23 Oct 2026: Admin domain card (asked by Andy Smith)
+- Each admin domain gets a card. It must take a picture, icon or logo for the vendor of the product involved (for example ServiceNow, AWS, Jira, Microsoft Teams). Where there is no logo it uses the RBM icon (for example Teams).
+- Drawn on the Cards board as the **Admin domain card** (Proposed): a media tile, the name, one line, and at most one status or count. All four densities, an Integrations page example, sizes by density, eight rules and the React and MUI spec.
+- **No real logos are drawn.** The board uses dashed placeholders. I will not recreate vendor logos: the real files must come from each vendor's brand kit, with their terms respected.
+- Rules I set (to confirm): the tile is white with a hairline border for logos, and pale fill for icons so the two tell apart; logos are fitted, never recoloured; the logo is decorative with the title as the accessible name; a missing or failed logo falls back to the RBM icon; status is a dot and text, with Connected in Blue (not green: Brand Green means Complete only).
+- Statuses (Connected, Not connected), the sample descriptions and the counts are invented for the board.
+- Shell brief section 4a updated to point to this card.
+
 ### 23 Oct 2026: App shell build plan (decided by Andy Smith)
 - **Branch:** the shell is built on `rbm-app-shell`, from `rbm-list-page`, so the demo can show the Events list inside the shell.
 - **Page headers stay with the pages.** The Command Centre and `RbmListPage` keep their own headers in the content zone. `RbmPageHeader` is built as drawn on the Shell board, but no page uses it yet. **Differs from the board:** the board puts the header in a fixed zone above the scrolling content, so on these two pages the header scrolls away.
@@ -1054,3 +1072,5 @@ Source: the icon suite brief, v2 (now `docs/icon-suite-brief.md`), and the proje
 - **Menu:** is the group order right? Are the routes right? Which roles see RBM Admin and which see Tech Admin? Does Setup in Tech Admin still read as the right name, now that RBM Admin exists?
 - **Content Pack card:** are Title, Status, Version, Stages, Tasks and Used in the right fields? Is Approved the only status a pack shows, or does it also have Draft, Retired and the like?
 - **Versions:** is the tag the right icon, and what does the Versions page show? Should Support (Help) go to the customer portal?
+- **Admin pages:** confirm Tech Admin is gone. Is the Admin Centre badge right? Should there be a domain card on the Cards board, and a drawn admin page? Which roles see which domains? Where do Content Packs and Templates admin live, if they need admin?
+- **Admin domain card:** who supplies the vendor logos, and are the brand kits cleared for use? What statuses does an integration show? Do the other domains need a status or count? One card per connection, or per product?

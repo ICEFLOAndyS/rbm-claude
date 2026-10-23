@@ -2,7 +2,7 @@
 
 Prepared 22 Oct 2026. This brief covers one piece of work: the **app shell** (`RbmAppShell`) with its six zones and the new five-group navigation. It builds on `docs/handoff-brief.md` and `docs/rbm-parked-decisions.md`. Read those first. Everything there still applies (tokens, naming, working agreement, fallback styles, accessibility). If this brief and the design disagree, the differences are listed in section 9: do not guess, ask.
 
-**Status of this brief:** the navigation structure and the icon rule come from Andy Smith (22 Oct 2026), and the five-group regrouping with Content Packs on 23 Oct 2026. The design is already updated to match (design version 99): the App shell board has the four-group sidebar, and the Icon suite board has the seven new navigation icons. Build what is drawn.
+**Status of this brief:** the navigation structure and the icon rule come from Andy Smith (22 Oct 2026), and the regrouping with Content Packs and the two-item RBM Admin group on 23 Oct 2026. The design is already updated to match (design version 104): the App shell board has the four-group sidebar, and the Icon suite board has the seven new navigation icons. Build what is drawn.
 
 ## 1. Goal
 Deliver a working, tested `RbmAppShell` that draws the whole RBM screen as designed, with typed navigation data, so every page template renders inside it and no page builds its own frame. Run it in Storybook and in the browser prototype.
@@ -42,7 +42,7 @@ The shell reads the density scope like every other component. D0 removes the sid
 - **Under 600 px:** same drawer, 280 px wide; footer shows version and sync time only; slide-in is a full-screen page.
 - The first visit uses the width (expanded at 1200 px and above, rail below). A user-facing collapse button remembers the choice per user (the board asks whether to include it, see section 9).
 
-## 4. Navigation: five groups (decided by Andy Smith, 22 and 23 Oct 2026)
+## 4. Navigation: four groups (decided by Andy Smith, 22 and 23 Oct 2026)
 Navigation is data, not JSX. Each item has a label, an icon from the registry, a route, and optional count and permission.
 
 | Group | Item | Route (proposed) |
@@ -51,24 +51,50 @@ Navigation is data, not JSX. Each item has a label, an icon from the registry, a
 | | Folders | `/events/folders` |
 | **Library** | Templates | `/library/templates` |
 | | Content Packs | `/library/content-packs` |
-| **RBM Admin** | Teams | `/rbm-admin/teams` |
-| | Workstreams | `/rbm-admin/workstreams` |
-| | License Management | `/rbm-admin/licences` |
-| | Folders | `/rbm-admin/folders` |
-| **Tech Admin** | Setup | `/tech-admin/setup` |
-| | Integrations | `/tech-admin/integrations` |
+| **RBM Admin** | Admin Centre | `/rbm-admin/centre` |
+| | Setup & Config | `/rbm-admin/setup-config` |
 | **Help** | Training | `/help/training` |
 | | Support | `/help/support` |
 | | Versions | `/help/versions` |
 
 - Use the labels exactly as written, including "License Management" (US spelling is Andy's wording; keep it and flag any UK-spelling preference).
-- Group order is Events, Library, RBM Admin, Tech Admin, Help (my reading: Andy named the new group but not its position). The group named **Admin** is now **Tech Admin**, and Teams, Workstreams and License Management moved out of Library and Admin into the new **RBM Admin** group (Andy Smith, 23 Oct 2026). The routes for those five items are my proposal: they used to be under `/library/` and `/admin/`. Content Packs (a new object) is in Library. Help is the last group; Collapse is the only item pinned to the bottom.
+- Group order is Events, Library, RBM Admin, Help. **RBM Admin has two items, Admin Centre and Setup & Config** (Andy Smith, 23 Oct 2026). The earlier Tech Admin group is gone: Setup and Integrations are now domains on the Setup & Config page, and Teams, Workstreams, License Management and Folders are domains on the Admin Centre page. Routes are my proposal. Content Packs (a new object) is in Library.
 - Group names are small headings, not links. Two levels at most; children appear indented under an active parent; there are no fly-out menus.
 - **Item states** as drawn: default, hover, active (white on a tint with a Blue Light bar, deliberately not Blue Dark, because Blue Dark means In progress), focus (the 2 px Blue Dark ring), disabled, and with a count (a white pill, Deep Blue text, neutral).
 - The rail keeps the icons, with a tooltip of the name on hover and focus; a count becomes a small white dot.
 - **Accessibility:** a `nav` landmark with a label; `aria-current="page"` on the active item; a skip link as the first focusable element; the full keyboard order top bar, sidebar, content; Escape closes the drawer and returns focus to the menu button.
-- **Permissions (proposed):** show or hide RBM Admin and Tech Admin items from the user's platform roles, checked by the relevant API. The UI never decides. This follows the agreed rule for actions.
+- **Permissions (proposed):** show or hide RBM Admin items from the user's platform roles, checked by the relevant API. The UI never decides. This follows the agreed rule for actions.
 - The deep link to a route marks the right item active, and its group heading is visible.
+
+### 4a. Admin pages: a repeating pattern (Andy Smith, 23 Oct 2026)
+**Admin Centre** and **Setup & Config** each open a page in the main region. The content of each page is mainly an array of cards, one per **admin domain**. This pattern repeats, so build it once (a page template and a domain card) and feed it from typed data.
+
+| Page | Domains (the list can grow) |
+|---|---|
+| Admin Centre | Teams, Workstreams, License Management, Folders |
+| Setup & Config | System Properties, Integrations, Diagnostics (the list says "will include", so there may be more) |
+
+```ts
+type RbmAdminDomain = {
+  id: string;
+  label: string;
+  description: string;      // one short line
+  icon: RbmIconKey;         // a registry key, never a component
+  to: string;               // route of the domain's own page
+  permission?: string;      // from platform roles, checked by the API
+};
+type RbmAdminPage = { id: 'admin-centre' | 'setup-config'; title: string; domains: RbmAdminDomain[] };
+```
+- **Icons:** Teams `object.team`, Workstreams `object.workstream`, License Management `nav.license`, Folders `nav.folder`, System Properties `admin.systemProperties` (new), Integrations `nav.integrations`, Diagnostics `admin.diagnostics` (new). See the Admin pages section of the Icon suite board.
+- **Domain routes (my proposal):** `/rbm-admin/centre/teams`, `/workstreams`, `/licences`, `/folders`, and `/rbm-admin/setup-config/system-properties`, `/integrations`, `/diagnostics`. The old routes `/rbm-admin/teams` and the like, and `/tech-admin/*`, no longer exist.
+- **Card (drawn, Proposed):** the **Admin domain card** on the Cards board (design version 106): `RbmDomainCard`. A media tile, the name, one short line, and at most one status or count. The whole card is one link (a `CardActionArea`), with no buttons inside. It has all four densities on the board (tile 88, 56, 40 and 28 px). Build it from the spec on the Cards board, not from the old clickable record card.
+  - **Media tile:** the **vendor's logo** where there is one (ServiceNow, AWS, Jira, Microsoft Teams and so on), otherwise the **RBM icon** for the domain (for example `object.team` for Teams). The logo tile is white with a hairline border; the icon tile is the pale fill with Deep Blue and no border. The logo is fitted (`object-fit: contain`) inside a box with padding, never recoloured, cropped or stretched, and uses the vendor's square mark, not a wordmark.
+  - **Spec:** `{ title, description, icon: RbmIconKey (always set, the fallback), logo?: { src }, status?: { label, tone }, count?, to }`. If the logo is missing or fails to load (`onError`), show the icon. If a domain has no icon of its own, use `nav.integrations`.
+  - **Accessibility:** the logo is decorative (`alt=""`); the title is the accessible name. Status is a dot and text, never colour alone. Microsoft Teams (a logo) and Teams (the RBM icon) differ by their titles.
+  - **Logos are not in the design or the repo.** The board shows dashed placeholders. Do not draw, trace or recreate any vendor logo. Ask Andy where the logo files come from, and whether each vendor's brand rules allow use. Until then build with the fallback icon and a placeholder.
+  - **Not decided:** the statuses an integration shows (the board uses Connected and Not connected, my guess), whether the other domains need a status or count, and whether an integration with several connections is one card or several.
+- **Page:** the page header (title, breadcrumb) with the card grid in the content zone. Grid columns and spacing are not drawn: use the density tokens and flag.
+- **Permissions:** each card is shown or hidden from the user's platform roles. If no domain is allowed, show a plain message, not an empty page.
 
 ## 5. Typed navigation and the component
 ```tsx
@@ -81,7 +107,7 @@ Navigation is data, not JSX. Each item has a label, an icon from the registry, a
   <Outlet />
 </RbmAppShell>
 ```
-- The icon in each nav entry is a **registry key**, not a component (for example `icon: 'nav.list'`), so the lint rule can reject hand-built sidebars and direct icon imports. The App shell board's `rbmNav` sample has the full twelve-item data.
+- The icon in each nav entry is a **registry key**, not a component (for example `icon: 'nav.list'`), so the lint rule can reject hand-built sidebars and direct icon imports. The App shell board's `rbmNav` sample has the full nine-item data.
 - MUI building blocks from the board: CSS grid on a `Box` for the frame (the grid, not `position: fixed`, keeps the bars in place); `Drawer variant="permanent"` (rail is the mini variant), `temporary` under `md` with `useMediaQuery`; `List`, `ListItemButton` with `selected`, `ListItemIcon`, `ListItemText`, `Collapse` for children, `Tooltip` on the rail; `AppBar position="static"` with `elevation=0` and a `Toolbar`; `Avatar`, `ButtonBase` and `Menu` for the account menu; `Badge` and `Popover` for notifications; `Breadcrumbs`, `Typography`, `Chip` and `Select` or `Menu` for the page header; `Box component="footer"`; `Drawer anchor="right"` with a custom container for the slide-in; a visually hidden `Link` for the skip link.
 - The MUI CRUD dashboard template is a reference to copy and own, not a dependency. **Check its licence before copying anything** (the board could not confirm it). Prefer building from the MUI components above.
 
@@ -135,12 +161,8 @@ export const RBM_FOOTER_LINKS = [
 | Events | Folders | `nav.folder` | New |
 | Library | Templates | `object.template` | Existing object icon |
 | Library | Content Packs | `object.contentPack` | New object icon (puzzle piece, Objects section of the Icon suite board) |
-| RBM Admin | Teams | `object.team` | Existing object icon |
-| RBM Admin | Workstreams | `object.workstream` | Existing object icon (Workstream, from the Global and local section of the Icon suite board) |
-| RBM Admin | License Management | `nav.license` | New |
-| RBM Admin | Folders | `nav.folder` | Same icon as Events: Folders |
-| Tech Admin | Setup | `nav.setup` | New |
-| Tech Admin | Integrations | `nav.integrations` | New |
+| RBM Admin | Admin Centre | `centre.admin` | New (the Centre base with a shield badge, Icon suite board) |
+| RBM Admin | Setup & Config | `nav.setup` | Same icon as the old Setup item |
 | Help | Training | `nav.training` | New |
 | Help | Support | `nav.support` | New |
 | Help | Versions | `nav.versions` | New (a tag, proposed by me: Andy did not choose it) |
@@ -173,14 +195,14 @@ One piece per pull request, each with Storybook stories for every state, unit te
 
 ## 8. Acceptance
 - All six zones visible and correct at 1280, 1024, 800 and 390 px, and at D1 and D2.
-- Tests: active item from the route; group headings; permission hiding of RBM Admin and Tech Admin; count pill and rail dot; collapse remembered per user; drawer open, Escape and focus return; skip link first in the tab order; `aria-current`; the account menu; the notification count; the footer states; the tab title and favicon links (section 5b); the three footer links have the exact `href` in section 5a, `target="_blank"`, `rel="noopener noreferrer"` and the hidden new-tab text; the slide-in sits between header and footer and does not move the content; every icon key resolves; no import of `@mui/icons-material` outside the icon package.
+- Tests: active item from the route; group headings; permission hiding of RBM Admin and of each admin domain card; count pill and rail dot; collapse remembered per user; drawer open, Escape and focus return; skip link first in the tab order; `aria-current`; the account menu; the notification count; the footer states; the tab title and favicon links (section 5b); the three footer links have the exact `href` in section 5a, `target="_blank"`, `rel="noopener noreferrer"` and the hidden new-tab text; the slide-in sits between header and footer and does not move the content; every icon key resolves; no import of `@mui/icons-material` outside the icon package.
 - Colour is never the only signal. Brand Green means Complete only. The active nav item is not Blue Dark.
 - Anything that differs from the design is flagged in `docs/rbm-parked-decisions.md`, marked "Not drawn" where the design is silent. Where silent, use MUI's defaults (the agreed fallback), flag it, and do not hold the build.
 
 ## 9. Differences from the design and open questions (flag, do not guess)
 The design was updated on 22 Oct 2026 (version 74) so the sidebar and icons match this brief. These remain:
 - **Where do Dashboard, Plan, Readiness, Run, Improve, Reports and Tasks go now?** They are not in the new navigation. Confirm they are out of scope for the shell, or say where they live (for example inside Events). The board lists this under "For your decision".
-- **Rule:** the board's "seven destinations or fewer in the main area" is now "four items or fewer in a group; twelve destinations in five groups". Needs Andy's sign-off. The 23 Oct regrouping (five groups, Folders in RBM Admin, Help split into Training, Support and Versions) keeps every group at four items or fewer, so the four-item limit still holds. Content Packs in Library, the group order, and the new routes are my proposals: confirm them.
+- **Rule:** the board's "seven destinations or fewer in the main area" is now "four items or fewer in a group; nine destinations in four groups". Needs Andy's sign-off. The 23 Oct regrouping gives four groups (Events 2, Library 2, RBM Admin 2, Help 3), so the four-item limit still holds. Content Packs in Library, the group order and all routes are my proposals: confirm them.
 - **Default density for the shell.** The board's default is D1 Comfortable. The list page is D2 Compact. Andy gave no preference, so **build D2 Compact as the default and flag it**; it is one prop. Ask if it matters.
 - **Counts:** no menu item has a count. The board shows a count on List (12) as an example only. Build the count pill and the rail dot, and wire them to nothing.
 - **Shell chrome icons** are not in the Icon suite (section 6c). Andy to decide whether to add them to the board.

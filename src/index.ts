@@ -94,7 +94,7 @@ export { RbmFooter } from './components/RbmFooter/RbmFooter';
 export type { RbmFooterProps, RbmFooterLink } from './components/RbmFooter/RbmFooter';
 export { RbmSlideInRegion, useSlideInMode, SLIDE_IN_WIDTH } from './components/RbmSlideInRegion/RbmSlideInRegion';
 export type { RbmSlideInRegionProps, RbmSlideInMode } from './components/RbmSlideInRegion/RbmSlideInRegion';
-export { RbmAppShell } from './components/RbmAppShell/RbmAppShell';
+export { RbmAppShell, RBM_APP_TITLE, rbmDocumentTitle } from './components/RbmAppShell/RbmAppShell';
 export type { RbmAppShellProps } from './components/RbmAppShell/RbmAppShell';
 export { ShellFrameContext, useShellFrame, useScrollContainer } from './components/RbmAppShell/shellContext';
 export type { RbmShellFrame } from './components/RbmAppShell/shellContext';

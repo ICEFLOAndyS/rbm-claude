@@ -270,6 +270,7 @@ function Demo() {
               <li>REV000011 is forecast 45 minutes late.</li>
             </Box>
           }
+          pageTitle={pageTitleFor(path, ref)}
           programme="Q4 Data Centre Migration"
           clock={clockText || undefined}
           footer={{ version: pkg.version, updatedAt: clockText || undefined, environment: { name: 'Development', production: false } }}
@@ -294,6 +295,14 @@ function Demo() {
       </Box>
     </Box>
   );
+}
+
+/** The page's name for the browser tab. */
+function pageTitleFor(path: string, ref: CommandCentreEventRef | null): string {
+  const number = eventOf(path);
+  if (number) return ref ? `${ref.number} ${ref.name}` : number;
+  if (path.split('?')[0] === '/events') return 'Events';
+  return navLocation(rbmNav, path)?.item.label ?? 'Page not found';
 }
 
 /** ?scroll=1800 scrolls the content once the page is drawn, for checking the sticky bar and the virtual rows. */

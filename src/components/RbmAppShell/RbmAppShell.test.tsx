@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
-import { RbmAppShell, type RbmAppShellProps } from './RbmAppShell';
+import { RbmAppShell, RBM_APP_TITLE, type RbmAppShellProps } from './RbmAppShell';
 import { ShellFrameContext, useScrollContainer, useShellFrame } from './shellContext';
 import { useHotTopicsNarrow } from '../RbmHotTopicsStrip/RbmHotTopicsPanel';
 import { RbmSlideInRegion } from '../RbmSlideInRegion/RbmSlideInRegion';
@@ -119,7 +119,38 @@ describe('RbmAppShell: keyboard', () => {
   });
 });
 
+describe('the browser tab title', () => {
+  it('is the page name first, then the product', () => {
+    renderShell({ pageTitle: 'Events' });
+    expect(document.title).toBe('Events · Runbook Management');
+  });
+
+  it('is the product alone without a page name', () => {
+    renderShell();
+    expect(document.title).toBe(RBM_APP_TITLE);
+  });
+
+  it('follows the page', () => {
+    const { rerender } = renderShell({ pageTitle: 'Events' });
+    rerender(
+      <ThemeProvider theme={rbmTheme}>
+        <RbmAppShell nav={rbmNav} user={user} path="/events/REV000009" footer={footer} pageTitle="REV000009 Weekend Payroll Cutover">
+          <p>Page</p>
+        </RbmAppShell>
+      </ThemeProvider>,
+    );
+    expect(document.title).toBe('REV000009 Weekend Payroll Cutover · Runbook Management');
+  });
+});
+
 describe('the host page (demo/index.html)', () => {
+  it('has the product title before the app loads', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const html = readFileSync(join(__dirname, '..', '..', '..', 'demo', 'index.html'), 'utf8');
+    expect(html).toContain(`<title>${RBM_APP_TITLE}</title>`);
+  });
+
   it('links the ICEFLO favicon, and the file is there', async () => {
     const { readFileSync, existsSync } = await import('node:fs');
     const { join } = await import('node:path');

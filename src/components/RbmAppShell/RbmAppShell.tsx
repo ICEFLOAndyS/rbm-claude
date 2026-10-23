@@ -26,6 +26,12 @@ import { ShellFrameContext } from './shellContext';
  * A skip link is the first thing to focus. Keyboard order: top bar, sidebar, content, footer.
  */
 
+/** The product's name in the browser tab (app shell brief 5b; Andy Smith, 23 Oct 2026). One constant, set only by the shell. */
+export const RBM_APP_TITLE = 'Runbook Management';
+
+/** The tab title: the page's name first, then the product ("Events · Runbook Management"), as Andy Smith decided. */
+export const rbmDocumentTitle = (page?: string) => (page ? `${page} · ${RBM_APP_TITLE}` : RBM_APP_TITLE);
+
 export interface RbmAppShellProps {
   /** The menu (normally `rbmNav`). */
   nav: RbmNavConfig;
@@ -46,6 +52,11 @@ export interface RbmAppShellProps {
   onAccountAction?: (action: RbmAccountAction) => void;
   /** Where the user's Collapse choice is kept. */
   sidebarStore?: SidebarPreferenceStore;
+  /**
+   * The page's name for the browser tab, which reads "<page> · Runbook Management". Screen readers announce the
+   * title when the page changes, so each page gives one. Without it the tab shows the product's name.
+   */
+  pageTitle?: string;
   /** D0 Command: the programme's name and the time in the top bar. */
   programme?: string;
   clock?: string;
@@ -79,7 +90,7 @@ export function RbmAppShell(props: RbmAppShellProps) {
   );
 }
 
-function Frame({ nav, navData, user, path, hrefFor, onNavigate, footer, density = 'compact', notificationCount, notifications, onAccountAction, sidebarStore, programme, clock, children }: RbmAppShellProps) {
+function Frame({ nav, navData, user, path, hrefFor, onNavigate, footer, density = 'compact', notificationCount, notifications, onAccountAction, sidebarStore, programme, clock, pageTitle, children }: RbmAppShellProps) {
   const sidebar = useSidebarMode(sidebarStore);
   const [frame, setFrame] = useState<HTMLElement | null>(null);
   const [scroller, setScroller] = useState<HTMLElement | null>(null);
@@ -88,6 +99,11 @@ function Frame({ nav, navData, user, path, hrefFor, onNavigate, footer, density 
   const contentId = useId();
   const navId = useId();
   const size = shellSize[density];
+
+  // The browser tab: set here only, so no page sets its own.
+  useEffect(() => {
+    document.title = rbmDocumentTitle(pageTitle);
+  }, [pageTitle]);
 
   // The content area's size: its height for a page that sizes something to the visible area
   // (--rbm-view-height), and its width for a page whose layout changes at a width.

@@ -36,7 +36,7 @@ export type { RbmTimelineTask, RbmTaskFlags, RbmFocusReason } from './components
 export { mockTimelineRunbooks, mockTimelineTasks, mockManyUpNext } from './mocks/timeline';
 export { RbmHotTopicsStrip } from './components/RbmHotTopicsStrip/RbmHotTopicsStrip';
 export type { RbmHotTopicsStripProps } from './components/RbmHotTopicsStrip/RbmHotTopicsStrip';
-export { RbmHotTopicsPanel, HOT_TOPICS_PANEL_WIDTH, HOT_TOPICS_RAIL_WIDTH, HOT_TOPICS_PANEL_MIN_VIEWPORT } from './components/RbmHotTopicsStrip/RbmHotTopicsPanel';
+export { RbmHotTopicsPanel, HOT_TOPICS_PANEL_WIDTH, HOT_TOPICS_RAIL_WIDTH, HOT_TOPICS_PANEL_MIN_VIEWPORT, useHotTopicsNarrow } from './components/RbmHotTopicsStrip/RbmHotTopicsPanel';
 export type { RbmHotTopicsPanelProps } from './components/RbmHotTopicsStrip/RbmHotTopicsPanel';
 export { RbmHotTopicCard } from './components/RbmHotTopicsStrip/RbmHotTopicCard';
 export type { RbmHotTopicCardProps } from './components/RbmHotTopicsStrip/RbmHotTopicCard';
@@ -94,3 +94,7 @@ export { RbmFooter } from './components/RbmFooter/RbmFooter';
 export type { RbmFooterProps, RbmFooterLink } from './components/RbmFooter/RbmFooter';
 export { RbmSlideInRegion, useSlideInMode, SLIDE_IN_WIDTH } from './components/RbmSlideInRegion/RbmSlideInRegion';
 export type { RbmSlideInRegionProps, RbmSlideInMode } from './components/RbmSlideInRegion/RbmSlideInRegion';
+export { RbmAppShell } from './components/RbmAppShell/RbmAppShell';
+export type { RbmAppShellProps } from './components/RbmAppShell/RbmAppShell';
+export { ShellFrameContext, useShellFrame, useScrollContainer } from './components/RbmAppShell/shellContext';
+export type { RbmShellFrame } from './components/RbmAppShell/shellContext';

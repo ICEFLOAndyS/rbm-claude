@@ -5,6 +5,7 @@ import { RbmEyebrow, RbmToggleLink } from '../RbmRegion/RbmRegion';
 import { RbmHotTopicsStrip, type RbmHotTopicsStripProps } from './RbmHotTopicsStrip';
 import { radius } from '../../theme/tokens';
 import { useDensity } from '../../theme/RbmDensity';
+import { useShellFrame } from '../RbmAppShell/shellContext';
 
 export type RbmHotTopicsPanelProps = RbmHotTopicsStripProps;
 
@@ -17,8 +18,21 @@ export const HOT_TOPICS_PANEL_MIN_VIEWPORT = 1200;
 
 const NAME = 'Hot-topics panel';
 
-/** Pinned under the compact event bar with a 16 px gap, and never taller than the screen. */
-const sticky = { position: 'sticky', top: EVENT_BAR_HEIGHT + 16, maxHeight: `calc(100vh - ${EVENT_BAR_HEIGHT + 32}px)`, boxSizing: 'border-box' } as const;
+/**
+ * True when there is no room for the side panel. On its own the page asks the window; inside the app shell it
+ * asks the content area, because the sidebar takes part of the window.
+ */
+export function useHotTopicsNarrow(): boolean {
+  const narrowWindow = useMediaQuery(`(max-width: ${HOT_TOPICS_PANEL_MIN_VIEWPORT - 0.02}px)`);
+  const { width } = useShellFrame();
+  return width === null ? narrowWindow : width < HOT_TOPICS_PANEL_MIN_VIEWPORT;
+}
+
+/**
+ * Pinned under the compact event bar with a 16 px gap, and never taller than the screen. Inside the app shell
+ * the visible height is the content area's, which the shell sets as --rbm-view-height.
+ */
+const sticky = { position: 'sticky', top: EVENT_BAR_HEIGHT + 16, maxHeight: `calc(var(--rbm-view-height, 100vh) - ${EVENT_BAR_HEIGHT + 32}px)`, boxSizing: 'border-box' } as const;
 
 function Chevron({ left }: { left?: boolean }) {
   return (
@@ -38,7 +52,7 @@ function Chevron({ left }: { left?: boolean }) {
 export function RbmHotTopicsPanel(props: RbmHotTopicsPanelProps) {
   const d = useDensity();
   const { children, collapsed: collapsedProp, onCollapsedChange, summary = [] } = props;
-  const narrow = useMediaQuery(`(max-width: ${HOT_TOPICS_PANEL_MIN_VIEWPORT - 0.02}px)`);
+  const narrow = useHotTopicsNarrow();
   const [collapsedState, setCollapsedState] = useState(false);
   const collapsed = collapsedProp ?? collapsedState;
   const setCollapsed = (c: boolean) => {

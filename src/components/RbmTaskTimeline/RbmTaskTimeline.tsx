@@ -12,6 +12,7 @@ import { DEFAULT_SEARCH_FIELDS, matchesSearch, searchWords, type RbmSearchField 
 import { hitTarget, ringSize, useDensity } from '../../theme/RbmDensity';
 import { RbmRegionCollapsed, RbmRegionToggle, RbmSummaryChip } from '../RbmRegion/RbmRegion';
 import { byStart, capUpNext, focusReasons, formatLinger, lingerLeft, type RbmTimelineTask } from './focusRule';
+import { useScrollContainer } from '../RbmAppShell/shellContext';
 
 export interface RbmTimelineStage {
   id: string;
@@ -162,6 +163,8 @@ export const LARGE_TIMELINE = 200;
  */
 function StageRows({ count, virtual, render }: { count: number; virtual: boolean; render: (i: number) => ReactNode }) {
   const ROW = useDensity().row;
+  // Inside the app shell the page scrolls in the content area, not the window.
+  const scroller = useScrollContainer();
   const ref = useRef<HTMLDivElement>(null);
   // Nothing is drawn until the stage has measured where it is (before the first paint): drawing 20 rows
   // in each of hundreds of stages first made showing every task on a large event take many seconds.
@@ -174,24 +177,27 @@ function StageRows({ count, virtual, render }: { count: number; virtual: boolean
       const el = ref.current;
       if (!el) return;
       const top = el.getBoundingClientRect().top;
+      // The visible band: the scroller's box inside the shell, the window otherwise.
+      const view = scroller ? scroller.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
       const overscan = 8;
       // Keep the range inside the stage, so its spacers never add up to more than its rows.
-      const from = Math.min(count, Math.max(0, Math.floor(-top / ROW) - overscan));
-      const to = Math.max(from, Math.min(count, Math.ceil((window.innerHeight - top) / ROW) + overscan));
+      const from = Math.min(count, Math.max(0, Math.floor((view.top - top) / ROW) - overscan));
+      const to = Math.max(from, Math.min(count, Math.ceil((view.bottom - top) / ROW) + overscan));
       setRange((r) => (r[0] === from && r[1] === to ? r : [from, to]));
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(measure);
     };
     measure();
-    window.addEventListener('scroll', schedule, { passive: true });
+    const target: HTMLElement | Window = scroller ?? window;
+    target.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
     return () => {
-      window.removeEventListener('scroll', schedule);
+      target.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, [virtual, count, ROW]);
+  }, [virtual, count, ROW, scroller]);
   if (!virtual) return <>{Array.from({ length: count }, (_, i) => render(i))}</>;
   const [from, to] = range;
   return (

@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } from 'react';
 import { Box, Drawer, ListItemButton, Tooltip, useMediaQuery } from '@mui/material';
 import { RbmIcon } from '../../icons/RbmIcon';
 import { useDensity } from '../../theme/RbmDensity';
@@ -51,14 +51,22 @@ export interface RbmSidebarProps {
   drawerTop?: number;
   /** The navigation landmark's name. */
   label?: string;
+  /** The landmark's id, so the top bar's menu button can name the drawer it opens (aria-controls). */
+  id?: string;
 }
 
-export function RbmSidebar({ nav, data, path, variant, hrefFor = (to) => to, onNavigate, onToggleCollapse, open = false, onClose, drawerTop = 0, label = 'Main' }: RbmSidebarProps) {
+export function RbmSidebar({ nav, data, path, variant, hrefFor = (to) => to, onNavigate, onToggleCollapse, open = false, onClose, drawerTop = 0, label = 'Main', id }: RbmSidebarProps) {
   const d = useDensity();
   const phone = useMediaQuery(`(max-width: ${PHONE_BELOW - 0.02}px)`, { noSsr: true });
   const can = useNavPermissions(data);
   const counts = useNavCounts(data);
   const size = shellSize[d.level];
+  const list = useRef<HTMLDivElement>(null);
+  // A deep link may land on an item below the fold: bring its group, heading included, into view.
+  useEffect(() => {
+    const current = list.current?.querySelector('[aria-current="page"]');
+    (current?.closest('[role="group"]') ?? current)?.scrollIntoView?.({ block: 'nearest' });
+  }, [path, variant]);
   if (size.sidebar === 0) return null;
 
   const menu = visibleNav(nav, can);
@@ -79,6 +87,7 @@ export function RbmSidebar({ nav, data, path, variant, hrefFor = (to) => to, onN
     <Box
       component="nav"
       aria-label={label}
+      id={id}
       data-variant={variant}
       sx={{
         width,
@@ -94,7 +103,8 @@ export function RbmSidebar({ nav, data, path, variant, hrefFor = (to) => to, onN
         '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
       }}
     >
-      <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', pt: 2 }}>
+      {/* When the menu is taller than the screen it scrolls, with a thin, quiet scrollbar (not drawn). */}
+      <Box ref={list} sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', pt: 2, scrollbarWidth: 'thin', scrollbarColor: `${onDeepBlue.railDivider} transparent` }}>
         {menu.map((g, i) => (
           <Group key={g.group} name={g.group} rail={rail} first={i === 0}>
             {g.items.map((item) => {

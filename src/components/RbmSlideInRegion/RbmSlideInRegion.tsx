@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Drawer, useMediaQuery } from '@mui/material';
 import { colour, stroke } from '../../theme/tokens';
+import { useShellFrame } from '../RbmAppShell/shellContext';
 
 /**
  * The slide-in region (App shell board, "Anatomy" 6 and "Responsive behaviour"). It hosts a panel, such as the
@@ -35,7 +36,8 @@ export interface RbmSlideInRegionProps {
    */
   onClose: (reason: 'escape' | 'backdrop') => void;
   /**
-   * The shell's content area, between the header and the footer. Without it the region covers the window.
+   * The shell's content area, between the header and the footer. Inside RbmAppShell it defaults to the shell's
+   * content frame; outside a shell, without it, the region covers the window.
    * It must be the area's frame, not its scroller: `position: relative` with `overflow: hidden`, and the
    * scrolling content inside it. Hosted in a scroller, the panel would move with the scroll, and while it
    * slides in from the right the page would grow wider and scroll sideways to it.
@@ -49,8 +51,11 @@ export interface RbmSlideInRegionProps {
   children: ReactNode;
 }
 
-export function RbmSlideInRegion({ open, onClose, container, width = SLIDE_IN_WIDTH, closeOnEscape = true, label, children }: RbmSlideInRegionProps) {
+export function RbmSlideInRegion({ open, onClose, container: given, width = SLIDE_IN_WIDTH, closeOnEscape = true, label, children }: RbmSlideInRegionProps) {
   const mode = useSlideInMode();
+  // Inside RbmAppShell the content frame is known, so a page need not pass it.
+  const shell = useShellFrame();
+  const container = given ?? shell.frame;
   // A full-screen page covers the whole window, header and footer too.
   const inside = mode !== 'page' && !!container;
   return (

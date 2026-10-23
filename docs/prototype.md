@@ -6,12 +6,21 @@ A working Command & Control Centre in the browser, fed by JSON fixtures through 
 
 | Command | What it does |
 | --- | --- |
-| `npm run demo` | Regenerates the fixtures, then serves the demo at http://localhost:5173/#/command-centre |
+| `npm run demo` | Regenerates the fixtures, then serves the demo at http://localhost:5173 (the RBM app shell, opening on Events) |
 | `npm run demo:build` then `npm run demo:preview` | A production build at http://localhost:4173 (use this to judge speed) |
 | `npm run fixtures` | Writes the four event fixtures to `src/fixtures/` and the four Events list fixtures to `src/fixtures/events/` (the two large ones are git-ignored) |
 | `npm run check` | Type check and all tests |
 
-The demo bar has a **fixture switcher** (Weekend Payroll Cutover, healthy, badly late, large), a **clock** (paused, ×1, ×10, ×60, ×300) and **Reset**, which rebuilds the event from its fixture. URL settings: `?fixture=large-event&speed=60`, and `&scroll=900` to open scrolled down. Layout changes are saved in the browser and survive a reload.
+The demo runs inside the RBM app shell (`RbmAppShell`): top bar, sidebar, content, footer and slide-in region. The routes are hash routes:
+
+| Route | Page |
+| --- | --- |
+| `#/events` | Events (a stand-in list of the four events with Command Centre data, until the Events list joins the demo) |
+| `#/events/REV000009` to `#/events/REV000012` | That event's Command & Control Centre: Weekend Payroll Cutover, healthy, badly late, large (15,000 tasks) |
+| `#/command-centre` | The old address: opens REV000009 |
+| any other menu route | A "not built in the prototype" page |
+
+The demo bar has an **event switcher**, a **clock** (paused, ×1, ×10, ×60, ×300) and **Reset**, which rebuilds the event from its fixture, a **density switcher** (D1, D2, D3, D0) and a **viewport switcher** (full window, 1280, 1024, 800, 390 px). A set viewport runs the app in a frame of that width, so the shell's widths really apply; navigating inside the frame does not update the bar. URL settings: `?speed=60`, `&density=comfortable`, `&viewport=390`, `&latency=0`, and `&scroll=900` to open with the content scrolled down. Layout changes and the sidebar's Collapse are saved in the browser and survive a reload.
 
 The same page is in Storybook under **Prototype / Command & Control Centre** (small fixtures only).
 

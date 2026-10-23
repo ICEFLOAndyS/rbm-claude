@@ -363,3 +363,19 @@ describe('createLocalSidebarStore', () => {
     expect(await store.get()).toBeUndefined();
   });
 });
+
+describe('RbmSidebar: deep links', () => {
+  it('brings the active item’s group, heading included, into view', () => {
+    const scrolled: Element[] = [];
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function (this: Element) {
+      scrolled.push(this);
+    };
+    try {
+      renderSidebar({ path: '/admin/licences' });
+      expect(scrolled.at(-1)).toBe(screen.getByRole('group', { name: 'Admin' }));
+    } finally {
+      Element.prototype.scrollIntoView = original;
+    }
+  });
+});

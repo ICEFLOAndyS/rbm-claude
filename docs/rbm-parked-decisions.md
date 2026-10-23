@@ -848,6 +848,51 @@ Built from the App shell board ("Anatomy" 6, "Responsive behaviour", "React and 
   - whether a click on the content behind should close the panel (it reports it, and the page decides).
 - **Visual check:** at 1280, 800 and 390 px in headless Edge, driven over the DevTools protocol, which also gets below Edge's usual 500 px minimum. The page no longer scrolls sideways at any width.
 
+### 23 Oct 2026: `RbmAppShell` and the demo in the shell (app shell, step 8)
+- **`RbmAppShell`:** the whole screen on a CSS grid (rows: top bar, content, footer; columns: sidebar, content). The grid keeps the bars in place without `position: fixed`.
+  - It wires `RbmTopBar`, `RbmSidebar` (with `useSidebarMode` and the remembered Collapse) and `RbmFooter`.
+  - The content area is a frame (`position: relative`, `overflow: hidden`) with the scroller inside it, so the page scrolls on its own and the shell never moves.
+  - Density: D2 Compact by default (flagged: the board's default is D1); pages set their own.
+  - Props as the brief's sketch (`nav`, `user`, `footer`, `density`), plus the route (`path`, `hrefFor`, `onNavigate`), the menu's data, notifications, the account menu and the sidebar store.
+- **What a page gets (`ShellFrameContext`):** the content frame, the scroller and the content width.
+  - `RbmSlideInRegion` finds the frame itself, so a page renders it without a container.
+  - The content's visible height is the CSS variable `--rbm-view-height`.
+  - Outside a shell all three are null, and pages behave as before (the window scrolls).
+- **Skip link** ("Skip to content"): the first thing to focus. It is shown only when focused (not drawn: white, Deep Blue text, top left, proposed) and moves focus to the content, rather than following a `#` link, which would change the route in a hash-routed app.
+  - **Keyboard order:** skip link, top bar, sidebar, content, footer (tested).
+  - The sidebar's `id` names the drawer the menu button controls.
+- **Changes to earlier components, so they work inside the shell:**
+  - **Task Timeline:** the virtual rows listen to the shell's scroller, and measure against its visible band, instead of the window. Checked on the 15,000-task event: about 26 rows drawn and 11 in view after scrolling 8,000 px.
+  - **Hot-topics panel:** its height cap reads `--rbm-view-height` (100vh outside the shell).
+  - **The 1,200 px rule (side panel or strip):** inside the shell it now applies to the content area's width, not the window's, because the sidebar takes part of the window (`useHotTopicsNarrow`, used by the panel and `RbmCommandCentre`). At 1,280 px with the sidebar expanded the content is 1,056 px, so Hot topics become the strip under the main column; with the rail (1,216 px) they sit beside it. Before this, the main column was squeezed to about 600 px, and the runbook bands and the timeline toolbar overlapped.
+  - **Sidebar:**
+    - A deep link brings the active item's group, heading included, into view (the brief's acceptance).
+    - A menu taller than the screen scrolls with a thin, quiet scrollbar (not drawn).
+- **Demo app (`npm run demo`):**
+  - **The shell:** the demo runs inside it, with the stub user and mock menu data. See `docs/prototype.md`.
+  - **Routes:** `#/events/REV000009` to `#/events/REV000012` open each event's Command Centre, and Events › List is marked active. `#/command-centre` still works and opens REV000009. `#/events` is a stand-in list until the Events list joins the demo (next step). Other menu items show a "not built in the prototype" page, using `RbmPageHeader`.
+  - **The demo bar:** an event switcher, the clock, Reset, and the **density** and **viewport** switchers the brief asks for. A set viewport (1280, 1024, 800, 390 px) runs the app in an iframe of that width, so the media queries really apply.
+  - **Footer:** the package version (0.0.1), the sim clock as the sync time, and "Development" as the environment chip.
+  - **Notifications:** two sample notifications (not drawn).
+- **Acceptance check** (headless Edge over the DevTools protocol, the Command Centre route, D1 and D2):
+
+  | Width | Sidebar | Footer |
+  | --- | --- | --- |
+  | 1280 | expanded (248 / 224 px) | links shown |
+  | 1024 | rail (72 / 64 px) | links shown |
+  | 800 | drawer, behind the menu button | links hidden |
+  | 390 | drawer | version and sync time only |
+
+  The bar and footer heights follow the density, and the page never scrolls sideways.
+- **Found, not fixed (earlier components, flagged):**
+  - **Command Centre below about 1,000 px:** it does not fit its content. At 1,024 px with the D1 rail, the Start of event time is cut ("22:0"). At 800 px its content is 822 px wide, and at 390 px the Event vitals overlap. It scrolls inside the content area, but the Command board draws only desktop and wall widths. Needs a decision on narrow widths.
+  - **Active label:** at D2 with the sidebar's scrollbar showing, the active label (800 weight) can be cut with an ellipsis ("License Managem…").
+- **Not built yet:**
+  - the search command palette (/ key);
+  - the account menu's actions (they are reported, and the demo does nothing with them);
+  - D0 and D3 beyond the sizes in the shell table;
+  - the Events list in the demo, the row icon that opens the Command Centre, and the record panel in the slide-in region (next step).
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

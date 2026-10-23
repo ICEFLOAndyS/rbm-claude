@@ -5,7 +5,7 @@ import { RbmAlertCounter, type RbmAlert } from '../RbmAlertCounter/RbmAlertCount
 import { RbmEventBar, type RbmEventSummary } from '../RbmEventBar/RbmEventBar';
 import type { RbmEventVitalsData } from '../RbmEventVitals/RbmEventVitals';
 import { DEFAULT_LAYOUT, RbmLayoutPanel, type RbmMovableRegion, type RbmRegion } from '../RbmLayoutPanel/RbmLayoutPanel';
-import { HOT_TOPICS_PANEL_MIN_VIEWPORT } from '../RbmHotTopicsStrip/RbmHotTopicsPanel';
+import { useHotTopicsNarrow } from '../RbmHotTopicsStrip/RbmHotTopicsPanel';
 import { colour, density, elevation, hairline, radius, stroke } from '../../theme/tokens';
 import { RbmDensity, useDensity } from '../../theme/RbmDensity';
 
@@ -124,6 +124,8 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
   const [layoutOpen, setLayoutOpen] = useState(false);
   const [vitalsRef, vitalsOnScreen] = useOnScreen<HTMLDivElement>();
   const titleId = useId();
+  // Below 1200 px (of the window, or of the shell's content area) the panel goes under the main column.
+  const narrow = useHotTopicsNarrow();
 
   const regions: Record<RbmMovableRegion, ReactNode> = {
     ribbon,
@@ -240,7 +242,7 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
 
       {/* The main column and the Hot-topics panel, D2 Compact. The panel's cell runs the full height, so the panel can stay in view as the page scrolls. */}
       <RbmDensity level={COMMAND_CENTRE_DENSITY.regions}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: 6, alignItems: 'stretch', [`@media (max-width: ${HOT_TOPICS_PANEL_MIN_VIEWPORT - 0.02}px)`]: { gridTemplateColumns: 'minmax(0, 1fr)' } }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'minmax(0, 1fr) auto', gap: 6, alignItems: 'stretch' }}>
           <Box data-testid="rbm-main-column" sx={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
             {layout.map((r) => (
               <Box key={r} data-region={r} sx={{ minWidth: 0 }}>

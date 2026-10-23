@@ -1036,6 +1036,28 @@ Source: the icon suite brief, v2 (now `docs/icon-suite-brief.md`), and the proje
   - **The Shell board's Edit question is settled:** its drawing (white, thin border) is now close to the build.
 - **Not changed (separate cycle, as Andy asked):** the record panel's header buttons (previous, next, widen, open, close) and other earlier components' hand-drawn icons and buttons.
 
+### 23 Oct 2026: RBM Admin pages and the Admin domain card, built (app shell brief v5)
+- **Icons:** `centre.admin` (the Centre base with a shield badge), `admin.systemProperties` (curly braces) and `admin.diagnostics` (a pulse line), copied from the Icon suite board's Admin pages section (107 icons). Setup & Config reuses `nav.setup`.
+- **Menu:** four groups, nine items. RBM Admin is **Admin Centre** (`/rbm-admin/centre`, `centre.admin`) and **Setup & Config** (`/rbm-admin/setup-config`, `nav.setup`), both behind the RBM Admin permission. The Tech Admin group and its `techAdmin` permission are gone, and so are the old routes (`/rbm-admin/teams` and the like, `/tech-admin/*`). A domain's own page marks the admin page it sits on as active.
+- **Admin pages as data** (`src/data/admin/adminPages.ts`, brief 4a): `RbmAdminPage` and `RbmAdminDomain`.
+  - **Admin Centre:** Teams, Workstreams, License Management, Folders.
+  - **Setup & Config:** System Properties, Integrations, Diagnostics.
+  - **Integrations** is itself an admin page, as the Cards board's example draws it: ServiceNow, AWS, Jira and Microsoft Teams, each with the board's example status.
+  - **Domain routes** as the brief proposes (`/rbm-admin/centre/teams`, `/rbm-admin/setup-config/integrations` and so on).
+  - **Lines:** "Groups that own tasks" and "Check the health of the system" are the board's. The other domain lines are mine (proposed), as are the page summaries.
+- **`RbmDomainCard`**, built from the Cards board's spec:
+  - **Sizes:** the board's own table for the four densities: tile 88, 56, 40 and 28 px; logo box 64, 40, 28, 20; icon 44, 32, 24, 16; padding 24, 16, 12, 8; titles 24, 16, 14, 12. D0 is a column, and D3 is one row with no line.
+  - **One link:** the whole card is a `CardActionArea`, named by its title and described by its line and value. It has no buttons and shows the Clickable card's Blue Dark focus ring.
+  - **Media tile:** a logo sits on a white tile with a hairline border, fitted and decorative (`alt=""`). The icon sits on the Mist fill in Deep Blue. A missing or failing logo falls back to the icon.
+  - **Status:** a dot and text: Connected in Blue Dark with a filled dot, Not connected in Slate with a ring. Never green.
+  - **Count:** 600 Ink.
+- **`RbmAdminPage`** (template): the page header (title, breadcrumb to the parent admin page, the summary line), then the cards in a list.
+  - **Permissions:** each card shows only if the platform grants its domain's permission. With none allowed, a plain message.
+  - **Not drawn (proposed):** the grid (`auto-fill` columns of at least the card's minimum width, with the density's gap), the page summary line, and the no-access message.
+- **Demo:** `#/rbm-admin/centre`, `#/rbm-admin/setup-config` and `#/rbm-admin/setup-config/integrations` draw the pages. A domain's own page shows "not built" under the domain's name, with a breadcrumb back to its admin page. The tab title names the page or domain.
+- **No vendor logos:** none are supplied, and none are drawn or traced. The products show the Integrations icon until the logo files come from each vendor's brand kit. The card's story uses ICEFLO's own mark to show the logo tile.
+- **Not visually checked yet:** the demo and Storybook servers were stopped by Claude Code when the machine ran low on memory, so these pages have been checked by tests only.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

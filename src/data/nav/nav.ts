@@ -3,12 +3,12 @@ import { footerHref } from './footerLinks';
 
 /**
  * The app shell's navigation, as data (App shell board, "Navigation" and "React and MUI"; app shell brief,
- * section 4). Five groups, decided by Andy Smith on 22 and 23 Oct 2026. The sidebar draws whatever this holds,
+ * section 4). Four groups, decided by Andy Smith on 22 and 23 Oct 2026. The sidebar draws whatever this holds,
  * so pages never build their own menu.
  */
 
 /** A platform permission that decides whether an item shows. The platform's API says; the UI never decides. */
-export type RbmNavPermission = 'rbmAdmin' | 'techAdmin';
+export type RbmNavPermission = 'rbmAdmin';
 
 /** A second-level item: indented under its parent while the parent is active. There is no third level. */
 export interface RbmNavChild {
@@ -47,10 +47,10 @@ export type RbmNavCounts = Readonly<Partial<Record<string, number>>>;
 export const NAV_GROUP_MAX = 4;
 
 /**
- * The RBM menu (app shell brief v4, section 4; Andy Smith, 23 Oct 2026). Five groups in this order, thirteen
- * destinations, routes as proposed and accepted. RBM Admin and Tech Admin each show only to users the
- * platform grants their own permission. Help › Support opens the customer portal, as the footer's Support
- * does. "License Management" is Andy Smith's wording (US spelling).
+ * The RBM menu (app shell brief v5, section 4; Andy Smith, 23 Oct 2026). Four groups in this order, nine
+ * destinations. RBM Admin is two pages of admin domain cards (section 4a), shown only to users the platform
+ * grants the RBM Admin permission; the domains (Teams, Integrations…) are on those pages, not in the menu.
+ * Help › Support opens the customer portal, as the footer's Support does.
  */
 export const rbmNav: RbmNavConfig = [
   {
@@ -70,17 +70,8 @@ export const rbmNav: RbmNavConfig = [
   {
     group: 'RBM Admin',
     items: [
-      { id: 'teams', label: 'Teams', icon: 'object.team', to: '/rbm-admin/teams', permission: 'rbmAdmin' },
-      { id: 'workstreams', label: 'Workstreams', icon: 'object.workstream', to: '/rbm-admin/workstreams', permission: 'rbmAdmin' },
-      { id: 'licences', label: 'License Management', icon: 'nav.license', to: '/rbm-admin/licences', permission: 'rbmAdmin' },
-      { id: 'rbm-folders', label: 'Folders', icon: 'nav.folder', to: '/rbm-admin/folders', permission: 'rbmAdmin' },
-    ],
-  },
-  {
-    group: 'Tech Admin',
-    items: [
-      { id: 'setup', label: 'Setup', icon: 'nav.setup', to: '/tech-admin/setup', permission: 'techAdmin' },
-      { id: 'integrations', label: 'Integrations', icon: 'nav.integrations', to: '/tech-admin/integrations', permission: 'techAdmin' },
+      { id: 'admin-centre', label: 'Admin Centre', icon: 'centre.admin', to: '/rbm-admin/centre', permission: 'rbmAdmin' },
+      { id: 'setup-config', label: 'Setup & Config', icon: 'nav.setup', to: '/rbm-admin/setup-config', permission: 'rbmAdmin' },
     ],
   },
   {

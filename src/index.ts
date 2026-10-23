@@ -100,3 +100,9 @@ export { ShellFrameContext, useShellFrame, useScrollContainer } from './componen
 export type { RbmShellFrame } from './components/RbmAppShell/shellContext';
 export { RbmActionButton } from './components/RbmActionButton/RbmActionButton';
 export type { RbmActionButtonProps } from './components/RbmActionButton/RbmActionButton';
+export { RbmDomainCard, domainCardMinWidth } from './components/RbmDomainCard/RbmDomainCard';
+export type { RbmDomainCardSpec, RbmDomainCardProps } from './components/RbmDomainCard/RbmDomainCard';
+export { RbmAdminPage } from './components/RbmAdminPage/RbmAdminPage';
+export type { RbmAdminPageProps } from './components/RbmAdminPage/RbmAdminPage';
+export { ADMIN_CENTRE, SETUP_CONFIG, INTEGRATIONS, ADMIN_PAGES, adminPageAt, adminDomainAt, pageOfDomain, parentPageOf } from './data/admin/adminPages';
+export type { RbmAdminDomain, RbmAdminPage as RbmAdminPageData } from './data/admin/adminPages';

@@ -22,7 +22,9 @@ import { EVENT_COLUMNS } from '../src/data/list/events';
 import type { EventColumnField, EventListFixture } from '../src/data/list/types';
 import type { RbmUser } from '../src/components/RbmTopBar/RbmAccountMenu';
 import { navLocation, rbmNav } from '../src/data/nav/nav';
-import { createMockNavData } from '../src/data/nav/navData';
+import { createMockNavData, useNavPermissions } from '../src/data/nav/navData';
+import { RbmAdminPage } from '../src/components/RbmAdminPage/RbmAdminPage';
+import { adminDomainAt, adminPageAt, pageOfDomain, parentPageOf } from '../src/data/admin/adminPages';
 import { createLocalSidebarStore } from '../src/data/nav/sidebarPreference';
 import { COMMAND_CENTRE_EVENTS, type CommandCentreEventRef } from '../src/fixtures/commandCentreEvents';
 import pkg from '../package.json';
@@ -288,6 +290,8 @@ function Demo() {
             )
           ) : path.split('?')[0] === '/events' ? (
             <EventsRoute path={path} navigate={navigate} />
+          ) : adminPageAt(path) ? (
+            <AdminRoute path={path} navigate={navigate} />
           ) : (
             <NotBuilt path={path} />
           )}
@@ -302,7 +306,26 @@ function pageTitleFor(path: string, ref: CommandCentreEventRef | null): string {
   const number = eventOf(path);
   if (number) return ref ? `${ref.number} ${ref.name}` : number;
   if (path.split('?')[0] === '/events') return 'Events';
-  return navLocation(rbmNav, path)?.item.label ?? 'Page not found';
+  return adminPageAt(path)?.title ?? adminDomainAt(path)?.label ?? navLocation(rbmNav, path)?.item.label ?? 'Page not found';
+}
+
+/**
+ * An admin page (Admin Centre, Setup & Config, Integrations): the domain cards, shown by the platform's
+ * permissions. A child page's breadcrumb links back to the page it sits on.
+ */
+function AdminRoute({ path, navigate }: { path: string; navigate: (to: string) => void }) {
+  const can = useNavPermissions(navData);
+  const page = adminPageAt(path)!;
+  const parent = parentPageOf(page);
+  return (
+    <RbmAdminPage
+      page={page}
+      can={can}
+      breadcrumb={parent ? [{ label: parent.title, href: `#${parent.route}` }] : []}
+      hrefFor={(to) => `#${to}`}
+      onNavigate={navigate}
+    />
+  );
 }
 
 /** ?scroll=1800 scrolls the content once the page is drawn, for checking the sticky bar and the virtual rows. */
@@ -355,9 +378,16 @@ function EventsRoute({ path, navigate }: { path: string; navigate: (to: string) 
 /** A menu destination the prototype does not build yet. */
 function NotBuilt({ path, title, text }: { path?: string; title?: string; text?: string }) {
   const at = path ? navLocation(rbmNav, path) : undefined;
+  // A domain's own page names the domain, and links back to the admin page it sits on.
+  const domain = path ? adminDomainAt(path) : undefined;
+  const page = domain ? pageOfDomain(domain) : undefined;
   return (
     <Box sx={{ p: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <RbmPageHeader title={title ?? at?.item.label ?? 'Page not found'} metadata={at ? `${at.group.group} · not built in the prototype` : undefined} />
+      <RbmPageHeader
+        title={title ?? domain?.label ?? at?.item.label ?? 'Page not found'}
+        breadcrumb={page ? [{ label: page.title, href: `#${page.route}` }] : []}
+        metadata={at ? `${at.group.group} · not built in the prototype` : undefined}
+      />
       <Box sx={{ color: 'text.secondary' }}>
         {text ?? (at ? 'This page is not part of the prototype yet.' : 'There is no page at this address.')}{' '}
         <Link href={`#${DEFAULT_PATH}`}>Go to Events</Link>.

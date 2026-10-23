@@ -48,10 +48,10 @@ export interface MockNavData extends NavData {
 }
 
 /**
- * Stands in for the platform in Storybook, tests and the prototype: a stub user granted both admin groups,
+ * Stands in for the platform in Storybook, tests and the prototype: a stub user granted RBM Admin,
  * and no counts (the brief: build the count pill and the rail dot, and wire them to nothing).
  */
-export function createMockNavData({ permissions = ['rbmAdmin', 'techAdmin'], counts = {} }: Partial<NavSnapshot> = {}): MockNavData {
+export function createMockNavData({ permissions = ['rbmAdmin'], counts = {} }: Partial<NavSnapshot> = {}): MockNavData {
   let snapshot: NavSnapshot = { permissions, counts };
   const listeners = new Set<(s: NavSnapshot) => void>();
   const update = (next: Partial<NavSnapshot>) => {

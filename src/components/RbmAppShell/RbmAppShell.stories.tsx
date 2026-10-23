@@ -43,7 +43,7 @@ function Page() {
 
 function Shell({ density, admin, reconnecting, environment, path: start }: Args) {
   const [path, setPath] = useState(start);
-  const navData = useMemo(() => createMockNavData({ permissions: admin ? ['rbmAdmin', 'techAdmin'] : [] }), [admin]);
+  const navData = useMemo(() => createMockNavData({ permissions: admin ? ['rbmAdmin'] : [] }), [admin]);
   const store = useMemo(() => createMemorySidebarStore(), []);
   return (
     <Box sx={{ height: '100vh' }}>

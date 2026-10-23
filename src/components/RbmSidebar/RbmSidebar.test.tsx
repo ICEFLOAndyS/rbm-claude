@@ -37,19 +37,19 @@ describe('RbmSidebar: expanded', () => {
     expect(screen.getByRole('navigation', { name: 'Main' })).toBeInTheDocument();
   });
 
-  it('shows the five groups, named by their headings, with their items in order', () => {
+  it('shows the four groups, named by their headings, with their items in order', () => {
     renderSidebar();
     const groups = screen.getAllByRole('group');
-    expect(groups.map((g) => g.getAttribute('aria-labelledby') && document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent)).toEqual(['Events', 'Library', 'RBM Admin', 'Tech Admin', 'Help']);
-    expect(within(screen.getByRole('group', { name: 'RBM Admin' })).getAllByRole('link').map((l) => l.textContent)).toEqual(['Teams', 'Workstreams', 'License Management', 'Folders']);
+    expect(groups.map((g) => g.getAttribute('aria-labelledby') && document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent)).toEqual(['Events', 'Library', 'RBM Admin', 'Help']);
+    expect(within(screen.getByRole('group', { name: 'RBM Admin' })).getAllByRole('link').map((l) => l.textContent)).toEqual(['Admin Centre', 'Setup & Config']);
     expect(within(screen.getByRole('group', { name: 'Help' })).getAllByRole('link').map((l) => l.textContent)).toEqual(['Training', 'Support', 'Versions']);
     // Headings are text, not links.
     expect(screen.queryByRole('link', { name: 'Events' })).toBeNull();
   });
 
   it('marks the item for the route with aria-current, and only that one', () => {
-    renderSidebar({ path: '/rbm-admin/teams' });
-    expect(screen.getByRole('link', { name: 'Teams' })).toHaveAttribute('aria-current', 'page');
+    renderSidebar({ path: '/rbm-admin/centre' });
+    expect(screen.getByRole('link', { name: 'Admin Centre' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getAllByRole('link').filter((l) => l.hasAttribute('aria-current'))).toHaveLength(1);
   });
 
@@ -58,15 +58,15 @@ describe('RbmSidebar: expanded', () => {
     expect(within(screen.getByRole('group', { name: 'Events' })).getByRole('link', { name: 'List' })).toHaveAttribute('aria-current', 'page');
   });
 
-  it('marks the right Folders: the two share a label and an icon', () => {
-    renderSidebar({ path: '/rbm-admin/folders' });
-    expect(within(screen.getByRole('group', { name: 'RBM Admin' })).getByRole('link', { name: 'Folders' })).toHaveAttribute('aria-current', 'page');
-    expect(within(screen.getByRole('group', { name: 'Events' })).getByRole('link', { name: 'Folders' })).not.toHaveAttribute('aria-current');
+  it('marks the admin page for a domain page on it', () => {
+    renderSidebar({ path: '/rbm-admin/setup-config/integrations' });
+    expect(screen.getByRole('link', { name: 'Setup & Config' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: 'Admin Centre' })).not.toHaveAttribute('aria-current');
   });
 
   it('links to each route, through hrefFor', () => {
     renderSidebar({ hrefFor: (to) => `#${to}` });
-    expect(screen.getByRole('link', { name: 'License Management' })).toHaveAttribute('href', '#/rbm-admin/licences');
+    expect(screen.getByRole('link', { name: 'Setup & Config' })).toHaveAttribute('href', '#/rbm-admin/setup-config');
   });
 
   it('opens Help › Support, the customer portal, in a new tab and says so, without onNavigate', async () => {
@@ -90,30 +90,27 @@ describe('RbmSidebar: expanded', () => {
 });
 
 describe('RbmSidebar: permissions', () => {
-  it('shows each admin group to a user the platform grants its permission', () => {
+  it('shows RBM Admin to a user the platform grants it', () => {
     renderSidebar({ data: createMockNavData({ permissions: ['rbmAdmin'] }) });
     expect(screen.getByRole('group', { name: 'RBM Admin' })).toBeInTheDocument();
-    expect(screen.queryByRole('group', { name: 'Tech Admin' })).toBeNull();
   });
 
-  it('hides both admin groups, items and headings, from everyone else', () => {
+  it('hides RBM Admin, items and heading, from everyone else', () => {
     renderSidebar({ data: createMockNavData({ permissions: [] }) });
     expect(screen.queryByRole('group', { name: 'RBM Admin' })).toBeNull();
-    expect(screen.queryByRole('group', { name: 'Tech Admin' })).toBeNull();
-    expect(screen.queryByRole('link', { name: 'Setup' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Setup & Config' })).toBeNull();
   });
 
-  it('hides the admin groups until the platform answers', () => {
+  it('hides RBM Admin until the platform answers', () => {
     renderSidebar({ data: undefined });
     expect(screen.queryByRole('group', { name: 'RBM Admin' })).toBeNull();
-    expect(screen.queryByRole('group', { name: 'Tech Admin' })).toBeNull();
   });
 
   it('follows a change in permissions', () => {
     const data = createMockNavData({ permissions: [] });
     renderSidebar({ data });
-    act(() => data.setPermissions(['techAdmin']));
-    expect(screen.getByRole('link', { name: 'Setup' })).toBeInTheDocument();
+    act(() => data.setPermissions(['rbmAdmin']));
+    expect(screen.getByRole('link', { name: 'Setup & Config' })).toBeInTheDocument();
   });
 });
 
@@ -152,8 +149,8 @@ describe('RbmSidebar: rail', () => {
 
   it('shows the name in a tooltip on focus', async () => {
     renderSidebar({ variant: 'rail' });
-    act(() => screen.getByRole('link', { name: 'Teams' }).focus());
-    expect(await screen.findByRole('tooltip')).toHaveTextContent('Teams');
+    act(() => screen.getByRole('link', { name: 'Admin Centre' }).focus());
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Admin Centre');
   });
 
   it('shows the name in a tooltip on hover', async () => {
@@ -203,9 +200,9 @@ describe('RbmSidebar: following a link', () => {
   it('follows Enter from the keyboard', async () => {
     const onNavigate = vi.fn();
     renderSidebar({ onNavigate });
-    act(() => screen.getByRole('link', { name: 'Teams' }).focus());
+    act(() => screen.getByRole('link', { name: 'Admin Centre' }).focus());
     await userEvent.keyboard('{Enter}');
-    expect(onNavigate).toHaveBeenCalledWith('/rbm-admin/teams');
+    expect(onNavigate).toHaveBeenCalledWith('/rbm-admin/centre');
   });
 
   it('shows a disabled item, not as a link', () => {
@@ -270,7 +267,7 @@ describe('RbmSidebar: drawer', () => {
     setWidth(800);
     render(<WithMenuButton />);
     await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
-    await userEvent.click(screen.getByRole('link', { name: 'Teams' }));
+    await userEvent.click(screen.getByRole('link', { name: 'Templates' }));
     await waitFor(() => expect(screen.queryByRole('navigation')).toBeNull());
   });
 
@@ -402,7 +399,7 @@ describe('RbmSidebar: deep links', () => {
       scrolled.push(this);
     };
     try {
-      renderSidebar({ path: '/rbm-admin/licences' });
+      renderSidebar({ path: '/rbm-admin/setup-config' });
       expect(scrolled.at(-1)).toBe(screen.getByRole('group', { name: 'RBM Admin' }));
     } finally {
       Element.prototype.scrollIntoView = original;

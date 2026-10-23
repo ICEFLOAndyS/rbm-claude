@@ -12,7 +12,7 @@ type Args = Omit<RbmSidebarProps, 'data'> & { level: DensityLevel; admin: boolea
 
 /** The board draws the sidebar 820 px tall. */
 function Frame({ level, admin, count, ...props }: Args) {
-  const data = useMemo(() => createMockNavData({ permissions: admin ? ['rbmAdmin', 'techAdmin'] : [], counts: count ? { events: count } : {} }), [admin, count]);
+  const data = useMemo(() => createMockNavData({ permissions: admin ? ['rbmAdmin'] : [], counts: count ? { events: count } : {} }), [admin, count]);
   return (
     <RbmDensity level={level}>
       <Box sx={{ height: 820, display: 'flex' }}>

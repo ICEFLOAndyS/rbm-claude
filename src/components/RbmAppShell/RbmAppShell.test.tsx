@@ -232,8 +232,8 @@ describe('RbmAppShell: what a page gets', () => {
   it('calls onNavigate from the menu', async () => {
     const onNavigate = vi.fn();
     renderShell({ onNavigate });
-    await userEvent.click(screen.getByRole('link', { name: 'Teams' }));
-    expect(onNavigate).toHaveBeenCalledWith('/rbm-admin/teams');
+    await userEvent.click(screen.getByRole('link', { name: 'Admin Centre' }));
+    expect(onNavigate).toHaveBeenCalledWith('/rbm-admin/centre');
   });
 
   it('reports the account menu', async () => {
@@ -249,11 +249,10 @@ describe('RbmAppShell: what a page gets', () => {
     expect(screen.getByRole('button', { name: 'Notifications (3 new)' })).toBeInTheDocument();
   });
 
-  it('hides the admin groups from a user the platform does not grant them', () => {
+  it('hides RBM Admin from a user the platform does not grant it', () => {
     renderShell({ navData: createMockNavData({ permissions: [] }) });
     act(() => {});
     expect(screen.queryByRole('group', { name: 'RBM Admin' })).toBeNull();
-    expect(screen.queryByRole('group', { name: 'Tech Admin' })).toBeNull();
   });
 
   it('below 900 px puts the footer links in the drawer, with the footer addresses', async () => {

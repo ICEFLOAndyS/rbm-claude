@@ -119,6 +119,22 @@ describe('RbmAppShell: keyboard', () => {
   });
 });
 
+describe('the host page (demo/index.html)', () => {
+  it('links the ICEFLO favicon, and the file is there', async () => {
+    const { readFileSync, existsSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const demo = join(__dirname, '..', '..', '..', 'demo');
+    const html = readFileSync(join(demo, 'index.html'), 'utf8');
+    expect(html).toMatch(/<link rel="icon" type="image\/png" sizes="32x32" href="\/favicon-32x32.png" \/>/);
+    const png = readFileSync(join(demo, 'public', 'favicon-32x32.png'));
+    expect(existsSync(join(demo, 'public', 'favicon-32x32.png'))).toBe(true);
+    // A PNG, 32 by 32: the signature, then the IHDR width and height.
+    expect(png.subarray(1, 4).toString()).toBe('PNG');
+    expect(png.readUInt32BE(16)).toBe(32);
+    expect(png.readUInt32BE(20)).toBe(32);
+  });
+});
+
 describe('the Hot-topics rule inside the shell', () => {
   function Probe() {
     return <span>{useHotTopicsNarrow() ? 'strip' : 'panel'}</span>;

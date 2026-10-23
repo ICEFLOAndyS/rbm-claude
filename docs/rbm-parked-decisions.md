@@ -641,6 +641,7 @@ Icon suite board, design version 76; the suite is now 73 icons. Objects go from 
 - Favicon: Andy supplied `favicon.ico`. Its three frames (16, 32, 64 px) are one design at three sizes, not three candidates, so there was nothing to choose between. Use the file as supplied. Still needed: an SVG master or PNGs at 180, 192 and 512 px.
 - Added to the app shell brief as section 5b. Not drawn on the App shell board.
 - Open: page-specific titles; whether ServiceNow lets the app set the title and icon.
+- **Update, same day (Andy Smith):** the favicon is `favicon-32x32.png` from the brand kit (`docs/14 - Brand Kit/03-favicons/`), not `favicon.ico`. It is in `demo/public/` and linked from the demo page (`<link rel="icon" type="image/png" sizes="32x32">`), with a test that the link and the 32 by 32 PNG are there. The brief's section 5b still names `favicon.ico`. Storybook keeps its own favicon. The tab title is not changed yet.
 
 ### 23 Oct 2026: App shell build plan (decided by Andy Smith)
 - **Branch:** the shell is built on `rbm-app-shell`, from `rbm-list-page`, so the demo can show the Events list inside the shell.

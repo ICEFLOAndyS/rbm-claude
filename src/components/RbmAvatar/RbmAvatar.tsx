@@ -1,10 +1,13 @@
 import { Avatar } from '@mui/material';
 import { colour } from '../../theme/tokens';
 
-/** Sizes drawn on the Command board: 28 in a task row, 32 and 36 in cards. */
-export type RbmAvatarSize = 28 | 32 | 36;
+/**
+ * Sizes drawn on the Command board (28 in a task row, 32 and 36 in cards) and the App shell board (20, 28
+ * and 36 in the top bar at D3, D2 and D1; 40 in the account menu).
+ */
+export type RbmAvatarSize = 20 | 28 | 32 | 36 | 40;
 
-const fontSize: Record<RbmAvatarSize, number> = { 28: 10, 32: 12, 36: 13 };
+const fontSize: Record<RbmAvatarSize, number> = { 20: 7, 28: 10, 32: 12, 36: 13, 40: 15 };
 
 export interface RbmAvatarProps {
   /** The person's full name. It is the accessible name, and the initials come from it. */
@@ -12,6 +15,8 @@ export interface RbmAvatarProps {
   /** Overrides the initials taken from the name. */
   initials?: string;
   size?: RbmAvatarSize;
+  /** Hidden from screen readers, for an avatar beside the person's name in text. */
+  decorative?: boolean;
 }
 
 /** First letter of the first and last words: "Mary O'Neill" gives "MO". */
@@ -24,11 +29,10 @@ export function initialsOf(name: string) {
 }
 
 /** A person's initials in a Blue Light circle. Unassigned tasks show no avatar. */
-export function RbmAvatar({ name, initials, size = 28 }: RbmAvatarProps) {
+export function RbmAvatar({ name, initials, size = 28, decorative = false }: RbmAvatarProps) {
   return (
     <Avatar
-      role="img"
-      aria-label={name}
+      {...(decorative ? { 'aria-hidden': true } : { role: 'img', 'aria-label': name })}
       sx={{
         width: size,
         height: size,

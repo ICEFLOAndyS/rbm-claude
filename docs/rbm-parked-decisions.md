@@ -702,6 +702,40 @@ Built from the App shell board ("Navigation", "Item states", "Responsive behavio
   - the count in the link's name for screen readers;
   - when an item is disabled (`disabled` was added to the nav types for the drawn state).
 
+### 23 Oct 2026: `RbmTopBar` and `RbmAccountMenu` (app shell, step 4)
+Built from the App shell board ("Top bar": D1, D2, D3, rail collapsed, account menu open, D0 Command; and the mobile drawer).
+- **The bar:**
+  - Deep Blue, full width, with a 1 px divider (14 % white) under it.
+  - Session information only: the logo, the bell and the user. No page context, no page actions and no search.
+  - Height from `shellSize`: 64, 56 and 48 px (72 px at D0).
+- **Logo block:** as wide as the sidebar below it, with the divider on its right.
+  - Over the expanded sidebar: the ICEFLO wordmark (104, 96, 88 px wide, as drawn).
+  - Over the rail: the ICEFLO mark at 36 px.
+  - The two PNGs are copied from the board into `src/components/RbmTopBar/assets/`.
+- **Under 900 px (drawer):** the menu button first (`aria-expanded`, `aria-controls`), then the 88 px wordmark, then the bell and the avatar alone, as on the mobile drawing.
+- **Notifications:** the bell with a white pill and the count in Deep Blue (10 px, 800, drawn), a count with no status colour. No pill at 0. The name says the count ("Notifications (4 new)"). The popover closes on Escape and returns focus to the bell.
+- **Account:** avatar, name (13 px, 700, white), role (11 px, Blue Light) and the chevron, named "Account: Andy Smith". The open state is drawn (12 % white, 12 px corners). The menu, as drawn:
+  - 280 px wide, 14 px corners, a Rule border and the drawn shadow;
+  - a header with the 40 px avatar, name, role and email (not a menu item);
+  - then Profile, Settings and Notification preferences, a divider, and Sign out, each with its icon in Deep Blue.
+
+  MUI's menu gives arrow keys, Escape and the return of focus. `onAction` reports the item.
+- **D0 Command:** the ICEFLO mark (40 px), the programme name (24 px, 800) and the clock (32 px, 800, tabular figures), with 32 px side padding and no controls.
+- **`RbmAvatar`:** gains the shell's 20 px (D3 bar) and 40 px (account menu) sizes, and `decorative` for an avatar beside the name in text, so screen readers do not hear the name twice.
+- **Density:** the bell is an icon button at the `target` size (48, 36, 24 px; drawn 44, 36, 28). Its icon is the `icon` token (24, 20, 16 px; drawn 20 throughout). Menu items take the `target` height and `body` text (48 px and 16 px at D1; drawn 40 px and 14 px), as the event actions menu does. The name, role, avatar and the bar's paddings keep their drawn sizes, which the board draws the same at every level.
+- **Differs from the board (flagged):**
+  - **Focus ring:** white on the bar (as in the sidebar's drawn Focus state).
+  - **Icon strokes:** the shell icons are at the suite's 2 px; the board draws 1.75.
+  - **Menu button inset:** the mobile drawing puts the menu button against the left edge, with no padding. Built as drawn; it looks tight, so check it.
+- **Not drawn (MUI defaults or proposed, flagged):**
+  - hover on the bell, the menu button and the user (the sidebar's 7 % white hover);
+  - tooltips on the bell and the menu button;
+  - the notifications popover and its content (a heading and "No new notifications.");
+  - "99+" for counts over 99;
+  - the logo is not a link home.
+- **Not built:** the search command palette on the / key. It is described on the board but not drawn, and is not part of this step.
+- **Visual check:** D1, D2, the rail, the narrow bar at 600 px and D0 were captured in headless Edge and match the board. Headless Edge cannot go below about 500 px wide, so 390 px is checked in the shell (step 8).
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

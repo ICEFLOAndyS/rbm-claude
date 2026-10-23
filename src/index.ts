@@ -84,3 +84,7 @@ export { RbmSidebar, useSidebarMode, SIDEBAR_EXPANDED_FROM, SIDEBAR_RAIL_FROM, S
 export type { RbmSidebarProps, RbmSidebarVariant, SidebarMode } from './components/RbmSidebar/RbmSidebar';
 export { createLocalSidebarStore, createMemorySidebarStore } from './data/nav/sidebarPreference';
 export type { SidebarPreferenceStore } from './data/nav/sidebarPreference';
+export { RbmTopBar } from './components/RbmTopBar/RbmTopBar';
+export type { RbmTopBarProps } from './components/RbmTopBar/RbmTopBar';
+export { RbmAccountMenu } from './components/RbmTopBar/RbmAccountMenu';
+export type { RbmAccountMenuProps, RbmUser, RbmAccountAction } from './components/RbmTopBar/RbmAccountMenu';

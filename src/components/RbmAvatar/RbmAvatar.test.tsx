@@ -37,10 +37,18 @@ describe('RbmAvatar', () => {
   });
 
   it.each([
+    [20, '7px'],
     [32, '12px'],
     [36, '13px'],
+    [40, '15px'],
   ] as const)('at %i px uses %s initials', (size, fontSize) => {
     renderAvatar(<RbmAvatar name="Tom Baker" size={size} />);
     expect(screen.getByRole('img')).toHaveStyle({ width: `${size}px`, fontSize });
+  });
+
+  it('is hidden from screen readers when decorative, beside the name in text', () => {
+    const { container } = renderAvatar(<RbmAvatar name="Tom Baker" decorative />);
+    expect(screen.queryByRole('img')).toBeNull();
+    expect(container.firstElementChild).toHaveAttribute('aria-hidden', 'true');
   });
 });

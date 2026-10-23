@@ -3,6 +3,7 @@ import { Box, Breadcrumbs, Button, ButtonBase, Link, Menu, MenuItem } from '@mui
 import { RbmIcon } from '../../icons/RbmIcon';
 import type { RbmIconName } from '../../icons/registry';
 import { RbmStatusPill } from '../RbmStatusPill/RbmStatusPill';
+import { RbmActionButton } from '../RbmActionButton/RbmActionButton';
 import { useDensity } from '../../theme/RbmDensity';
 import { colour, shellSize, stroke, type RbmState } from '../../theme/tokens';
 
@@ -120,10 +121,13 @@ function ProgrammeSwitcher({ programme, programmes, onChange }: { programme: Rbm
 }
 
 function ActionButton({ action, primary }: { action: RbmPageAction; primary?: boolean }) {
+  // Secondary actions are the Icon suite's action button, with the icon and the word (Andy Smith, 23 Oct 2026:
+  // every Edit uses it). The one call to action stays the green CTA.
+  if (!primary) return <RbmActionButton icon={action.icon} label={action.label} onClick={action.onClick} disabled={action.disabled} />;
   return (
     <Button
-      variant={primary ? 'contained' : 'outlined'}
-      color={primary ? 'secondary' : 'primary'}
+      variant="contained"
+      color="secondary"
       onClick={action.onClick}
       disabled={action.disabled}
       startIcon={action.icon ? <RbmIcon name={action.icon} size={16} /> : undefined}

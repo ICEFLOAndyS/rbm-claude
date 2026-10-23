@@ -1,4 +1,5 @@
 import { useEffect, useId, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from 'react';
+import { RbmActionButton } from '../RbmActionButton/RbmActionButton';
 import { Alert, Box, Button, ButtonBase, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Tab, Tabs, Tooltip, useTheme } from '@mui/material';
 import { editableKeys, validateSection, type GroupSpec, type RecordSpec, type SectionSpec, type SubsectionSpec, type TableColumnSpec } from '../../data/list/recordSpec';
 import type { FieldChange, PersonRef, RecordEnvelope, SaveResult } from '../../data/list/types';
@@ -480,17 +481,16 @@ export function RbmRecord<R extends RecordEnvelope<S>, S extends string>(props: 
           <Box id={bodyId} sx={{ px: 3.5, py: 3, borderTop: `${stroke.thin}px solid ${colour.rule}`, display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {s.editable && !lock && !editing && (
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
+                {/* Every Edit is the Icon suite's action button with the pencil (Andy Smith, 23 Oct 2026). */}
+                <RbmActionButton
                   ref={(el: HTMLButtonElement | null) => {
                     editButtons.current.set(s.id, el);
                   }}
-                  variant="outlined"
+                  icon="construct.edit"
+                  label="Edit"
+                  name={`Edit ${s.label}`}
                   onClick={() => startEdit(s)}
-                  aria-label={`Edit ${s.label}`}
-                  sx={{ height: d.control, px: 3.5, borderWidth: stroke.thin, '&:hover': { borderWidth: stroke.thin } }}
-                >
-                  Edit
-                </Button>
+                />
               </Box>
             )}
             {isEditing && conflict && (

@@ -98,3 +98,5 @@ export { RbmAppShell, RBM_APP_TITLE, rbmDocumentTitle } from './components/RbmAp
 export type { RbmAppShellProps } from './components/RbmAppShell/RbmAppShell';
 export { ShellFrameContext, useShellFrame, useScrollContainer } from './components/RbmAppShell/shellContext';
 export type { RbmShellFrame } from './components/RbmAppShell/shellContext';
+export { RbmActionButton } from './components/RbmActionButton/RbmActionButton';
+export type { RbmActionButtonProps } from './components/RbmActionButton/RbmActionButton';

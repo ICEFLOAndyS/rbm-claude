@@ -19,7 +19,7 @@ const board: RbmPageHeaderProps = {
   programme: programmes[0],
   programmes,
   event: { name: 'Q4 Data Centre Cutover', state: 'active', stateLabel: 'In progress' },
-  actions: [{ label: 'Edit', onClick: () => {} }],
+  actions: [{ label: 'Edit', icon: 'construct.edit', onClick: () => {} }],
   primaryAction: { label: 'Start run', onClick: () => {} },
 };
 
@@ -130,11 +130,13 @@ describe('RbmPageHeader: context row', () => {
 
 describe('RbmPageHeader: actions', () => {
   it('puts the secondary actions first and the one green call to action last', () => {
-    renderHeader({ actions: [{ label: 'Import', onClick: () => {} }, { label: 'Edit', onClick: () => {} }] });
+    renderHeader({ actions: [{ label: 'Import', onClick: () => {} }, { label: 'Edit', icon: 'construct.edit', onClick: () => {} }] });
     const buttons = within(screen.getByRole('group', { name: 'Page actions' })).getAllByRole('button');
     expect(buttons.map((b) => b.textContent)).toEqual(['Import', 'Edit', 'Start run']);
     expect(buttons.at(-1)).toHaveClass('MuiButton-contained', 'MuiButton-colorSecondary');
-    expect(buttons[0]).toHaveClass('MuiButton-outlined', 'MuiButton-colorPrimary');
+    // Secondary actions are the Icon suite's action button; Edit carries the pencil.
+    expect(buttons[0]).not.toHaveClass('MuiButton-root');
+    expect(buttons[1]!.querySelector('svg')).toHaveAttribute('data-icon', 'construct.edit');
   });
 
   it('calls the action', async () => {

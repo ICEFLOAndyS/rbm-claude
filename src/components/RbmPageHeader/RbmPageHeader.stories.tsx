@@ -32,7 +32,7 @@ const meta: Meta<Args> = {
     programmes,
     onProgrammeChange: () => {},
     event: { name: 'Q4 Data Centre Cutover', state: 'active', stateLabel: 'In progress' },
-    actions: [{ label: 'Edit', onClick: () => {} }],
+    actions: [{ label: 'Edit', icon: 'construct.edit', onClick: () => {} }],
     primaryAction: { label: 'Start run', onClick: () => {} },
   },
   argTypes: { level: { control: 'inline-radio', options: ['comfortable', 'compact', 'dense'] } },

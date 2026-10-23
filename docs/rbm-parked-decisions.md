@@ -1001,6 +1001,23 @@ Source: the icon suite brief, v2 (now `docs/icon-suite-brief.md`), and the proje
 - **Environment chip on phones:** decide later.
 - **D0 footer "Live" dot:** white, as built (the board draws Brand Green, which means Complete only). Redraw the board.
 
+### 23 Oct 2026: building the answers (app shell and icons, v4)
+- **Icons:** `object.contentPack`, `nav.versions` and `display.signOut` added, checked against the board (104 icons). The account menu's Sign out uses `display.signOut`, and the chevron `shell.signOut` is retired (the shell group is now 6). At 16 px, Content Pack and Integrations, Versions and Support, and Sign out and Open full page are each clearly distinct (Look Alikes story).
+- **Menu:** `rbmNav` is the five groups and thirteen items, with the accepted routes.
+  - **Permissions:** `rbmAdmin` and `techAdmin` replace `admin`, each hiding its own group. The mock user has both.
+  - **Help › Support** opens the customer portal in a new tab. A menu item whose `to` is a full address opens in a new tab, says so to screen readers, never goes through `onNavigate`, and is never the active item.
+- **Footer links:** `RBM_FOOTER_LINKS` (`src/data/nav/footerLinks.ts`) holds the three portal addresses. The footer uses them by default, and its `links` prop overrides an address. The demo no longer passes placeholders.
+  - **Below 900 px** the drawer carries the same three links at its bottom ("Help and legal", Blue Light, each opening in a new tab). Not drawn: proposed.
+- **Tab title:** `RBM_APP_TITLE` is "Runbook Management". The shell sets the tab to "<page> · Runbook Management" from its `pageTitle` prop, and only the shell sets it. The demo page's static title is "Runbook Management", and the demo names each route's page ("Events", "REV000009 Weekend Payroll Cutover", the menu item's label).
+- **`RbmActionButton`** (Base): the Icon suite's action button, white, a 1 px Slate border, the control height and radius, and a Deep Blue icon from the suite.
+  - **Two forms:** icon only (the drawn one: tooltip and name from the label) and icon and text (the word beside the icon; not drawn: proposed).
+  - **Details:** a `name` prop gives a fuller name that starts with the word ("Edit Details"). Disabled is as on the Components board.
+  - **Not drawn:** hover (Mist) and focus (the 2 px Blue Dark ring).
+- **Edit:** the page header's secondary actions are now `RbmActionButton` with icon and text; Edit passes `construct.edit`. The record sections' Edit is `RbmActionButton` with the pencil and "Edit", named "Edit <section>".
+  - **Rule used:** icon and text where there is room (page header, record sections); icon only for rows and toolbars.
+  - **The Shell board's Edit question is settled:** its drawing (white, thin border) is now close to the build.
+- **Not changed (separate cycle, as Andy asked):** the record panel's header buttons (previous, next, widen, open, close) and other earlier components' hand-drawn icons and buttons.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

@@ -29,6 +29,7 @@ const exceptions: Record<string, readonly string[]> = {
   'centre/executiveBriefing.svg': [...smallBase, 'stroke-width="1.5"'],
   'centre/verification.svg': [...smallBase, 'stroke-width="1.5"'],
   'centre/audit.svg': [...smallBase, 'stroke-width="1.5"'],
+  'centre/admin.svg': [...smallBase, 'stroke-width="1.5"'],
 };
 
 const svgRoot = join(__dirname, 'svg');

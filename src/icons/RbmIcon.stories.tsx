@@ -23,6 +23,7 @@ const groupNames: Record<RbmIconGroup, string> = {
   display: 'Actions: Display',
   nav: 'Navigation',
   centre: 'Centres',
+  admin: 'Admin pages',
   taskType: 'Task types',
   shell: 'Shell',
 };
@@ -64,7 +65,7 @@ export const Single: Story = {};
 /** Informative: carries meaning alone, so it has a name for screen readers. */
 export const WithTitle: Story = { args: { name: 'state.paused', title: 'Paused' } };
 
-/** Every registered icon, by group: 104 in the suite and 6 shell icons outside it. */
+/** Every registered icon, by group: 107 in the suite and 6 shell icons outside it. */
 export const Registry: Story = {
   render: () => (
     <Box sx={{ display: 'grid', gap: 6 }}>
@@ -84,6 +85,7 @@ export const Control = groupStory('control');
 export const Display = groupStory('display');
 export const Navigation = groupStory('nav');
 export const Centres = groupStory('centre');
+export const AdminPages = groupStory('admin');
 export const TaskTypes = groupStory('taskType');
 export const Shell = groupStory('shell');
 
@@ -119,6 +121,7 @@ const lookAlikes: { title: string; names: RbmIconName[] }[] = [
   { title: 'Content Pack against Integrations', names: ['object.contentPack', 'nav.integrations'] },
   { title: 'Versions against Support', names: ['nav.versions', 'nav.support'] },
   { title: 'Sign out against Open full page', names: ['display.signOut', 'display.openFullPage'] },
+  { title: 'Admin Centre against the Centres; Diagnostics against Automated', names: ['centre.admin', 'centre.verification', 'centre.base', 'admin.diagnostics', 'admin.systemProperties', 'taskType.automated'] },
 ];
 
 /** Look-alikes at 16, 20 and 24 px, for the designer's review. */

@@ -1,5 +1,5 @@
 export { rbmTheme } from './theme/theme';
-export { colour, hairline, radius, elevation, spacingUnit, fontFamily, type, status, density } from './theme/tokens';
+export { colour, hairline, radius, elevation, spacingUnit, fontFamily, type, status, density, shellSize, onDeepBlue } from './theme/tokens';
 export type { ColourName, TypeStyle, RbmState, StatusToken, DensityLevel } from './theme/tokens';
 export { RbmStatusPill } from './components/RbmStatusPill/RbmStatusPill';
 export type { RbmStatusPillProps, RbmStatusPillSize } from './components/RbmStatusPill/RbmStatusPill';
@@ -80,3 +80,7 @@ export { rbmNav, NAV_GROUP_MAX, navItems, checkNavConfig, visibleNav, activeNavI
 export type { RbmNavConfig, RbmNavGroup, RbmNavItem, RbmNavChild, RbmNavPermission, RbmNavCounts } from './data/nav/nav';
 export { createMockNavData, useNavPermissions, useNavCounts, EMPTY_NAV } from './data/nav/navData';
 export type { NavData, NavSnapshot, MockNavData } from './data/nav/navData';
+export { RbmSidebar, useSidebarMode, SIDEBAR_EXPANDED_FROM, SIDEBAR_RAIL_FROM, SIDEBAR_PHONE_DRAWER } from './components/RbmSidebar/RbmSidebar';
+export type { RbmSidebarProps, RbmSidebarVariant, SidebarMode } from './components/RbmSidebar/RbmSidebar';
+export { createLocalSidebarStore, createMemorySidebarStore } from './data/nav/sidebarPreference';
+export type { SidebarPreferenceStore } from './data/nav/sidebarPreference';

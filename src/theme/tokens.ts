@@ -80,6 +80,25 @@ export const density = {
 } as const;
 export type DensityLevel = keyof typeof density;
 
+/**
+ * Proposed. The app shell's own sizes at each level (App shell board, "Sizes by density"), in CSS px.
+ * D0 Command has no sidebar (0) and no navigation items. Icon sizes are the density's `icon` token.
+ */
+export const shellSize = {
+  command: { sidebar: 0, rail: 0, navItem: 0, topBar: 72, footer: 40, pagePadding: 32, pageTitle: 40 },
+  comfortable: { sidebar: 248, rail: 72, navItem: 44, topBar: 64, footer: 36, pagePadding: 32, pageTitle: 28 },
+  compact: { sidebar: 224, rail: 64, navItem: 36, topBar: 56, footer: 32, pagePadding: 24, pageTitle: 24 },
+  dense: { sidebar: 200, rail: 56, navItem: 32, topBar: 48, footer: 28, pagePadding: 16, pageTitle: 20 },
+} as const satisfies Record<DensityLevel, Record<string, number>>;
+
+/** Proposed. The shell's tints on Deep Blue (App shell board): hover, active and dividers. */
+export const onDeepBlue = {
+  hover: 'rgba(255,255,255,0.07)',
+  active: 'rgba(255,255,255,0.14)',
+  divider: 'rgba(255,255,255,0.14)',
+  railDivider: 'rgba(255,255,255,0.18)',
+} as const;
+
 /** "Inter Variable" is the name @fontsource-variable/inter registers; "Inter" covers the static font. */
 export const fontFamily = '"Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif';
 

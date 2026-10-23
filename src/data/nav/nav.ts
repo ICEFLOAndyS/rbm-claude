@@ -20,6 +20,8 @@ export interface RbmNavChild {
   to: string;
   /** Shown only to users the platform grants this permission. */
   permission?: RbmNavPermission;
+  /** Shown but not a link (the board's Disabled item state). When an item is disabled is not decided. */
+  disabled?: boolean;
 }
 
 export interface RbmNavItem extends RbmNavChild {

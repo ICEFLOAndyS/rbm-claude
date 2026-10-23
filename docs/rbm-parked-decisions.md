@@ -659,6 +659,49 @@ Brief: `docs/icon-suite-brief.md` (Icon suite board, version 88). Andy Smith ask
 - **`NavData`** follows the Command Centre's pattern (`getSnapshot`, `subscribe`). `useNavPermissions` and `useNavCounts` read it. `createMockNavData` is the stub user: an admin, with no counts.
 - **Not drawn:** what a route with no matching item shows in the sidebar. It marks nothing.
 
+### 23 Oct 2026: `RbmSidebar` (app shell, step 3)
+Built from the App shell board ("Navigation", "Item states", "Responsive behaviour").
+- **Three forms:**
+  - **Expanded:** Deep Blue, with group headings (11 px uppercase Blue Light, as drawn) and items with icon and label.
+  - **Rail:** icons only, with a 1 px divider between groups (18 % white) instead of headings, and a tooltip with the name on hover and focus.
+  - **Drawer:** the expanded sidebar in a temporary drawer under the top bar, with a dimmed backdrop below the bar.
+- **Item states as drawn:**
+  - **Hover:** 7 % white.
+  - **Active:** 14 % white with the 3 px Blue Light bar and the label at 800, not Blue Dark.
+  - **Disabled:** 40 % opacity, not a link.
+  - **With count:** a white pill with Deep Blue text. In the rail the count is an 8 px white dot.
+  - **Collapse:** pinned to the bottom under a divider, in Blue Light.
+- **Sizes:** the board's own table, now `shellSize` in `src/theme/tokens.ts`:
+  - width: 248, 224, 200 px;
+  - rail: 72, 64, 56 px;
+  - item height: 44, 36, 32 px.
+
+  The density tokens give the label (`body`), icon (`icon`), side padding (`padX`), gap (`gap`) and count text (`caption`). Group headings, the 10 px item corners and the 2 px by 8 px item margins keep their drawn sizes. D0 Command draws no sidebar.
+- **Form by width (`useSidebarMode`):** the drawer under 900 px. From 900 px the user's remembered choice wins; without one, the sidebar is expanded from 1,200 px and the rail below. The choice is stored per user through `SidebarPreferenceStore` (localStorage in the prototype). The drawer is the expanded width from 600 to 899 px and 280 px under 600.
+- **Links:** real links (`hrefFor`, so a new tab works). `onNavigate` takes a plain click; a click with a modifier key is left to the browser. Choosing an item in the drawer closes it.
+- **Accessibility:**
+  - a `nav` landmark ("Main");
+  - each group is a `group` named by its heading (by `aria-label` in the rail);
+  - `aria-current="page"` on the active item;
+  - every link's name is its label, plus the count when there is one ("List (12)");
+  - icons are hidden from screen readers;
+  - Collapse is a button named "Collapse sidebar" or "Expand sidebar", with `aria-expanded`;
+  - Escape and the backdrop close the drawer, and focus returns to the button that opened it.
+- **Differs from the board or the brief (flagged):**
+  - **Focus ring:** white, 2 px with a 2 px offset, as drawn on the board's Focus state. The brief says Blue Dark, which cannot be seen on Deep Blue.
+  - **Label size at D1:** 16 px and the 16 px side padding and gap come from the density tokens, where the board draws 14 px and 12 px. At D1 "License Management" no longer fits in 248 px and is cut with an ellipsis. It fits at D2 (the shell default), where the tokens match the drawing.
+  - **Mobile drawer:** the drawing puts a 248 px sidebar inside a 280 px drawer. The build fills the drawer.
+  - **Collapse in the drawer:** the mobile drawer drawing shows a Collapse item, which has nothing to do in a temporary drawer, so the build leaves it out.
+- **Not drawn (proposed, flagged):**
+  - the Expand tooltip in the rail;
+  - pressed states (MUI's ripple);
+  - the width animation's timing (MUI's "shorter", off with reduced motion);
+  - children indented to the label's start, without an icon;
+  - a parent marked active in the rail when its child is the page;
+  - the label cut with an ellipsis;
+  - the count in the link's name for screen readers;
+  - when an item is disabled (`disabled` was added to the nav types for the drawn state).
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

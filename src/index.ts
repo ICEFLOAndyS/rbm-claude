@@ -72,3 +72,7 @@ export { RbmListLoading, RbmListEmpty, RbmListError, RbmListNoAccess, RbmListFai
 export type { RbmListLoadingProps, RbmListEmptyProps, RbmListErrorProps, RbmListNoAccessProps, RbmListAction } from './components/RbmListState/RbmListState';
 export { RbmListPage } from './components/RbmListPage/RbmListPage';
 export type { RbmListPageProps, RbmListPageRecord } from './components/RbmListPage/RbmListPage';
+export { RbmIcon } from './icons/RbmIcon';
+export type { RbmIconProps } from './icons/RbmIcon';
+export { rbmIconKeys, rbmIconNames } from './icons/registry';
+export type { RbmIconName, RbmIconGroup } from './icons/registry';

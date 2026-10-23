@@ -2,16 +2,20 @@ import { IconButton, type IconButtonProps } from '@mui/material';
 import type { ReactNode } from 'react';
 import { colour, stroke } from '../../theme/tokens';
 import { useDensity } from '../../theme/RbmDensity';
+import { RbmIcon } from '../../icons/RbmIcon';
+import type { RbmIconName } from '../../icons/registry';
 
-export interface RbmIconButtonProps extends Omit<IconButtonProps, 'children' | 'aria-label'> {
-  /** What the button does, for screen readers. Required: the button has no visible text. */
-  label: string;
-  /** A 20 px icon. */
-  children: ReactNode;
-}
+/** The icon: a registry key, or (until earlier components move to the registry) a 20 px icon as children. */
+type RbmIconButtonIcon = { name: RbmIconName; children?: never } | { name?: never; children: ReactNode };
+
+export type RbmIconButtonProps = Omit<IconButtonProps, 'children' | 'aria-label' | 'name'> &
+  RbmIconButtonIcon & {
+    /** What the button does, for screen readers. Required: the button has no visible text. */
+    label: string;
+  };
 
 /** A square icon button with a Deep Blue outline, as drawn on the Components board ("More actions"), at the density's control size (48 px at D1). */
-export function RbmIconButton({ label, children, sx, ...props }: RbmIconButtonProps) {
+export function RbmIconButton({ label, name, children, sx, ...props }: RbmIconButtonProps) {
   const d = useDensity();
   return (
     <IconButton
@@ -30,7 +34,7 @@ export function RbmIconButton({ label, children, sx, ...props }: RbmIconButtonPr
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
     >
-      {children}
+      {name ? <RbmIcon name={name} /> : children}
     </IconButton>
   );
 }

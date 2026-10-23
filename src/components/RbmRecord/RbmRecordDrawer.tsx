@@ -35,15 +35,21 @@ export function drawerMode(container: RbmRecordContainer, viewport: number): 'be
   return viewport >= PANEL_WIDTH[container] + MIN_LIST_WIDTH ? 'beside' : 'overlay';
 }
 
-export function RbmRecordDrawer({ open, container, onClose, children }: RbmRecordDrawerProps) {
+/** `drawerMode` for the current window, live. The list page uses it to make room beside the panel. */
+export function useDrawerMode(container: RbmRecordContainer): 'beside' | 'overlay' | 'fullScreen' {
   const fullScreen = useMediaQuery(`(max-width: ${FULL_SCREEN_BELOW - 0.02}px)`);
   const beside = useMediaQuery(`(min-width: ${PANEL_WIDTH[container] + MIN_LIST_WIDTH}px)`);
-  const width = fullScreen ? '100vw' : PANEL_WIDTH[container];
+  return fullScreen ? 'fullScreen' : beside ? 'beside' : 'overlay';
+}
+
+export function RbmRecordDrawer({ open, container, onClose, children }: RbmRecordDrawerProps) {
+  const mode = useDrawerMode(container);
+  const width = mode === 'fullScreen' ? '100vw' : PANEL_WIDTH[container];
   return (
     <Drawer
       anchor="right"
       open={open}
-      variant={beside && !fullScreen ? 'persistent' : 'temporary'}
+      variant={mode === 'beside' ? 'persistent' : 'temporary'}
       // Only the backdrop closes it here; Escape is the panel's own, which asks first about unsaved work.
       onClose={(_, reason) => reason === 'backdropClick' && onClose()}
       slotProps={{

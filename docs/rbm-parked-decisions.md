@@ -519,6 +519,32 @@ Built unattended (Andy Smith asked for work to continue overnight without questi
 - **No access:** the Lock icon, what the user cannot see, and who to ask (from the server). It has no action, and shows the reference if there is one.
 - **Proposed (not drawn):** the icon at the Icons board's 32 px, the message centred in a card the size of the grid's card, at 48 px top and bottom padding.
 
+### 23 Oct 2026: `RbmListPage` and the connected Events list (`src/app/EventsListPage.tsx`)
+Built unattended, so every choice below is a recommendation to review.
+- **As drawn:**
+  - The page sits on Mist, with 24 px padding and 18 px between zones.
+  - The header has the breadcrumb (13 px), the title (24 px, 800) and the count line (13 px). The actions sit on the right, aligned to the bottom: Import outlined, then New event as the green CTA with the Add icon.
+  - Below the header: the toolbar, then the one grid with pagination in its card.
+  - The page header keeps its drawn sizes (page chrome is not on the density scale); the rest of the page is D2.
+- **Slots (brief §3):** `title`, `count`, `actions`, `toolbar`, `grid`, `record`, `emptyState` and `errorState` are all required; a missing one is a compile error (tested). `record`, `emptyState` and `errorState` take `null` explicitly.
+  - **Added:** `bulkBar`, so the template, not the developer, swaps the toolbar for the bulk bar while rows are selected.
+  - **Added:** `breadcrumb` and `message` (MUI's snackbar, not drawn).
+- **Where each state shows (proposed):**
+  - The empty state replaces the grid; the toolbar stays, so the filters can be changed.
+  - The error and no-access states replace the toolbar and the grid; the header stays, so the page is never blank.
+  - On the first load, the grid's place shows the skeleton. Later loads use the grid's own loading overlay (MUI default).
+- **The panel beside the list:** the list makes room for the drawer (its right padding grows by the panel's width) rather than being covered. `useDrawerMode` is shared with `RbmRecordDrawer`, so the two always agree.
+- **Count line:** "7 events", then "· filtered to Production" for filters the user added beyond the view's own, then "· matching “payroll”" for a search. **Proposed:** the board shows only the "filtered to" form.
+- **The Active view's Status filter shows as on** ("Status · 5"), because the view sets it. The board draws "View: Active" with Status off. **Open:** should a view's own filters show as on in the pills?
+- **Empty, two cases (proposed):**
+  - With no filters at all: "No events yet", with New event.
+  - Otherwise: "No events match these filters", with Clear filters, which goes to All events with nothing filtered.
+  - An empty event list on the Active view first shows the filtered case, because the page cannot tell "none at all" without another query.
+- **Focus:** closing the panel returns focus to the row's first cell (board: "focus returns to the row").
+- **Deep link:** the page takes and reports an address (`record`, `tab`, `section`); the demo route will keep it in the URL.
+- **Preferences:** the panel width, column state, last view and page size go to `ListPreferenceStore`, as the data contract says.
+- **Open:** in Edge's headless capture, the grid's header background stops about 30 px short of the card's right edge (the scrollbar filler). Check it in a normal window.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

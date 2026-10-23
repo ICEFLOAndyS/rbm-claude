@@ -60,7 +60,7 @@ export { RbmListBulkAction } from './components/RbmListBulkAction/RbmListBulkAct
 export { RbmPagination, rangeText } from './components/RbmPagination/RbmPagination';
 export { RbmRecord } from './components/RbmRecord/RbmRecord';
 export type { RbmRecordProps, RbmRecordHandle, RbmRecordContainer, RbmRecordLocation } from './components/RbmRecord/RbmRecord';
-export { RbmRecordDrawer, drawerMode, PANEL_WIDTH } from './components/RbmRecord/RbmRecordDrawer';
+export { RbmRecordDrawer, drawerMode, useDrawerMode, PANEL_WIDTH } from './components/RbmRecord/RbmRecordDrawer';
 export type { RbmRecordDrawerProps } from './components/RbmRecord/RbmRecordDrawer';
 export type { RbmPaginationProps } from './components/RbmPagination/RbmPagination';
 export type { RbmListBulkActionProps, RbmBulkAction } from './components/RbmListBulkAction/RbmListBulkAction';
@@ -70,3 +70,5 @@ export type { RbmDataGridProps, RbmDataGridHandle, RbmGridRowAction } from './co
 export { applyMuiXLicence } from './components/RbmDataGrid/licence';
 export { RbmListLoading, RbmListEmpty, RbmListError, RbmListNoAccess, RbmListFailure, clientReference, eventIcon, LOADING_DELAY_MS } from './components/RbmListState/RbmListState';
 export type { RbmListLoadingProps, RbmListEmptyProps, RbmListErrorProps, RbmListNoAccessProps, RbmListAction } from './components/RbmListState/RbmListState';
+export { RbmListPage } from './components/RbmListPage/RbmListPage';
+export type { RbmListPageProps, RbmListPageRecord } from './components/RbmListPage/RbmListPage';

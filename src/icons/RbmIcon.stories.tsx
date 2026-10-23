@@ -63,7 +63,7 @@ export const Single: Story = {};
 /** Informative: carries meaning alone, so it has a name for screen readers. */
 export const WithTitle: Story = { args: { name: 'state.paused', title: 'Paused' } };
 
-/** Every registered icon, by group: 89 in the suite and 7 shell icons outside it. */
+/** Every registered icon, by group: 95 in the suite and 7 shell icons outside it. */
 export const Registry: Story = {
   render: () => (
     <Box sx={{ display: 'grid', gap: 6 }}>
@@ -100,6 +100,35 @@ export const Sizes: Story = {
             </Box>
           </Box>
         </RbmDensity>
+      ))}
+    </Box>
+  ),
+};
+
+/** Sets the icon suite brief (rev 2, section 9) asks to check side by side at 16 px, as at D3. */
+const lookAlikes: { title: string; names: RbmIconName[] }[] = [
+  { title: 'Standard against the state rings', names: ['taskType.standard', 'state.initial', 'state.available', 'state.skipped'] },
+  { title: 'Checkpoint against Local and Automated', names: ['taskType.checkpoint', 'object.localTeam', 'object.localWorkstream', 'taskType.automated'] },
+  { title: 'Milestone against Decision', names: ['taskType.milestone', 'object.decision'] },
+  { title: 'Move against Previous, Next and Sort', names: ['construct.moveUp', 'construct.moveDown', 'display.previous', 'display.next', 'display.sort'] },
+  { title: 'Task against Approve', names: ['object.task', 'control.approve'] },
+];
+
+/** Look-alikes at 16, 20 and 24 px, for the designer's review. */
+export const LookAlikes: Story = {
+  render: () => (
+    <Box sx={{ display: 'grid', gap: 4, color: colour.deepBlue }}>
+      {lookAlikes.map((set) => (
+        <Box key={set.title} sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <Box sx={{ width: 300, flex: 'none', fontSize: 13, color: colour.slate }}>{set.title}</Box>
+          {[16, 20, 24].map((size) => (
+            <Box key={size} sx={{ display: 'flex', gap: 3, pr: 4, borderRight: `1px solid ${colour.rule}` }}>
+              {set.names.map((name) => (
+                <RbmIcon key={name} name={name} size={size} title={name} />
+              ))}
+            </Box>
+          ))}
+        </Box>
       ))}
     </Box>
   ),

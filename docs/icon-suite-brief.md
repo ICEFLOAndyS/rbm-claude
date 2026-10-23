@@ -13,7 +13,7 @@ The "RBM Design System" canvas, **Icon suite** board (version 88): https://claud
 The old Jira library (RBM-345, Material icon names) is **not** a source. The design says RBM icons are drawn from scratch, and `@mui/icons-material` must not be imported outside the icon package.
 
 ## 3. Rules (from the board, enforce by types, lint and tests)
-- 24 px grid, 2 px stroke, round caps and joins, no fills except the half ring and the play triangle, colour from `currentColor`.
+- 24 px grid, 2 px stroke, round caps and joins, no fills except the half ring, the play triangle and the dots of the drag handle, colour from `currentColor`.
 - Sizes follow density: D0 32 px, D1 24 px, D2 20 px, D3 16 px (`--rbm-icon-size`, set by the density scope).
 - One typed registry. Lint bans `@mui/icons-material` outside the icon package.
 - `RbmIconButton` requires a `label` (aria-label and tooltip). TypeScript rejects it without one.
@@ -33,16 +33,17 @@ export const rbmIcons = {
   role: { owner, executor, reviewer, approver, observer, stakeholder, manager, author },
   state: { initial, approved, pending, available, active, paused, suspended,
            complete, skipped, backingOut, backedOut, abandoned, scheduled, closed },
-  construct: { add, edit, delete, save, discard, duplicate, reassign, export, lock },
+  construct: { add, edit, delete, save, discard, copy, clone, reassign, export, lock,
+              moveUp, moveDown, dragHandle, dropTarget },
   control: { approve, start, pause, resume, complete, skip, fastForward, abandon, backOut },
   display: { search, filter, sort, expandAll, collapseAll, previous, next, widen,
             openFullPage, close, more },
   nav: { list, folder, setup, integrations, license, training, support },
-  taskType: { manual, scripted, automated, businessVerification, technicalVerification,
-              checkpoint, notification, collaboration, approval },
+  taskType: { standard, scripted, automated, businessVerification, technicalVerification,
+              checkpoint, notification, collaboration, approval, milestone },
 } as const;
 ```
-That is 89 icons. The old single `action` group is **replaced** by `construct`, `control` and `display`. `markComplete` becomes `control.complete`, and the old Close is `display.close`. The shell reuses `object.template`, `object.team` and `object.workstream` for Templates, Teams and Workstreams.
+That is 95 icons. `construct.duplicate` is **retired**: replace each use with `construct.copy` (copy content) or `construct.clone` (make a new, independent record). The old single `action` group is **replaced** by `construct`, `control` and `display`. `markComplete` becomes `control.complete`, and the old Close is `display.close`. The shell reuses `object.template`, `object.team` and `object.workstream` for Templates, Teams and Workstreams.
 
 ## 5. Icon data (copy these exactly)
 Every icon is drawn in a `viewBox="0 0 24 24"` with `fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`. The tables give the elements inside the `<svg>`.
@@ -62,7 +63,7 @@ Every icon is drawn in a `viewBox="0 0 24 24"` with `fill="none" stroke="current
 | `object.environment` | Environment | `<rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01"/>` |
 | `object.schedule` | Schedule | `<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>` |
 | `object.cutover` | Cutover | `<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>` |
-| `object.decision` | Decision | `<path d="M12 2l10 10-10 10L2 12 12 2z"/>` |
+| `object.decision` | Decision | `<path d="M12 2l10 10-10 10L2 12 12 2z"/><path d="M10 9.5a2 2 0 1 1 3 1.7c-.7.4-1 .8-1 1.5"/><path d="M12 16.2h.01"/>` |
 | `object.comment` | Comment | `<path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10l-5 4v-4H6a2 2 0 0 1-2-2V5z"/>` |
 | `object.history` | History | `<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/>` |
 | `object.template` | Template | `<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/>` |
@@ -122,7 +123,7 @@ A state is what an object is now. States are never clickable. Every state is sho
 
 Active and Backing out may animate, but only on the state icon, never on a button, and never when `prefers-reduced-motion` is set.
 
-### 5.5 Actions: Construction (9), changes content, never changes state
+### 5.5 Actions: Construction (14), changes content or position, never changes state
 | Key | Label | SVG inside the 24 x 24 viewBox |
 |---|---|---|
 | `construct.add` | Add | `<path d="M12 5v14M5 12h14"/>` |
@@ -130,10 +131,15 @@ Active and Backing out may animate, but only on the state icon, never on a butto
 | `construct.delete` | Delete | `<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>` |
 | `construct.save` | Save | `<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M7 3v5h8M7 21v-7h10v7"/>` |
 | `construct.discard` | Discard | `<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>` |
-| `construct.duplicate` | Duplicate | `<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2"/>` |
+| `construct.copy` | Copy | `<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2"/>` |
+| `construct.clone` | Clone | `<rect x="3" y="3" width="9" height="9" rx="2"/><rect x="12" y="12" width="9" height="9" rx="2"/><path d="M12 7.5h2.5a3 3 0 0 1 3 3V12"/>` |
 | `construct.reassign` | Reassign | `<path d="M4 8h14l-4-4M20 16H6l4 4"/>` |
 | `construct.export` | Export | `<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>` |
 | `construct.lock` | Lock | `<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>` |
+| `construct.moveUp` | Move up | `<path d="M12 19V5M5 12l7-7 7 7"/>` |
+| `construct.moveDown` | Move down | `<path d="M12 5v14M5 12l7 7 7-7"/>` |
+| `construct.dragHandle` | Drag handle | `<circle cx="9" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="9" cy="19" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="19" r="1.5" fill="currentColor" stroke="none"/>` |
+| `construct.dropTarget` | Drop target | `<rect x="4" y="13" width="16" height="7" rx="2" stroke-dasharray="3 3"/><path d="M12 3v7M8.5 6.5L12 10l3.5-3.5"/>` |
 
 ### 5.6 Actions: Control / Player (9), every one is a state change
 | Key | Label | SVG inside the 24 x 24 viewBox |
@@ -174,18 +180,19 @@ Active and Backing out may animate, but only on the state icon, never on a butto
 | `nav.training` | Training | `<path d="M2 9l10-5 10 5-10 5L2 9z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/>` |
 | `nav.support` | Support | `<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"/>` |
 
-### 5.9 Task types (9)
+### 5.9 Task types (10)
 | Key | Label | SVG inside the 24 x 24 viewBox |
 |---|---|---|
-| `taskType.manual` | Manual | `<path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M11 10.5V4a1.5 1.5 0 0 1 3 0v6.5"/><path d="M14 10.5V5.5a1.5 1.5 0 0 1 3 0V14"/><path d="M8 12l-1.6-1.9a1.6 1.6 0 0 0-2.4 2.1L7.5 18c1.3 2 3.2 3 5.5 3h1.5c3 0 5-2.3 5-5.5V10.5a1.5 1.5 0 0 0-3 0"/>` |
+| `taskType.standard` | Standard | `<circle cx="12" cy="12" r="7"/>` |
 | `taskType.scripted` | Scripted | `<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>` |
 | `taskType.automated` | Automated | `<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/><circle cx="12" cy="12" r="6.5"/>` |
 | `taskType.businessVerification` | Business verification | `<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M8.5 14l2.5 2.5 4.5-5"/>` |
 | `taskType.technicalVerification` | Technical verification | `<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/><path d="M9.5 12l2 2 3-4"/>` |
-| `taskType.checkpoint` | Checkpoint | `<path d="M12 21s-6.5-5.4-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.6 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.5"/>` |
+| `taskType.checkpoint` | Checkpoint | `<circle cx="12" cy="12" r="4"/><circle cx="12" cy="3.8" r="1.6"/><circle cx="12" cy="20.2" r="1.6"/><circle cx="3.8" cy="12" r="1.6"/><circle cx="20.2" cy="12" r="1.6"/>` |
 | `taskType.notification` | Notification | `<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4l2-2z"/><path d="M10 21h4"/>` |
 | `taskType.collaboration` | Collaboration | `<rect x="2" y="6" width="13" height="12" rx="2"/><path d="M15 10l7-4v12l-7-4"/>` |
 | `taskType.approval` | Approval | `<path d="M12 3a2.5 2.5 0 0 1 2.5 2.5c0 1.6-1 2.2-1 3.5H15a4 4 0 0 1 4 4v3H5v-3a4 4 0 0 1 4-4h1.5c0-1.3-1-1.9-1-3.5A2.5 2.5 0 0 1 12 3z"/><path d="M4 20.5h16"/>` |
+| `taskType.milestone` | Milestone | `<path d="M12 4l5 5-5 5-5-5 5-5z"/><path d="M3 19h18"/>` |
 
 ## 6. State versus action (the rule that shapes the code)
 - A **state** is what an object is now. An **action** is what a person does. They are separate groups, and a drawing is never reused between them.
@@ -233,19 +240,23 @@ Hold these as typed data, not in components. A transition component reads them, 
 One piece per pull request, each with stories, tests and a check against the board.
 1. **Registry and types:** the `rbmIcons` object, the key types, `RbmIcon` and `RbmIconButton`. Add the lint rule and the CI script (viewBox, stroke, caps, `currentColor`, no duplicates).
 2. **Migrate existing code:** replace the old `action.*` keys and every `@mui/icons-material` import outside the icon package. Keep a deprecated alias for the old `action` group for one release only if something breaks. Report what you changed.
-3. **State pill:** update `RbmStatusPill` from the seven old states to the 14 here. Blocked and At risk are **removed** (parked, see section 9). Each state keeps its dot and label.
+3. **State pill:** add the new states from section 5.4 to `RbmStatusPill`. Each state keeps its dot and label. **Do not remove Blocked or At risk from the pill, `RbmNode`, the focus rule or the engine flags.** They are parked in the icon suite only, but the Semantic and Command boards and the built Task Timeline still use them. Flag every place the old seven and the new 14 disagree, and ask Andy Smith before renaming anything (for example `pending`, labelled "Not started", against the new Available and Pending).
 4. **Transition data and types:** typed task and event tables, and a function that returns the valid actions for a state and a role. Test every row in section 7.
 5. **Storybook:** a story for every icon, every state (dot and icon), every action group, and the Proposed marker. Show all four density sizes.
 6. **Visual check** against the Icon suite board, and a keyboard and screen-reader pass.
 
 ## 9. Not drawn, parked, or undecided (flag, do not guess)
-- **Blocked** and **At risk** are parked. RBM does not define them, and it is not decided whether they are states or something else (for example health). Do not build them. The old drawings are in `docs/rbm-parked-decisions.md`.
+- **Blocked** and **At risk** are parked in the icon suite. RBM does not define them, and it is not decided whether they are states or something else (for example health). Do not add them to the new icon registry. Do not remove them from existing code either (section 8, step 3). The old drawings are in `docs/rbm-parked-decisions.md`.
 - **Fast-forward** is drawn, but its meaning is not defined and it is in no transition table. Do not wire it to anything.
 - The **transition tables** in section 7 are drafts. Ask before building behaviour on them, and flag anything that differs.
 - Candidate icons from the old library, **not drawn and not approved**: Import, Publish, Unpublish, Archive, First page, Last page, Expand, Collapse, Help, Info, Cancel, Refresh, Drag handle, Login, Logout, Upload, Download, Auto start, Auto complete, Card view, List view. The shell chrome icons (bell, menu, collapse, account menu, programme switcher, footer sync) are also still outside the suite.
 - Event states are a separate lifecycle from task states. Do not assume they share a model.
 - Whether the task type icon appears on task rows, in filters or in the record panel is undecided, and `RbmTask` has no `taskType` field yet.
 - Whether other objects (Template, Runbook, Stage) come in global and local forms is undecided.
+- **Checkpoint** (task type) is a ring with four small circles around it, like people round a table, chosen by Andy Smith on 23 Oct 2026 to suggest a multi-party activity. It replaces the location pin. Check it at 16 px against the Local badge and the Automated icon, and report if any are hard to tell apart.
+- **Standard** (task type, formerly Manual) is a plain ring, chosen by Andy Smith on 23 Oct 2026. A standard task can be assigned to a person or a team, so a person figure was rejected (it is already the base of the user role icons). The key `taskType.manual` is gone; rename any use of it. **A plain ring is the least distinctive icon in the suite.** It is close to the state rings (Initial, Available, Skipped) and, on the proposed Timeline node, it sits inside a state ring and can read as a bullseye. Check it at 16 px against those, and report if it is hard to tell apart.
+- **Copy and Clone** are two verbs, defined here as: Copy copies content, and Clone makes a new, independent record from an existing one. These definitions are my reading of Andy Smith's request, so confirm them. Move up and Move down are one-step, plain arrows, so they are close to Previous and Next (chevrons) and to Sort: check them side by side at 16 px. The drag handle is drawn with filled dots and is the only icon with fills besides the half ring and the play triangle.
+- **Milestone** (task type, a diamond on a baseline) and **Decision** (object, a diamond with a question mark) were chosen by Andy Smith on 23 Oct 2026 because the diamond is the convention in project management and in process modelling. They are distinct drawings, but both are diamonds: check them side by side at 16 px and report if they are hard to tell apart. The meaning of Milestone as a task type (what a person does with it) is not defined.
 - Where Dashboard, Plan, Readiness, Run, Improve, Reports and Tasks live in the navigation is undecided.
 
 ## 10. Changes this brief makes to other briefs
@@ -254,7 +265,7 @@ One piece per pull request, each with stories, tests and a check against the boa
 - **Decisions:** record this work in `docs/rbm-parked-decisions.md` and flag every place the build differs from the board.
 
 ## 11. Acceptance
-- All 89 icons render at the four density sizes and pass the CI script.
+- All 95 icons render at the four density sizes and pass the CI script.
 - No `@mui/icons-material` import outside the icon package, enforced by lint.
 - Every state shows a text label. Colour is never the only signal.
 - `RbmIconButton` will not compile without a label.

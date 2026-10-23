@@ -8,8 +8,8 @@ import { density, type DensityLevel } from '../theme/tokens';
 import { RbmIconButton } from '../components/RbmIconButton/RbmIconButton';
 
 /**
- * Drawings that set their own fill or stroke, as on the board. The brief's rule names only "the half ring
- * and the play triangle"; the play triangle has no fill, and More and Observer do (flagged).
+ * Drawings that set their own fill or stroke, as on the board. The brief's rule names "the half ring, the
+ * play triangle and the dots of the drag handle"; the play triangle has no fill, and More and Observer do (flagged).
  */
 const smallBase = ['transform="translate(0 7) scale(0.7)"', 'stroke-width="2.86"'];
 const exceptions: Record<string, readonly string[]> = {
@@ -17,6 +17,8 @@ const exceptions: Record<string, readonly string[]> = {
   'state/available.svg': ['stroke-dasharray="3 3.2"'],
   'display/more.svg': ['fill="currentColor"'],
   'role/observer.svg': ['fill="currentColor"'],
+  'construct/dragHandle.svg': ['fill="currentColor"', 'stroke="none"'],
+  'construct/dropTarget.svg': ['stroke-dasharray="3 3"'],
   'object/globalTeam.svg': [...smallBase, 'stroke-width="1.5"'],
   'object/globalWorkstream.svg': [...smallBase, 'stroke-width="1.5"'],
   'object/localTeam.svg': smallBase,

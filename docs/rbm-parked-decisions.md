@@ -643,6 +643,39 @@ Icon suite board, design version 76; the suite is now 73 icons. Objects go from 
 - Open: page-specific titles; whether ServiceNow lets the app set the title and icon.
 - **Update, same day (Andy Smith):** the favicon is `favicon-32x32.png` from the brand kit (`docs/14 - Brand Kit/03-favicons/`), not `favicon.ico`. It is in `demo/public/` and linked from the demo page (`<link rel="icon" type="image/png" sizes="32x32">`), with a test that the link and the 32 by 32 PNG are there. The brief's section 5b still names `favicon.ico`. Storybook keeps its own favicon. The tab title is not changed yet.
 
+### 23 Oct 2026: Content Pack object (asked by Andy Smith; puzzle piece chosen by Andy Smith)
+- New RBM object: Content Pack, a reusable, version-controlled, approved standard operating procedure, built from stages and tasks, that can be inserted into runbooks. It captures institutional IP and makes runbooks more accurate, reliable and governed.
+- Icon: puzzle piece (`object.contentPack`). Candidates considered: cube, layers, sealed document, cube with approved badge, brick, and cube with connectors. The lidded box (Closed state), shield (Approved state) and book (Runbook) were ruled out as clashes.
+- Added to the Icon suite board (Objects, now nineteen) and the registry. The suite is 102 icons.
+- Added to the App shell sidebar as **Content Packs**, in the Library group after Templates, route `/library/content-packs` (my proposal: Andy did not say which group). It is in the expanded sidebar, the rail and the drawer on the board.
+- This makes Library five items. The board rule changed from "four items or fewer in a group" to "five or fewer" (twelve destinations). Needs Andy's sign-off.
+- Not drawn: a Content Pack card, its states, how it looks inside a runbook, and its record page.
+- Check: the puzzle piece is a common icon for plug-ins, so test it at 16 px against Integrations (the plug) in the rail.
+
+### 23 Oct 2026: app menu regrouped (decided by Andy Smith)
+- Content Packs goes in Library. Teams and Workstreams move out of Library, and License Management out of Admin, into a new group, **RBM Admin**. The group named Admin is renamed **Tech Admin**.
+- New menu: Events (List, Folders); Library (Templates, Content Packs, Folders); RBM Admin (Teams, Workstreams, License Management); Tech Admin (Setup, Integrations); Help (Training, Support & Versions). Five groups, twelve destinations.
+- No group has more than three items, so the "four items or fewer in a group" rule holds again. The rule I loosened to "five" earlier today is reverted.
+- My assumptions, to confirm: group order (Library, RBM Admin, Tech Admin, Help); and new routes `/rbm-admin/teams`, `/rbm-admin/workstreams`, `/rbm-admin/licences`, `/tech-admin/setup`, `/tech-admin/integrations`.
+- Applied on the App shell board (expanded sidebar, rail, drawer, the `rbmNav` sample, rules text) and on the Icon suite board's menu-item table. App shell brief section 4 and 6a updated.
+- Permissions: both Admin groups are hidden by platform roles. Whether a user can see RBM Admin without Tech Admin, or the reverse, is not decided.
+- Content Pack card added to the Cards board (now nine prototypes): Essential Title, Status (Approved, with its shield icon and text), Version; Useful Stages and Tasks; Detail Used in (runbooks). My choice of fields: not decided by Andy. The sample values (Database failover, v2.3, 4 stages, 36 tasks, 7 runbooks) are invented.
+
+### 23 Oct 2026: Folders to RBM Admin; Help split into three (decided by Andy Smith)
+- The Library Folders item moves into RBM Admin (Andy chose it over Events Folders). Library is now Templates and Content Packs. RBM Admin is Teams, Workstreams, License Management, Folders. Route `/rbm-admin/folders` is my proposal.
+- Help is now three items: **Training**, **Support** and **Versions** (was Training and "Support & Versions"). Routes `/help/support` and `/help/versions` (the latter is my proposal).
+- **Versions needs an icon:** I drew a tag (`nav.versions`) and flagged it as proposed. The nav group is now 8 icons and the suite 103.
+- Final menu: Events (List, Folders); Library (Templates, Content Packs); RBM Admin (Teams, Workstreams, License Management, Folders); Tech Admin (Setup, Integrations); Help (Training, Support, Versions). Five groups, thirteen destinations. The largest group has four items, so the "four or fewer" rule still holds.
+- Applied on the App shell board (all three sidebars, the sample code, rules text; the sidebars are taller to fit) and on the Icon suite board (Versions card and menu table).
+
+### 23 Oct 2026: Sign out icon (asked by Andy Smith; O1 chosen by Andy Smith)
+- New icon `display.signOut`: an open doorway with an arrow leaving it. Andy placed it in Display / UI.
+- It replaces the right chevron on Sign out in the Profile menu (App shell board updated).
+- Candidates considered: bracket and arrow (chosen), door and arrow, open door, mirrored bracket and arrow, power symbol.
+- Display / UI is now 12 icons and the suite 104.
+- To check: against Open full page (both are an arrow leaving a frame) at 16 px.
+- Still not in the suite: the other Profile menu icons (Profile, Settings, Notification preferences), the bell, the menu button, collapse and expand, the programme switcher chevron, and the footer sync and environment icons.
+
 ### 23 Oct 2026: App shell build plan (decided by Andy Smith)
 - **Branch:** the shell is built on `rbm-app-shell`, from `rbm-list-page`, so the demo can show the Events list inside the shell.
 - **Page headers stay with the pages.** The Command Centre and `RbmListPage` keep their own headers in the content zone. `RbmPageHeader` is built as drawn on the Shell board, but no page uses it yet. **Differs from the board:** the board puts the header in a fixed zone above the scrolling content, so on these two pages the header scrolls away.
@@ -951,6 +984,23 @@ Source: the icon suite brief, v2 (now `docs/icon-suite-brief.md`), and the proje
   - **The record panel:** at 1280 px a 480 px panel between the bar and the footer (800, 56 to 1280, 768); at 800 px the full content width; at 390 px a full-screen page.
   - **The panel's Open Command Centre** opens the same Command Centre. The page never scrolls sideways.
 
+### 23 Oct 2026: answers to the open questions (decided by Andy Smith)
+- **Menu group order:** Events, Library, RBM Admin, Tech Admin, Help, as proposed.
+- **Routes:** accepted as proposed: `/library/content-packs`, `/rbm-admin/teams`, `/rbm-admin/workstreams`, `/rbm-admin/licences`, `/rbm-admin/folders`, `/tech-admin/setup`, `/tech-admin/integrations`, `/help/versions`.
+- **Versions icon:** keep the tag (`nav.versions`).
+- **Tab title:** the page name first, then the product, for example "Events · Runbook Management". This replaces brief section 5b's single title.
+- **Footer links below 900 px:** Privacy, Support and Knowledge move into the navigation drawer, still opening in a new tab.
+- **Help › Support:** opens the customer portal (https://customer.iceflo.com/portal) in a new tab, like the footer's Support. No in-app Support page.
+- **Admin permissions:** RBM Admin and Tech Admin each have their own permission, granted by the platform. A user can see one without the other.
+- **Content Packs:** Library › Content Packs, as proposed.
+- **Edit actions:** every Edit uses the Icon suite's Actions › Construction Edit (`construct.edit`, the pencil), replacing the page header's text "Edit" and the record sections' Edit buttons. **Two foundational components** (Andy Smith: "both are useful"):
+  - **Icon only:** the board's icon button ("In use": a 36 px square at D2, white, 1 px Slate border, 12 px corners, Deep Blue icon), named "Edit" with a tooltip.
+  - **Icon and text:** the same button with the pencil and the word "Edit" inside.
+  - Both are generic: any action from the suite can use them, not only Edit. **Not decided:** which form each place uses. Proposed: icon and text where there is room (the page header), icon only where space is tight (record section headers, rows).
+- **Centres:** all Centres are for observational users (executives) on a screen-shared call, a meeting-room screen or a tablet, and are designed on that basis. Phones get a separate mobile app, not phone layouts. The Command & Control Centre stays as it is for now. Its narrow widths, and where the Event Manager's actions live, are decided when the other Centres are created.
+- **Environment chip on phones:** decide later.
+- **D0 footer "Live" dot:** white, as built (the board draws Brand Green, which means Complete only). Redraw the board.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?
@@ -983,3 +1033,7 @@ Source: the icon suite brief, v2 (now `docs/icon-suite-brief.md`), and the proje
 - **Task types:** the Business and Technical verification types had a "(*)" note that did not come through. What does it say? Also, where should the type icon appear (task row, filter, record panel)?
 - **Global and local (design approved):** which other objects come in both forms (Template, Runbook, Stage)? Should Cutover be kept now that Event exists? Event, Workstream and the Stage rename are still Proposed.
 - **Centres:** is the plain base icon wanted? Are the one-line meanings right? Do the other four Centres need pages?
+- **Content Pack:** is Library the right group, and are the label "Content Packs" and route `/library/content-packs` right? Does it need a card on the Cards board, states, and a way to show a pack inside a runbook? Does a pack have its own approval lifecycle and version states?
+- **Menu:** is the group order right? Are the routes right? Which roles see RBM Admin and which see Tech Admin? Does Setup in Tech Admin still read as the right name, now that RBM Admin exists?
+- **Content Pack card:** are Title, Status, Version, Stages, Tasks and Used in the right fields? Is Approved the only status a pack shows, or does it also have Draft, Retired and the like?
+- **Versions:** is the tag the right icon, and what does the Versions page show? Should Support (Help) go to the customer portal?

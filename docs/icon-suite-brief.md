@@ -29,7 +29,7 @@ export const rbmIcons = {
   object: { runbook, event, stage, task, dependency, assignment, team, globalTeam,
             localTeam, workstream, globalWorkstream, localWorkstream, document,
             issue, checklist, environment, schedule, cutover, decision, comment,
-            history, template },
+            history, template, contentPack },
   role: { owner, executor, reviewer, approver, observer, stakeholder, manager, author },
   state: { initial, approved, pending, available, active, paused, suspended,
            complete, skipped, backingOut, backedOut, abandoned, scheduled, closed },
@@ -37,19 +37,19 @@ export const rbmIcons = {
               moveUp, moveDown, dragHandle, dropTarget },
   control: { approve, start, pause, resume, complete, skip, fastForward, abandon, backOut },
   display: { search, filter, sort, expandAll, collapseAll, previous, next, widen,
-            openFullPage, close, more },
-  nav: { list, folder, setup, integrations, license, training, support },
+            openFullPage, close, more, signOut },
+  nav: { list, folder, setup, integrations, license, training, support, versions },
   taskType: { standard, scripted, automated, businessVerification, technicalVerification,
               checkpoint, notification, collaboration, approval, milestone },
   centre: { base, commandControl, migration, executiveBriefing, verification, audit },
 } as const;
 ```
-That is 101 icons. `construct.duplicate` is **retired**: replace each use with `construct.copy` (copy content or the whole object) or `construct.clone` (a wizard-like process that makes a new, independent record). The old single `action` group is **replaced** by `construct`, `control` and `display`. `markComplete` becomes `control.complete`, and the old Close is `display.close`. The shell reuses `object.template`, `object.team` and `object.workstream` for Templates, Teams and Workstreams.
+That is 104 icons. `construct.duplicate` is **retired**: replace each use with `construct.copy` (copy content or the whole object) or `construct.clone` (a wizard-like process that makes a new, independent record). The old single `action` group is **replaced** by `construct`, `control` and `display`. `markComplete` becomes `control.complete`, and the old Close is `display.close`. The shell reuses `object.template`, `object.team` and `object.workstream` for Templates, Teams and Workstreams.
 
 ## 5. Icon data (copy these exactly)
 Every icon is drawn in a `viewBox="0 0 24 24"` with `fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`. The tables give the elements inside the `<svg>`.
 
-### 5.1 Objects (18 drawn directly)
+### 5.1 Objects (19 drawn directly)
 | Key | Label | SVG inside the 24 x 24 viewBox |
 |---|---|---|
 | `object.runbook` | Runbook | `<path d="M6 3h13v15H6a2 2 0 0 0-2 2V5a2 2 0 0 1 2-2z"/><path d="M4 20a2 2 0 0 0 2 2h13v-4"/><path d="M9 8h6M9 12h4"/>` |
@@ -70,6 +70,7 @@ Every icon is drawn in a `viewBox="0 0 24 24"` with `fill="none" stroke="current
 | `object.template` | Template | `<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/>` |
 | `object.event` | Event | `<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M12.5 12l-2.5 3.5h4l-2 3.5"/>` |
 | `object.workstream` | Workstream | `<path d="M3 7q2.25-3 4.5 0t4.5 0 4.5 0 4.5 0M3 12q2.25-3 4.5 0t4.5 0 4.5 0 4.5 0M3 17q2.25-3 4.5 0t4.5 0 4.5 0 4.5 0"/>` |
+| `object.contentPack` | Content Pack | `<path d="M10 4a2 2 0 1 1 4 0v1h4a1 1 0 0 1 1 1v4h-1a2 2 0 1 0 0 4h1v4a1 1 0 0 1-1 1h-4v-1a2 2 0 1 0-4 0v1H6a1 1 0 0 1-1-1v-4h1a2 2 0 1 0 0-4H5V6a1 1 0 0 1 1-1h4V4z"/>` |
 
 ### 5.2 Global and local objects (4, plus the two badges)
 The base object is drawn small (`translate(0 7) scale(0.7)`, stroke-width 2.86) with a badge at top right. A globe means Global and a pin means Local.
@@ -155,7 +156,7 @@ Active and Backing out may animate, but only on the state icon, never on a butto
 | `control.abandon` | Abandon | `<path d="M8 3h8l5 5v8l-5 5H8l-5-5V8l5-5z"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/>` |
 | `control.backOut` | Back out | `<path d="M11 6L4 12l7 6V6z"/><path d="M20 6l-7 6 7 6V6z"/>` |
 
-### 5.7 Actions: Display / UI (11), changes how things are shown
+### 5.7 Actions: Display / UI (12), changes how things are shown
 | Key | Label | SVG inside the 24 x 24 viewBox |
 |---|---|---|
 | `display.search` | Search | `<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>` |
@@ -169,8 +170,9 @@ Active and Backing out may animate, but only on the state icon, never on a butto
 | `display.openFullPage` | Open full page | `<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>` |
 | `display.close` | Close | `<path d="M6 6l12 12M18 6L6 18"/>` |
 | `display.more` | More | `<circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/>` |
+| `display.signOut` | Sign out | `<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/>` |
 
-### 5.8 Navigation (7)
+### 5.8 Navigation (8)
 | Key | Label | SVG inside the 24 x 24 viewBox |
 |---|---|---|
 | `nav.list` | List | `<path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>` |
@@ -180,6 +182,7 @@ Active and Backing out may animate, but only on the state icon, never on a butto
 | `nav.license` | License | `<circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L20 3M17 6l3 3M14 9l2.5 2.5"/>` |
 | `nav.training` | Training | `<path d="M2 9l10-5 10 5-10 5L2 9z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/>` |
 | `nav.support` | Support | `<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"/>` |
+| `nav.versions` | Versions | `<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9-9-9z"/><circle cx="8" cy="8" r="1.3"/>` |
 
 ### 5.9 Task types (10)
 | Key | Label | SVG inside the 24 x 24 viewBox |
@@ -271,15 +274,18 @@ One piece per pull request, each with stories, tests and a check against the boa
 - **Copy and Clone** are two verbs, defined here as: **Copy** copies content or the entire object. **Clone** is a process that makes a new, independent record from an existing one, with a wizard-like set of options the user supplies (Andy Smith, 23 Oct 2026). Clone therefore opens a guided flow, not a one-click action. The wizard template is separate work and is not drawn: do not build the Clone flow, only the icon and the action name. Move up and Move down are one-step, plain arrows, so they are close to Previous and Next (chevrons) and to Sort: check them side by side at 16 px. The drag handle is drawn with filled dots and is the only icon with fills besides the half ring and the play triangle.
 - **Milestone** (task type, a diamond on a baseline) and **Decision** (object, a diamond with a question mark) were chosen by Andy Smith on 23 Oct 2026 because the diamond is the convention in project management and in process modelling. They are distinct drawings, but both are diamonds: check them side by side at 16 px and report if they are hard to tell apart. The meaning of Milestone as a task type (what a person does with it) is not defined.
 - **Centres** are Proposed by Andy Smith (23 Oct 2026, base B chosen). Only the Command & Control Centre exists as a page (the Command board). Migration, Executive Briefing, Verification and Audit Centres are not drawn. The one-line meanings on the board are my reading and need confirming. Check the Executive Briefing star and the Command & Control crosshair at 16 px, where the badges are small. The plain base was added by me, not requested: confirm or drop it.
+- **Content Pack** (object) is a puzzle piece, chosen by Andy Smith on 23 Oct 2026 from five candidates (cube, puzzle piece, layers, sealed document, cube with badge) and a set of building-block and brick candidates. A Content Pack is a reusable, version-controlled, approved standard procedure, built from stages and tasks, that can be inserted into runbooks. The puzzle piece says "insertable" and "modular" but not "approved" or "versioned": those come from the label, the state and the version. A puzzle piece is a common icon for plug-ins and extensions in other tools, so check it at 16 px against `nav.integrations` (the plug) in the rail. Not drawn: a Content Pack card, its states, and how it appears inside a runbook.
+- **Versions** (nav) is a tag, proposed by me on 23 Oct 2026 when Andy Smith split "Support & Versions" into Support and Versions. It is not approved: confirm or replace. A tag is a common icon for labels as well as versions: check it at 16 px against `nav.support` in the rail, and say if it reads as a label.
+- **Sign out** (Display / UI) is an open doorway with an arrow leaving it, chosen by Andy Smith on 23 Oct 2026 from five candidates (door and arrow, open door, mirrored bracket, power symbol and the old right chevron). It replaces the right chevron used in the Profile menu. The arrow-leaving-a-frame idea is also behind `display.openFullPage`: check them side by side at 16 px. Sign out is a session action, not a change to the object, so it sits in Display / UI by Andy's decision, not by the rule that Display / UI never changes the object. Flag that if it matters.
 - Where Dashboard, Plan, Readiness, Run, Improve, Reports and Tasks live in the navigation is undecided.
 
 ## 10. Changes this brief makes to other briefs
-- **App shell brief:** section 6 (icons) now defers to this brief. The navigation keys are `nav.list`, `nav.folder`, `nav.setup`, `nav.integrations`, `nav.license`, `nav.training` and `nav.support`, plus `object.template`, `object.team` and `object.workstream`. Teams and Workstreams are separate menu items, and Workstreams uses the plain `object.workstream` icon. The brief predates the task type icons and the three new roles, so build those from this brief.
+- **App shell brief:** section 6 (icons) now defers to this brief. The navigation keys are `nav.list`, `nav.folder`, `nav.setup`, `nav.integrations`, `nav.license`, `nav.training`, `nav.support` and `nav.versions`, plus `object.template`, `object.team` and `object.workstream`. Teams and Workstreams are separate menu items, and Workstreams uses the plain `object.workstream` icon. The brief predates the task type icons and the three new roles, so build those from this brief.
 - **List page brief:** the status cell uses the 14 states here, not the old seven. Any old reference to `action.*` keys becomes `construct`, `control` or `display`.
 - **Decisions:** record this work in `docs/rbm-parked-decisions.md` and flag every place the build differs from the board.
 
 ## 11. Acceptance
-- All 101 icons render at the four density sizes and pass the CI script.
+- All 104 icons render at the four density sizes and pass the CI script.
 - No `@mui/icons-material` import outside the icon package, enforced by lint.
 - Every state shows a text label. Colour is never the only signal.
 - `RbmIconButton` will not compile without a label.

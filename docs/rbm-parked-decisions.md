@@ -545,6 +545,110 @@ Built unattended, so every choice below is a recommendation to review.
 - **Preferences:** the panel width, column state, last view and page size go to `ListPreferenceStore`, as the data contract says.
 - **Open:** in Edge's headless capture, the grid's header background stops about 30 px short of the card's right edge (the scrollbar filler). Check it in a normal window.
 
+### 22 Oct 2026: App shell, four-group navigation and new navigation icons (decided by Andy Smith)
+Brief: `claude/rbm-app-shell-brief.md` (repository copy `docs/app-shell/app-shell-brief.md`). Design version 74.
+- **Navigation:** four groups, in this order. **Events** (List, Folders), **Library** (Templates, Folders, Teams, Workstreams), **Admin** (Setup, Integrations, License Management), **Help** (Training, Support & Versions). It replaces the board's Dashboard, Runbook lifecycle and Library spine. The Shell board is redrawn (anatomy, expanded sidebar, rail, mobile drawer, item states, rules, `rbmNav` sample, decision 6).
+- **Six zones:** sidebar, top bar, page header, content, footer, slide-in region, as drawn. All six are built.
+- **Icons: conform with the design.** Andy first asked for MUI icons, then chose to follow the Icon suite board: icons are drawn from scratch in the RBM style, and nothing outside the icon package imports `@mui/icons-material`.
+  - **Seven new icons** added to the Icon suite board (new "Navigation" section): List, Folder, Setup, Integrations, License, Training, Support, in a registry group `nav`. Templates, Teams and Workstreams reuse `object.template`, `object.team` and `object.workstream`; the two Folders items share `nav.folder`.
+  - Drawn as first-pass icons like the rest of the suite: a designer should refine the optical balance. **Proposed; needs sign-off.**
+- **Differs from the old board (flagged):**
+  - The rule "seven destinations or fewer in the main area" becomes "four items or fewer in a group" (eleven destinations in four groups).
+  - Help is the last group; Collapse is the only item pinned to the bottom. Settings is gone from the sidebar (Setup, under Admin, configures the application; the account menu's Settings stays personal).
+  - Admin items show only to users whose platform roles allow them (UI follows the API).
+  - The sample count on List (12) is an example; no item has a count yet.
+- **Update, same day (Andy Smith):** Teams & Workstreams is split into two menu items, **Teams** (`object.team`) and **Workstreams** (`object.workstream`, the plain Workstream icon from the Global and local section). Library now has four items (Templates, Folders, Teams, Workstreams), so the rule reads "four items or fewer in a group" and there are eleven destinations. Shell board redrawn (version 78); the new Workstreams route is `/library/workstreams`. The plain icons are used in the menu, not the badged global or local ones.
+- **Shell density default:** Andy gave no preference. The brief builds **D2 Compact** (matching the list page), where the board said D1. Flagged.
+
+
+### 22 Oct 2026: task type icons (asked by Andy Smith)
+A new icon group `taskType` on the Icon suite board (new "Task types" section; the suite was 67 icons at design version 75). A task type says how the task is done, not its state.
+- **The nine types:** Manual (done by a person), Scripted (runs a script defined in the task), Automated (run by automation through an integration), Business verification, Technical verification, Checkpoint, Notification, Collaboration (a call or meeting: Teams, Zoom and so on), Approval.
+- **Registry:** `taskType: { manual, scripted, automated, businessVerification, technicalVerification, checkpoint, notification, collaboration, approval }`. Drawn from scratch in the suite's style, like every other icon. Proposed, first-pass drawings; need sign-off.
+- **Checkpoint abilities add no icons.** Notify attendees (Notification icon), start a Teams call with Event Management and ICG or ECG members (Collaboration icon), create a status report (Document icon), invoke a decision (Decision icon).
+- **Not the same as node shape:** the Task Timeline's node shapes (circle task, diamond milestone, rounded square checkpoint) stay as drawn. The type icon is separate from both the node shape and the state.
+- **Not drawn:** where the types appear (task row, filter, record panel). Type name goes beside the icon where there is room; icon-only use takes the name from a tooltip.
+- **Not in the data contract yet:** the task type is not a field on `RbmTask` today. It needs adding, with the nine values, when the icons are used.
+
+
+### 22 Oct 2026: new objects and the global/local pattern (asked by Andy Smith; global and local design approved by Andy Smith)
+Icon suite board, design version 76; the suite is now 73 icons. Objects go from sixteen to eighteen.
+- **Added:** Event (a calendar with a bolt, "a cutover event, run by the Event Manager") and Workstream (three wave lines, "a strand of related work"). Both are Proposed first-pass drawings.
+- **Stage replaces Phase.** The board already had an icon called Phase, described as "a stage that groups tasks". RBM's name is Stage (runbook, stage, task), so the same drawing is renamed `object.stage` rather than adding a second icon for one meaning. **Code impact:** if the registry has `object.phase`, rename it to `object.stage`.
+- **Global and local pattern: APPROVED (Andy Smith, 22 Oct 2026).** The Proposed tag is removed from that section of the Icon suite board. Four badged icons: Global team, Local team, Global workstream, Local workstream. The base object is drawn smaller at bottom left with a badge at top right, as the user roles do with the person figure. **Global badge:** a globe. **Local badge:** a pin. Plain Team and Workstream stay for when scope does not matter (for example the Teams and Workstreams menu items).
+- **Registry:** `object: { runbook, event, stage, task, dependency, assignment, team, globalTeam, localTeam, workstream, globalWorkstream, localWorkstream, document, issue, checklist, environment, schedule, cutover, decision, comment, history, template }`.
+- **Rule:** the word Global or Local is always shown beside the badge, so scope never relies on the badge alone. Any other object that comes in both forms takes the same two badges.
+- **Meanings used:** Global is defined once and shared across events; Local belongs to one event. The pin is also the Checkpoint task type's drawing, at a very different size; flagged.
+- **Event and Cutover overlap.** Cutover is still on the board as "the go-live event" (a bolt). Event is the whole event the Event Manager runs. Kept as two icons; the bolt links them. Flagged.
+
+
+### 22 Oct 2026: three new user roles and their icons (asked by Andy Smith)
+- **Stakeholder:** gives approvals and decisions, attends checkpoints. Badge: diamond.
+- **Manager:** starts, manages and completes events. This is the Event Manager. Badge: bolt.
+- **Author:** creates runbooks, stages and tasks. Badge: pencil. The name is "Author", not "Creator".
+- All three use the shared person figure with the badge at top right, like the other roles. The set is now eight roles (`stakeholder`, `manager`, `author` added to the `role` group). Icon total: 76. Status: **Proposed**.
+- These roles do **not** need to match ServiceNow platform roles. Permissions still come from the platform; the UI never decides.
+- Board: Icon suite, User roles (version 81).
+
+### 22 Oct 2026: state versus action, and the icon categories (PARKED by Andy Smith, to resume; must be settled before more code is built)
+- **Principle (agreed in discussion, not yet on the board):** a state is what an object is now (a status label with dot and icon, never clickable). An action is a verb that moves the object to a new state (a button or menu item). Which actions are offered depends on the current state and platform permissions. Example: a task that is Available offers Start, which moves it to Active; an Active task offers Complete, Pause or Suspend.
+- **Proposed action categories:** Construction (edits content), Control / Player (state transitions only), Display / UI (changes how things are shown). Not yet applied to the Icon suite board. The 23 existing action icons would split as proposed in the chat.
+- **State becomes its own group,** probably per object (task states, event states), kept apart from actions.
+- **Needs a transition table per object** (from state, action, to state, required platform role) as typed data. A transition component reads it. The icon registry only draws what the table names.
+- **Design risks to avoid:** the same word as state and action (Complete); the same picture as state and action (Pause versus Paused); Brand Green on the Complete button; animation only on state icons and only with reduced motion respected.
+- **Reference:** the old RBM-345 icon library (2021, Material names) was assessed as a checklist of names only. It must not override the icons already in the design. Candidate gaps it exposed: Import, Publish, Unpublish, Archive, Skip, Abandon, Back out, Approve, Schedule, Auto start, Auto complete, First page, Last page, Expand, Collapse, Help, Info, Cancel, Refresh, Drag handle, Login, Logout, Upload, Download, Card view, List view, and Event states (Scheduled, Committed, Backing out, Backed out, Abandoned, Closed, and others).
+- **Questions to answer:** (1) State names: Available and Active, or Not started and In progress, for tasks and for events? (2) What is the difference between Pause and Suspend, and is there a Resume action? (3) Do events and tasks share a lifecycle? (4) From which states can Skip, Abandon, Back out and Approve be applied?
+- Nothing on the board was changed for this entry.
+
+### 23 Oct 2026: App shell build plan (decided by Andy Smith)
+- **Branch:** the shell is built on `rbm-app-shell`, from `rbm-list-page`, so the demo can show the Events list inside the shell.
+- **Page headers stay with the pages.** The Command Centre and `RbmListPage` keep their own headers in the content zone. `RbmPageHeader` is built as drawn on the Shell board, but no page uses it yet. **Differs from the board:** the board puts the header in a fixed zone above the scrolling content, so on these two pages the header scrolls away.
+- **Slide-in follows the Shell board.** The record panel always overlays the content (480 px; full width from 600 to 899 px; a full-screen page under 600 px). It replaces the record drawer's own rule (beside the list from 1,120 px, full screen under 640 px).
+- **The Command Centre opens from the Events list:** a clickable icon on each event row opens that event's Command Centre, at `/events/:eventId`, with Events › List marked active in the sidebar. **Not drawn:** the icon and where it sits in the row.
+- **Icon registry:** superseded the same day by the icon suite brief: the full 89-icon registry is built first (see below).
+- **No icons from `@mui/icons-material`:** enforced by a test that scans the source (like the MUI X import test), because the repository has no ESLint.
+
+### 23 Oct 2026: Icon registry and `RbmIcon` (icon suite brief, step 1)
+Brief: `docs/icon-suite-brief.md` (Icon suite board, version 88). Andy Smith asked for the full registry first, then the app shell; the state pill and the transition tables (brief steps 3 and 4) wait for the questions below.
+- **Registry:** `src/icons/registry.ts`. `rbmIconKeys` lists the groups and keys exactly as the brief's section 4: `object` (22), `role` (8), `state` (14), `construct` (9), `control` (9), `display` (11), `nav` (7), `taskType` (9), 89 icons. Each icon is a file, `src/icons/svg/<group>/<name>.svg`. `RbmIconName` is the typed key (`'nav.list'`), so an unknown key does not compile.
+- **Checked against the board:** all 91 drawings in the brief (89 plus the two badges) match the Icon suite board exactly.
+- **The old `action` group is gone:** the app shell's keys are now `display.previous`, `next`, `widen`, `openFullPage` and `close`.
+- **A `shell` group (7) outside the suite**, copied from the App shell board: `notifications` (bell), `menu`, `sidebar` (Collapse), `profile`, `signOut`, `environment`, and `synced`, the footer's "Updated" tick. The tick was `action.markComplete`. The brief maps that key to `control.complete`, but that is a different drawing (the stop symbol), so the tick needs its own file.
+- **`RbmIcon`:** its size comes from the density's icon token and its colour from the text (currentColor). It is decorative (`aria-hidden`) unless it has a `title`. At 16 px and below the stroke is 2.25 in the grid (1.5 px drawn), as on the board's "Sizes".
+- **`RbmIconButton`** takes `name` (a registry key) or, for earlier components, the icon as children.
+- **Checked by tests (the board's CI check):**
+  - every file has the 24 px viewBox, `fill="none"`, `stroke="currentColor"`, a 2 px stroke and round caps and joins;
+  - inside a drawing, only the drawn exceptions set their own fill or stroke (listed below);
+  - no two files are identical;
+  - every file is registered and every key has a file;
+  - every key draws;
+  - nothing outside `src/icons` imports `@mui/icons-material`.
+- **Storybook:** Foundations / Icons has every group, all icons at the four density sizes, and a marker on each group ("Proposed", or "Not in the Icon suite" for `shell`).
+- **Differs from the brief (flagged):**
+  - **Badges:** `badge.globalBadge` and `badge.localBadge` have keys in section 5.2, but section 4's registry has no `badge` group and the count of 89 leaves them out. They are not registered.
+  - **Fill rule:** the brief allows fills only on "the half ring and the play triangle". As drawn, `state.active` (half ring), `display.more` and `role.observer` have fills, and `control.start` (play) has none. More drawings set their own strokes: the global and local objects (2.86 and 1.5) and the dashed `state.available`. The test lists these exceptions by file.
+  - **Lint:** "lint bans `@mui/icons-material`" is a test, because the repository has no ESLint.
+  - **CSS variable:** the brief names `--rbm-icon-size`; the density scope sets `--rbm-icon`.
+  - **Not SVGR:** the files are loaded as text (Vite `import.meta.glob` with `?raw`), not generated by SVGR into `createSvgIcon` components, so no build tool is added.
+  - **Global and local at D3:** the stroke widths set inside these drawings do not get the heavier D3 stroke.
+- **Flagged for the board:**
+  - **Near duplicates:** `object.task` and `control.approve` differ by half a unit (`M8 12` and `M8 12.5`). The test passes them, but they break "one meaning per shape".
+  - **Shell icons:** the seven `shell` icons are not in the suite. The App shell board draws them with a 1.75 px stroke; they are registered at the suite's 2 px.
+  - **Two bells:** the shell bell is not `taskType.notification`.
+  - **Settings:** account menu Settings is drawn with the Setup icon, so it uses `nav.setup` (one shape, two meanings).
+  - **Chevron:** the account and programme switcher chevron is the `display.next` drawing.
+  - **Sign out:** drawn as a plain right chevron.
+  - **Environment:** the footer's environment mark is a small circle, not `object.environment`.
+- **Not done:**
+  - **Tooltip on `RbmIconButton`:** the brief says its label is also a tooltip. The outlined button has no tooltip yet, because adding one changes the earlier components that use it.
+  - **Migration:** the hand-drawn icons in about 25 earlier components are not migrated (brief step 2). Many of them are not in the suite (tag glyphs, clock, warning).
+- **Questions before steps 3 and 4:**
+  - **Removing Blocked and At risk:** it breaks the Events list (`EVENT_STATUSES`, the drawn "At risk"), the engine, the focus rule, the Blockers card and `RbmNode`.
+  - **New event states:** they replace the Events list's State column (decided 22 Oct) and the labels "In progress" and "Pending".
+  - **Suspended and Blocked:** is Suspended the replacement for Blocked, and how do Blocker records fit?
+  - **Roles:** the transition tables have no role column, although the valid-actions function must filter by role.
+  - **Task and event rules:** a task is abandoned only from Active and backed out only from Suspended, while an event can do both from Active or Paused. "Any state before complete" (skip) needs defining. Event Complete does not mention backed-out tasks.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?
@@ -570,3 +674,9 @@ Built unattended, so every choice below is a recommendation to review.
 - **Command board:** redraw the page header and the compact event bar with REV000009 instead of E12345, and every region at its density (D1 header and vitals, D2 elsewhere).
 - **Compact event bar at 56 px** (22 Oct 2026): assess the visual impact of the larger forecast time.
 - **MUI X licence.** A real Pro key is needed before release (D4).
+- **Where do Dashboard, Plan, Readiness, Run, Improve, Reports and Tasks go?** They are not in the new four-group navigation. Inside Events, or out of scope for the shell?
+- **Shell chrome icons** (bell, menu, collapse, account menu, programme switcher, footer sync) are drawn on the Shell board but are not in the Icon suite. Add them to the suite?
+- **Footer Support link and Help: Support & Versions** overlap. Same destination?
+- **Shell default density:** D2 Compact (as built in the brief) or D1 Comfortable (the board)?
+- **Task types:** the Business and Technical verification types had a "(*)" note that did not come through. What does it say? Also, where should the type icon appear (task row, filter, record panel)?
+- **Global and local (design approved):** which other objects come in both forms (Template, Runbook, Stage)? Should Cutover be kept now that Event exists? Event, Workstream and the Stage rename are still Proposed.

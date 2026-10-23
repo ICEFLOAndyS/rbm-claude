@@ -20,7 +20,8 @@ export type RbmFooterLink = 'privacy' | 'support' | 'knowledge';
 
 const linkLabels: Record<RbmFooterLink, string> = { privacy: 'Privacy', support: 'Support', knowledge: 'Knowledge' };
 /** Read by screen readers, not shown. */
-const visuallyHidden = { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0, p: 0, m: '-1px' } as const;
+// In sx, width: 1 would mean 100%: the size is given in px.
+const visuallyHidden = { position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0, p: 0, m: '-1px' } as const;
 
 const linkOrder: readonly RbmFooterLink[] = ['privacy', 'support', 'knowledge'];
 

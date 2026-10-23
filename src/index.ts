@@ -92,3 +92,5 @@ export { RbmPageHeader } from './components/RbmPageHeader/RbmPageHeader';
 export type { RbmPageHeaderProps, RbmPageAction, RbmCrumb, RbmCrumbs, RbmProgramme } from './components/RbmPageHeader/RbmPageHeader';
 export { RbmFooter } from './components/RbmFooter/RbmFooter';
 export type { RbmFooterProps, RbmFooterLink } from './components/RbmFooter/RbmFooter';
+export { RbmSlideInRegion, useSlideInMode, SLIDE_IN_WIDTH } from './components/RbmSlideInRegion/RbmSlideInRegion';
+export type { RbmSlideInRegionProps, RbmSlideInMode } from './components/RbmSlideInRegion/RbmSlideInRegion';

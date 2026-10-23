@@ -827,6 +827,27 @@ Sources: the icon suite brief, rev 2 (now `docs/icon-suite-brief.md`), and the p
   - **Fast-forward:** its meaning is not defined.
   - **Milestone:** its meaning as a task type is not defined.
 
+### 23 Oct 2026: `RbmSlideInRegion` (app shell, step 7)
+Built from the App shell board ("Anatomy" 6, "Responsive behaviour", "React and MUI").
+- **What it is:** a MUI Drawer anchored right, with the shell's content area as its container, so it overlays the content only. The top bar and footer stay visible, and the content does not move.
+  - **900 px and above:** a 480 px panel (`SLIDE_IN_WIDTH`); the record pattern's wide panel passes 800.
+  - **600 to 899 px:** the full width of the content.
+  - **Under 600 px:** a full-screen page, over the header and footer too.
+- **Accessibility:** a modal `dialog` named by `label` (for example the record's title). Focus moves into it and stays there, and closing returns focus to whatever opened it.
+  - **Escape** closes it, unless the panel handles Escape itself (`closeOnEscape={false}`, for the record panel, which asks about unsaved work first).
+  - **A click on the content behind** is reported as `'backdrop'`.
+- **Styling:** the record panel's drawn edge (1 px Rule border, `-8px 0 24px` shadow). None at full screen.
+- **Hosting rule (found in the visual check):** the container must be the content area's frame (`position: relative`, `overflow: hidden`), with the scrolling content inside it. Hosted in the scroller itself, the panel moves with the scroll, and while it slides in it can push the page sideways. The shell (step 8) is built this way.
+- **Bug fixed in `RbmFooter` (step 6):** the screen-reader text "(opens in a new tab)" was 100 % wide, not 1 px, because `width: 1` in MUI's `sx` means 100 %. It made every page with the footer 2,524 px wide at 1,280, and opening the panel scrolled it sideways. Fixed, with a test. **The same mistake is in `RbmDataGrid`** (the hidden "Actions" header text). Not fixed here, because it is an earlier component: fix it in its own change.
+- **Differs from the board (flagged):**
+  - **The page header is covered:** the board puts the panel below the page header. Because the pages keep their own headers inside the content (decided today), the panel covers the page header too, and sits below the top bar.
+  - **The record list no longer sits beside the panel:** as decided today, the Shell board's rule replaces the record drawer's own (beside the list from 1,120 px, full screen under 640 px). The list page moves to this region in step 8 or 9.
+- **Not drawn (MUI defaults, flagged):**
+  - the dimmed backdrop over the content (MUI's 50 % black);
+  - the slide animation;
+  - whether a click on the content behind should close the panel (it reports it, and the page decides).
+- **Visual check:** at 1280, 800 and 390 px in headless Edge, driven over the DevTools protocol, which also gets below Edge's usual 500 px minimum. The page no longer scrolls sideways at any width.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

@@ -48,6 +48,12 @@ describe('RbmFooter', () => {
     expect(privacy).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
+  it('hides "(opens in a new tab)" in a 1 px box, so it never widens the page', () => {
+    renderFooter();
+    const hidden = screen.getAllByText('(opens in a new tab)')[0]!;
+    expect(hidden).toHaveStyle({ position: 'absolute', width: '1px', height: '1px' });
+  });
+
   it('leaves out a link without an address', () => {
     renderFooter({ links: { support: links.support } });
     expect(screen.getAllByRole('link')).toHaveLength(1);

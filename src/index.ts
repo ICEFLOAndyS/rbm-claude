@@ -1,7 +1,7 @@
 export { rbmTheme } from './theme/theme';
 export { colour, hairline, radius, elevation, spacingUnit, fontFamily, type, status, density, shellSize, onDeepBlue } from './theme/tokens';
 export type { ColourName, TypeStyle, RbmState, StatusToken, DensityLevel } from './theme/tokens';
-export { RbmStatusPill } from './components/RbmStatusPill/RbmStatusPill';
+export { RbmStatusPill, RbmStatusDot } from './components/RbmStatusPill/RbmStatusPill';
 export type { RbmStatusPillProps, RbmStatusPillSize } from './components/RbmStatusPill/RbmStatusPill';
 export { RbmNode, nodeSize } from './components/RbmNode/RbmNode';
 export type { RbmNodeProps, RbmNodeKind, RbmSpine } from './components/RbmNode/RbmNode';
@@ -90,3 +90,5 @@ export { RbmAccountMenu } from './components/RbmTopBar/RbmAccountMenu';
 export type { RbmAccountMenuProps, RbmUser, RbmAccountAction } from './components/RbmTopBar/RbmAccountMenu';
 export { RbmPageHeader } from './components/RbmPageHeader/RbmPageHeader';
 export type { RbmPageHeaderProps, RbmPageAction, RbmCrumb, RbmCrumbs, RbmProgramme } from './components/RbmPageHeader/RbmPageHeader';
+export { RbmFooter } from './components/RbmFooter/RbmFooter';
+export type { RbmFooterProps, RbmFooterLink } from './components/RbmFooter/RbmFooter';

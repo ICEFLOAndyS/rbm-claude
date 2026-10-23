@@ -62,6 +62,12 @@ function StatusDot({ token }: { token: StatusToken }) {
   );
 }
 
+/** A state's dot alone, for a place that shows the words itself (the footer's "Reconnecting"). Hidden from screen readers. */
+export function RbmStatusDot({ state }: { state: RbmState }) {
+  const { palette } = useTheme();
+  return <StatusDot token={palette.status[state]} />;
+}
+
 /**
  * A state pill: a dot and a text label. Colour is never the only signal.
  * Drawn on the Command board for Active, Complete and Not started. The other

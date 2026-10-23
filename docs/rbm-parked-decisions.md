@@ -759,6 +759,28 @@ Built from the App shell board ("Page header"). As decided today, the Command Ce
   - the event has no switcher (none is drawn).
 - **Visual check:** the D1 event page was captured in headless Edge and matches the board, except for the Edit button above.
 
+### 23 Oct 2026: `RbmFooter` (app shell, step 6)
+Built from the App shell board ("Footer": D1, D2, D3, D0, and the rules).
+- **The footer:**
+  - White, with a 1 px Rule line above, 12 px Slate text, at the shell table's height (36, 32, 28 px). The side padding is as drawn (24, 20, 16 px; page chrome).
+  - Left to right: "© 2026 ICEFLO Limited · RBM 4.2.0", then the sync time (the `shell.synced` tick and "Updated 10:42:18"), the environment (the `shell.environment` mark and its name), and the links.
+  - Privacy, Support and Knowledge: 600, Deep Blue, in a `nav` named "Help and legal". Each opens in a new tab (`rel="noopener noreferrer"`) and says so to screen readers. A link without an address is left out.
+  - No buttons and no colour.
+- **Reconnecting:** the At risk ringed dot (`RbmStatusDot`, now exported from `RbmStatusPill`) and "Reconnecting" in Amber Deep, in place of the sync time, announced as a `status`.
+- **Environment:** Production is plain text, as drawn. Any other environment (UAT, Test, Pre-production, Development) is a chip.
+- **Widths:** from 900 px, everything. From 600 to 899 px, no links. Under 600 px, the version ("RBM 4.2.0") and the sync time only.
+- **D0 Command:** 40 px, Deep Blue, 14 px white text, with 32 px side padding: "Live", the sync time, and on the right the version.
+- **Differs from the board (flagged):**
+  - **D0 "Live" dot:** drawn Brand Green. Brand Green means Complete only, so the build draws it white. Decide: keep white, or use another colour.
+  - **Phone widths:** under 600 px a non-production environment's chip is hidden too, as the board says ("version and sync time only"). That works against "nobody runs a cutover rehearsal in the wrong place". Should the chip stay on phones?
+- **Not drawn (proposed, flagged):**
+  - the non-production chip (MUI's small outlined chip, 20 px, with the environment mark);
+  - the reconnecting footer (described, not drawn);
+  - "(opens in a new tab)" for screen readers;
+  - the links' hover underline (MUI's default).
+- **Open question (brief):** the footer's Support link and Help › Support & Versions overlap. Both are addresses passed in, so they can point to the same place.
+- **Visual check:** D1, Reconnecting, UAT and D0 were captured in headless Edge and match the board, apart from the white Live dot.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

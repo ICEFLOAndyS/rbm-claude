@@ -630,6 +630,18 @@ Icon suite board, design version 76; the suite is now 73 icons. Objects go from 
 - Only the Command & Control Centre is drawn as a page. The other four are not.
 - To check: Executive Briefing star and Command & Control crosshair at 16 px.
 
+### 23 Oct 2026: app shell footer links (decided by Andy Smith)
+- Footer Privacy, Support and Knowledge are real links: https://customer.iceflo.com/privacy, https://customer.iceflo.com/portal and https://customer.iceflo.com/knowledge. All open in a new tab.
+- Added to the app shell brief as section 5a (typed data, anchors, `noopener noreferrer`, hidden new-tab text, tests).
+- The App shell board is not yet updated with the addresses (build differs from the design until it is).
+- Open: footer links are hidden under 900 px; should they be in the drawer? Is Support & Versions the same destination as the footer Support link?
+
+### 23 Oct 2026: browser tab title and favicon (asked by Andy Smith)
+- Tab title: Runbook Management by ICEFLO Limited, set once in the shell from one constant. Wording is my reading of the request; Andy to confirm whether it should be only "Runbook Management".
+- Favicon: Andy supplied `favicon.ico`. Its three frames (16, 32, 64 px) are one design at three sizes, not three candidates, so there was nothing to choose between. Use the file as supplied. Still needed: an SVG master or PNGs at 180, 192 and 512 px.
+- Added to the app shell brief as section 5b. Not drawn on the App shell board.
+- Open: page-specific titles; whether ServiceNow lets the app set the title and icon.
+
 ### 23 Oct 2026: App shell build plan (decided by Andy Smith)
 - **Branch:** the shell is built on `rbm-app-shell`, from `rbm-list-page`, so the demo can show the Events list inside the shell.
 - **Page headers stay with the pages.** The Command Centre and `RbmListPage` keep their own headers in the content zone. `RbmPageHeader` is built as drawn on the Shell board, but no page uses it yet. **Differs from the board:** the board puts the header in a fixed zone above the scrolling content, so on these two pages the header scrolls away.

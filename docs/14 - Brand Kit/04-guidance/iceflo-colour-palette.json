@@ -1,0 +1,15 @@
+{
+  "blue_base": "#5274FF",
+  "blue_deep": "#23326F",
+  "blue_dark": "#354BA8",
+  "blue_mid": "#7891FF",
+  "blue_light": "#A6B5FF",
+  "signal_red": "#F00034",
+  "signal_red_inner": "#C61E3A",
+  "signal_amber": "#FF9F1C",
+  "signal_amber_inner": "#F36C00",
+  "signal_green": "#84CC16",
+  "signal_green_inner": "#F0E800",
+  "white": "#FFFFFF",
+  "wordmark": "#23326F"
+}

@@ -1,0 +1,15 @@
+:root {
+  --iceflo-blue-base: #5274FF;
+  --iceflo-blue-deep: #23326F;
+  --iceflo-blue-dark: #354BA8;
+  --iceflo-blue-mid: #7891FF;
+  --iceflo-blue-light: #A6B5FF;
+  --iceflo-signal-red: #F00034;
+  --iceflo-signal-red-inner: #C61E3A;
+  --iceflo-signal-amber: #FF9F1C;
+  --iceflo-signal-amber-inner: #F36C00;
+  --iceflo-signal-green: #84CC16;
+  --iceflo-signal-green-inner: #F0E800;
+  --iceflo-white: #FFFFFF;
+  --iceflo-wordmark: #23326F;
+}

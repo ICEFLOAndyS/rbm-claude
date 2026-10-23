@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">ICEFLO square logo mark</title><desc id="desc">Nine equal circles in a three by three grid with a red amber green centre column.</desc>
+  <circle cx="192" cy="192" r="128" fill="#5274FF"/>
+  <circle cx="192" cy="192" r="82" fill="#23326F" stroke="#FFFFFF" stroke-width="10"/>
+  <circle cx="512" cy="192" r="128" fill="#F00034"/>
+  <circle cx="512" cy="192" r="82" fill="#C61E3A" stroke="#FFFFFF" stroke-width="10"/>
+  <circle cx="832" cy="192" r="128" fill="#5274FF"/>
+  <circle cx="832" cy="192" r="82" fill="#23326F" stroke="#FFFFFF" stroke-width="10"/>
+  <circle cx="192" cy="512" r="128" fill="#7891FF"/>
+  <circle cx="192" cy="512" r="82" fill="#5274FF" stroke="#FFFFFF" stroke-width="10"/>
+  <circle cx="512" cy="512" r="128" fill="#FF9F1C"/>
+  <circle cx="512" cy="512" r="82" fill="#F36C00" stroke="#FFFFFF" stroke-width="10"/>
+  <circle cx="832" cy="512" r="128" fill="#7891FF"/>
+  <circle cx="832" cy="512" r="82" fill="#5274FF" stroke="#FFFFFF" stroke-width="10"/>
+  <circle cx="192" cy="832" r="128" fill="#A6B5FF"/>
+  <circle cx="192" cy="832" r="82" fill="#354BA8" stroke="#FFFFFF" stroke-width="10"/>
+  <circle cx="512" cy="832" r="128" fill="#84CC16"/>
+  <circle cx="512" cy="832" r="82" fill="#F0E800" stroke="#FFFFFF" stroke-width="10"/>
+  <circle cx="832" cy="832" r="128" fill="#A6B5FF"/>
+  <circle cx="832" cy="832" r="82" fill="#354BA8" stroke="#FFFFFF" stroke-width="10"/>
+</svg>

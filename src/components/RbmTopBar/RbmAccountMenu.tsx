@@ -26,7 +26,7 @@ const items: { action: RbmAccountAction; label: string; icon: RbmIconName; divid
   // Drawn with the Setup icon (flagged: one shape, two meanings).
   { action: 'settings', label: 'Settings', icon: 'nav.setup' },
   { action: 'notificationPreferences', label: 'Notification preferences', icon: 'shell.notifications' },
-  { action: 'signOut', label: 'Sign out', icon: 'shell.signOut', dividerBefore: true },
+  { action: 'signOut', label: 'Sign out', icon: 'display.signOut', dividerBefore: true },
 ];
 
 /** The avatar in the bar at each level (App shell board, "Top bar"). */

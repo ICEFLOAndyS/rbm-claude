@@ -1,27 +1,28 @@
 /**
- * The RBM icon suite (Icon suite board, 101 icons; docs/icon-suite-brief.md): one typed registry, used
+ * The RBM icon suite (Icon suite board, 104 icons; docs/icon-suite-brief.md): one typed registry, used
  * through RbmIcon. Each icon is a file in ./svg/<group>/<name>.svg, drawn on the 24 px grid with 2 px round
  * strokes in currentColor; a test checks every file against those rules and against this list.
  *
  * Every icon is Proposed: first-pass drawings that need Andy Smith's sign-off.
  *
- *   object … taskType  the suite, copied from the Icon suite board (101 icons)
+ *   object … taskType  the suite, copied from the Icon suite board (104 icons)
  *   shell              copied from the App shell board; not yet in the suite (flagged)
  */
 export const rbmIconKeys = {
   object: [
     'runbook', 'event', 'stage', 'task', 'dependency', 'assignment', 'team', 'globalTeam', 'localTeam', 'workstream', 'globalWorkstream',
     'localWorkstream', 'document', 'issue', 'checklist', 'environment', 'schedule', 'cutover', 'decision', 'comment', 'history', 'template',
+    'contentPack',
   ],
   role: ['owner', 'executor', 'reviewer', 'approver', 'observer', 'stakeholder', 'manager', 'author'],
   state: ['initial', 'approved', 'pending', 'available', 'active', 'paused', 'suspended', 'complete', 'skipped', 'backingOut', 'backedOut', 'abandoned', 'scheduled', 'closed'],
   construct: ['add', 'edit', 'delete', 'save', 'discard', 'copy', 'clone', 'reassign', 'export', 'lock', 'moveUp', 'moveDown', 'dragHandle', 'dropTarget'],
   control: ['approve', 'start', 'pause', 'resume', 'complete', 'skip', 'fastForward', 'abandon', 'backOut'],
-  display: ['search', 'filter', 'sort', 'expandAll', 'collapseAll', 'previous', 'next', 'widen', 'openFullPage', 'close', 'more'],
-  nav: ['list', 'folder', 'setup', 'integrations', 'license', 'training', 'support'],
+  display: ['search', 'filter', 'sort', 'expandAll', 'collapseAll', 'previous', 'next', 'widen', 'openFullPage', 'close', 'more', 'signOut'],
+  nav: ['list', 'folder', 'setup', 'integrations', 'license', 'training', 'support', 'versions'],
   centre: ['base', 'commandControl', 'migration', 'executiveBriefing', 'verification', 'audit'],
   taskType: ['standard', 'scripted', 'automated', 'businessVerification', 'technicalVerification', 'checkpoint', 'notification', 'collaboration', 'approval', 'milestone'],
-  shell: ['notifications', 'menu', 'sidebar', 'profile', 'signOut', 'environment', 'synced'],
+  shell: ['notifications', 'menu', 'sidebar', 'profile', 'environment', 'synced'],
 } as const;
 
 type Keys = typeof rbmIconKeys;

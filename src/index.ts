@@ -76,3 +76,7 @@ export { RbmIcon } from './icons/RbmIcon';
 export type { RbmIconProps } from './icons/RbmIcon';
 export { rbmIconKeys, rbmIconNames } from './icons/registry';
 export type { RbmIconName, RbmIconGroup } from './icons/registry';
+export { rbmNav, NAV_GROUP_MAX, navItems, checkNavConfig, visibleNav, activeNavItem, navLocation } from './data/nav/nav';
+export type { RbmNavConfig, RbmNavGroup, RbmNavItem, RbmNavChild, RbmNavPermission, RbmNavCounts } from './data/nav/nav';
+export { createMockNavData, useNavPermissions, useNavCounts, EMPTY_NAV } from './data/nav/navData';
+export type { NavData, NavSnapshot, MockNavData } from './data/nav/navData';

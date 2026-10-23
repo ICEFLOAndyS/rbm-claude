@@ -649,6 +649,16 @@ Brief: `docs/icon-suite-brief.md` (Icon suite board, version 88). Andy Smith ask
   - **Roles:** the transition tables have no role column, although the valid-actions function must filter by role.
   - **Task and event rules:** a task is abandoned only from Active and backed out only from Suspended, while an event can do both from Active or Paused. "Any state before complete" (skip) needs defining. Event Complete does not mention backed-out tasks.
 
+### 23 Oct 2026: `rbmNav` types and data (app shell, step 2)
+- **Types:** `src/data/nav/nav.ts`. `RbmNavConfig` is a list of groups (`group`, `items`). Each item has `id`, `label`, `icon`, `to` and an optional `permission`, and may have `children`. Children cannot have children, so the types enforce "two levels at most". `icon` is a registry key (`RbmIconName`), so a key that is not registered does not compile.
+- **Data:** `rbmNav` is the App shell board's sample exactly: four groups and eleven items, with the board's ids, labels, icons and routes. "License Management" is kept as Andy Smith wrote it (US spelling); flag it if a UK spelling is wanted.
+- **Rules checked by `checkNavConfig`** (the ones the types cannot hold): four items or fewer in a group, no empty group, unique ids and routes, and routes that are plain paths from the root.
+- **Permissions (proposed in the brief):** the three Admin items carry `permission: 'admin'`. `visibleNav` removes the items a user lacks the permission for, and a group left empty (Admin) disappears with its heading. The platform's API answers through `NavData`; the UI never decides. Until it answers, nothing is granted, so Admin never flashes up and then disappears.
+- **Counts:** live, by item id, through `NavData`, not in the fixed menu. This differs from the brief, which puts an optional count on the item. The mock has none, as the board says ("no menu item has a count yet").
+- **Active item from the route:** the item whose route is the longest match for the path, at a segment boundary. `/events/folders` marks Events › Folders. An event's Command Centre (`/events/REV000009`) marks Events › List, as decided today. `navLocation` gives the group as well, so its heading can be shown.
+- **`NavData`** follows the Command Centre's pattern (`getSnapshot`, `subscribe`). `useNavPermissions` and `useNavCounts` read it. `createMockNavData` is the stub user: an admin, with no counts.
+- **Not drawn:** what a route with no matching item shows in the sidebar. It marks nothing.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

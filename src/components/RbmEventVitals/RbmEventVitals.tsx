@@ -72,10 +72,11 @@ function Figure({ children }: { children: ReactNode }) {
   );
 }
 
-function Footnote({ children }: { children: ReactNode }) {
+function Footnote({ children, end }: { children: ReactNode; end?: boolean }) {
   const { caption } = useDensity();
   return (
-    <Box component="span" sx={{ fontSize: caption, color: 'text.secondary', '& strong': { color: 'text.primary' } }}>
+    // `end`: right-aligned at the foot of the card (Start of event and Forecast end time; Andy Smith, 26 Oct 2026).
+    <Box component="span" sx={{ fontSize: caption, color: 'text.secondary', '& strong': { color: 'text.primary' }, ...(end && { mt: 'auto', textAlign: 'right' }) }}>
       {children}
     </Box>
   );
@@ -172,8 +173,14 @@ export function RbmEventVitals({ data, timeZone, onOpenProgress, onOpenIssues, o
       <path d="M7 7l10 10M17 9v8H9" />
     );
 
+  // Start of event and Forecast end time line up (Andy Smith, 26 Oct 2026): the same width, the time and the footnote
+  // right-aligned, and one height for the row that holds the graphic and the time, so the titles, graphics, times and
+  // footnotes sit level across both cards. The row fits the Forecast's figure and gap line, or the 60 px disc.
+  const timeRow = Math.max(60, Math.ceil(d.figure * 1.05 + 5 + d.caption * 1.3));
+
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: '1.55fr 1.3fr 1fr 1.65fr', gap: 4 }}>
+    // Progress and Issues keep their drawn shares; Start and Forecast split the rest equally (drawn 1fr and 1.65fr).
+    <Box sx={{ display: 'grid', gridTemplateColumns: '1.55fr 1.3fr 1.325fr 1.325fr', gap: 4 }}>
       <Card label="Progress" onOpen={onOpenProgress} openLabel="Open the task list">
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3.5 }}>
           <RbmRing
@@ -240,7 +247,7 @@ export function RbmEventVitals({ data, timeZone, onOpenProgress, onOpenIssues, o
       </Card>
 
       <Card label="Start of event" onOpen={onOpenStart} openLabel="Open the event start">
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, minHeight: timeRow }}>
           <Box component="span" aria-hidden="true" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 42, border: `${stroke.thin}px solid ${colour.silver}`, borderRadius: '10px', overflow: 'hidden', flex: 'none' }}>
             <Box component="span" sx={{ width: '100%', textAlign: 'center', bgcolor: 'primary.main', color: colour.white, fontSize: d.caption, fontWeight: 800, letterSpacing: '0.08em', py: 0.5 }}>
               {month}
@@ -252,19 +259,22 @@ export function RbmEventVitals({ data, timeZone, onOpenProgress, onOpenIssues, o
           <Box component="span" sx={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>
             {`${day} ${month.charAt(0)}${month.slice(1).toLowerCase()}, `}
           </Box>
-          <Figure>{timeOf(start.at, timeZone)}</Figure>
+          {/* The same column as the Forecast's, so the two times sit level. */}
+          <Box sx={{ ml: 'auto', alignSelf: 'flex-start', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+            <Figure>{timeOf(start.at, timeZone)}</Figure>
+          </Box>
         </Box>
-        <Footnote>
+        <Footnote end>
           Elapsed <strong>{formatDuration(start.elapsedMinutes)}</strong> of {formatDuration(start.plannedMinutes)}
         </Footnote>
       </Card>
 
       <Card label="Forecast end time" onOpen={onOpenForecast} openLabel="Open the late tasks and the critical path">
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3.5, minHeight: timeRow }}>
           <Box component="span" aria-hidden="true" data-testid="rbm-rag-disc" data-rag={forecast.rag} sx={{ width: 60, height: 60, borderRadius: '50%', bgcolor: discTint[forecast.rag], display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
             <Icon d={<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>} size={30} stroke={rag} width={2} />
           </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: 0 }}>
+          <Box sx={{ ml: 'auto', alignSelf: 'flex-start', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px', minWidth: 0 }}>
             <Figure>{timeOf(forecast.end, timeZone)}</Figure>
             <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: d.caption, fontWeight: 700, color: rag, whiteSpace: 'nowrap' }}>
               <Icon d={gapIcon} size={16} stroke={rag} width={2.5} />
@@ -272,7 +282,7 @@ export function RbmEventVitals({ data, timeZone, onOpenProgress, onOpenIssues, o
             </Box>
           </Box>
         </Box>
-        <Footnote>
+        <Footnote end>
           Planned end <strong>{timeOf(forecast.plannedEnd, timeZone)}</strong>
         </Footnote>
       </Card>

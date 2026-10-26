@@ -2,7 +2,7 @@ import { Box, ButtonBase, Menu, MenuItem, Tooltip, useTheme } from '@mui/materia
 import { useLayoutEffect, useRef, useState, type FocusEvent, type MouseEvent } from 'react';
 import { RbmNode } from '../RbmNode/RbmNode';
 import { RbmRegionCollapsed, RbmRegionToggle, RbmSummaryChip, RbmToggleLink } from '../RbmRegion/RbmRegion';
-import { colour, elevation, hairline, radius, type RbmState, stroke } from '../../theme/tokens';
+import { colour, elevation, hairline, pillColours, radius, type RbmState, stroke } from '../../theme/tokens';
 import { ringSize, useDensity } from '../../theme/RbmDensity';
 import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
 import { defaultWindow, hourTicks, lane, laneHeight, packStages, timeScale } from './ribbonLayout';
@@ -163,7 +163,7 @@ function ViewMenu({ view, onChange }: { view: RbmRibbonView; onChange: (view: Rb
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`Show: ${ribbonViews[view].name}`}
-        sx={{ position: 'absolute', left: 20, top: 16, display: 'inline-flex', alignItems: 'center', gap: 1.5, height: d.control, px: 3, maxWidth: X0 - 28, borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid ${filtered ? colour.deepBlue : colour.silver}`, bgcolor: filtered ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: d.body, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap' }}
+        sx={{ position: 'absolute', left: 20, top: 16, display: 'inline-flex', alignItems: 'center', gap: 1.5, height: d.control, px: 3, maxWidth: X0 - 28, borderRadius: `${radius.pill}px`, ...pillColours(filtered), fontFamily: 'inherit', fontSize: d.body, fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap' }}
       >
         <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{ribbonViews[view].name}</Box>
         <svg width={d.icon} height={d.icon} viewBox="0 0 24 24" fill="none" stroke={colour.slate} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>

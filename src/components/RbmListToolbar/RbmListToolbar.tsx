@@ -1,6 +1,6 @@
 import { useId, useRef, useState, type ReactNode, type Ref } from 'react';
 import { Box, Button, ButtonBase, Dialog, DialogActions, DialogContent, DialogTitle, InputBase, ListSubheader, Menu, MenuItem, Popover, TextField, Tooltip } from '@mui/material';
-import { colour, elevation, radius, stroke } from '../../theme/tokens';
+import { colour, elevation, pillColours, radius, stroke } from '../../theme/tokens';
 import { hitTarget, useDensity } from '../../theme/RbmDensity';
 
 /**
@@ -89,8 +89,8 @@ function Pill({ on, tinted = on, label, onClick, buttonRef, expanded, popupId, p
         height: d.control,
         px: 3,
         borderRadius: `${radius.pill}px`,
-        border: `${stroke.thin}px solid ${on ? colour.deepBlue : colour.silver}`,
-        bgcolor: tinted ? 'rgba(35,50,111,0.08)' : colour.white,
+        border: pillColours(on).border,
+        bgcolor: pillColours(tinted).bgcolor,
         fontFamily: 'inherit',
         fontSize: d.body,
         fontWeight: 600,

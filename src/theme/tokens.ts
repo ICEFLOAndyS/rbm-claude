@@ -54,6 +54,25 @@ export const radius = { control: 12, card: 14, pill: 999 } as const;
  */
 export const stroke = { thin: 1, regular: 1.5, thick: 2, heavy: 3 } as const;
 
+/**
+ * The filter pill, unselected and selected (Components board, "Buttons and pills"; the standard, approved by Andy
+ * Smith, 26 Oct 2026). Every pill that can be selected uses it. The words always say what is chosen, so selection is
+ * never colour alone.
+ */
+export const pill = {
+  border: colour.silver,
+  fill: colour.white,
+  selectedBorder: colour.deepBlue,
+  /** Deep Blue at 8%. */
+  selectedFill: 'rgba(35,50,111,0.08)',
+} as const;
+
+/** A pill's edge and fill, selected or not. */
+export const pillColours = (selected: boolean) => ({
+  border: `${stroke.thin}px solid ${selected ? pill.selectedBorder : pill.border}`,
+  bgcolor: selected ? pill.selectedFill : pill.fill,
+});
+
 /** Proposed. Rule borders first; shadow only for overlays. */
 export const elevation = {
   card: 'none',

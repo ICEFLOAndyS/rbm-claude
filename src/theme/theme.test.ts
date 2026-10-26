@@ -105,3 +105,11 @@ describe('rbmTheme', () => {
     expect(typography[variant]).toMatchObject(type[style]);
   });
 });
+
+describe('the selected pill (the standard, approved by Andy Smith, 26 Oct 2026)', () => {
+  it('is a Deep Blue edge and an 8% Deep Blue fill; unselected is Silver on White', async () => {
+    const { pillColours, colour } = await import('./tokens');
+    expect(pillColours(true)).toEqual({ border: `1px solid ${colour.deepBlue}`, bgcolor: 'rgba(35,50,111,0.08)' });
+    expect(pillColours(false)).toEqual({ border: `1px solid ${colour.silver}`, bgcolor: colour.white });
+  });
+});

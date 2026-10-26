@@ -1,6 +1,6 @@
 import { useId, useState, type ReactNode } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
-import { colour, stroke } from '../../theme/tokens';
+import { colour, pill, stroke } from '../../theme/tokens';
 import { useDensity } from '../../theme/RbmDensity';
 
 /**
@@ -55,9 +55,9 @@ export function RbmListBulkAction({ count, noun, actions, onClear }: RbmListBulk
           gap: `${d.gap}px`,
           px: `${d.padX}px`,
           borderRadius: `${d.radius}px`,
-          // MUI's selected tint, in Deep Blue, as the toolbar's "on" filters use.
-          bgcolor: 'rgba(35,50,111,0.08)',
-          border: `${stroke.thin}px solid ${colour.deepBlue}`,
+          // The selected pill's edge and fill (the standard), so the bar reads as the toolbar's "on" filters do.
+          bgcolor: pill.selectedFill,
+          border: `${stroke.thin}px solid ${pill.selectedBorder}`,
           boxSizing: 'border-box',
           flexWrap: 'nowrap',
           overflowX: 'auto',

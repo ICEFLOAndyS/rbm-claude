@@ -4,7 +4,7 @@ import { RbmTaskRow, type RbmTask } from '../RbmTaskRow/RbmTaskRow';
 import type { RbmTaskActionEvent } from '../RbmTaskRow/RbmTaskAction';
 import type { RbmSpine } from '../RbmNode/RbmNode';
 import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
-import { colour, hairline, radius, surfaceTint, type RbmState, stroke } from '../../theme/tokens';
+import { colour, hairline, pillColours, radius, surfaceTint, type RbmState, stroke } from '../../theme/tokens';
 import { RbmRunbookFilter } from './RbmRunbookFilter';
 import { RbmTaskSearch } from './RbmTaskSearch';
 import { RbmBusyOverlay, useRbmBusy, type RbmBusyOptions } from '../RbmBusy/RbmBusy';
@@ -235,7 +235,7 @@ function Chip({ label, count, on, onClick, small, ariaLabel }: { label: string; 
       onClick={onClick}
       aria-pressed={on}
       aria-label={ariaLabel}
-      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: d.control, px: small ? 2.5 : 3, borderRadius: `${radius.pill}px`, border: `${stroke.thin}px solid ${on ? colour.deepBlue : colour.silver}`, bgcolor: on ? 'rgba(35,50,111,0.08)' : colour.white, fontFamily: 'inherit', fontSize: d.body, fontWeight: 600, color: 'primary.main', whiteSpace: 'nowrap' }}
+      sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: d.control, px: small ? 2.5 : 3, borderRadius: `${radius.pill}px`, ...pillColours(on), fontFamily: 'inherit', fontSize: d.body, fontWeight: 600, color: 'primary.main', whiteSpace: 'nowrap' }}
     >
       {label}
       {count > 0 && (

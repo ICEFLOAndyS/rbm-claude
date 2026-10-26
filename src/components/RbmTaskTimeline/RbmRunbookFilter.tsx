@@ -1,6 +1,6 @@
 import { Box, ButtonBase, InputBase, Popover, useTheme } from '@mui/material';
 import { useId, useRef, useState } from 'react';
-import { colour, elevation, radius, stroke } from '../../theme/tokens';
+import { colour, elevation, pillColours, radius, stroke } from '../../theme/tokens';
 import { hitTarget, ringSize, useDensity } from '../../theme/RbmDensity';
 import type { RbmRag } from '../RbmEventVitals/RbmEventVitals';
 
@@ -80,8 +80,7 @@ export function RbmRunbookFilter({ runbooks, selected, onChange }: RbmRunbookFil
           height: d.control,
           px: 3,
           borderRadius: `${radius.pill}px`,
-          border: `${stroke.thin}px solid ${all ? colour.silver : colour.deepBlue}`,
-          bgcolor: all ? colour.white : 'rgba(35,50,111,0.08)',
+          ...pillColours(!all),
           fontFamily: 'inherit',
           fontSize: d.body,
           fontWeight: 700,

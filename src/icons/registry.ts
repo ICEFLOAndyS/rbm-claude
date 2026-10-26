@@ -1,18 +1,18 @@
 /**
- * The RBM icon suite (Icon suite board, 107 icons; docs/icon-suite-brief.md): one typed registry, used
+ * The RBM icon suite (Icon suite board, 108 icons; docs/icon-suite-brief.md): one typed registry, used
  * through RbmIcon. Each icon is a file in ./svg/<group>/<name>.svg, drawn on the 24 px grid with 2 px round
  * strokes in currentColor; a test checks every file against those rules and against this list.
  *
  * Every icon is Proposed: first-pass drawings that need Andy Smith's sign-off.
  *
- *   object … taskType  the suite, copied from the Icon suite board (107 icons)
+ *   object … taskType  the suite, copied from the Icon suite board (108 icons)
  *   shell              copied from the App shell board; not yet in the suite (flagged)
  */
 export const rbmIconKeys = {
   object: [
     'runbook', 'event', 'stage', 'task', 'dependency', 'assignment', 'team', 'globalTeam', 'localTeam', 'workstream', 'globalWorkstream',
     'localWorkstream', 'document', 'issue', 'checklist', 'environment', 'schedule', 'cutover', 'decision', 'comment', 'history', 'template',
-    'contentPack',
+    'contentPack', 'eventGroup',
   ],
   role: ['owner', 'executor', 'reviewer', 'approver', 'observer', 'stakeholder', 'manager', 'author'],
   state: ['initial', 'approved', 'pending', 'available', 'active', 'paused', 'suspended', 'complete', 'skipped', 'backingOut', 'backedOut', 'abandoned', 'scheduled', 'closed'],

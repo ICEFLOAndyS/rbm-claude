@@ -9,8 +9,9 @@ describe('rbmNav', () => {
     expect(rbmNav.map((g) => g.group)).toEqual(['Events', 'Library', 'RBM Admin', 'Help']);
   });
 
-  it('has the nine items, labels and routes from the brief (v5)', () => {
+  it('has the ten items, labels and routes from the brief (v5) and the 24 Oct menu change', () => {
     expect(navItems(rbmNav).map((i) => [i.label, i.to])).toEqual([
+      ['Event Groups', '/events/groups'],
       ['List', '/events'],
       ['Folders', '/events/folders'],
       ['Templates', '/library/templates'],
@@ -25,7 +26,7 @@ describe('rbmNav', () => {
 
   it('uses the icons from the brief (section 6a), and every one is registered', () => {
     expect(navItems(rbmNav).map((i) => i.icon)).toEqual([
-      'nav.list', 'nav.folder',
+      'object.eventGroup', 'nav.list', 'nav.folder',
       'object.template', 'object.contentPack',
       'centre.admin', 'nav.setup',
       'nav.training', 'nav.support', 'nav.versions',
@@ -80,7 +81,7 @@ describe('visibleNav', () => {
   it('hides RBM Admin, heading and all, from everyone else', () => {
     const nav = visibleNav(rbmNav, () => false);
     expect(nav.map((g) => g.group)).toEqual(['Events', 'Library', 'Help']);
-    expect(navItems(nav)).toHaveLength(7);
+    expect(navItems(nav)).toHaveLength(8);
   });
 
   it('keeps a group that still has items, and hides children too', () => {
@@ -103,6 +104,8 @@ describe('activeNavItem: the route marks the item', () => {
     ['/events', 'events'],
     ['/events/', 'events'],
     ['/events?view=active', 'events'],
+    ['/events/groups', 'event-groups'],
+    ['/events/groups/g-3', 'event-groups'],
     ['/events/folders', 'event-folders'],
     ['/events/folders/f-12', 'event-folders'],
     // A deep link to an event's Command Centre marks Events › List (decided by Andy Smith, 23 Oct 2026).

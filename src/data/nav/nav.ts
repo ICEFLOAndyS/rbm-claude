@@ -47,8 +47,8 @@ export type RbmNavCounts = Readonly<Partial<Record<string, number>>>;
 export const NAV_GROUP_MAX = 4;
 
 /**
- * The RBM menu (app shell brief v5, section 4; Andy Smith, 23 Oct 2026). Four groups in this order, nine
- * destinations. RBM Admin is two pages of admin domain cards (section 4a), shown only to users the platform
+ * The RBM menu (app shell brief v5, section 4; Andy Smith, 23 and 24 Oct 2026). Four groups in this order, ten
+ * destinations. Event Groups is first in Events; Events still opens on List, because the landing page is not decided. RBM Admin is two pages of admin domain cards (section 4a), shown only to users the platform
  * grants the RBM Admin permission; the domains (Teams, Integrations…) are on those pages, not in the menu.
  * Help › Support opens the customer portal, as the footer's Support does.
  */
@@ -56,6 +56,7 @@ export const rbmNav: RbmNavConfig = [
   {
     group: 'Events',
     items: [
+      { id: 'event-groups', label: 'Event Groups', icon: 'object.eventGroup', to: '/events/groups' },
       { id: 'events', label: 'List', icon: 'nav.list', to: '/events' },
       { id: 'event-folders', label: 'Folders', icon: 'nav.folder', to: '/events/folders' },
     ],

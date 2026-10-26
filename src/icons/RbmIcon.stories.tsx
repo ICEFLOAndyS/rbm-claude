@@ -65,7 +65,7 @@ export const Single: Story = {};
 /** Informative: carries meaning alone, so it has a name for screen readers. */
 export const WithTitle: Story = { args: { name: 'state.paused', title: 'Paused' } };
 
-/** Every registered icon, by group: 107 in the suite and 6 shell icons outside it. */
+/** Every registered icon, by group: 108 in the suite and 6 shell icons outside it. */
 export const Registry: Story = {
   render: () => (
     <Box sx={{ display: 'grid', gap: 6 }}>
@@ -119,6 +119,7 @@ const lookAlikes: { title: string; names: RbmIconName[] }[] = [
   { title: 'Centre badges: crosshair and star', names: ['centre.commandControl', 'centre.executiveBriefing', 'centre.verification', 'centre.audit', 'centre.migration', 'centre.base'] },
   { title: 'Centre base against Template', names: ['centre.base', 'object.template', 'nav.list'] },
   { title: 'Content Pack against Integrations', names: ['object.contentPack', 'nav.integrations'] },
+  { title: 'Event Group against Event and Schedule', names: ['object.eventGroup', 'object.event', 'object.schedule'] },
   { title: 'Versions against Support', names: ['nav.versions', 'nav.support'] },
   { title: 'Sign out against Open full page', names: ['display.signOut', 'display.openFullPage'] },
   { title: 'Admin Centre against the Centres; Diagnostics against Automated', names: ['centre.admin', 'centre.verification', 'centre.base', 'admin.diagnostics', 'admin.systemProperties', 'taskType.automated'] },

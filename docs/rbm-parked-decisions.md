@@ -546,7 +546,7 @@ Built unattended, so every choice below is a recommendation to review.
 - **Open:** in Edge's headless capture, the grid's header background stops about 30 px short of the card's right edge (the scrollbar filler). Check it in a normal window.
 
 ### 22 Oct 2026: App shell, four-group navigation and new navigation icons (decided by Andy Smith)
-Brief: `claude/rbm-app-shell-brief.md` (repository copy `docs/app-shell/app-shell-brief.md`). Design version 74.
+Brief: `claude/rbm-app-shell-brief.md` (repository copy `docs/app-shell-brief.md`). Design version 74.
 - **Navigation:** four groups, in this order. **Events** (List, Folders), **Library** (Templates, Folders, Teams, Workstreams), **Admin** (Setup, Integrations, License Management), **Help** (Training, Support & Versions). It replaces the board's Dashboard, Runbook lifecycle and Library spine. The Shell board is redrawn (anatomy, expanded sidebar, rail, mobile drawer, item states, rules, `rbmNav` sample, decision 6).
 - **Six zones:** sidebar, top bar, page header, content, footer, slide-in region, as drawn. All six are built.
 - **Icons: conform with the design.** Andy first asked for MUI icons, then chose to follow the Icon suite board: icons are drawn from scratch in the RBM style, and nothing outside the icon package imports `@mui/icons-material`.
@@ -1058,6 +1058,159 @@ Source: the icon suite brief, v2 (now `docs/icon-suite-brief.md`), and the proje
 - **No vendor logos:** none are supplied, and none are drawn or traced. The products show the Integrations icon until the logo files come from each vendor's brand kit. The card's story uses ICEFLO's own mark to show the logo tile.
 - **Not visually checked yet:** the demo and Storybook servers were stopped by Claude Code when the machine ran low on memory, so these pages have been checked by tests only.
 
+### 24 Oct 2026: Event Group object, icon and card (asked by Andy Smith; G1 chosen by Andy Smith)
+- New RBM object: **Event Group**, a logical container for multiple related events. The KPIs of each event in a group can be measured and compared over time. This supports continuous improvement and gives objective evidence of readiness or confidence in a Go/No-Go Checkpoint.
+- Icon: stacked events, the Event icon with two more behind it (`object.eventGroup`). Six candidates were drawn. Added to the Objects list on the Icon suite board (now twenty) and the registry. The suite is 108 icons.
+- **Event Group card** added to the Cards board (now ten prototypes), all four densities. The fields are my choice, not Andy's: Essential Title, Events (a count) and Latest Go/No-Go; Useful Next event and Readiness (Improving, Steady or Declining); Detail Compared over (how many events the comparison covers). Sample values are invented.
+- Event Group has no states defined, so the card shows no status.
+- Not done: no menu item for Event Groups, no record page, no KPI comparison view, no Go/No-Go evidence view.
+- To check: the icon against Event and Schedule at 16 px.
+
+### 24 Oct 2026: Event Groups added to the menu (Andy Smith)
+- **Event Groups** is the first item in the Events group, above List. The Events group is now Event Groups, List, Folders (three items, so "four items or fewer" holds). Ten destinations in four groups.
+- Icon is the Event Group object icon (`object.eventGroup`, G1), reused. Route `/events/groups` is my proposal. The card details stay as they are for now (Andy Smith).
+- Changed on the App shell board (sidebar, rail, drawer, `rbmNav` sample, rules text) and the menu table on the Icon suite board. I made the narrow-width frame taller so the Help items fit.
+- Not decided: whether Event Groups should be the landing page for Events (it is first in the list, but List may still be the default).
+
+### 24 Oct 2026: Event Group rules (Andy Smith)
+- An Event Group does **not** have states. The card shows none, which is now a rule, not a gap.
+- An Event belongs to **one and only one** Event Group.
+- Readiness is a complex topic and will be defined later, from Event KPIs and other attributes. Until then the **Readiness** field on the Event Group card (Useful tier, sample value "Improving") is a placeholder from me, not a decision. Do not build it from the card until the definition exists.
+- The other card fields stay as drawn for now.
+
+### 24 Oct 2026: Event Group icon and menu item built (Claude Code)
+- **Icon:** `object.eventGroup` (`src/icons/svg/object/eventGroup.svg`), copied from the Icon suite board. All six drawings of it (Objects list, menu table, the four Cards board densities) are the same. The registry is 108 icons. The Look Alikes story adds "Event Group against Event and Schedule" for the 16 px check, which is still to do.
+- **The drawing has one event behind the front one, not two.** The 24 Oct entry says "the Event icon with two more behind it". The build follows the drawing.
+- **Menu:** Event Groups is first in Events (`event-groups`, `/events/groups`), above List. Ten destinations. `/events/groups/…` marks Event Groups; `/events/REVnnnnnn` still marks List.
+- **Landing page unchanged:** Events and the demo still open on List (`/events`), because the landing page is not decided.
+- **Demo:** `#/events/groups` shows the "not built in the prototype" page, as other undrawn destinations do. The board draws no Event Groups page.
+- **Event Group card not built.** None of the Cards board's record cards (Task, Runbook, Phase, Issue, Decision, Event, Content Pack, Team, Workstream) are built yet, there is no Event Group data, and Readiness must not be built from the card. The card waits for the record-card family.
+- **Brief:** the app shell brief v6 (copied in on 24 Oct 2026) adds Event Groups to the menu and icon tables, so the brief and the build now agree.
+
+### 24 Oct 2026: Scenarios (Andy Smith decided; the design is not drawn yet)
+Scenarios are Planned Change, Disaster Recovery, Cyber Recovery and Service Recovery. Most people work in one scenario for about 99% of their time, so the others are noise for them.
+- **Event:** its scenario is fixed when the Event is created.
+- **Event Group:** cannot mix scenarios, so a group has one scenario (follows from its Events being fixed and one group each).
+- **Content Pack:** usable in any scenario. Example: stages and tasks for a controlled shutdown of a business service.
+- **Template:** scenario specific, for now. Andy Smith says this is trickier and will be revisited.
+- **Users:** some users must be able to switch between scenarios, especially in the Recovery space.
+- **Visibility:** scenarios that are not selected are **hidden by default**. A user can show or hide one or more scenarios (a multi-select, not a single switch).
+- My proposals, not yet decided: a default scenario per user from their role or profile; a scenario control in the shell beside the Programme and Event context; a text label for the scenario wherever it shows; the same words in every scenario until a scenario clearly needs different ones.
+- Not drawn yet: the scenario control, a Scenario field on cards, scenario names and icons, what a user sees when nothing matches.
+
+### 24 Oct 2026: Scenario control and cards (I drew it, version 110; Andy Smith has not approved it yet)
+- **App shell board:** a new Scenario section (states, open menu, nothing-matches state, rules, React spec) and the control added first in the context row (Anatomy and Page header). Described in the app shell brief, section 4b.
+- **Cards board:** two new variants, Event card and Event Group card with a scenario, at all four densities. The scenario shows as plain text under the title (in the first row at D3), **only when more than one scenario is on show**. It is not counted in the tiers (Essential 3, Useful 2, Detail 1), which bends the tier rule. Content Pack cards never show it.
+- **Differs from what I told you:** I said I would add a Scenario field to Template cards. There is no Template card on the board yet, so I did not. Open question: draw one?
+- All of this except the four rules Andy Smith decided is my proposal.
+
+### 24 Oct 2026: Scenario defaults and settings (Andy Smith decided; I drew it, version 111)
+- **Cascade:** shipped default (Planned Change is the only scenario on), then customer default set by an RBM Admin, then the user's own choice in their Profile. Event and runbook defaults do not apply to scenarios, because an Event's scenario is fixed at creation.
+- **RBM Admins lock and unlock scenarios** from the four, and set the customer default. The Scenarios settings belong in the **Admin Centre** (RBM Admins), not Setup & Config (Tech Admins). Andy Smith corrected my first idea.
+- **Users can always change their own,** from the unlocked scenarios, in Profile, My scenarios.
+- **New Events:** one scenario on, the Event starts with it; several on, the user must choose.
+- **Drawn (all mine, Proposed):** the Scenarios page (table with Available and On by default, Save changes), the My scenarios panel, "My scenarios" in the Profile menu, the shell control as a quick filter over the available scenarios, a Scenarios domain card (2 of 4 available) and a new icon `admin.scenarios` (a branching path). Suite is now 109 icons. Admin Centre has five domains.
+- **Replaces** my earlier proposal of a default from the user's role.
+- To check: the icon against existing icons at 16 px.
+
+### 24 Oct 2026: Scenarios icon (Andy Smith chose S6)
+- `admin.scenarios` is now the **storyboard** (three frames and a caption), chosen from six candidates (S1 branching path, S2 diverging arrows, S3 three-way split, S4 winding route, S5 clapperboard, S6 storyboard). It replaces my branching path, which was too close to Dependency.
+- Risk I flagged: it is built from boxes, like the Template and Centre icons. Check it at 16 px against them before the pull request. Updated on the Icon suite board, the Scenarios domain card and the Profile menu (version 112).
+
+### 24 Oct 2026: Briefs and notes live in `docs/` only (Andy Smith)
+- Every brief and note copy goes straight in `docs/`, with no subfolders. The app shell brief moved from `docs/app-shell/app-shell-brief.md` to `docs/app-shell-brief.md`, which is the path the project notes already give, and the references to it are updated.
+- `docs/14 - Brand Kit/` keeps its subfolders: it holds brand assets, not briefs or notes, and the demo's favicon is copied from it.
+
+### 26 Oct 2026: Scenarios built into the demo (Claude Code; asked by Andy Smith; the screens are still not approved)
+Built from the App shell board's Scenario section and the brief's section 4b (design versions 110 to 112). Everything here except Andy Smith's four rules and the cascade is a proposal, marked Proposed in the code and stories.
+- **Data:** `src/data/scenarios/scenarios.ts`: `RbmScenario`, the labels, `RbmScenarioSettings`, the shipped default (all four available, Planned Change on), the limits, the cascade (`profileScenarios`), the control's words (`scenarioSummary`) and a `ScenarioStore` (localStorage in the demo, ServiceNow later).
+- **Icon:** `admin.scenarios` (the storyboard, S6), copied from the board. It matches the brief's SVG. The suite is 109 icons. The Look Alikes story adds "Scenarios against Template and the Centre base" for the 16 px check, which is still to do.
+- **Components:** `RbmScenarioFilter` (the control and its menu), `RbmScenarioSettings` (Admin Centre › Scenarios), `RbmMyScenarios` (Profile › My scenarios), and `RbmCheckbox` (the board's 20 px Deep Blue checkbox, shared by all three). `RbmPageHeader` takes `scenarios` and puts the control first in the context row, then a divider, then Programme. `RbmListPage` takes `scenarios` too, in a context row above the trail.
+- **Admin Centre** has five domains. The Scenarios card's count ("2 of 4 available") comes from the settings. **Profile menu** has My scenarios after Settings, with the Scenarios icon.
+- **Events:** every event has a `scenario`, fixed at creation. In the fixtures, the board's eight and REV000009 to REV000012 are Planned Change. Generated events are mostly Planned Change, with about one in ten Disaster Recovery and a few Cyber and Service Recovery. The list asks the server only for the scenarios shown, and so does Export. Saved views never keep the scenarios. Changing the scenarios goes back to page 1.
+- **Demo:** the control shows on Events › List and on the not-built Event Groups, Folders and Templates pages. Admin Centre › Scenarios saves to localStorage. My scenarios opens in the shell's slide-in region. The scenarios shown start from the profile, go back to it when the profile or settings change, and are not saved.
+
+Not drawn, so I chose (flag, confirm or replace):
+- **The last box ticked cannot be cleared,** in the control and in My scenarios, so at least one scenario is always shown. It stays solid Deep Blue, as drawn, not faded.
+- **"My profile"** in the control puts the filter back to the profile's scenarios. It does not open My scenarios.
+- **Nothing matches:** the scenario message ("No Events in the scenarios you are showing", Show all) comes before the filters' message whenever some available scenario is hidden. Once all are shown, an empty list gives the filters' message.
+- **My scenarios** opens in the slide-in region, 420 px wide. Once the user has chosen, it says "Using your own choice." Reset is disabled while the organisation's default is in use, and Save is disabled until something changes.
+- **Admin page:** Save changes and Cancel are disabled until something changes. A broken limit is shown in Red Inner text (role alert), and Save is refused. "Saved." appears after a save. Locking a scenario turns its default off. The breadcrumb is "Admin Centre / Scenarios", as on the other domain pages, not the board's "RBM Admin / Admin Centre / Scenarios" (RBM Admin is a menu group, not a page).
+- **The control's hover** is the board's Rule-grey tint, and the tint stays while the menu is open (open is not drawn). Its menu is a popover (`aria-haspopup="dialog"`), not a menu, because it holds checkboxes.
+- **No Scenario field** on the record: none is drawn. The cards' scenario line (shown only when more than one scenario is on show) waits for the record-card family.
+
+### 26 Oct 2026: Event vitals, Start of event and Forecast end time cards line up (asked by Andy Smith; redrawn, design version 126)
+- **Redrawn on the Command board (version 126):** the vitals row, the layout wireframe's column widths, and the Green, Amber and Red Forecast end time cards, plus a rule in the vitals rules list. Rendered on its own, the redrawn row measures the same in both cards: 262 px wide, times 41 px and footnotes 109 px from the top, both 19 px from the right edge. The build and the board now agree on layout.
+- **Still differs (older, unchanged):** the board draws the Start time at 32 px and the Forecast time at 36 px. The build draws both at the density's figure size. Their tops line up either way.
+- **Same width:** the vitals grid was `1.55fr 1.3fr 1fr 1.65fr` (drawn). Progress and Issues keep their shares; Start of event and Forecast end time now split the rest equally (`1.325fr` each).
+- **Right-aligned:** the time, the Forecast's gap line ("+12 min Behind Schedule") and each footnote ("Elapsed 05:40 of 08:00", "Planned end 06:00") are right-aligned to the card's padding, the same margin in both cards.
+- **Level across both cards:** one height for the row holding the graphic and the time (the Forecast's figure and gap line, or the 60 px disc). The calendar and the clock disc are centred in it, the times sit at its top, and the footnotes sit at the foot of the card. Measured in the demo at 1440 and 1280 px: titles, graphic centres, times and footnotes are at the same heights in both cards.
+
+### 26 Oct 2026: the Events list has no header Scenario control; the pill defaults to the profile (Andy Smith; design version 125)
+- **Removed** the Scenario control from the Events list's header. The Scenario pill in the filter bar replaces it. This answers the open question on the Page templates board, which is taken off "For your decision". `RbmListPage` no longer takes `scenarios`.
+- **The pill's default is the user's profile:** it starts there and goes back there when the profile (or the organisation's settings) changes. **Clear** now puts it back to the profile, where before it showed all available scenarios. The "Nothing matches" state keeps its Show all.
+- **Updated on the canvas:** the Page templates block's pill rules and caption, and the App shell board's "On a list page" rule.
+- **Not changed (confirm):** the header control (`RbmScenarioFilter` in `RbmPageHeader`) stays for pages without a filter bar. In the demo, that's the not-built Event Groups, Folders and Templates pages. When those pages get a list, they should follow the Events list and use the pill.
+
+### 26 Oct 2026: the selected pill is the standard; Scenarios on the Events list approved (Andy Smith; design version 123)
+- **Selected pill, approved as the standard for every pill that can be selected, now and later:** Deep Blue edge and an 8% Deep Blue fill (`rgba(35,50,111,0.08)`), Deep Blue text; unselected is a Silver edge on White. The words always say what is chosen. Drawn on the Components board, "Buttons and pills". The Command board's runbook filter ("2 of 3 runbooks") already drew it, so the earlier note that no selected pill was drawn was true only of the Page templates board.
+- **In code:** one token, `pill` and `pillColours(selected)` in `src/theme/tokens.ts`. The list toolbar's filter pills (and the Scenario pill), the Task Timeline's runbook filter, filter chips and search field, and the Event ribbon's view control all use it, where each had its own copy. The bulk action bar (not a pill, but styled to match the selected filters) uses the same edge and fill. No colours changed. Font weights stay as drawn (600 on filter pills and chips, 700 on the runbook filter and the ribbon view control). The Task Timeline's Focus / All switch is a segmented control, not a pill, and is unchanged.
+- **Scenarios on the Events list approved** as drawn in version 122: the Scenario pill first in the filter bar with its count, and the Scenario column after State for users with more than one scenario in their profile. Marked Approved on the Page templates and App shell boards. **Still open:** whether the list keeps the header Scenario control as well (Page templates, "For your decision").
+
+### 26 Oct 2026: Scenario column, Scenario pill and test data (asked by Andy Smith; drawn by Claude Code, design version 122)
+- **Drawn (Proposed, not approved):** Page templates board, "1 · List of records", a new block "Scenarios on the Events list" with the filter bar and the Scenario pill, the pill open, the Scenario column, and the rules. The App shell board's Scenario rules gain "On a list page…". The Page templates "For your decision" list gains the question about keeping the header control. The board grew from 9,150 to 10,050 px tall. The selected pill is drawn as the build draws it (Deep Blue edge, 8% Deep Blue fill), because no selected pill was drawn before. The build and the drawing agree.
+- **Scenario column** on the Events list, shown only when the user has more than one scenario in their profile (their own choice, or the organisation's default if they have not chosen). It shows the name in words, sorts by name, and is in the export. **My choices (confirm):** it sits after State. It cannot be hidden in the column chooser, because the profile rule decides it. Saved views and the user's column choice never hold it: the page adds it, so a view saved by a user with one scenario still shows it for a user with two. It follows the profile, not the scenarios currently shown, so it stays when the filter is narrowed to one.
+- **Scenario pill** first in the filter bar, with the count of scenarios ticked ("Scenario · 2"). It drives the same scenarios on show as the header control, so the two always agree, and it is not a view filter. Clear shows all available, because something is always shown. **To decide:** with the pill in the filter bar, does the list still need the header control? The board puts the control in the context row on every filtered page; the list now has both.
+- **Test data:** about one in ten generated events is each Recovery scenario. The 128-event list has 93 Planned Change, 12 Disaster Recovery, 12 Cyber Recovery and 11 Service Recovery; the 15,000-event list has 1,499 of each Recovery scenario. Recovery events have names that fit ("Payments Site Failover", "CRM Ransomware Recovery", "Email Outage Recovery"). The board's eight and REV000009 to REV000012 stay Planned Change, as drawn.
+- **Fixed:** `RbmSlideInRegion` keeps the content frame from scrolling while a panel is open. Opened from the account menu, the drawer focused its paper while it was still off to the right; the browser scrolled the frame 420 px sideways, the panel stuck half in, and the first click was lost. The record panel was not affected.
+- **Brief typo:** in the icon suite brief, section 5.11, the `admin.scenarios` SVG sits in the domain table rather than the icon table. The build takes it from there and from the board, and they agree.
+
+### 26 Oct 2026: Task row revised, two options for the action (drawn on the Command board; Proposed)
+- **Andy Smith asked for:** (1) the Node shows the Task Type, using the Icon suite task types; (2) the next column shows the task state, using the Icon suite states; (3) the next column shows the Action, moved from the far right.
+- **New column order:** Time, Type (node), State (icon and word), Action, WBS, Title, Tag, Assignee, Plan.
+- **Node:** white circle, neutral ring, type icon in Deep Blue. The ring no longer carries state colour. This changes the node briefing, which kept a ring and a state badge. The Hot-topics strip and earlier nodes still use the old design.
+- **State column:** icon and word in the text-safe colours, so colour is never the only signal. The Complete state shows "leaves in 0:42" for a short time and replaces the Complete tag.
+- **Option A:** button with icon and one-word label (116 px at D1). **Option B:** 32 px icon button, label on hover and on keyboard focus after about 500 ms, with the full accessible name always set (for example "Complete task 1.3.5 Startup application UI").
+- **My advice:** A at D1 Comfortable; B at D2 Compact and D3 Dense. The form follows density, never a prop. A is safer for Start, Complete and Result, which change a live event. Not chosen yet by Andy.
+- **Flags:** the Timeline states (Blocked, At risk, In progress, Not started) differ from the Icon suite states, so a decision is needed before the focus rule is built on them; Ready to start and Available overlap; Result, View and Undo glyphs are not in the Icon suite; hover, focus and delay are my proposal; D0 and D3 not drawn; the old 120 x 32 px action rule no longer applies.
+
+### 26 Oct 2026: Task row, action on the right; task outcome is part of Complete (decided by Andy Smith; drawing Proposed)
+- **Decided by Andy Smith:** Type and State columns accepted as drawn. The Action goes back to the far right. Columns: Time, Type, State, WBS, Title, Tag, Assignee, Plan, Action. This replaces the "beside the state" position in the entry above.
+- **Active task actions:** Complete (default), Pause, Skip. Pause and Skip need a reason. **Restart is left out:** it does not exist in the current RBM solution and will be defined later.
+- **Task Outcome:** a Task Outcome process is needed for several task types, not only the checkpoint. There is **no Result button**. The outcome is entered as part of Complete, for tasks that need one. (This removes the Result button drawn in the earlier row sections, and the tag "Needs a result" becomes "Needs an outcome".)
+- **Outcome content (Andy Smith, 26 Oct):** the most common outcome is Pass, Fail or Pass with issues, followed by a general comment. It applies to the Business Verification and Technical Verification task types, and is implemented for those first. Drawn on the Command board with a Technical Verification sample (outcome required; comment optional, but **required when the outcome is Pass with issues** (Andy Smith, 26 Oct; Complete stays off until there is a comment). **Fail does not require a comment** (Andy Smith, 26 Oct). Other task types show no outcome yet.
+- **Bulk actions:** one reason for all the selected tasks.
+- **Proposed UI:** a split button. The first action from the API is the default. The others are in a menu behind the caret, with words ("…" means more is asked for first). A task that needs an outcome shows **Complete…**, which opens an outcome panel (required choice, Complete off until chosen); other tasks complete at once. Pause and Skip open a reason panel (required text, confirm off until there is one, a line says why). Green stays for Complete only. At D1 the button has a label; at D2 and D3 it is an icon with the label on hover and focus.
+- **Keyboard and screen reader:** Enter runs the default, Down Arrow or Alt+Down opens the menu, Esc closes and returns focus. Names: "Complete task 1.3.9, outcome needed", "More actions for task …", dialog "Pause task 1.3.5".
+- **Flags:** Do other task types need an outcome later? Where the outcome shows after Complete, and whether it can change. Bulk Complete with outcomes. "Complete…" on the button, the solid Blue Dark confirm button and the panels' positions are my proposals. D0 and D3 not drawn. Action column 140 px at D1, 56 px at D2.
+
+### 26 Oct 2026: App shell has no divider lines (decided by Andy Smith)
+- The fine 1 px lines are removed from the shell: under the top bar, beside the logo block, and above the sidebar footer (the collapse control). The logo block, bar and sidebar are one Deep Blue surface. Updated on the Shell board (all six shell drawings) and in the app shell brief section 2.
+- Build: no `border` on the header, logo cell or sidebar footer. Separation comes from the surface colour and spacing alone. Check that the sidebar footer still reads as a separate control without its line.
+- **Built (Claude Code, 26 Oct 2026):** the three lines are gone from `RbmTopBar` and `RbmSidebar`. So is a fourth one not drawn on the board, above the mobile drawer's Help and legal links, under the same rule. Checked in the demo: no borders on the bar, the logo block or above Collapse, and Collapse still reads as its own control from the space above it. The lines between menu groups stay, as drawn. The `onDeepBlue.divider` token is now unused.
+
+### 26 Oct 2026: Workstream Progress component, decisions and drawing (decided by Andy Smith; drawing Proposed)
+- Brief `workstream-progress-brief.md` (project note `claude/rbm-workstream-progress-brief.md`) for `RbmWorkstreamProgress`, based on the "Readiness by workstream" panel. Home: the **Executive Briefing Centre** (Andy Smith: "Executive Control Centre" was a slip).
+- **Decided (Andy Smith):** the measure is **progress**, computed as percent complete per workstream. **No Brand Green until the entire workstream is Complete;** use the active / In progress blue (Blue Dark #354BA8). Show **Late** visually (no At risk or Blocked yet). Show **task counts** (complete, to do, total) and **issue counts by severity** (High, Medium, Low). **No click-through. Order by earliest start time. Ten rows at most.**
+- **Drawn (Progress board, design version 124, Proposed):** the card at D0, D1, D2, D3, with Complete, In progress, Late, Not started, zero issues, "+n more workstreams", loading and empty. Status is an icon and a word; Late is an amber clock and the word. Issue counts use the Event vitals dots.
+- **My proposals, to confirm:** status words and the tier rule (Essential: Workstream, Progress, Status; Useful: Tasks, Open issues), the D0 to D3 sizes, the data shape with a `late` flag from the planning engine, and the derived status.
+- **Raised:** the Simple ring and Row variant on the Progress board still fill Brand Green at 68%; should the same rule apply? The Dashboard template still shows the old green "Readiness by workstream" panel until this is signed off.
+
+### 26 Oct 2026: Runbook Progress component, first pass (asked by Andy Smith; drawing Proposed)
+- New brief `runbook-progress-brief.md` (project note `claude/rbm-runbook-progress-brief.md`) for `RbmRunbookProgress`, a card for the Executive Briefing Centre showing runbook progress. Built as its **own independent component** first. Afterwards the two (Workstream and Runbook) are compared, and a generic Exec Progress component is considered.
+- Drawn on the Progress board (section "Runbook progress", design version 127), with the same rules as Workstream progress: progress is percent of tasks Complete; Blue Dark bar, Brand Green only when the whole runbook is Complete; Late shown; task counts and issue counts by severity; order by earliest start time; ten rows; no click-through. D0 to D3 as proposed for Workstream progress. Only the wording, the row name and a wider name column differ.
+- The board lists what is the same and what differs, to support the comparison. Likely outcome to test: one generic component with the row item and the words passed in.
+- **Open:** does a runbook need extra fields (stage, owner, Event)? What is Late for a runbook? Which status words (the Icon suite's runbook states differ)? All runbooks or only the Event being briefed? How to tell runbooks with the same name apart?
+
+### 26 Oct 2026: Workstream and Runbook progress: owner, start, end, states, Late, scope (decided by Andy Smith)
+- **Owner, start and end** are added to both Workstream progress and Runbook progress.
+- **Late** is decided by the **Planning engine**. The components only display it.
+- **Status uses the states defined in the Icon suite** (icon and word). Late is separate and shows beside the state, so "In progress", "Not started" and "Late" are no longer states. Drawn with Active, Paused, Scheduled and Complete.
+- **Runbook progress covers runbooks for the selected Event only.** The Event name comes from the Executive Briefing Centre context, so the card does not show it.
+- **No decision at this stage** on the other open points (tier rule, D0 and D3 contents, ring and Row green, build order). Andy Smith will come back to them.
+- **Drawn** on the Progress board (design version 128): D1 shows the owner under the name and start over end; D2 shows owner initials, Start and End columns; D3 shows owner initials and End; D0 stays Essential only. Briefs updated.
+- **My proposals, to confirm:** which Icon suite states a workstream or runbook can have (the suite defines Task and Event states only; I used Scheduled, Active, Paused, Complete); whether start and end are planned, forecast or actual; owners shown as initials plus name; Owner, Start and End as one Detail group although Detail allows one field.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?
@@ -1096,3 +1249,15 @@ Source: the icon suite brief, v2 (now `docs/icon-suite-brief.md`), and the proje
 - **Versions:** is the tag the right icon, and what does the Versions page show? Should Support (Help) go to the customer portal?
 - **Admin pages:** confirm Tech Admin is gone. Is the Admin Centre badge right? Should there be a domain card on the Cards board, and a drawn admin page? Which roles see which domains? Where do Content Packs and Templates admin live, if they need admin?
 - **Admin domain card:** who supplies the vendor logos, and are the brand kits cleared for use? What statuses does an integration show? Do the other domains need a status or count? One card per connection, or per product?
+- **Event Group:** Which KPIs are compared? Is the latest Go/No-Go the right headline on the card? How is Readiness defined (later)? Where does an Event Group appear in the menu (decided: first in Events).
+- **Menu:** Is Event Groups, listed first, also the page users land on, or does Events open on List? Is `/events/groups` right?
+- **Scenarios:** Do the Recovery scenarios need their own words or fields? When Templates are revisited, can one be shared between scenarios? Can a Content Pack's tasks differ by scenario? Do Programmes belong to a scenario? Do existing dashboards and the Command & Control Centre need a scenario filter?
+- **Scenario on cards:** Only when more than one is on show, or always? Draw a Template card?
+- **Scenarios (settings):** If an admin locks a scenario that has Events, do they stay openable (proposed yes)? Are Programmes and dashboards filtered by scenario? Is the storyboard icon still right at 16 px? Should the shell control remain?
+- **Task row (26 Oct):** A or B for the action, or A at D1 and B at D2/D3? Which state vocabulary does the Timeline use (Timeline's or the Icon suite's)? Should the Ready to start tag stay beside the Available state? Add View and Undo to the Icon suite? (Result is gone.)
+- **Task row actions (26 Oct), answers to come from Andy Smith:** Is Abandon excluded for tasks? Which actions do Available, Paused and Pending have (does Skip apply)? Reason details: free text only or a pick-list, a length limit, where it is shown afterwards, and whether the person and time are saved? Undo for Skip and Pause?
+- **Task Outcome (26 Oct):** Do other task types need an outcome, and what does each offer? Where does the outcome show on the row after Complete, and can it be changed? In a bulk Complete of tasks that need outcomes, is it one outcome for all, or not allowed?
+- **Restart (26 Oct):** to be defined later. It does not exist in RBM today. What does it do, which state does it return to, and what is its icon?
+- **Workstream Progress (26 Oct):** What makes a workstream Late (forecast against plan, Late tasks, a threshold)? Which status words should a workstream use, and can a Late one also be Complete? Should the Simple ring and Row variant also stay Blue Dark until 100%? Are the D0 to D3 proposals right? Where does "+n more workstreams" lead later, and should the start time show? Does it follow the scenario filter, and where does it sit in the build order?
+- **Runbook Progress (26 Oct):** Does a runbook need extra fields (current stage, owner, Event, start and forecast end)? What is Late for a runbook? Which status words should it use, given the Icon suite's runbook states? Which runbooks does the card cover (all in the Programme, or the Event being briefed), and how are same-named runbooks told apart? Where does it sit in the build order?
+- **Progress cards (26 Oct):** Which Icon suite states apply to a workstream and a runbook (the suite defines Task and Event states only)? Are start and end planned, forecast or actual, and should a Late row show its planned end? May Owner, Start and End count as one Detail group? Can a Paused or Scheduled item be Late? What breaks ties in the start order? Should Runbook progress show the current stage? (Other points: no decision at this stage.)

@@ -29,7 +29,7 @@ export const rbmIcons = {
   object: { runbook, event, stage, task, dependency, assignment, team, globalTeam,
             localTeam, workstream, globalWorkstream, localWorkstream, document,
             issue, checklist, environment, schedule, cutover, decision, comment,
-            history, template, contentPack },
+            history, template, contentPack, eventGroup },
   role: { owner, executor, reviewer, approver, observer, stakeholder, manager, author },
   state: { initial, approved, pending, available, active, paused, suspended,
            complete, skipped, backingOut, backedOut, abandoned, scheduled, closed },
@@ -41,15 +41,16 @@ export const rbmIcons = {
   nav: { list, folder, setup, integrations, license, training, support, versions },
   taskType: { standard, scripted, automated, businessVerification, technicalVerification,
               checkpoint, notification, collaboration, approval, milestone },
-  centre: { base, commandControl, migration, executiveBriefing, verification, audit },
+  centre: { base, commandControl, migration, executiveBriefing, verification, audit, admin },
+  admin: { systemProperties, diagnostics, scenarios },
 } as const;
 ```
-That is 104 icons. `construct.duplicate` is **retired**: replace each use with `construct.copy` (copy content or the whole object) or `construct.clone` (a wizard-like process that makes a new, independent record). The old single `action` group is **replaced** by `construct`, `control` and `display`. `markComplete` becomes `control.complete`, and the old Close is `display.close`. The shell reuses `object.template`, `object.team` and `object.workstream` for Templates, Teams and Workstreams.
+That is 109 icons. `construct.duplicate` is **retired**: replace each use with `construct.copy` (copy content or the whole object) or `construct.clone` (a wizard-like process that makes a new, independent record). The old single `action` group is **replaced** by `construct`, `control` and `display`. `markComplete` becomes `control.complete`, and the old Close is `display.close`. The shell reuses `object.template`, `object.team` and `object.workstream` for Templates, Teams and Workstreams.
 
 ## 5. Icon data (copy these exactly)
 Every icon is drawn in a `viewBox="0 0 24 24"` with `fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`. The tables give the elements inside the `<svg>`.
 
-### 5.1 Objects (19 drawn directly)
+### 5.1 Objects (20 drawn directly)
 | Key | Label | SVG inside the 24 x 24 viewBox |
 |---|---|---|
 | `object.runbook` | Runbook | `<path d="M6 3h13v15H6a2 2 0 0 0-2 2V5a2 2 0 0 1 2-2z"/><path d="M4 20a2 2 0 0 0 2 2h13v-4"/><path d="M9 8h6M9 12h4"/>` |
@@ -71,6 +72,7 @@ Every icon is drawn in a `viewBox="0 0 24 24"` with `fill="none" stroke="current
 | `object.event` | Event | `<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M12.5 12l-2.5 3.5h4l-2 3.5"/>` |
 | `object.workstream` | Workstream | `<path d="M3 7q2.25-3 4.5 0t4.5 0 4.5 0 4.5 0M3 12q2.25-3 4.5 0t4.5 0 4.5 0 4.5 0M3 17q2.25-3 4.5 0t4.5 0 4.5 0 4.5 0"/>` |
 | `object.contentPack` | Content Pack | `<path d="M10 4a2 2 0 1 1 4 0v1h4a1 1 0 0 1 1 1v4h-1a2 2 0 1 0 0 4h1v4a1 1 0 0 1-1 1h-4v-1a2 2 0 1 0-4 0v1H6a1 1 0 0 1-1-1v-4h1a2 2 0 1 0 0-4H5V6a1 1 0 0 1 1-1h4V4z"/>` |
+| `object.eventGroup` | Event Group | `<rect x="3" y="8" width="14" height="13" rx="2"/><path d="M3 12.5h14M7 6v4M13 6v4"/><path d="M10.8 14.5l-2 3h2.6l-1.6 2.5"/><path d="M7 4.5V4a1 1 0 0 1 1-1h11a2 2 0 0 1 2 2v10a1 1 0 0 1-1 1h-.5"/>` |
 
 ### 5.2 Global and local objects (4, plus the two badges)
 The base object is drawn small (`translate(0 7) scale(0.7)`, stroke-width 2.86) with a badge at top right. A globe means Global and a pin means Local.
@@ -198,7 +200,7 @@ Active and Backing out may animate, but only on the state icon, never on a butto
 | `taskType.approval` | Approval | `<path d="M12 3a2.5 2.5 0 0 1 2.5 2.5c0 1.6-1 2.2-1 3.5H15a4 4 0 0 1 4 4v3H5v-3a4 4 0 0 1 4-4h1.5c0-1.3-1-1.9-1-3.5A2.5 2.5 0 0 1 12 3z"/><path d="M4 20.5h16"/>` |
 | `taskType.milestone` | Milestone | `<path d="M12 4l5 5-5 5-5-5 5-5z"/><path d="M3 19h18"/>` |
 
-### 5.10 Centres (6, Proposed)
+### 5.10 Centres (7, Proposed)
 A Centre is a dashboard-like place used by one persona in one role. All Centres share one base, four tiles. The badge says which Centre it is. The base is drawn smaller at bottom left and the badge at top right, the same way as the Global and Local objects and the user roles (base `translate(0 7) scale(0.7)`, stroke-width 2.86; badge stroke-width 1.5). `centre.base` is for places that do not name a Centre.
 
 | Key | Label | SVG inside the 24 x 24 viewBox |
@@ -209,6 +211,30 @@ A Centre is a dashboard-like place used by one persona in one role. All Centres 
 | `centre.executiveBriefing` | Executive Briefing Centre | `<g transform="translate(0 7) scale(0.7)" stroke-width="2.86"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></g><g stroke-width="1.5"><path d="M18.5 1.8l1.4 2.9 3.1.4-2.3 2.2.6 3.1-2.8-1.5-2.8 1.5.6-3.1-2.3-2.2 3.1-.4z"/></g>` |
 | `centre.verification` | Verification Centre | `<g transform="translate(0 7) scale(0.7)" stroke-width="2.86"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></g><g stroke-width="1.5"><circle cx="18.5" cy="6.5" r="4.5"/><path d="M16.3 6.6l1.6 1.6 2.9-3.2"/></g>` |
 | `centre.audit` | Audit Centre | `<g transform="translate(0 7) scale(0.7)" stroke-width="2.86"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></g><g stroke-width="1.5"><circle cx="17.3" cy="5.3" r="3.3"/><path d="M19.7 7.7l3 3"/></g>` |
+| `centre.admin` | Admin Centre | `<g transform="translate(0 7) scale(0.7)" stroke-width="2.86"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></g><g stroke-width="1.5"><path d="M18.5 1.8l4 1.6v3.2c0 2.4-1.7 4.2-4 5-2.3-.8-4-2.6-4-5V3.4l4-1.6z"/></g>` |
+
+### 5.11 Admin pages (2 new icons, Proposed)
+RBM Admin has two menu items, **Admin Centre** and **Setup & Config**. Each opens a page whose content is an array of cards, one per admin domain. This repeats, so each domain gets one icon, used in its card and anywhere else the domain is named. Reuse an existing icon when one fits.
+
+| Item or domain | Page | Icon key | Source |
+|---|---|---|---|
+| Admin Centre (menu item) | | `centre.admin` | New (5.10) |
+| Setup & Config (menu item) | | `nav.setup` | Reused |
+| Teams | Admin Centre | `object.team` | Reused |
+| Workstreams | Admin Centre | `object.workstream` | Reused |
+| License Management | Admin Centre | `nav.license` | Reused |
+| Folders | Admin Centre | `nav.folder` | Reused |
+| System Properties | Setup & Config | `admin.systemProperties` | New |
+| Integrations | Setup & Config | `nav.integrations` | Reused |
+| Diagnostics | Setup & Config | `admin.diagnostics` | New |
+| `admin.scenarios` | Scenarios | `<rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/><path d="M14 16.5h6M14 19.5h4"/>` |
+
+| Key | Label | SVG inside the 24 x 24 viewBox |
+|---|---|---|
+| `admin.systemProperties` | System Properties | `<path d="M9 3c-2 0-3 1-3 3v3c0 1.5-1 2.5-2.5 3 1.5.5 2.5 1.5 2.5 3v3c0 2 1 3 3 3"/><path d="M15 3c2 0 3 1 3 3v3c0 1.5 1 2.5 2.5 3-1.5.5-2.5 1.5-2.5 3v3c0 2-1 3-3 3"/>` |
+| `admin.diagnostics` | Diagnostics | `<path d="M3 12h4l2.5-6 4 12 2.5-6H21"/>` |
+
+The Admin Centre uses the Centre base with a plain shield badge. The shield has no tick, so it is not the Approved state, but check it at 16 px. Curly braces and the pulse line are not used anywhere else in the suite. More domains are expected: each new one needs one icon, by the same rule.
 
 ## 6. State versus action (the rule that shapes the code)
 - A **state** is what an object is now. An **action** is what a person does. They are separate groups, and a drawing is never reused between them.
@@ -277,6 +303,8 @@ One piece per pull request, each with stories, tests and a check against the boa
 - **Content Pack** (object) is a puzzle piece, chosen by Andy Smith on 23 Oct 2026 from five candidates (cube, puzzle piece, layers, sealed document, cube with badge) and a set of building-block and brick candidates. A Content Pack is a reusable, version-controlled, approved standard procedure, built from stages and tasks, that can be inserted into runbooks. The puzzle piece says "insertable" and "modular" but not "approved" or "versioned": those come from the label, the state and the version. A puzzle piece is a common icon for plug-ins and extensions in other tools, so check it at 16 px against `nav.integrations` (the plug) in the rail. Not drawn: a Content Pack card, its states, and how it appears inside a runbook.
 - **Versions** (nav) is a tag, proposed by me on 23 Oct 2026 when Andy Smith split "Support & Versions" into Support and Versions. It is not approved: confirm or replace. A tag is a common icon for labels as well as versions: check it at 16 px against `nav.support` in the rail, and say if it reads as a label.
 - **Sign out** (Display / UI) is an open doorway with an arrow leaving it, chosen by Andy Smith on 23 Oct 2026 from five candidates (door and arrow, open door, mirrored bracket, power symbol and the old right chevron). It replaces the right chevron used in the Profile menu. The arrow-leaving-a-frame idea is also behind `display.openFullPage`: check them side by side at 16 px. Sign out is a session action, not a change to the object, so it sits in Display / UI by Andy's decision, not by the rule that Display / UI never changes the object. Flag that if it matters.
+- **Admin pages:** Admin Centre, System Properties and Diagnostics were drawn by me on 23 Oct 2026 and are Proposed. The card text and meanings on the board are my reading. The domain list for Setup & Config says "will include", so it is open. The page itself (the card array) is not drawn.
+- **Event Group** (object) is the Event icon with two more behind it, chosen by Andy Smith on 24 Oct 2026 (G1) from six candidates (stacked events, calendar with bars, two linked events, event with a stack badge, timeline, brackets). An Event Group is a logical container for related events, so the KPIs of each event in it can be measured and compared over time (continuous improvement, and objective evidence of readiness for a Go/No-Go checkpoint). Check it at 16 px against `object.event` and `object.schedule`: the extra edge is the only difference. Not drawn: the Event Group's states, its record page and its KPI comparison view. Event Group is not yet in any menu.
 - Where Dashboard, Plan, Readiness, Run, Improve, Reports and Tasks live in the navigation is undecided.
 
 ## 10. Changes this brief makes to other briefs
@@ -285,7 +313,7 @@ One piece per pull request, each with stories, tests and a check against the boa
 - **Decisions:** record this work in `docs/rbm-parked-decisions.md` and flag every place the build differs from the board.
 
 ## 11. Acceptance
-- All 104 icons render at the four density sizes and pass the CI script.
+- All 109 icons render at the four density sizes and pass the CI script.
 - No `@mui/icons-material` import outside the icon package, enforced by lint.
 - Every state shows a text label. Colour is never the only signal.
 - `RbmIconButton` will not compile without a label.

@@ -16,7 +16,7 @@ Open the design: https://claude.ai/artifact/GfR1Zo8xXaj9PuLXRWWaCv (same claude.
 ## 3. The six zones
 Everything an RBM page needs sits in one of six zones. Build all six.
 1. **Sidebar.** Primary navigation. Deep Blue, under the top bar, full height. Expanded at wide widths, a rail below that, a temporary drawer on small screens.
-2. **Top bar.** Dark Deep Blue (#23326F, `palette.primary.dark`), full width. Session only: the logo, notifications with a count, the signed-in user with the account menu. A thin divider separates the logo block from the rest of the bar, and the sidebar from the bar. No page context, no page actions, no search button (search opens from the `/` key as a command palette).
+2. **Top bar.** Dark Deep Blue (#23326F, `palette.primary.dark`), full width. Session only: the logo, notifications with a count, the signed-in user with the account menu. **No divider lines** (Andy Smith, 26 Oct 2026): the logo block, the bar and the sidebar read as one Deep Blue surface, with no border under the bar, beside the logo or above the sidebar footer. No page context, no page actions, no search button (search opens from the `/` key as a command palette).
 3. **Page header.** The context of the page: programme (with a switcher) and, on event pages, the event with its status pill; breadcrumb (last crumb is the page, not a link, at most four levels); title and status pill; one metadata line; page actions on the right, secondary first and **one green CTA at most**.
 4. **Content.** Where a page template goes. It scrolls on its own, so the shell never moves.
 5. **Footer.** Fixed to the bottom. Copyright and version, then sync time and environment, then three links: Privacy, Support, Knowledge. Each is a real link to the ICEFLO customer portal and opens in a new tab (see section 5a). No actions and no colour. A lost connection shows the At risk ringed dot and the words "Reconnecting". UAT and Test environments show as a chip.
@@ -47,7 +47,8 @@ Navigation is data, not JSX. Each item has a label, an icon from the registry, a
 
 | Group | Item | Route (proposed) |
 |---|---|---|
-| **Events** | List | `/events` |
+| **Events** | Event Groups | `/events/groups` |
+| | List | `/events` |
 | | Folders | `/events/folders` |
 | **Library** | Templates | `/library/templates` |
 | | Content Packs | `/library/content-packs` |
@@ -66,12 +67,25 @@ Navigation is data, not JSX. Each item has a label, an icon from the registry, a
 - **Permissions (proposed):** show or hide RBM Admin items from the user's platform roles, checked by the relevant API. The UI never decides. This follows the agreed rule for actions.
 - The deep link to a route marks the right item active, and its group heading is visible.
 
+### 4b. Scenarios: settings, profile and control (Andy Smith decided the model, 24 Oct 2026; the screens are my design)
+- **Scenarios:** Planned Change, Disaster Recovery, Cyber Recovery, Service Recovery (`RbmScenario`: `planned-change`, `disaster-recovery`, `cyber-recovery`, `service-recovery`).
+- **Defaults cascade.** Shipped default: Planned Change is the only scenario on. A customer default, set by an RBM Admin, overrides it. A user's own choice in their Profile overrides that. Events and runbooks have no scenario default, because an Event's scenario is fixed at creation.
+- **RBM Admins lock and unlock scenarios** from the four, on a **Scenarios** domain in the **Admin Centre** (not Tech Admin, not Setup & Config). Unlocked ones are the scenarios users can choose from. The admin also sets which are on by default (a subset of the unlocked ones). The page is a table: Scenario, Available (Available or Locked), On by default (On or Off), then Cancel and Save changes.
+- **Users can always change their own** in the Profile menu, **My scenarios**: checkboxes for the available scenarios only. Until they choose, they use the organisation's default and the panel says so, with "Reset to organisation default".
+- **Hidden by default.** Scenarios that are not on are hidden, not greyed.
+- **Control:** `RbmScenarioFilter`, first in the page header's context row, before Programme and Event. It is a quick filter over the available scenarios. It starts from the user's profile and does not change it. It shows the name for one, "2 scenarios" for several, "All available" for all. The menu has the available scenarios as checkboxes, a count ("1 of 2 shown"), "Show all" and "My profile".
+- **New Events:** one scenario on, a new Event starts with it; several on, the user must choose. Not changeable later.
+- **Content Packs are not filtered** (they work in any scenario). Templates are scenario specific for now. Event Groups cannot mix scenarios.
+- **Accessibility:** the control is a button (`aria-expanded`) opening a group of checkboxes labelled "Scenarios". Space toggles, Escape closes and returns focus. The count is announced. A locked row is an unchecked checkbox with the text "Locked". No colour carries meaning; ticks are Deep Blue.
+- **My proposals (confirm):** at least one scenario stays available and at least one on by default; locking a scenario removes it from users' profiles but existing Events in it stay openable; the control comes first in the context row; "My scenarios" sits after Settings in the Profile menu; the Save buttons use the normal green call to action.
+- **Icon:** the Scenarios domain uses a new `admin.scenarios` (a storyboard: three frames and a caption; S6, chosen by Andy Smith on 24 Oct 2026), also used for "My scenarios" in the Profile menu. Proposed.
+
 ### 4a. Admin pages: a repeating pattern (Andy Smith, 23 Oct 2026)
 **Admin Centre** and **Setup & Config** each open a page in the main region. The content of each page is mainly an array of cards, one per **admin domain**. This pattern repeats, so build it once (a page template and a domain card) and feed it from typed data.
 
 | Page | Domains (the list can grow) |
 |---|---|
-| Admin Centre | Teams, Workstreams, License Management, Folders |
+| Admin Centre | Teams, Workstreams, License Management, Folders, Scenarios |
 | Setup & Config | System Properties, Integrations, Diagnostics (the list says "will include", so there may be more) |
 
 ```ts
@@ -107,7 +121,7 @@ type RbmAdminPage = { id: 'admin-centre' | 'setup-config'; title: string; domain
   <Outlet />
 </RbmAppShell>
 ```
-- The icon in each nav entry is a **registry key**, not a component (for example `icon: 'nav.list'`), so the lint rule can reject hand-built sidebars and direct icon imports. The App shell board's `rbmNav` sample has the full nine-item data.
+- The icon in each nav entry is a **registry key**, not a component (for example `icon: 'nav.list'`), so the lint rule can reject hand-built sidebars and direct icon imports. The App shell board's `rbmNav` sample has the full ten-item data.
 - MUI building blocks from the board: CSS grid on a `Box` for the frame (the grid, not `position: fixed`, keeps the bars in place); `Drawer variant="permanent"` (rail is the mini variant), `temporary` under `md` with `useMediaQuery`; `List`, `ListItemButton` with `selected`, `ListItemIcon`, `ListItemText`, `Collapse` for children, `Tooltip` on the rail; `AppBar position="static"` with `elevation=0` and a `Toolbar`; `Avatar`, `ButtonBase` and `Menu` for the account menu; `Badge` and `Popover` for notifications; `Breadcrumbs`, `Typography`, `Chip` and `Select` or `Menu` for the page header; `Box component="footer"`; `Drawer anchor="right"` with a custom container for the slide-in; a visually hidden `Link` for the skip link.
 - The MUI CRUD dashboard template is a reference to copy and own, not a dependency. **Check its licence before copying anything** (the board could not confirm it). Prefer building from the MUI components above.
 
@@ -157,6 +171,7 @@ export const RBM_FOOTER_LINKS = [
 ### 6a. Menu item to icon (confirmed by the design)
 | Group | Item | Registry key | Source |
 |---|---|---|---|
+| Events | Event Groups | `object.eventGroup` | Existing object icon (G1) |
 | Events | List | `nav.list` | New |
 | Events | Folders | `nav.folder` | New |
 | Library | Templates | `object.template` | Existing object icon |
@@ -202,7 +217,7 @@ One piece per pull request, each with Storybook stories for every state, unit te
 ## 9. Differences from the design and open questions (flag, do not guess)
 The design was updated on 22 Oct 2026 (version 74) so the sidebar and icons match this brief. These remain:
 - **Where do Dashboard, Plan, Readiness, Run, Improve, Reports and Tasks go now?** They are not in the new navigation. Confirm they are out of scope for the shell, or say where they live (for example inside Events). The board lists this under "For your decision".
-- **Rule:** the board's "seven destinations or fewer in the main area" is now "four items or fewer in a group; nine destinations in four groups". Needs Andy's sign-off. The 23 Oct regrouping gives four groups (Events 2, Library 2, RBM Admin 2, Help 3), so the four-item limit still holds. Content Packs in Library, the group order and all routes are my proposals: confirm them.
+- **Rule:** the board's "seven destinations or fewer in the main area" is now "four items or fewer in a group; ten destinations in four groups". Needs Andy's sign-off. The 23 Oct regrouping gives four groups (Events 2, Library 2, RBM Admin 2, Help 3), so the four-item limit still holds. On 24 Oct 2026 Events gained Event Groups as its first item (3 items), so ten destinations. Content Packs in Library, the group order and all routes are my proposals: confirm them.
 - **Default density for the shell.** The board's default is D1 Comfortable. The list page is D2 Compact. Andy gave no preference, so **build D2 Compact as the default and flag it**; it is one prop. Ask if it matters.
 - **Counts:** no menu item has a count. The board shows a count on List (12) as an example only. Build the count pill and the rail dot, and wire them to nothing.
 - **Shell chrome icons** are not in the Icon suite (section 6c). Andy to decide whether to add them to the board.
@@ -225,3 +240,4 @@ The design was updated on 22 Oct 2026 (version 74) so the sidebar and icons matc
 3. Stop and show me the plan: the `RbmNavConfig` types, the icon registry design (how the `nav` and `shell` groups fit what already exists), and the questions in section 9 that block you. Wait for my go-ahead.
 4. Build in the order in section 7.
 5. Run the acceptance checks. Report what you could not verify.
+- **Scenarios:** If an admin locks a scenario that has Events, do those Events stay openable (I proposed yes)? Are Programmes and dashboards filtered by scenario? Is the Admin Centre the right home, and is the storyboard icon right?

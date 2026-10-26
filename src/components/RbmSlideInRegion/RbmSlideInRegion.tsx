@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { Drawer, useMediaQuery } from '@mui/material';
 import { colour, stroke } from '../../theme/tokens';
 import { useShellFrame } from '../RbmAppShell/shellContext';
@@ -58,6 +58,19 @@ export function RbmSlideInRegion({ open, onClose, container: given, width = SLID
   const container = given ?? shell.frame;
   // A full-screen page covers the whole window, header and footer too.
   const inside = mode !== 'page' && !!container;
+  // The frame hides its overflow, but focus can still scroll it: the drawer focuses its paper while it is still
+  // off to the right, and the browser scrolls the frame sideways to show it, leaving the page shifted and the panel
+  // half in. Seen when the panel opens from the top bar's account menu. While open, the frame stays put.
+  useEffect(() => {
+    if (!open || !inside || !container) return;
+    const pin = () => {
+      container.scrollLeft = 0;
+      container.scrollTop = 0;
+    };
+    pin();
+    container.addEventListener('scroll', pin);
+    return () => container.removeEventListener('scroll', pin);
+  }, [open, inside, container]);
   return (
     <Drawer
       anchor="right"

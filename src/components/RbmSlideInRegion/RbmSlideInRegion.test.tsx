@@ -133,3 +133,20 @@ describe('RbmSlideInRegion', () => {
     expect(await screen.findByRole('dialog', { name: 'Panel' })).toHaveStyle({ position: 'fixed' });
   });
 });
+
+describe('RbmSlideInRegion keeps the content frame still', () => {
+  it('undoes a scroll of the frame while open (focus can scroll an overflow-hidden frame sideways)', async () => {
+    const frame = document.createElement('div');
+    document.body.appendChild(frame);
+    render(
+      <RbmSlideInRegion open container={frame} label="My scenarios" onClose={() => {}}>
+        <p>Panel</p>
+      </RbmSlideInRegion>,
+    );
+    await screen.findByRole('dialog', { name: 'My scenarios' });
+    frame.scrollLeft = 420;
+    frame.dispatchEvent(new Event('scroll'));
+    expect(frame.scrollLeft).toBe(0);
+    frame.remove();
+  });
+});

@@ -11,7 +11,7 @@ import mark from './assets/iceflo-mark.png';
 /**
  * The top bar (App shell board, "Top bar"): Deep Blue, full width, session information only. The logo,
  * notifications with a count, and the signed-in user with the account menu. No page context, no page actions
- * and no search. A thin divider separates the logo block from the rest of the bar.
+ * and no search. No divider lines: the logo block, the bar and the sidebar are one Deep Blue surface.
  *
  * The logo block is as wide as the sidebar below it: the wordmark over the expanded sidebar, the ICEFLO mark
  * over the rail. Under 900 px (the drawer) a menu button comes first, the logo has no block, and the user is
@@ -72,7 +72,8 @@ export function RbmTopBar({ user, sidebar, notificationCount = 0, notifications,
   const narrow = sidebar === 'drawer';
   const rail = sidebar === 'rail';
   return (
-    <AppBar position="static" elevation={0} sx={{ bgcolor: colour.deepBlue, color: colour.white, borderBottom: `${stroke.thin}px solid ${onDeepBlue.divider}` }}>
+    // No divider lines (Andy Smith, 26 Oct 2026): the bar, the logo block and the sidebar are one Deep Blue surface.
+    <AppBar position="static" elevation={0} sx={{ bgcolor: colour.deepBlue, color: colour.white }}>
       <Toolbar
         disableGutters
         sx={{ height: size.topBar - stroke.thin, minHeight: `${size.topBar - stroke.thin}px !important`, gap: 4, pr: d.level === 'comfortable' ? 6 : 5 }}
@@ -93,7 +94,6 @@ export function RbmTopBar({ user, sidebar, notificationCount = 0, notifications,
               justifyContent: rail ? 'center' : 'flex-start',
               px: rail ? 0 : 5,
               boxSizing: 'border-box',
-              borderRight: `${stroke.thin}px solid ${onDeepBlue.divider}`,
               transition: (t) => t.transitions.create('width', { duration: t.transitions.duration.shorter }),
               '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
             }}

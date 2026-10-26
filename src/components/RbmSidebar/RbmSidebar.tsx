@@ -142,7 +142,7 @@ export function RbmSidebar({ nav, data, path, variant, hrefFor = (to) => to, onN
       {onToggleCollapse && variant !== 'drawer' && <CollapseItem rail={rail} onClick={onToggleCollapse} />}
       {variant === 'drawer' && drawerLinks.length > 0 && (
         // Not drawn (proposed): the footer's links, quiet, at the bottom of the drawer.
-        <Box component="ul" aria-label="Help and legal" sx={{ listStyle: 'none', m: 0, p: '10px 16px 14px', display: 'flex', flexWrap: 'wrap', gap: 4, borderTop: `${stroke.thin}px solid ${onDeepBlue.divider}`, fontSize: d.caption }}>
+        <Box component="ul" aria-label="Help and legal" sx={{ listStyle: 'none', m: 0, p: '10px 16px 14px', display: 'flex', flexWrap: 'wrap', gap: 4, fontSize: d.caption }}>
           {drawerLinks.map((l) => (
             <li key={l.href}>
               <Box component="a" href={l.href} target="_blank" rel="noopener noreferrer" onClick={() => onClose?.()} sx={{ color: colour.blueLight, fontWeight: 600, textDecoration: 'none', '&:hover': { textDecoration: 'underline' }, '&:focus-visible': { outline: `${stroke.thick}px solid ${colour.white}`, outlineOffset: 2, borderRadius: '4px' } }}>
@@ -294,7 +294,8 @@ function CollapseItem({ rail, onClick }: { rail: boolean; onClick: () => void })
     </ListItemButton>
   );
   return (
-    <Box sx={{ borderTop: `${stroke.thin}px solid ${onDeepBlue.divider}`, pt: 1.5 }}>
+    // No divider line above it (Andy Smith, 26 Oct 2026): the space above sets it apart.
+    <Box sx={{ pt: 1.5 }}>
       {rail ? (
         <Tooltip title="Expand" placement="right">
           {button}

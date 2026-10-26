@@ -90,7 +90,7 @@ describe('RbmTopBar: notifications', () => {
 });
 
 describe('RbmAccountMenu', () => {
-  it('opens the menu: who is signed in, then the four items in order', async () => {
+  it('opens the menu: who is signed in, then the five items in order (My scenarios after Settings)', async () => {
     render(<RbmAccountMenu user={user} />);
     const button = screen.getByRole('button', { name: 'Account: Andy Smith' });
     expect(button).toHaveAttribute('aria-haspopup', 'menu');
@@ -98,7 +98,7 @@ describe('RbmAccountMenu', () => {
     expect(button).toHaveAttribute('aria-expanded', 'true');
     const menu = screen.getByRole('menu', { name: 'Account' });
     expect(menu).toHaveTextContent('andy.smith@iceflo.com');
-    expect(within(menu).getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Profile', 'Settings', 'Notification preferences', 'Sign out']);
+    expect(within(menu).getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Profile', 'Settings', 'My scenarios', 'Notification preferences', 'Sign out']);
   });
 
   it('reports the chosen item and closes', async () => {

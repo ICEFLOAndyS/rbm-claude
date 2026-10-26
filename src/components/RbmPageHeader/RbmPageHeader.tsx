@@ -4,13 +4,15 @@ import { RbmIcon } from '../../icons/RbmIcon';
 import type { RbmIconName } from '../../icons/registry';
 import { RbmStatusPill } from '../RbmStatusPill/RbmStatusPill';
 import { RbmActionButton } from '../RbmActionButton/RbmActionButton';
+import { RbmScenarioFilter, type RbmScenarioFilterProps } from '../RbmScenarioFilter/RbmScenarioFilter';
 import { useDensity } from '../../theme/RbmDensity';
 import { colour, shellSize, stroke, type RbmState } from '../../theme/tokens';
 
 /**
  * The page header (App shell board, "Page header"). Every page starts the same way:
  *
- *   context row   programme (with a switcher) and, on event pages, the event with its status pill
+ *   context row   the scenario filter (proposed: first), the programme (with a switcher) and, on event pages,
+ *                 the event with its status pill
  *   breadcrumb    the parents as links, then the page (not a link); at most four levels
  *   title         with its status pill beside it, when the page has a status
  *   metadata      one line
@@ -42,6 +44,8 @@ export interface RbmProgramme {
 
 export interface RbmPageHeaderProps {
   title: string;
+  /** The scenario filter, first in the context row (app shell brief 4b; proposed). Pages that are not filtered leave it out. */
+  scenarios?: RbmScenarioFilterProps;
   /** The page's status, beside the title. Pages without a status leave it out. */
   status?: { state: RbmState; label?: string };
   /** The parents, as links. The page itself is added as the last crumb. */
@@ -138,15 +142,17 @@ function ActionButton({ action, primary }: { action: RbmPageAction; primary?: bo
   );
 }
 
-export function RbmPageHeader({ title, status, breadcrumb = [], metadata, programme, programmes, onProgrammeChange, event, actions = [], primaryAction }: RbmPageHeaderProps) {
+export function RbmPageHeader({ title, scenarios, status, breadcrumb = [], metadata, programme, programmes, onProgrammeChange, event, actions = [], primaryAction }: RbmPageHeaderProps) {
   const d = useDensity();
-  const hasContext = !!programme || !!event;
+  const hasContext = !!scenarios || !!programme || !!event;
   const hasActions = actions.length > 0 || !!primaryAction;
   return (
     <Box component="header" sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 4, flexWrap: 'wrap' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, flex: '1 1 320px' }}>
         {hasContext && (
           <Box role="group" aria-label="Context" sx={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+            {scenarios && <RbmScenarioFilter {...scenarios} />}
+            {scenarios && (programme || event) && <Box aria-hidden sx={{ width: '1px', height: 16, bgcolor: colour.silver }} />}
             {programme && <ProgrammeSwitcher programme={programme} programmes={programmes} onChange={onProgrammeChange} />}
             {programme && event && <Box aria-hidden sx={{ width: '1px', height: 16, bgcolor: colour.silver }} />}
             {event && (

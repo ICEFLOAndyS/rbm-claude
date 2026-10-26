@@ -16,8 +16,8 @@ const renderPage = (props: Partial<RbmAdminPageProps> & { page: Page }) =>
   );
 
 describe('admin pages data (brief 4a)', () => {
-  it('Admin Centre has Teams, Workstreams, License Management and Folders', () => {
-    expect(ADMIN_CENTRE.domains.map((d) => d.label)).toEqual(['Teams', 'Workstreams', 'License Management', 'Folders']);
+  it('Admin Centre has Teams, Workstreams, License Management, Folders and Scenarios', () => {
+    expect(ADMIN_CENTRE.domains.map((d) => d.label)).toEqual(['Teams', 'Workstreams', 'License Management', 'Folders', 'Scenarios']);
     expect(ADMIN_CENTRE.route).toBe('/rbm-admin/centre');
   });
 
@@ -28,7 +28,7 @@ describe('admin pages data (brief 4a)', () => {
 
   it('uses the icons the brief names, and every one is registered', () => {
     expect([...ADMIN_CENTRE.domains, ...SETUP_CONFIG.domains].map((d) => d.icon)).toEqual([
-      'object.team', 'object.workstream', 'nav.license', 'nav.folder',
+      'object.team', 'object.workstream', 'nav.license', 'nav.folder', 'admin.scenarios',
       'admin.systemProperties', 'nav.integrations', 'admin.diagnostics',
     ]);
     for (const d of ADMIN_PAGES.flatMap((p) => p.domains)) expect(rbmIconNames).toContain(d.icon);
@@ -57,7 +57,7 @@ describe('RbmAdminPage', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Admin Centre' })).toBeInTheDocument();
     const list = screen.getByRole('list', { name: 'Admin Centre' });
     expect(within(list).getAllByRole('link').map((l) => l.getAttribute('aria-labelledby') && document.getElementById(l.getAttribute('aria-labelledby')!)!.textContent)).toEqual([
-      'Teams', 'Workstreams', 'License Management', 'Folders',
+      'Teams', 'Workstreams', 'License Management', 'Folders', 'Scenarios',
     ]);
   });
 

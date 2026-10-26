@@ -19,12 +19,14 @@ export interface RbmUser {
 }
 
 /** The account menu's items, as drawn. Settings is personal; Setup (Admin) configures the application. */
-export type RbmAccountAction = 'profile' | 'settings' | 'notificationPreferences' | 'signOut';
+export type RbmAccountAction = 'profile' | 'settings' | 'myScenarios' | 'notificationPreferences' | 'signOut';
 
 const items: { action: RbmAccountAction; label: string; icon: RbmIconName; dividerBefore?: boolean }[] = [
   { action: 'profile', label: 'Profile', icon: 'shell.profile' },
   // Drawn with the Setup icon (flagged: one shape, two meanings).
   { action: 'settings', label: 'Settings', icon: 'nav.setup' },
+  // App shell board, version 111 (proposed): after Settings, with the Scenarios icon.
+  { action: 'myScenarios', label: 'My scenarios', icon: 'admin.scenarios' },
   { action: 'notificationPreferences', label: 'Notification preferences', icon: 'shell.notifications' },
   { action: 'signOut', label: 'Sign out', icon: 'display.signOut', dividerBefore: true },
 ];
@@ -41,7 +43,7 @@ export interface RbmAccountMenuProps {
 
 /**
  * The signed-in user in the top bar: avatar, name and role, and a chevron. It opens a menu with the user's
- * name, role and email, then Profile, Settings, Notification preferences and Sign out.
+ * name, role and email, then Profile, Settings, My scenarios, Notification preferences and Sign out.
  */
 export function RbmAccountMenu({ user, onAction, compact = false }: RbmAccountMenuProps) {
   const d = useDensity();

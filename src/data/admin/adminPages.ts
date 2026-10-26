@@ -34,7 +34,7 @@ export interface RbmAdminPage {
   domains: readonly RbmAdminDomain[];
 }
 
-/** Admin Centre: Teams, Workstreams, License Management and Folders (Andy Smith). */
+/** Admin Centre: Teams, Workstreams, License Management and Folders (Andy Smith), and Scenarios (24 Oct 2026). */
 export const ADMIN_CENTRE: RbmAdminPage = {
   id: 'admin-centre',
   title: 'Admin Centre',
@@ -46,6 +46,8 @@ export const ADMIN_CENTRE: RbmAdminPage = {
     { id: 'workstreams', label: 'Workstreams', description: 'Strands of related work', icon: 'object.workstream', to: '/rbm-admin/centre/workstreams' },
     { id: 'licences', label: 'License Management', description: 'Licences and who holds them', icon: 'nav.license', to: '/rbm-admin/centre/licences' },
     { id: 'folders', label: 'Folders', description: 'How events and templates are filed', icon: 'nav.folder', to: '/rbm-admin/centre/folders' },
+    // The Cards board's card; the count ("2 of 4 available") comes from the settings, so the page fills it in.
+    { id: 'scenarios', label: 'Scenarios', description: 'Which scenarios people can use', icon: 'admin.scenarios', to: '/rbm-admin/centre/scenarios' },
   ],
 };
 

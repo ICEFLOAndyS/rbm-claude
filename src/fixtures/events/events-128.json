@@ -63,6 +63,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-24T22:00:00Z",
       "windowEnd": "2026-10-25T06:00:00Z"
     },
@@ -77,6 +78,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-26T22:00:00Z",
       "windowEnd": "2026-10-27T06:00:00Z"
     },
@@ -91,6 +93,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-28T22:00:00Z",
       "windowEnd": "2026-10-29T06:00:00Z"
     },
@@ -105,6 +108,7 @@
       },
       "state": "complete",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-12T22:00:00Z",
       "windowEnd": "2026-10-13T06:00:00Z"
     },
@@ -119,6 +123,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-03T22:00:00Z",
       "windowEnd": "2026-11-04T06:00:00Z"
     },
@@ -133,6 +138,7 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-31T22:00:00Z",
       "windowEnd": "2026-11-01T06:00:00Z"
     },
@@ -147,6 +153,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-31T22:00:00Z",
       "windowEnd": "2026-11-01T06:00:00Z"
     },
@@ -161,6 +168,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-05T22:00:00Z",
       "windowEnd": "2026-11-06T06:00:00Z"
     },
@@ -175,6 +183,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-05-24T22:00:00Z",
       "windowEnd": "2026-05-25T06:00:00Z"
     },
@@ -189,6 +198,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-05-24T22:00:00Z",
       "windowEnd": "2026-05-25T06:00:00Z"
     },
@@ -203,6 +213,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-05-24T22:00:00Z",
       "windowEnd": "2026-05-25T06:00:00Z"
     },
@@ -217,13 +228,14 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-05-24T22:00:00Z",
       "windowEnd": "2026-05-26T01:21:00Z"
     },
     {
       "id": "ev-00013",
       "number": "REV000013",
-      "name": "Reporting Failover",
+      "name": "Reporting DR Rehearsal",
       "status": "pending",
       "owner": {
         "id": "p-mo",
@@ -231,6 +243,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-10-29T22:00:00Z",
       "windowEnd": "2026-10-30T06:00:00Z"
     },
@@ -245,6 +258,7 @@
       },
       "state": "not_started",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-11-23T22:00:00Z",
       "windowEnd": "2026-11-24T06:00:00Z"
     },
@@ -259,13 +273,14 @@
       },
       "state": "active",
       "environment": "development",
+      "scenario": "planned-change",
       "windowStart": "2026-11-05T22:00:00Z",
       "windowEnd": "2026-11-06T06:00:00Z"
     },
     {
       "id": "ev-00016",
       "number": "REV000016",
-      "name": "HR Cutover",
+      "name": "HR Clean-room Restore",
       "status": "pending",
       "owner": {
         "id": "p-ab",
@@ -273,6 +288,7 @@
       },
       "state": "not_started",
       "environment": "development",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-11-13T22:00:00Z",
       "windowEnd": "2026-11-14T06:00:00Z"
     },
@@ -287,6 +303,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-03T22:00:00Z",
       "windowEnd": "2026-11-04T06:00:00Z"
     },
@@ -301,13 +318,14 @@
       },
       "state": "active",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-10-30T22:00:00Z",
       "windowEnd": "2026-10-31T06:00:00Z"
     },
     {
       "id": "ev-00019",
       "number": "REV000019",
-      "name": "Payroll Migration",
+      "name": "Payroll Service Restore",
       "status": "complete",
       "owner": {
         "id": "p-lc",
@@ -315,6 +333,7 @@
       },
       "state": "complete",
       "environment": "production",
+      "scenario": "service-recovery",
       "windowStart": "2026-10-18T22:00:00Z",
       "windowEnd": "2026-10-19T06:00:00Z"
     },
@@ -329,6 +348,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-27T22:00:00Z",
       "windowEnd": "2026-11-28T06:00:00Z"
     },
@@ -343,6 +363,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-30T22:00:00Z",
       "windowEnd": "2026-10-31T06:00:00Z"
     },
@@ -357,13 +378,14 @@
       },
       "state": "active",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-11-03T22:00:00Z",
       "windowEnd": "2026-11-04T06:00:00Z"
     },
     {
       "id": "ev-00023",
       "number": "REV000023",
-      "name": "Backup Patch",
+      "name": "Backup Failback",
       "status": "complete",
       "owner": {
         "id": "p-rs",
@@ -371,6 +393,7 @@
       },
       "state": "complete",
       "environment": "preProduction",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-09-03T22:00:00Z",
       "windowEnd": "2026-09-04T06:00:00Z"
     },
@@ -385,6 +408,7 @@
       },
       "state": "not_started",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-12-29T22:00:00Z",
       "windowEnd": "2026-12-30T06:00:00Z"
     },
@@ -399,13 +423,14 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-12-14T22:00:00Z",
       "windowEnd": "2026-12-15T06:00:00Z"
     },
     {
       "id": "ev-00026",
       "number": "REV000026",
-      "name": "Logistics Restore Test",
+      "name": "Logistics Credential Reset",
       "status": "active",
       "owner": {
         "id": "p-br",
@@ -413,6 +438,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-10-28T22:00:00Z",
       "windowEnd": "2026-10-29T06:00:00Z"
     },
@@ -427,6 +453,7 @@
       },
       "state": "active",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-11-05T22:00:00Z",
       "windowEnd": "2026-11-06T06:00:00Z"
     },
@@ -441,13 +468,14 @@
       },
       "state": "active",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-10-31T22:00:00Z",
       "windowEnd": "2026-11-01T06:00:00Z"
     },
     {
       "id": "ev-00029",
       "number": "REV000029",
-      "name": "Email Refresh",
+      "name": "Email Major Incident Recovery",
       "status": "pending",
       "owner": {
         "id": "p-rp",
@@ -455,6 +483,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "service-recovery",
       "windowStart": "2026-12-01T22:00:00Z",
       "windowEnd": "2026-12-02T06:00:00Z"
     },
@@ -469,6 +498,7 @@
       },
       "state": "complete",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-09-07T22:00:00Z",
       "windowEnd": "2026-09-08T06:00:00Z"
     },
@@ -483,6 +513,7 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-31T22:00:00Z",
       "windowEnd": "2026-11-01T06:00:00Z"
     },
@@ -497,13 +528,14 @@
       },
       "state": "paused",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-11-05T22:00:00Z",
       "windowEnd": "2026-11-06T06:00:00Z"
     },
     {
       "id": "ev-00033",
       "number": "REV000033",
-      "name": "HR Refresh",
+      "name": "HR DR Invocation",
       "status": "active",
       "owner": {
         "id": "p-br",
@@ -511,6 +543,7 @@
       },
       "state": "active",
       "environment": "preProduction",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-10-27T22:00:00Z",
       "windowEnd": "2026-10-28T06:00:00Z"
     },
@@ -525,6 +558,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-27T22:00:00Z",
       "windowEnd": "2026-10-28T06:00:00Z"
     },
@@ -539,13 +573,14 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-08T22:00:00Z",
       "windowEnd": "2026-11-09T06:00:00Z"
     },
     {
       "id": "ev-00036",
       "number": "REV000036",
-      "name": "Logistics Migration",
+      "name": "Logistics Isolated Rebuild",
       "status": "atRisk",
       "owner": {
         "id": "p-kw",
@@ -553,6 +588,7 @@
       },
       "state": "active",
       "environment": "preProduction",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-11-07T22:00:00Z",
       "windowEnd": "2026-11-08T06:00:00Z"
     },
@@ -567,6 +603,7 @@
       },
       "state": "active",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-11-03T22:00:00Z",
       "windowEnd": "2026-11-04T06:00:00Z"
     },
@@ -581,13 +618,14 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-29T22:00:00Z",
       "windowEnd": "2026-10-30T06:00:00Z"
     },
     {
       "id": "ev-00039",
       "number": "REV000039",
-      "name": "ERP Failover",
+      "name": "ERP Degraded Service Fix",
       "status": "pending",
       "owner": {
         "id": "p-an",
@@ -595,6 +633,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "service-recovery",
       "windowStart": "2027-01-03T22:00:00Z",
       "windowEnd": "2027-01-04T06:00:00Z"
     },
@@ -609,6 +648,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-28T22:00:00Z",
       "windowEnd": "2026-11-29T06:00:00Z"
     },
@@ -623,6 +663,7 @@
       },
       "state": "active",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-10-26T22:00:00Z",
       "windowEnd": "2026-10-27T06:00:00Z"
     },
@@ -637,13 +678,14 @@
       },
       "state": "not_started",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-12-13T22:00:00Z",
       "windowEnd": "2026-12-14T06:00:00Z"
     },
     {
       "id": "ev-00043",
       "number": "REV000043",
-      "name": "Mainframe Upgrade",
+      "name": "Mainframe Site Failover",
       "status": "active",
       "owner": {
         "id": "p-rs",
@@ -651,6 +693,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-11-04T22:00:00Z",
       "windowEnd": "2026-11-05T06:00:00Z"
     },
@@ -665,6 +708,7 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-31T22:00:00Z",
       "windowEnd": "2026-11-01T06:00:00Z"
     },
@@ -679,13 +723,14 @@
       },
       "state": "complete",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-09-05T22:00:00Z",
       "windowEnd": "2026-09-06T06:00:00Z"
     },
     {
       "id": "ev-00046",
       "number": "REV000046",
-      "name": "Logistics Failover",
+      "name": "Logistics Ransomware Recovery",
       "status": "active",
       "owner": {
         "id": "p-lc",
@@ -693,6 +738,7 @@
       },
       "state": "active",
       "environment": "preProduction",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-10-26T22:00:00Z",
       "windowEnd": "2026-10-27T06:00:00Z"
     },
@@ -707,6 +753,7 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-26T22:00:00Z",
       "windowEnd": "2026-10-27T06:00:00Z"
     },
@@ -721,13 +768,14 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-01T22:00:00Z",
       "windowEnd": "2026-11-02T06:00:00Z"
     },
     {
       "id": "ev-00049",
       "number": "REV000049",
-      "name": "ERP Restore Test",
+      "name": "ERP Outage Recovery",
       "status": "active",
       "owner": {
         "id": "p-tb",
@@ -735,6 +783,7 @@
       },
       "state": "active",
       "environment": "development",
+      "scenario": "service-recovery",
       "windowStart": "2026-10-29T22:00:00Z",
       "windowEnd": "2026-10-30T06:00:00Z"
     },
@@ -749,6 +798,7 @@
       },
       "state": "complete",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-09-04T22:00:00Z",
       "windowEnd": "2026-09-05T06:00:00Z"
     },
@@ -763,6 +813,7 @@
       },
       "state": "active",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-10-26T22:00:00Z",
       "windowEnd": "2026-10-27T06:00:00Z"
     },
@@ -777,13 +828,14 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-29T22:00:00Z",
       "windowEnd": "2026-10-30T06:00:00Z"
     },
     {
       "id": "ev-00053",
       "number": "REV000053",
-      "name": "Logistics Patch",
+      "name": "Logistics DR Rehearsal",
       "status": "active",
       "owner": {
         "id": "p-sd",
@@ -791,6 +843,7 @@
       },
       "state": "active",
       "environment": "test",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-10-30T22:00:00Z",
       "windowEnd": "2026-10-31T06:00:00Z"
     },
@@ -805,6 +858,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-08T22:00:00Z",
       "windowEnd": "2026-11-09T06:00:00Z"
     },
@@ -819,13 +873,14 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-08T22:00:00Z",
       "windowEnd": "2026-11-09T06:00:00Z"
     },
     {
       "id": "ev-00056",
       "number": "REV000056",
-      "name": "Payroll Cutover",
+      "name": "Payroll Clean-room Restore",
       "status": "active",
       "owner": {
         "id": "p-kw",
@@ -833,6 +888,7 @@
       },
       "state": "active",
       "environment": "preProduction",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-10-29T22:00:00Z",
       "windowEnd": "2026-10-30T06:00:00Z"
     },
@@ -847,6 +903,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-23T22:00:00Z",
       "windowEnd": "2026-11-24T06:00:00Z"
     },
@@ -861,13 +918,14 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-01T22:00:00Z",
       "windowEnd": "2026-11-02T06:00:00Z"
     },
     {
       "id": "ev-00059",
       "number": "REV000059",
-      "name": "Reporting Migration",
+      "name": "Reporting Service Restore",
       "status": "complete",
       "owner": {
         "id": "p-jn",
@@ -875,6 +933,7 @@
       },
       "state": "complete",
       "environment": "test",
+      "scenario": "service-recovery",
       "windowStart": "2026-09-29T22:00:00Z",
       "windowEnd": "2026-09-30T06:00:00Z"
     },
@@ -889,6 +948,7 @@
       },
       "state": "not_started",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-12-25T22:00:00Z",
       "windowEnd": "2026-12-26T06:00:00Z"
     },
@@ -903,6 +963,7 @@
       },
       "state": "active",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-10-28T22:00:00Z",
       "windowEnd": "2026-10-29T06:00:00Z"
     },
@@ -917,13 +978,14 @@
       },
       "state": "complete",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-10-03T22:00:00Z",
       "windowEnd": "2026-10-04T06:00:00Z"
     },
     {
       "id": "ev-00063",
       "number": "REV000063",
-      "name": "Payments Patch",
+      "name": "Payments Failback",
       "status": "blocked",
       "owner": {
         "id": "p-br",
@@ -931,6 +993,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-11-05T22:00:00Z",
       "windowEnd": "2026-11-06T06:00:00Z"
     },
@@ -945,6 +1008,7 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-02T22:00:00Z",
       "windowEnd": "2026-11-03T06:00:00Z"
     },
@@ -959,13 +1023,14 @@
       },
       "state": "not_started",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-11-06T22:00:00Z",
       "windowEnd": "2026-11-07T06:00:00Z"
     },
     {
       "id": "ev-00066",
       "number": "REV000066",
-      "name": "Billing Cutover",
+      "name": "Billing Credential Reset",
       "status": "blocked",
       "owner": {
         "id": "p-rp",
@@ -973,6 +1038,7 @@
       },
       "state": "active",
       "environment": "test",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-10-29T22:00:00Z",
       "windowEnd": "2026-10-30T06:00:00Z"
     },
@@ -987,6 +1053,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-29T22:00:00Z",
       "windowEnd": "2026-10-30T06:00:00Z"
     },
@@ -1001,13 +1068,14 @@
       },
       "state": "not_started",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-11-08T22:00:00Z",
       "windowEnd": "2026-11-09T06:00:00Z"
     },
     {
       "id": "ev-00069",
       "number": "REV000069",
-      "name": "Core Network Refresh",
+      "name": "Core Network Major Incident Recovery",
       "status": "pending",
       "owner": {
         "id": "p-rp",
@@ -1015,6 +1083,7 @@
       },
       "state": "not_started",
       "environment": "preProduction",
+      "scenario": "service-recovery",
       "windowStart": "2026-12-20T22:00:00Z",
       "windowEnd": "2026-12-21T06:00:00Z"
     },
@@ -1029,6 +1098,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-12-04T22:00:00Z",
       "windowEnd": "2026-12-05T06:00:00Z"
     },
@@ -1043,6 +1113,7 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-01T22:00:00Z",
       "windowEnd": "2026-11-02T06:00:00Z"
     },
@@ -1057,13 +1128,14 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-31T22:00:00Z",
       "windowEnd": "2026-11-01T06:00:00Z"
     },
     {
       "id": "ev-00073",
       "number": "REV000073",
-      "name": "Email Upgrade",
+      "name": "Email DR Invocation",
       "status": "complete",
       "owner": {
         "id": "p-as",
@@ -1071,6 +1143,7 @@
       },
       "state": "complete",
       "environment": "production",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-09-01T22:00:00Z",
       "windowEnd": "2026-09-02T06:00:00Z"
     },
@@ -1085,6 +1158,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-03T22:00:00Z",
       "windowEnd": "2026-11-04T06:00:00Z"
     },
@@ -1099,13 +1173,14 @@
       },
       "state": "complete",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-17T22:00:00Z",
       "windowEnd": "2026-10-18T06:00:00Z"
     },
     {
       "id": "ev-00076",
       "number": "REV000076",
-      "name": "Storage Failover",
+      "name": "Storage Isolated Rebuild",
       "status": "atRisk",
       "owner": {
         "id": "p-jn",
@@ -1113,6 +1188,7 @@
       },
       "state": "active",
       "environment": "test",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-10-25T22:00:00Z",
       "windowEnd": "2026-10-26T06:00:00Z"
     },
@@ -1127,6 +1203,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-22T22:00:00Z",
       "windowEnd": "2026-11-23T06:00:00Z"
     },
@@ -1141,13 +1218,14 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-27T22:00:00Z",
       "windowEnd": "2026-10-28T06:00:00Z"
     },
     {
       "id": "ev-00079",
       "number": "REV000079",
-      "name": "ERP Failover",
+      "name": "ERP Degraded Service Fix",
       "status": "active",
       "owner": {
         "id": "p-lc",
@@ -1155,6 +1233,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "service-recovery",
       "windowStart": "2026-10-29T22:00:00Z",
       "windowEnd": "2026-10-30T06:00:00Z"
     },
@@ -1169,6 +1248,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-12-14T22:00:00Z",
       "windowEnd": "2026-12-15T06:00:00Z"
     },
@@ -1183,6 +1263,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-03T22:00:00Z",
       "windowEnd": "2026-11-04T06:00:00Z"
     },
@@ -1197,13 +1278,14 @@
       },
       "state": "active",
       "environment": "development",
+      "scenario": "planned-change",
       "windowStart": "2026-11-08T22:00:00Z",
       "windowEnd": "2026-11-09T06:00:00Z"
     },
     {
       "id": "ev-00083",
       "number": "REV000083",
-      "name": "Billing Release",
+      "name": "Billing Site Failover",
       "status": "blocked",
       "owner": {
         "id": "p-rp",
@@ -1211,6 +1293,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-10-31T22:00:00Z",
       "windowEnd": "2026-11-01T06:00:00Z"
     },
@@ -1225,6 +1308,7 @@
       },
       "state": "complete",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-16T22:00:00Z",
       "windowEnd": "2026-10-17T06:00:00Z"
     },
@@ -1239,13 +1323,14 @@
       },
       "state": "not_started",
       "environment": "development",
+      "scenario": "planned-change",
       "windowStart": "2026-11-24T22:00:00Z",
       "windowEnd": "2026-11-25T06:00:00Z"
     },
     {
       "id": "ev-00086",
       "number": "REV000086",
-      "name": "Identity Refresh",
+      "name": "Identity Ransomware Recovery",
       "status": "complete",
       "owner": {
         "id": "p-jn",
@@ -1253,6 +1338,7 @@
       },
       "state": "complete",
       "environment": "preProduction",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-10-14T22:00:00Z",
       "windowEnd": "2026-10-15T06:00:00Z"
     },
@@ -1267,6 +1353,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-04T22:00:00Z",
       "windowEnd": "2026-11-05T06:00:00Z"
     },
@@ -1281,13 +1368,14 @@
       },
       "state": "not_started",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-11-01T22:00:00Z",
       "windowEnd": "2026-11-02T06:00:00Z"
     },
     {
       "id": "ev-00089",
       "number": "REV000089",
-      "name": "Payments Restore Test",
+      "name": "Payments Outage Recovery",
       "status": "complete",
       "owner": {
         "id": "p-an",
@@ -1295,6 +1383,7 @@
       },
       "state": "complete",
       "environment": "test",
+      "scenario": "service-recovery",
       "windowStart": "2026-09-16T22:00:00Z",
       "windowEnd": "2026-09-17T06:00:00Z"
     },
@@ -1309,6 +1398,7 @@
       },
       "state": "complete",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-10-07T22:00:00Z",
       "windowEnd": "2026-10-08T06:00:00Z"
     },
@@ -1323,6 +1413,7 @@
       },
       "state": "complete",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-09-07T22:00:00Z",
       "windowEnd": "2026-09-08T06:00:00Z"
     },
@@ -1337,13 +1428,14 @@
       },
       "state": "active",
       "environment": "development",
+      "scenario": "planned-change",
       "windowStart": "2026-10-24T22:00:00Z",
       "windowEnd": "2026-10-25T06:00:00Z"
     },
     {
       "id": "ev-00093",
       "number": "REV000093",
-      "name": "HR Refresh",
+      "name": "HR DR Rehearsal",
       "status": "atRisk",
       "owner": {
         "id": "p-lc",
@@ -1351,6 +1443,7 @@
       },
       "state": "active",
       "environment": "preProduction",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-11-01T22:00:00Z",
       "windowEnd": "2026-11-02T06:00:00Z"
     },
@@ -1365,6 +1458,7 @@
       },
       "state": "active",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-10-24T22:00:00Z",
       "windowEnd": "2026-10-25T06:00:00Z"
     },
@@ -1379,13 +1473,14 @@
       },
       "state": "complete",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-15T22:00:00Z",
       "windowEnd": "2026-10-16T06:00:00Z"
     },
     {
       "id": "ev-00096",
       "number": "REV000096",
-      "name": "Identity Patch",
+      "name": "Identity Clean-room Restore",
       "status": "active",
       "owner": {
         "id": "p-br",
@@ -1393,6 +1488,7 @@
       },
       "state": "active",
       "environment": "preProduction",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-10-29T22:00:00Z",
       "windowEnd": "2026-10-30T06:00:00Z"
     },
@@ -1407,6 +1503,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-26T22:00:00Z",
       "windowEnd": "2026-10-27T06:00:00Z"
     },
@@ -1421,13 +1518,14 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-07T22:00:00Z",
       "windowEnd": "2026-11-08T06:00:00Z"
     },
     {
       "id": "ev-00099",
       "number": "REV000099",
-      "name": "Billing Cutover",
+      "name": "Billing Service Restore",
       "status": "atRisk",
       "owner": {
         "id": "p-sd",
@@ -1435,6 +1533,7 @@
       },
       "state": "active",
       "environment": "development",
+      "scenario": "service-recovery",
       "windowStart": "2026-11-04T22:00:00Z",
       "windowEnd": "2026-11-05T06:00:00Z"
     },
@@ -1449,6 +1548,7 @@
       },
       "state": "not_started",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-11-28T22:00:00Z",
       "windowEnd": "2026-11-29T06:00:00Z"
     },
@@ -1463,6 +1563,7 @@
       },
       "state": "not_started",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-11-23T22:00:00Z",
       "windowEnd": "2026-11-24T06:00:00Z"
     },
@@ -1477,13 +1578,14 @@
       },
       "state": "active",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-11-02T22:00:00Z",
       "windowEnd": "2026-11-03T06:00:00Z"
     },
     {
       "id": "ev-00103",
       "number": "REV000103",
-      "name": "Data Warehouse Restore Test",
+      "name": "Data Warehouse Failback",
       "status": "paused",
       "owner": {
         "id": "p-rs",
@@ -1491,6 +1593,7 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-10-24T22:00:00Z",
       "windowEnd": "2026-10-25T06:00:00Z"
     },
@@ -1505,6 +1608,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-04T22:00:00Z",
       "windowEnd": "2026-11-05T06:00:00Z"
     },
@@ -1519,13 +1623,14 @@
       },
       "state": "complete",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-09-08T22:00:00Z",
       "windowEnd": "2026-09-09T06:00:00Z"
     },
     {
       "id": "ev-00106",
       "number": "REV000106",
-      "name": "Backup Release",
+      "name": "Backup Credential Reset",
       "status": "blocked",
       "owner": {
         "id": "p-as",
@@ -1533,6 +1638,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-10-31T22:00:00Z",
       "windowEnd": "2026-11-01T06:00:00Z"
     },
@@ -1547,6 +1653,7 @@
       },
       "state": "complete",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-09-30T22:00:00Z",
       "windowEnd": "2026-10-01T06:00:00Z"
     },
@@ -1561,13 +1668,14 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-05T22:00:00Z",
       "windowEnd": "2026-11-06T06:00:00Z"
     },
     {
       "id": "ev-00109",
       "number": "REV000109",
-      "name": "Billing Failover",
+      "name": "Billing Major Incident Recovery",
       "status": "pending",
       "owner": {
         "id": "p-mo",
@@ -1575,6 +1683,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "service-recovery",
       "windowStart": "2026-12-05T22:00:00Z",
       "windowEnd": "2026-12-06T06:00:00Z"
     },
@@ -1589,6 +1698,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-03T22:00:00Z",
       "windowEnd": "2026-11-04T06:00:00Z"
     },
@@ -1603,6 +1713,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-12-15T22:00:00Z",
       "windowEnd": "2026-12-16T06:00:00Z"
     },
@@ -1617,13 +1728,14 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-11T22:00:00Z",
       "windowEnd": "2026-11-12T06:00:00Z"
     },
     {
       "id": "ev-00113",
       "number": "REV000113",
-      "name": "Storage Migration",
+      "name": "Storage DR Invocation",
       "status": "paused",
       "owner": {
         "id": "p-tb",
@@ -1631,6 +1743,7 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-10-30T22:00:00Z",
       "windowEnd": "2026-10-31T06:00:00Z"
     },
@@ -1645,6 +1758,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-03T22:00:00Z",
       "windowEnd": "2026-11-04T06:00:00Z"
     },
@@ -1659,13 +1773,14 @@
       },
       "state": "active",
       "environment": "development",
+      "scenario": "planned-change",
       "windowStart": "2026-11-01T22:00:00Z",
       "windowEnd": "2026-11-02T06:00:00Z"
     },
     {
       "id": "ev-00116",
       "number": "REV000116",
-      "name": "Payroll Restore Test",
+      "name": "Payroll Isolated Rebuild",
       "status": "pending",
       "owner": {
         "id": "p-br",
@@ -1673,6 +1788,7 @@
       },
       "state": "not_started",
       "environment": "production",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-12-01T22:00:00Z",
       "windowEnd": "2026-12-02T06:00:00Z"
     },
@@ -1687,6 +1803,7 @@
       },
       "state": "paused",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-26T22:00:00Z",
       "windowEnd": "2026-10-27T06:00:00Z"
     },
@@ -1701,13 +1818,14 @@
       },
       "state": "complete",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-09-14T22:00:00Z",
       "windowEnd": "2026-09-15T06:00:00Z"
     },
     {
       "id": "ev-00119",
       "number": "REV000119",
-      "name": "Logistics Migration",
+      "name": "Logistics Degraded Service Fix",
       "status": "complete",
       "owner": {
         "id": "p-rs",
@@ -1715,6 +1833,7 @@
       },
       "state": "complete",
       "environment": "preProduction",
+      "scenario": "service-recovery",
       "windowStart": "2026-10-03T22:00:00Z",
       "windowEnd": "2026-10-04T06:00:00Z"
     },
@@ -1729,6 +1848,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-31T22:00:00Z",
       "windowEnd": "2026-11-01T06:00:00Z"
     },
@@ -1743,6 +1863,7 @@
       },
       "state": "complete",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-10-23T22:00:00Z",
       "windowEnd": "2026-10-24T06:00:00Z"
     },
@@ -1757,13 +1878,14 @@
       },
       "state": "active",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-10-30T22:00:00Z",
       "windowEnd": "2026-10-31T06:00:00Z"
     },
     {
       "id": "ev-00123",
       "number": "REV000123",
-      "name": "Mainframe Migration",
+      "name": "Mainframe Site Failover",
       "status": "paused",
       "owner": {
         "id": "p-br",
@@ -1771,6 +1893,7 @@
       },
       "state": "paused",
       "environment": "development",
+      "scenario": "disaster-recovery",
       "windowStart": "2026-10-24T22:00:00Z",
       "windowEnd": "2026-10-25T06:00:00Z"
     },
@@ -1785,6 +1908,7 @@
       },
       "state": "complete",
       "environment": "preProduction",
+      "scenario": "planned-change",
       "windowStart": "2026-08-28T22:00:00Z",
       "windowEnd": "2026-08-29T06:00:00Z"
     },
@@ -1799,13 +1923,14 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-11-04T22:00:00Z",
       "windowEnd": "2026-11-05T06:00:00Z"
     },
     {
       "id": "ev-00126",
       "number": "REV000126",
-      "name": "Payroll Restore Test",
+      "name": "Payroll Ransomware Recovery",
       "status": "blocked",
       "owner": {
         "id": "p-as",
@@ -1813,6 +1938,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "cyber-recovery",
       "windowStart": "2026-11-02T22:00:00Z",
       "windowEnd": "2026-11-03T06:00:00Z"
     },
@@ -1827,6 +1953,7 @@
       },
       "state": "paused",
       "environment": "test",
+      "scenario": "planned-change",
       "windowStart": "2026-11-03T22:00:00Z",
       "windowEnd": "2026-11-04T06:00:00Z"
     },
@@ -1841,6 +1968,7 @@
       },
       "state": "active",
       "environment": "production",
+      "scenario": "planned-change",
       "windowStart": "2026-10-28T22:00:00Z",
       "windowEnd": "2026-10-29T06:00:00Z"
     }

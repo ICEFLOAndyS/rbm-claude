@@ -6,6 +6,7 @@
  */
 import type { RbmState } from '../../theme/tokens';
 import type { EventState, IsoTime } from '../types';
+import type { RbmScenario } from '../scenarios/scenarios';
 
 export type { EventState, IsoTime };
 
@@ -41,6 +42,8 @@ export interface EventRow {
   state: EventState;
   /** Filtered on, not shown as a column. */
   environment: Environment;
+  /** Fixed when the event is created (Andy Smith, 24 Oct 2026). Filtered on by the shell's scenario control; a column only for users with more than one scenario in their profile. */
+  scenario: RbmScenario;
   /** The Window column shows the start date ("24 Oct"). */
   windowStart: IsoTime;
   windowEnd: IsoTime;
@@ -57,6 +60,11 @@ export interface EventFilters {
   /** Person ids. */
   owner: string[];
   environment: Environment[];
+  /**
+   * The shell's scenario control, not the toolbar: the page adds it to each request, and saved views never keep it.
+   * Undefined or empty means any.
+   */
+  scenario?: RbmScenario[];
 }
 
 export const EMPTY_EVENT_FILTERS: EventFilters = { search: '', status: [], owner: [], environment: [] };
@@ -96,8 +104,11 @@ export interface ListPage<Row> {
 /** How a column draws its value. The grid maps each kind to a cell; no list writes its own cells. */
 export type ColumnKind = 'title' | 'recordNumber' | 'status' | 'person' | 'enum' | 'date';
 
-/** The drawn columns, with Event ID added and Progress removed (Andy Smith, 22 Oct 2026). */
-export type EventColumnField = 'number' | 'name' | 'status' | 'owner' | 'state' | 'windowStart';
+/**
+ * The drawn columns, with Event ID added and Progress removed (Andy Smith, 22 Oct 2026), and Scenario (Andy Smith,
+ * 26 Oct 2026), which shows only for users with more than one scenario in their profile.
+ */
+export type EventColumnField = 'number' | 'name' | 'status' | 'owner' | 'state' | 'scenario' | 'windowStart';
 
 export interface ColumnDef<F extends string> {
   field: F;

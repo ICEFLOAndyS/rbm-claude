@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ENVIRONMENTS, EVENT_STATES, EVENT_STATUSES, type EventListFixture } from './types';
 import { EVENT_COLUMNS } from './events';
+import { SCENARIOS } from '../scenarios/scenarios';
 
 /**
  * A runtime schema for the Events list fixtures, written to match `EventListFixture`. As in
@@ -14,6 +15,7 @@ const number = z.string().regex(/^REV\d{6}$/);
 const status = z.enum(EVENT_STATUSES);
 const environment = z.enum(ENVIRONMENTS);
 const state = z.enum(EVENT_STATES);
+const scenario = z.enum(SCENARIOS);
 const field = z.enum(EVENT_COLUMNS.map((c) => c.field) as [(typeof EVENT_COLUMNS)[number]['field'], ...(typeof EVENT_COLUMNS)[number]['field'][]]);
 const sectionId = z.enum(['details', 'schedule', 'people', 'linkedChanges', 'attention', 'upstream', 'downstream', 'changes']);
 
@@ -25,6 +27,7 @@ const row = z.object({
   owner: person,
   state,
   environment,
+  scenario,
   windowStart: iso,
   windowEnd: iso,
 });
@@ -60,7 +63,7 @@ const record = z.object({
   actions: z.array(z.enum(['startRun', 'openCommandCentre'])),
 });
 
-const filters = z.object({ search: z.string(), status: z.array(status), owner: z.array(z.string()), environment: z.array(environment) });
+const filters = z.object({ search: z.string(), status: z.array(status), owner: z.array(z.string()), environment: z.array(environment), scenario: z.array(scenario).optional() });
 const view = z.object({
   id: z.string(),
   name: z.string().min(1),

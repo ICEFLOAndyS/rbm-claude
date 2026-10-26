@@ -18,7 +18,10 @@ The demo runs inside the RBM app shell (`RbmAppShell`): top bar, sidebar, conten
 | `#/events` | The Events list, on the mock server (128 events; `?events=large` for 15,000, `?events=board` for the eight drawn). The open record is in the address: `#/events?record=ev-00009` |
 | `#/events/REV000009` to `#/events/REV000012` | That event's Command & Control Centre: Weekend Payroll Cutover, healthy, badly late, large (15,000 tasks). Opened from the Command Centre icon on a running event's row, or from the record panel's Open Command Centre. Other running events have no Command Centre data in the prototype, and say so |
 | `#/command-centre` | The old address: opens REV000009 |
+| `#/rbm-admin/centre/scenarios` | Admin Centre › Scenarios: which scenarios are available and on by default. Saved in the browser |
 | any other menu route | A "not built in the prototype" page |
+
+**Scenarios** (Proposed): the Scenario control is first in the header of Events › List (and on the not-built Event Groups, Folders and Templates pages). It starts from your scenarios and filters the list. Profile menu › My scenarios sets your own. With the shipped default only Planned Change is shown, so the Recovery events in the 128-event list are hidden until you show them.
 
 The demo bar has an **event switcher**, a **clock** (paused, ×1, ×10, ×60, ×300) and **Reset**, which rebuilds the event from its fixture, a **density switcher** (D1, D2, D3, D0) and a **viewport switcher** (full window, 1280, 1024, 800, 390 px). A set viewport runs the app in a frame of that width, so the shell's widths really apply; navigating inside the frame does not update the bar. URL settings: `?speed=60`, `&density=comfortable`, `&viewport=390`, `&latency=0`, `&events=large`, `&listLatency=0` (the list's pretend server wait, 400 ms by default), and `&scroll=900` to open with the content scrolled down. Layout changes and the sidebar's Collapse are saved in the browser and survive a reload.
 

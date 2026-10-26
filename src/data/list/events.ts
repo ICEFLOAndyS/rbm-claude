@@ -24,6 +24,7 @@ import type {
   EventView,
 } from './types';
 import { EMPTY_EVENT_FILTERS, EVENT_STATUSES } from './types';
+import { SCENARIO_LABELS } from '../scenarios/scenarios';
 
 /** The Command Centre's labels for the event state (its page header pill). */
 export const STATE_LABELS: Record<EventState, string> = { not_started: 'Not started', active: 'Active', paused: 'Paused', complete: 'Complete' };
@@ -40,17 +41,23 @@ export { shortName, formatWhen, formatWindow } from './format';
 // Grid
 // ---------------------------------------------------------------------------
 
-/** The board's columns, in the board's order, with Event ID first. */
+/**
+ * The board's columns, in the board's order, with Event ID first. Scenario (Andy Smith, 26 Oct 2026; after State,
+ * approved with the design, version 123) shows only when the user has more than one scenario in their profile, so the page, not
+ * the column chooser, decides it: it cannot be hidden by hand.
+ */
 export const EVENT_COLUMNS: readonly ColumnDef<EventColumnField>[] = [
   { field: 'number', header: 'Event ID', kind: 'recordNumber', sortable: true, hideable: true, width: 140 },
   { field: 'name', header: 'Event', kind: 'title', sortable: true, hideable: false, width: 280 },
   { field: 'status', header: 'Status', kind: 'status', sortable: true, hideable: true, width: 140, labels: STATUS_LABELS },
   { field: 'owner', header: 'Owner', kind: 'person', sortable: true, hideable: true, width: 140 },
   { field: 'state', header: 'State', kind: 'enum', sortable: true, hideable: true, width: 120, labels: STATE_LABELS },
+  { field: 'scenario', header: 'Scenario', kind: 'enum', sortable: true, hideable: false, width: 160, labels: SCENARIO_LABELS },
   { field: 'windowStart', header: 'Window', kind: 'date', sortable: true, hideable: true, width: 110 },
 ];
 
-export const DEFAULT_EVENT_COLUMNS: ColumnState<EventColumnField> = { visible: EVENT_COLUMNS.map((c) => c.field) };
+/** Scenario is left out: the page adds it for users with more than one scenario. */
+export const DEFAULT_EVENT_COLUMNS: ColumnState<EventColumnField> = { visible: EVENT_COLUMNS.map((c) => c.field).filter((f) => f !== 'scenario') };
 
 /**
  * System views. "Active" is drawn ("View: Active") and is the default. "All events" is the one more

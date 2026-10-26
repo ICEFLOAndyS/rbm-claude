@@ -10,6 +10,7 @@ import { seeded } from '../build';
 import { DEFAULT_EVENT_COLUMNS, formatWhen } from '../../data/list/events';
 import { stateFor } from '../../data/list/schema';
 import { COMMAND_CENTRE_EVENTS } from '../commandCentreEvents';
+import type { RbmScenario } from '../../data/scenarios/scenarios';
 import type {
   AttentionItem,
   Environment,
@@ -57,8 +58,22 @@ function nightWindow(day: string) {
   return { windowStart: iso(start), windowEnd: iso(start + 8 * HOUR) };
 }
 
+/**
+ * Each event's scenario, fixed at creation. Most events are Planned Change; about one in ten of the generated
+ * events is each Recovery scenario, so every scenario has events to filter, show in the Scenario column and
+ * test with (asked by Andy Smith, 26 Oct 2026). The board's eight and the Command Centre's four are Planned
+ * Change, as drawn.
+ */
+export function scenarioFor(n: number): RbmScenario {
+  if (n <= 12) return 'planned-change';
+  if (n % 10 === 3) return 'disaster-recovery';
+  if (n % 10 === 6) return 'cyber-recovery';
+  if (n % 10 === 9) return 'service-recovery';
+  return 'planned-change';
+}
+
 function row(n: number, name: string, status: EventStatus, ownerId: string, day: string, environment: Environment = 'production'): EventRow {
-  return { id: `ev-${String(n).padStart(5, '0')}`, number: eventNumber(n), name, status, owner: person(ownerId), state: stateFor(status), environment, ...nightWindow(day) };
+  return { id: `ev-${String(n).padStart(5, '0')}`, number: eventNumber(n), name, status, owner: person(ownerId), state: stateFor(status), environment, scenario: scenarioFor(n), ...nightWindow(day) };
 }
 
 /** The eight events drawn on the Page templates board, in the board's order. */
@@ -85,6 +100,12 @@ export function commandCentreRows(): EventRow[] {
 
 const SYSTEMS = ['Payroll', 'Billing', 'CRM', 'Identity', 'Core Network', 'Storage', 'ERP', 'Data Warehouse', 'Payments', 'Email', 'Logistics', 'HR', 'Reporting', 'Mainframe', 'Backup'];
 const ACTIONS = ['Cutover', 'Migration', 'Failover', 'Upgrade', 'Release', 'Refresh', 'Restore Test', 'Patch'];
+/** What a Recovery event does, so its name reads as its scenario. Picked by the event's number, so the seeded values stay as they were. */
+const RECOVERY_ACTIONS: Record<Exclude<RbmScenario, 'planned-change'>, string[]> = {
+  'disaster-recovery': ['Site Failover', 'DR Rehearsal', 'Failback', 'DR Invocation'],
+  'cyber-recovery': ['Ransomware Recovery', 'Clean-room Restore', 'Credential Reset', 'Isolated Rebuild'],
+  'service-recovery': ['Outage Recovery', 'Service Restore', 'Major Incident Recovery', 'Degraded Service Fix'],
+};
 const STATUS_WEIGHTS: [EventStatus, number][] = [['active', 30], ['pending', 25], ['complete', 20], ['atRisk', 10], ['blocked', 8], ['paused', 7]];
 const ENV_WEIGHTS: [Environment, number][] = [['production', 55], ['preProduction', 20], ['test', 15], ['development', 10]];
 
@@ -103,7 +124,11 @@ function generatedRows(count: number, seed: number, from: number): EventRow[] {
     // Complete events ran in the past; the rest are spread over the next ten weeks.
     const offsetDays = status === 'complete' ? -rng.int(1, 60) : status === 'pending' ? rng.int(3, 70) : rng.int(-1, 14);
     const day = iso(at(NOW) + offsetDays * DAY).slice(0, 10);
-    const name = `${rng.pick(SYSTEMS)} ${rng.pick(ACTIONS)}${n > 999 ? ` ${n}` : ''}`;
+    const system = rng.pick(SYSTEMS);
+    const planned = rng.pick(ACTIONS);
+    const scenario = scenarioFor(n);
+    const action = scenario === 'planned-change' ? planned : RECOVERY_ACTIONS[scenario][Math.floor(n / 10) % 4]!;
+    const name = `${system} ${action}${n > 999 ? ` ${n}` : ''}`;
     return row(n, name, status, rng.pick(PEOPLE).id, day, weighted(rng, ENV_WEIGHTS));
   });
 }

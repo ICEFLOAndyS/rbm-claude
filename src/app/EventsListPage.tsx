@@ -14,6 +14,8 @@ import { EMPTY_EVENT_FILTERS, PAGE_SIZES, type ColumnState, type EventColumnFiel
 import type { ListPreference, ListPreferenceStore } from '../data/list/interfaces';
 import type { EventListData } from '../data/list/mockServer';
 import type { PersonRef } from '../data/list/types';
+import type { RbmScenarioFilterProps } from '../components/RbmScenarioFilter/RbmScenarioFilter';
+import { SCENARIO_LABELS, type RbmScenario } from '../data/scenarios/scenarios';
 
 /**
  * The Events list, connected: RbmListPage with the toolbar, grid, pagination, bulk bar, record panel
@@ -48,8 +50,27 @@ export interface EventsListPageProps {
    * event, and from the record panel's "Open Command Centre". Without it there is no row icon.
    */
   onOpenCommandCentre?: (event: { id: string; number: string }) => void;
+  /**
+   * The scenarios: available, the user's profile, and those on show. The Scenario pill shows them (the list has no
+   * header control: Andy Smith, 26 Oct 2026), and the list asks only for events in the scenarios shown; without
+   * it, every scenario is listed.
+   */
+  scenarios?: RbmScenarioFilterProps;
   /** For tests in jsdom, which has no layout. */
   disableVirtualization?: boolean;
+}
+
+/**
+ * The column state with Scenario added after State (or at the end, if State is hidden) when it shows, and without it
+ * when it does not.
+ */
+export function withScenarioColumn(state: ColumnState<EventColumnField>, show: boolean): ColumnState<EventColumnField> {
+  const rest = state.visible.filter((f) => f !== 'scenario');
+  if (!show) return rest.length === state.visible.length ? state : { ...state, visible: rest };
+  if (state.visible.includes('scenario')) return state;
+  const at = rest.indexOf('state');
+  const visible = at < 0 ? [...rest, 'scenario' as const] : [...rest.slice(0, at + 1), 'scenario' as const, ...rest.slice(at + 1)];
+  return { ...state, visible };
 }
 
 const events = (n: number) => `${n.toLocaleString('en-GB')} ${n === 1 ? 'event' : 'events'}`;
@@ -85,7 +106,7 @@ export function countLine(total: number, filters: EventFilters, view: EventFilte
  */
 const hasCommandCentre = (row: EventRow) => row.state === 'active' || row.state === 'paused';
 
-export function EventsListPage({ data, preferences, people, timeZone = 'UTC', address = {}, onAddressChange, onNew, onImport, onOpenFull, onPrimaryAction, onOpenCommandCentre, disableVirtualization }: EventsListPageProps) {
+export function EventsListPage({ data, preferences, people, timeZone = 'UTC', address = {}, onAddressChange, onNew, onImport, onOpenFull, onPrimaryAction, onOpenCommandCentre, scenarios, disableVirtualization }: EventsListPageProps) {
   const spec = useMemo(() => eventRecordSpec(timeZone), [timeZone]);
   const grid = useRef<RbmDataGridHandle>(null);
   const panel = useRef<RbmRecordHandle>(null);
@@ -154,6 +175,16 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
     [preferences],
   );
 
+  // The scenarios shown narrow every request (and the export), but are not a toolbar filter: views never keep them.
+  const shownKey = scenarios?.value.join() ?? '';
+  const scoped = useMemo<EventFilters>(() => (scenarios ? { ...filters, scenario: [...scenarios.value] } : filters), [filters, shownKey]);
+  const firstShown = useRef(shownKey);
+  useEffect(() => {
+    if (firstShown.current === shownKey) return;
+    firstShown.current = shownKey;
+    setPage(0);
+  }, [shownKey]);
+
   // The page of rows. A newer query cancels the one before.
   useEffect(() => {
     if (!pref) return;
@@ -161,7 +192,7 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
     setLoading(true);
     setError(null);
     data
-      .query({ filters, sort, page, pageSize }, { signal: ac.signal })
+      .query({ filters: scoped, sort, page, pageSize }, { signal: ac.signal })
       .then((r) => {
         setResult(r);
         if (r.page !== page) setPage(r.page);
@@ -173,7 +204,7 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
         setLoading(false);
       });
     return () => ac.abort();
-  }, [data, pref, filters, sort, page, pageSize, reloadKey]);
+  }, [data, pref, scoped, sort, page, pageSize, reloadKey]);
 
   const reload = () => setReloadKey((k) => k + 1);
 
@@ -197,7 +228,12 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
 
   const rows = result?.rows ?? [];
   const total = result?.total ?? 0;
-  const visibleColumns = columns.visible;
+  // Scenario shows only when the user has more than one scenario in their profile (Andy Smith, 26 Oct 2026). The
+  // page adds or drops it here, so saved views and the user's column choice never hold the rule.
+  const showScenario = !!scenarios && scenarios.profile.length > 1;
+  const listColumns = useMemo(() => (showScenario ? EVENT_COLUMNS : EVENT_COLUMNS.filter((c) => c.field !== 'scenario')), [showScenario]);
+  const shownColumns = useMemo(() => withScenarioColumn(columns, showScenario), [columns, showScenario]);
+  const visibleColumns = shownColumns.visible;
 
   // Filters, search and sort start again from the first page.
   const changeFilters = (next: EventFilters) => {
@@ -244,7 +280,7 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
   const exportAll = async () => {
     setExporting(true);
     try {
-      downloadCsv(await data.exportCsv({ filters, sort, columns: visibleColumns }));
+      downloadCsv(await data.exportCsv({ filters: scoped, sort, columns: visibleColumns }));
       setMessage(`${events(total)} exported.`);
     } catch {
       setMessage('Could not export. Try again.');
@@ -277,6 +313,20 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
   };
 
   const filterBar: RbmToolbarFilter[] = [
+    // Scenario first, with the count of those ticked (Andy Smith, 26 Oct 2026). Its default is the user's profile: it
+    // starts there, goes back there when the profile changes, and Clear puts it back there. Not a view filter, so views
+    // never keep it.
+    ...(scenarios
+      ? [
+          {
+            id: 'scenario',
+            label: 'Scenario',
+            options: scenarios.available.map((s) => ({ value: s, label: SCENARIO_LABELS[s] })),
+            selected: [...scenarios.value],
+            onChange: (s: string[]) => scenarios.onChange(s.length ? (s as RbmScenario[]) : [...scenarios.profile]),
+          },
+        ]
+      : []),
     { id: 'status', label: 'Status', options: Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label })), selected: filters.status, onChange: (s) => changeFilters({ ...filters, status: s as EventFilters['status'] }) },
     { id: 'owner', label: 'Owner', options: people.map((p) => ({ value: p.id, label: shortName(p) })), selected: filters.owner, onChange: (s) => changeFilters({ ...filters, owner: s }) },
     {
@@ -331,21 +381,23 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
 
   const firstLoad = !result && !error;
   const gridNode = firstLoad ? (
-    <RbmListLoading label="Loading events" columns={EVENT_COLUMNS.filter((c) => visibleColumns.includes(c.field)).map((c) => columns.widths?.[c.field] ?? c.width ?? 140)} toolbar={false} />
+    <RbmListLoading label="Loading events" columns={listColumns.filter((c) => visibleColumns.includes(c.field)).map((c) => columns.widths?.[c.field] ?? c.width ?? 140)} toolbar={false} />
   ) : (
     <div ref={gridArea}>
       <RbmDataGrid
         ref={grid}
         label="Events"
-        columns={EVENT_COLUMNS}
+        columns={listColumns}
         rows={rows}
         sort={sort}
         onSortChange={(s) => {
           setSort(s);
           setPage(0);
         }}
-        columnState={columns}
-        onColumnStateChange={(c) => {
+        columnState={shownColumns}
+        onColumnStateChange={(shown) => {
+          // Kept without Scenario, which the page adds by the profile rule.
+          const c = withScenarioColumn(shown, false);
           setColumns(c);
           savePref({ columns: c });
         }}
@@ -384,9 +436,18 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
   );
 
   const nothingAtAll = sameFilters(filters, EMPTY_EVENT_FILTERS);
+  // Some available scenarios are hidden: the events may be there (App shell board, "Nothing matches"). It comes
+  // before the filters' message (proposed): once all are shown, an empty list says the filters are why.
+  const scenarioHidden = !!scenarios && scenarios.available.some((s) => !scenarios.value.includes(s));
   const emptyState =
     result && !loading && total === 0 ? (
-      nothingAtAll ? (
+      scenarios && scenarioHidden ? (
+        <RbmListEmpty
+          title="No Events in the scenarios you are showing"
+          reason="Show all to see Events in your other available scenarios."
+          action={{ label: 'Show all', onClick: () => scenarios.onChange([...scenarios.available]) }}
+        />
+      ) : nothingAtAll ? (
         <RbmListEmpty title="No events yet" reason="Create the first event to plan a cutover." action={onNew ? { label: 'New event', onClick: onNew } : undefined} actionKind="cta" />
       ) : (
         <RbmListEmpty

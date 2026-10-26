@@ -9,6 +9,7 @@
 import type { DeleteResult, ListData, RequestOptions } from './interfaces';
 import { editableKeys, validateSection } from './recordSpec';
 import { ENVIRONMENT_LABELS, EVENT_COLUMNS, STATE_LABELS, STATUS_LABELS, formatWhen, eventRecordSpec, eventSystemViews } from './events';
+import { SCENARIO_LABELS } from '../scenarios/scenarios';
 import {
   EMPTY_EVENT_FILTERS,
   ListDataError,
@@ -64,6 +65,8 @@ function sortValue(row: EventRow, field: EventColumnField): string | number {
       return row.owner.name.toLowerCase();
     case 'name':
       return row.name.toLowerCase();
+    case 'scenario':
+      return SCENARIO_LABELS[row.scenario];
     default:
       return row[field];
   }
@@ -86,6 +89,8 @@ function exportValue(row: EventRow, field: EventColumnField): string {
       return STATUS_LABELS[row.status];
     case 'state':
       return STATE_LABELS[row.state];
+    case 'scenario':
+      return SCENARIO_LABELS[row.scenario];
     case 'owner':
       return row.owner.name;
     case 'windowStart':
@@ -157,6 +162,7 @@ export function createMockEventServer(fixture: EventListFixture, options: MockSe
     if (f.status.length && !f.status.includes(row.status)) return false;
     if (f.owner.length && !f.owner.includes(row.owner.id)) return false;
     if (f.environment.length && !f.environment.includes(row.environment)) return false;
+    if (f.scenario?.length && !f.scenario.includes(row.scenario)) return false;
     if (!terms.length) return true;
     // Every word appears, in any order, ignoring case (the Task Timeline's search rule).
     const haystack = `${row.name} ${row.number} ${row.owner.name}`.toLowerCase();

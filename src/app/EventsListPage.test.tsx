@@ -2,7 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import { useState } from 'react';
-import { EventsListPage, countLine, type EventsListAddress, type EventsListPageProps } from './EventsListPage';
+import { EventsListPage, countLine, withScenarioColumn, type EventsListAddress, type EventsListPageProps } from './EventsListPage';
 import { rbmTheme } from '../theme/theme';
 import { createMockEventServer, type MockServerOptions } from '../data/list/mockServer';
 import { createLocalListPreferenceStore } from '../data/list/preferenceStore';
@@ -152,5 +152,80 @@ describe('EventsListPage', () => {
     expect(await screen.findByRole('heading', { name: 'You do not have access to events.' })).toBeInTheDocument();
     expect(screen.getByText(/Ask your RBM administrator/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: 'Events' })).toBeInTheDocument();
+  });
+});
+
+describe('EventsListPage: the scenario filter (app shell brief 4b)', () => {
+  function Scoped({ start }: { start: ('planned-change' | 'disaster-recovery')[] }) {
+    const [shown, setShown] = useState(start);
+    return <Harness over={{ scenarios: { available: ['planned-change', 'disaster-recovery'], profile: ['planned-change'], value: shown, onChange: (s) => setShown(s as typeof start) } }} />;
+  }
+
+  it('has no header control (Andy Smith, 26 Oct 2026): the pill shows the scenarios, and the list holds those events', async () => {
+    render(<Scoped start={['planned-change']} />);
+    expect(screen.queryByRole('button', { name: /^Scenario: / })).toBeNull();
+    expect(screen.getByRole('button', { name: /^Scenario · 1/ })).toBeInTheDocument();
+    await waitFor(() => expect(dataRows().length).toBeGreaterThan(0));
+  });
+
+  it('says nothing matches in the scenarios shown, and Show all brings the events back', async () => {
+    // The board's eight events are all Planned Change.
+    render(<Scoped start={['disaster-recovery']} />);
+    await waitFor(() => expect(screen.getByText('No Events in the scenarios you are showing')).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: 'Show all' }));
+    await waitFor(() => expect(dataRows().length).toBeGreaterThan(0));
+    expect(screen.getByRole('button', { name: /^Scenario · 2/ })).toBeInTheDocument();
+  });
+});
+
+describe('the Scenario column: only for users with more than one scenario in their profile', () => {
+  const headers = () => screen.getAllByRole('columnheader').map((h) => h.textContent?.trim()).filter(Boolean);
+  const scoped = (profile: ('planned-change' | 'disaster-recovery')[]) => ({ scenarios: { available: ['planned-change', 'disaster-recovery'] as ('planned-change' | 'disaster-recovery')[], profile, value: profile, onChange: () => {} } });
+
+  it('is not shown with one scenario in the profile', async () => {
+    render(<Harness over={scoped(['planned-change'])} />);
+    await waitFor(() => expect(dataRows().length).toBeGreaterThan(0));
+    expect(headers()).not.toContain('Scenario');
+  });
+
+  it('is shown after State with two, and names each event’s scenario in words', async () => {
+    render(<Harness over={scoped(['planned-change', 'disaster-recovery'])} />);
+    await waitFor(() => expect(dataRows().length).toBeGreaterThan(0));
+    const h = headers();
+    expect(h.indexOf('Scenario')).toBe(h.indexOf('State') + 1);
+    expect(within(dataRows()[0]!).getByText('Planned Change')).toBeInTheDocument();
+  });
+
+  it('withScenarioColumn adds it after State, or at the end, and takes it out', () => {
+    expect(withScenarioColumn({ visible: ['name', 'state', 'windowStart'] }, true).visible).toEqual(['name', 'state', 'scenario', 'windowStart']);
+    expect(withScenarioColumn({ visible: ['name', 'windowStart'] }, true).visible).toEqual(['name', 'windowStart', 'scenario']);
+    expect(withScenarioColumn({ visible: ['name', 'scenario', 'state'] }, false).visible).toEqual(['name', 'state']);
+  });
+});
+
+describe('the Scenario pill in the filter bar', () => {
+  function Scoped() {
+    const [shown, setShown] = useState<('planned-change' | 'disaster-recovery')[]>(['planned-change']);
+    return <Harness over={{ scenarios: { available: ['planned-change', 'disaster-recovery'], profile: ['planned-change'], value: shown, onChange: (s) => setShown(s as typeof shown) } }} />;
+  }
+
+  it('comes first, starts from the profile, and counts the scenarios ticked', async () => {
+    render(<Scoped />);
+    await waitFor(() => expect(dataRows().length).toBeGreaterThan(0));
+    const pill = screen.getByRole('button', { name: /^Scenario · 1/ });
+    await userEvent.click(pill);
+    await userEvent.click(within(screen.getByRole('dialog', { name: 'Filter by scenario' })).getByRole('checkbox', { name: 'Disaster Recovery' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: /^Scenario · 2/, hidden: true })).toBeInTheDocument());
+  });
+
+  it('Clear puts it back to the profile, its default', async () => {
+    render(<Scoped />);
+    await waitFor(() => expect(dataRows().length).toBeGreaterThan(0));
+    await userEvent.click(screen.getByRole('button', { name: /^Scenario · 1/ }));
+    const menu = screen.getByRole('dialog', { name: 'Filter by scenario' });
+    await userEvent.click(within(menu).getByRole('checkbox', { name: 'Disaster Recovery' }));
+    await userEvent.click(within(menu).getByRole('button', { name: 'Clear: scenario' }));
+    expect(within(menu).getByRole('checkbox', { name: 'Planned Change' })).toBeChecked();
+    expect(within(menu).getByRole('checkbox', { name: 'Disaster Recovery' })).not.toBeChecked();
   });
 });

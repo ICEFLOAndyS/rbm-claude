@@ -26,6 +26,11 @@ import { createMockNavData, useNavPermissions } from '../src/data/nav/navData';
 import { RbmAdminPage } from '../src/components/RbmAdminPage/RbmAdminPage';
 import { adminDomainAt, adminPageAt, pageOfDomain, parentPageOf } from '../src/data/admin/adminPages';
 import { createLocalSidebarStore } from '../src/data/nav/sidebarPreference';
+import { createLocalScenarioStore, profileScenarios, SCENARIOS, SHIPPED_SCENARIO_SETTINGS, type RbmScenario, type RbmScenarioSettings } from '../src/data/scenarios/scenarios';
+import type { RbmScenarioFilterProps } from '../src/components/RbmScenarioFilter/RbmScenarioFilter';
+import { RbmScenarioSettings as RbmScenarioSettingsPage } from '../src/components/RbmScenarioSettings/RbmScenarioSettings';
+import { RbmMyScenarios } from '../src/components/RbmMyScenarios/RbmMyScenarios';
+import { RbmSlideInRegion } from '../src/components/RbmSlideInRegion/RbmSlideInRegion';
 import { COMMAND_CENTRE_EVENTS, type CommandCentreEventRef } from '../src/fixtures/commandCentreEvents';
 import pkg from '../package.json';
 import weekend from '../src/fixtures/weekend-payroll-cutover.json';
@@ -70,6 +75,10 @@ const layoutStore = createLocalLayoutStore();
 const user: RbmUser = { id: 'a.smith', name: 'Andy Smith', role: 'Cutover Manager', email: 'andy.smith@iceflo.com' };
 const navData = createMockNavData();
 const sidebarStore = createLocalSidebarStore(user.id);
+const scenarioStore = createLocalScenarioStore(user.id);
+const SCENARIOS_PATH = '/rbm-admin/centre/scenarios';
+/** Pages the scenario filter narrows (App shell board: Event Groups, List, Folders, Templates and dashboards). */
+const SCENARIO_PAGES = ['/events', '/events/groups', '/events/folders', '/library/templates'];
 const DEFAULT_PATH = '/events';
 
 /** The Events list's fixtures: ?events=128 (the default), board or large (15,000 rows, loaded only when chosen). */
@@ -120,6 +129,38 @@ function useHashPath() {
   return [path, (to: string) => (window.location.hash = to)] as const;
 }
 
+/**
+ * Scenarios: the organisation's settings and the user's own choice from the store, and the scenarios on show,
+ * which start from the user's profile and go back to it whenever the profile changes. The filter never saves.
+ */
+function useScenarios() {
+  const [settings, setSettings] = useState<RbmScenarioSettings>(SHIPPED_SCENARIO_SETTINGS);
+  const [own, setOwn] = useState<RbmScenario[] | undefined>(undefined);
+  const profile = useMemo(() => profileScenarios(settings, own), [settings, own]);
+  const [shown, setShown] = useState<RbmScenario[]>(profile);
+  useEffect(() => {
+    void Promise.all([scenarioStore.getSettings(), scenarioStore.getOwn()]).then(([s, o]) => {
+      setSettings(s);
+      setOwn(o);
+    });
+  }, []);
+  useEffect(() => setShown(profile), [profile]);
+  const filter: RbmScenarioFilterProps = { available: settings.available, profile, value: shown, onChange: setShown };
+  return {
+    settings,
+    own,
+    filter,
+    saveSettings: async (s: RbmScenarioSettings) => {
+      await scenarioStore.setSettings(s);
+      setSettings(s);
+    },
+    saveOwn: async (o: RbmScenario[] | undefined) => {
+      await scenarioStore.setOwn(o);
+      setOwn(o);
+    },
+  };
+}
+
 const eventOf = (path: string) => {
   const m = /^\/events\/(REV\d{6})(?:[/?]|$)/.exec(path);
   return m ? m[1] : null;
@@ -127,6 +168,9 @@ const eventOf = (path: string) => {
 
 function Demo() {
   const [path, navigate] = useHashPath();
+  const scenarios = useScenarios();
+  const [myScenariosOpen, setMyScenariosOpen] = useState(false);
+  const route = path.split('?')[0]!;
   const [speed, setSpeed] = useState(() => Number(params.get('speed') ?? 1));
   const [density, setDensity] = useState<DensityLevel>(() => (params.get('density') as DensityLevel | null) ?? 'compact');
   const [viewport, setViewport] = useState<Viewport>(() => (params.get('viewport') as Viewport | null) ?? 'full');
@@ -263,6 +307,7 @@ function Demo() {
           path={path}
           hrefFor={(to) => `#${to}`}
           onNavigate={navigate}
+          onAccountAction={(a) => a === 'myScenarios' && setMyScenariosOpen(true)}
           density={density}
           sidebarStore={sidebarStore}
           notificationCount={2}
@@ -288,13 +333,26 @@ function Demo() {
             ) : (
               <CommandCentrePage key={`${ref.fixture}-${run}`} data={live.source} layoutStore={layoutStore} timeZone="UTC" loadAllDelayMs={latency} />
             )
-          ) : path.split('?')[0] === '/events' ? (
-            <EventsRoute path={path} navigate={navigate} />
+          ) : route === '/events' ? (
+            <EventsRoute path={path} navigate={navigate} scenarios={scenarios.filter} />
+          ) : route === SCENARIOS_PATH ? (
+            <RbmScenarioSettingsPage settings={scenarios.settings} onSave={scenarios.saveSettings} breadcrumb={[{ label: 'Admin Centre', href: '#/rbm-admin/centre' }]} />
           ) : adminPageAt(path) ? (
-            <AdminRoute path={path} navigate={navigate} />
+            <AdminRoute path={path} navigate={navigate} settings={scenarios.settings} />
           ) : (
-            <NotBuilt path={path} />
+            <NotBuilt path={path} scenarios={SCENARIO_PAGES.includes(route) ? scenarios.filter : undefined} />
           )}
+          {/* Profile › My scenarios. Not drawn where it opens: the shell's slide-in region (proposed). */}
+          <RbmSlideInRegion open={myScenariosOpen} onClose={() => setMyScenariosOpen(false)} label="My scenarios" width={420}>
+            <RbmMyScenarios
+              settings={scenarios.settings}
+              own={scenarios.own}
+              onSave={async (o) => {
+                await scenarios.saveOwn(o);
+                setMyScenariosOpen(false);
+              }}
+            />
+          </RbmSlideInRegion>
         </RbmAppShell>
       </Box>
     </Box>
@@ -313,9 +371,11 @@ function pageTitleFor(path: string, ref: CommandCentreEventRef | null): string {
  * An admin page (Admin Centre, Setup & Config, Integrations): the domain cards, shown by the platform's
  * permissions. A child page's breadcrumb links back to the page it sits on.
  */
-function AdminRoute({ path, navigate }: { path: string; navigate: (to: string) => void }) {
+function AdminRoute({ path, navigate, settings }: { path: string; navigate: (to: string) => void; settings: RbmScenarioSettings }) {
   const can = useNavPermissions(navData);
-  const page = adminPageAt(path)!;
+  const at = adminPageAt(path)!;
+  // The Scenarios card's count comes from the settings: "2 of 4 available".
+  const page = { ...at, domains: at.domains.map((d) => (d.id === 'scenarios' ? { ...d, count: `${settings.available.length} of ${SCENARIOS.length} available` } : d)) };
   const parent = parentPageOf(page);
   return (
     <RbmAdminPage
@@ -344,7 +404,7 @@ function ScrollOnLoad({ ready }: { ready: boolean }) {
  * The Events list, on the mock server. The open record is kept in the address, and the Command Centre icon on
  * a running event (and the record panel's Open Command Centre) opens #/events/REVnnnnnn.
  */
-function EventsRoute({ path, navigate }: { path: string; navigate: (to: string) => void }) {
+function EventsRoute({ path, navigate, scenarios }: { path: string; navigate: (to: string) => void; scenarios: RbmScenarioFilterProps }) {
   const [server, setServer] = useState<{ data: EventListData; fixture: EventListFixture } | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -367,6 +427,7 @@ function EventsRoute({ path, navigate }: { path: string; navigate: (to: string) 
       address={readAddress(path)}
       onAddressChange={(a) => navigate(writeAddress(a))}
       onOpenCommandCentre={(e) => navigate(`/events/${e.number}`)}
+      scenarios={scenarios}
       onNew={() => {}}
       onImport={() => {}}
       onOpenFull={() => {}}
@@ -376,7 +437,7 @@ function EventsRoute({ path, navigate }: { path: string; navigate: (to: string) 
 }
 
 /** A menu destination the prototype does not build yet. */
-function NotBuilt({ path, title, text }: { path?: string; title?: string; text?: string }) {
+function NotBuilt({ path, title, text, scenarios }: { path?: string; title?: string; text?: string; scenarios?: RbmScenarioFilterProps }) {
   const at = path ? navLocation(rbmNav, path) : undefined;
   // A domain's own page names the domain, and links back to the admin page it sits on.
   const domain = path ? adminDomainAt(path) : undefined;
@@ -385,6 +446,7 @@ function NotBuilt({ path, title, text }: { path?: string; title?: string; text?:
     <Box sx={{ p: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
       <RbmPageHeader
         title={title ?? domain?.label ?? at?.item.label ?? 'Page not found'}
+        scenarios={scenarios}
         breadcrumb={page ? [{ label: page.title, href: `#${page.route}` }] : []}
         metadata={at ? `${at.group.group} · not built in the prototype` : undefined}
       />

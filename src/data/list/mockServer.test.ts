@@ -43,6 +43,19 @@ describe('mock Events server: query', () => {
     expect(narrowed.rows.every((r) => r.status === 'blocked' && r.owner.id === 'p-lc' && r.environment === 'production')).toBe(true);
   });
 
+  it('filters by scenario (the shell control): mostly Planned Change, some Recovery, none missing', async () => {
+    const s = server();
+    const count = async (scenario: EventQuery['filters']['scenario']) => (await s.query(q({ filters: { scenario } }))).total;
+    const planned = await count(['planned-change']);
+    const recovery = await count(['disaster-recovery', 'cyber-recovery', 'service-recovery']);
+    expect(planned).toBeGreaterThan(recovery);
+    expect(recovery).toBeGreaterThan(0);
+    expect(planned + recovery).toBe(128);
+    expect(await count([])).toBe(128);
+    const dr = await s.query(q({ filters: { scenario: ['disaster-recovery'] }, pageSize: 100 }));
+    expect(dr.rows.every((r) => r.scenario === 'disaster-recovery')).toBe(true);
+  });
+
   it('keeps the board’s order with no sort, and sorts on the server when asked', async () => {
     const s = server(eventsBoard());
     expect((await s.query(q())).rows.map((r) => r.number)).toEqual(['REV000001', 'REV000002', 'REV000003', 'REV000004', 'REV000005', 'REV000006', 'REV000007', 'REV000008']);

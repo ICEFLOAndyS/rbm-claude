@@ -3,11 +3,12 @@ import { colour } from '../../theme/tokens';
 
 /**
  * Sizes drawn on the Command board (28 in a task row, 32 and 36 in cards) and the App shell board (20, 28
- * and 36 in the top bar at D3, D2 and D1; 40 in the account menu).
+ * and 36 in the top bar at D3, D2 and D1; 40 in the account menu), and the Progress board (18 beside an owner's
+ * name at D1, 24 in the Owner column at D2).
  */
-export type RbmAvatarSize = 20 | 28 | 32 | 36 | 40;
+export type RbmAvatarSize = 18 | 20 | 24 | 28 | 32 | 36 | 40;
 
-const fontSize: Record<RbmAvatarSize, number> = { 20: 7, 28: 10, 32: 12, 36: 13, 40: 15 };
+const fontSize: Record<RbmAvatarSize, number> = { 18: 9, 20: 7, 24: 10, 28: 10, 32: 12, 36: 13, 40: 15 };
 
 export interface RbmAvatarProps {
   /** The person's full name. It is the accessible name, and the initials come from it. */

@@ -1211,6 +1211,19 @@ Not drawn, so I chose (flag, confirm or replace):
 - **Drawn** on the Progress board (design version 128): D1 shows the owner under the name and start over end; D2 shows owner initials, Start and End columns; D3 shows owner initials and End; D0 stays Essential only. Briefs updated.
 - **My proposals, to confirm:** which Icon suite states a workstream or runbook can have (the suite defines Task and Event states only; I used Scheduled, Active, Paused, Complete); whether start and end are planned, forecast or actual; owners shown as initials plus name; Owner, Start and End as one Detail group although Detail allows one field.
 
+### 27 Oct 2026: RbmWorkstreamProgress built (Claude Code; drawing Proposed)
+- **Built** to `docs/workstream-progress-brief.md` and the Progress board ("Workstream progress", design version 128): `RbmWorkstreamProgress`, the mock `mockWorkstreamProgress` (the board's twelve rows), stories for every state and D0 to D3, and 37 tests. Visual check: D0 to D3 and loading screenshotted against the board.
+- **New, shared:** `suiteStates` (`src/icons/states.ts`) gives each of the 14 Icon suite states its label, dot colour and text colour, from the icon suite brief section 5.4. Nothing in code mapped them before. `RbmAvatar` gains the drawn 18 px (D1, beside the owner's name) and 24 px (D2 Owner column) sizes.
+- **Differs from the drawing (density rule of 22 Oct):** row height, name and status text, issue dots, column gap and card side padding come from the density tokens. At D1 that is 56 px rows and 16 px names (drawn 52 and 14), 10 px dots (drawn 8), a 16 px gap (drawn 12). Column templates, bars, avatars, glyphs and the header keep their drawn sizes.
+- **My choices, to confirm:**
+  - **Percentage:** rounded, as drawn (28 of 60 is 47%), but never 100% until every task is Complete (199 of 200 shows 99%). Green follows the **state** Complete, not the count: a workstream at 100% that is still Active stays Blue Dark.
+  - **Ties in start order** are broken by name, so Infrastructure comes before Platform engineering (both 22:00). The board draws them the other way.
+  - **Caption** always reads "n of m shown", also when all fit ("4 of 4 shown"). Empty shows no caption, as drawn.
+  - **Late glyph:** the suite has no Late icon. The clock is `state.pending`'s drawing, as on the board.
+  - **Screen reader:** each row is a list item with one progress bar named with every field (as the brief's example), at every density, so D0 still announces owner, counts and times. The visible cells are hidden from screen readers to avoid reading them twice.
+  - **Late on any state:** the card shows Late whenever the data sets it; whether Paused or Scheduled can be Late is still open.
+- **Build order:** not in the brief's build order. Built on its own branch, `rbm-workstream-progress`, from `rbm-app-shell`.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

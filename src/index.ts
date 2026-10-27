@@ -18,6 +18,11 @@ export type { RbmEventVitalsProps, RbmEventVitalsData, RbmRag } from './componen
 export { RbmRing, ringSegments } from './components/RbmEventVitals/RbmRing';
 export type { RbmRingProps, RbmRingSegment } from './components/RbmEventVitals/RbmRing';
 export { mockEventVitals } from './mocks/eventVitals';
+export { RbmWorkstreamProgress, WORKSTREAM_ROW_LIMIT, percentComplete, workstreamSummary } from './components/RbmWorkstreamProgress/RbmWorkstreamProgress';
+export type { RbmWorkstreamProgressProps, RbmWorkstreamProgressItem } from './components/RbmWorkstreamProgress/RbmWorkstreamProgress';
+export { mockWorkstreamProgress } from './mocks/workstreamProgress';
+export { suiteStates } from './icons/states';
+export type { RbmSuiteState, RbmSuiteStateStyle } from './icons/states';
 export { RbmEventRibbon, laneSummary, shortGap } from './components/RbmEventRibbon/RbmEventRibbon';
 export type { RbmEventRibbonProps, RbmRibbonRunbook, RbmRibbonStage, RbmRibbonMarker } from './components/RbmEventRibbon/RbmEventRibbon';
 export { packStages, timeScale, laneHeight } from './components/RbmEventRibbon/ribbonLayout';

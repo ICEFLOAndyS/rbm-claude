@@ -18,8 +18,11 @@ export type { RbmEventVitalsProps, RbmEventVitalsData, RbmRag } from './componen
 export { RbmRing, ringSegments } from './components/RbmEventVitals/RbmRing';
 export type { RbmRingProps, RbmRingSegment } from './components/RbmEventVitals/RbmRing';
 export { mockEventVitals } from './mocks/eventVitals';
-export { RbmWorkstreamProgress, WORKSTREAM_ROW_LIMIT, percentComplete, workstreamSummary } from './components/RbmWorkstreamProgress/RbmWorkstreamProgress';
+export { RbmWorkstreamProgress, WORKSTREAM_ROW_LIMIT, workstreamSummary } from './components/RbmWorkstreamProgress/RbmWorkstreamProgress';
+export { percentComplete } from './components/RbmExecProgress/RbmExecProgress';
 export type { RbmWorkstreamProgressProps, RbmWorkstreamProgressItem } from './components/RbmWorkstreamProgress/RbmWorkstreamProgress';
+export { RbmExecProgress, EXEC_PROGRESS_ROW_LIMIT, DEFAULT_NAME_WIDTH, execProgressSummary, formatWhen, issuesText } from './components/RbmExecProgress/RbmExecProgress';
+export type { RbmExecProgressProps, RbmExecProgressItem, RbmExecProgressNoun, RbmExecProgressNameWidth } from './components/RbmExecProgress/RbmExecProgress';
 export { mockWorkstreamProgress } from './mocks/workstreamProgress';
 export { RbmRunbookProgress, RUNBOOK_ROW_LIMIT, runbookSummary } from './components/RbmRunbookProgress/RbmRunbookProgress';
 export type { RbmRunbookProgressProps, RbmRunbookProgressItem } from './components/RbmRunbookProgress/RbmRunbookProgress';

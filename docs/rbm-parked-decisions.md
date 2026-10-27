@@ -1231,6 +1231,13 @@ Not drawn, so I chose (flag, confirm or replace):
 - **Branch:** `rbm-runbook-progress`, stacked on `rbm-workstream-progress` (it uses `suiteStates` and the new avatar sizes).
 - **Still open** (brief section 5): the states a runbook has, start and end as planned, forecast or actual, whether a runbook needs the current stage, and the build order.
 
+### 27 Oct 2026: Progress cards, choices accepted and one shared component (decided by Andy Smith)
+- **Accepted:** every choice listed in the two 27 Oct entries above (rounding with 100% held back until all tasks are Complete, green by the Complete state, ties by name, the "n of m shown" caption, the Pending clock for Late, one progress bar named with every field, Late shown on any state, the density tokens).
+- **Start and end:** the system deduces from the state whether they are planned, forecast or actual. The cards show the times they are given and do not mark which kind they are.
+- **One shared component, built (Claude Code):** `RbmExecProgress` takes `title`, `noun` ({ one, many }) and `nameWidth` (D1, D2, D3; D0 is always 280 px). `RbmWorkstreamProgress` and `RbmRunbookProgress` are now thin versions with the same props and exports, so their 74 tests run unchanged against the shared card; 14 more test the noun and widths. Branch `rbm-exec-progress`, stacked on `rbm-runbook-progress`. Comparison in `docs/exec-progress-comparison.md`.
+- **Still open:** which Icon suite states a workstream or runbook can have, whether a runbook needs the current stage, and where the cards sit in the build order.
+- **Seen in testing:** one Command Centre test ("Loading all tasks" behind Show all) failed once in a full run and passed alone and on the next full run. It is timing-sensitive under load; not related to this change.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

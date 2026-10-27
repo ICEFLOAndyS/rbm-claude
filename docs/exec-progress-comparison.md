@@ -53,4 +53,4 @@ type RbmExecProgressProps = {
 ## Recommendation
 Make the generic component. Nothing differs except words and one width. Keeping two copies means each rule change (for example the open points on Late, ties, or D0 and D3) has to be made twice and could drift apart. If a runbook later gains a field the workstream lacks (the current stage is the likely one, brief open point 3), it can be an optional extra column on the generic component.
 
-Not done yet: this needs Andy Smith's decision. Until then the two components stay independent, as the brief asks.
+**Decided and built (Andy Smith, 27 Oct 2026):** `RbmExecProgress` is the shared card, with `title`, `noun` and `nameWidth` passed in (the D0 name column is always 280 px). `RbmWorkstreamProgress` and `RbmRunbookProgress` are now thin versions of it, with the same props and exports as before, and their tests and stories are unchanged.

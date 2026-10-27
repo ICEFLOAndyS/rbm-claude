@@ -1224,6 +1224,13 @@ Not drawn, so I chose (flag, confirm or replace):
   - **Late on any state:** the card shows Late whenever the data sets it; whether Paused or Scheduled can be Late is still open.
 - **Build order:** not in the brief's build order. Built on its own branch, `rbm-workstream-progress`, from `rbm-app-shell`.
 
+### 27 Oct 2026: RbmRunbookProgress built, and the comparison (Claude Code; drawing Proposed)
+- **Built** to `docs/runbook-progress-brief.md` and the Progress board ("Runbook progress", design version 128): `RbmRunbookProgress`, `mockRunbookProgress` (the board's runbook names), the same 15 stories and 37 tests as Workstream progress. It imports nothing from `RbmWorkstreamProgress`, as the brief asks. Name column 230 px at D1 and 190 px at D2 and D3, as drawn. Visual check: D1, D3 and a long name screenshotted against the board.
+- **Same choices as Workstream progress** (27 Oct entry above): rounding, ties by name, the caption, the Late glyph, the screen-reader name and the density tokens.
+- **Comparison:** `docs/exec-progress-comparison.md`. Of the component's 410 lines, 30 differ, all words, names and three column widths; the data shapes are identical. **My recommendation:** one generic component (placeholder `RbmExecProgress`) with the title, the noun and the name widths passed in. Not built: Andy Smith to decide.
+- **Branch:** `rbm-runbook-progress`, stacked on `rbm-workstream-progress` (it uses `suiteStates` and the new avatar sizes).
+- **Still open** (brief section 5): the states a runbook has, start and end as planned, forecast or actual, whether a runbook needs the current stage, and the build order.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

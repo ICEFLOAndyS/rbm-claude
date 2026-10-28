@@ -88,8 +88,14 @@ describe('RbmExecProgress', () => {
     const headings = () => Array.from(screen.getByText('Progress', { selector: 'span' }).parentElement!.children).map((c) => c.textContent);
     const columnCount = () => getComputedStyle(screen.getByText('Progress', { selector: 'span' }).parentElement!).gridTemplateColumns.split(' ').length;
 
-    it('shows them by default, with the two-level header at D2', () => {
+    it('hides them by default (Andy Smith, 28 Oct 2026), with Show stats in the header', () => {
       renderCard(<RbmExecProgress items={items} title="T" noun={team} />, 'compact');
+      expect(headings()).toEqual(['Team', 'Progress', 'Owner', 'Start', 'End', 'Status']);
+      expect(screen.getByRole('button', { name: 'Show task and issue stats' })).toHaveTextContent('Show stats');
+    });
+
+    it('shown, has the two-level header at D2', () => {
+      renderCard(<RbmExecProgress items={items} title="T" noun={team} showStats />, 'compact');
       expect(headings()).toEqual(['Team', 'Progress', 'Owner', 'Done', 'To do', 'Total', 'High', 'Medium', 'Low', 'Start', 'End', 'Status']);
       expect(screen.getByText('Tasks')).toBeInTheDocument();
       expect(screen.getByText('Open issues')).toBeInTheDocument();
@@ -117,13 +123,13 @@ describe('RbmExecProgress', () => {
     it('toggles from the header, and keeps the choice itself without showStats', async () => {
       const onShowStatsChange = vi.fn();
       renderCard(<RbmExecProgress items={items} title="T" noun={team} onShowStatsChange={onShowStatsChange} />, 'compact');
-      await userEvent.click(screen.getByRole('button', { name: 'Hide task and issue stats' }));
-      expect(onShowStatsChange).toHaveBeenLastCalledWith(false);
-      expect(screen.queryByText('Done')).toBeNull();
-      expect(screen.getByRole('button', { name: 'Show task and issue stats' })).toHaveTextContent('Show stats');
       await userEvent.click(screen.getByRole('button', { name: 'Show task and issue stats' }));
       expect(onShowStatsChange).toHaveBeenLastCalledWith(true);
       expect(screen.getByText('Done')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Hide task and issue stats' })).toHaveTextContent('Hide stats');
+      await userEvent.click(screen.getByRole('button', { name: 'Hide task and issue stats' }));
+      expect(onShowStatsChange).toHaveBeenLastCalledWith(false);
+      expect(screen.queryByText('Done')).toBeNull();
     });
 
     it('has no stats and no button at D0, or when there are no rows', () => {

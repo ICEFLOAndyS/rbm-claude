@@ -147,14 +147,14 @@ describe('RbmWorkstreamProgress', () => {
   });
 
   it('shows the issue counts, with a severity dot only on a count above zero', () => {
-    renderCard(<RbmWorkstreamProgress items={[item('Network')]} />);
+    renderCard(<RbmWorkstreamProgress showStats items={[item('Network')]} />);
     expect(screen.getByTestId('rbm-issue-dot-high')).toBeInTheDocument();
     expect(screen.getByTestId('rbm-issue-dot-medium')).toBeInTheDocument();
     expect(screen.queryByTestId('rbm-issue-dot-low')).not.toBeInTheDocument();
   });
 
   it('shows the task counts: done, to do and total', () => {
-    renderCard(<RbmWorkstreamProgress items={[item('Network')]} />);
+    renderCard(<RbmWorkstreamProgress showStats items={[item('Network')]} />);
     for (const n of ['5', '11', '16']) expect(screen.getByText(n)).toBeInTheDocument();
   });
 
@@ -181,10 +181,10 @@ describe('RbmWorkstreamProgress', () => {
     expect(screen.queryByText(/Ordered by start time/)).not.toBeInTheDocument();
   });
 
-  it('has no click-through: the only control is the stats button', () => {
+  it('has no click-through: the only control is the stats button, Show stats by default', () => {
     const { container } = renderCard(<RbmWorkstreamProgress items={all} />);
     expect(container.querySelectorAll('button, a, [tabindex]')).toHaveLength(1);
-    expect(container.querySelector('button')).toHaveAccessibleName('Hide task and issue stats');
+    expect(container.querySelector('button')).toHaveAccessibleName('Show task and issue stats');
   });
 
   describe('by density', () => {
@@ -207,7 +207,7 @@ describe('RbmWorkstreamProgress', () => {
     });
 
     it('D3 is one line: done of total and the end, with no start', () => {
-      renderCard(<RbmWorkstreamProgress items={[item('Network')]} timeZone="UTC" />, 'dense');
+      renderCard(<RbmWorkstreamProgress showStats items={[item('Network')]} timeZone="UTC" />, 'dense');
       expect(screen.getByText('5 / 16')).toBeInTheDocument();
       expect(screen.getByText('25 Oct 03:00')).toBeInTheDocument();
       expect(screen.queryByText('24 Oct 22:30')).not.toBeInTheDocument();

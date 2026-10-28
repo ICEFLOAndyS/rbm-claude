@@ -34,23 +34,23 @@ describe('RbmProgressRegion', () => {
 
   const minWidths = () => screen.getAllByTestId('rbm-progress-slot').map((s) => Number(s.dataset.minWidth));
 
-  it('gives each card the width its columns need, so they sit side by side when both fit and wrap when not', () => {
+  it('gives each card the width its columns need, stats hidden by default, so they sit side by side when both fit and wrap when not', () => {
     renderRegion();
-    expect(minWidths()).toEqual([execProgressMinWidth('compact', { nameWidth: RUNBOOK_NAME_WIDTH }), execProgressMinWidth('compact')]);
+    expect(minWidths()).toEqual([execProgressMinWidth('compact', { nameWidth: RUNBOOK_NAME_WIDTH, showStats: false }), execProgressMinWidth('compact', { showStats: false })]);
     expect(getComputedStyle(screen.getByTestId('rbm-progress-cards')).flexWrap).toBe('wrap');
   });
 
-  it('narrows a card when its stats are hidden, and widens it again when they are shown', async () => {
+  it('widens a card when its stats are shown, and narrows it again when they are hidden', async () => {
     const onStatsChange = vi.fn();
     renderRegion({ onStatsChange });
     const [runbooks] = screen.getAllByRole('region', { name: /progress$/ });
     const before = minWidths();
-    await userEvent.click(within(runbooks!).getByRole('button', { name: 'Hide task and issue stats' }));
-    expect(onStatsChange).toHaveBeenLastCalledWith({ runbooks: false, workstreams: true });
-    expect(minWidths()[0]).toBe(execProgressMinWidth('compact', { nameWidth: RUNBOOK_NAME_WIDTH, showStats: false }));
-    expect(minWidths()[0]).toBeLessThan(before[0]!);
-    expect(minWidths()[1]).toBe(before[1]);
     await userEvent.click(within(runbooks!).getByRole('button', { name: 'Show task and issue stats' }));
+    expect(onStatsChange).toHaveBeenLastCalledWith({ runbooks: true, workstreams: false });
+    expect(minWidths()[0]).toBe(execProgressMinWidth('compact', { nameWidth: RUNBOOK_NAME_WIDTH }));
+    expect(minWidths()[0]).toBeGreaterThan(before[0]!);
+    expect(minWidths()[1]).toBe(before[1]);
+    await userEvent.click(within(runbooks!).getByRole('button', { name: 'Hide task and issue stats' }));
     expect(minWidths()).toEqual(before);
   });
 

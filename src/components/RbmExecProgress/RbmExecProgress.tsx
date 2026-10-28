@@ -49,7 +49,7 @@ export interface RbmExecProgressProps {
   timeZone?: string;
   /**
    * Shows the task and issue stats (Done, To do, Total and the open issues; at D3, Done / total and Issues). Hidden,
-   * the progress bar takes their width. Shown by default; without it the card keeps the choice itself.
+   * the progress bar takes their width. Hidden by default (Andy Smith, 28 Oct 2026); without it the card keeps the choice itself.
    */
   showStats?: boolean;
   /** Called when the user shows or hides the stats from the card's header. */
@@ -423,7 +423,7 @@ export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_W
   const id = useId();
   const d = useDensity();
   const size = drawn[d.level];
-  const [showStatsState, setShowStatsState] = useState(true);
+  const [showStatsState, setShowStatsState] = useState(false);
   const showStats = showStatsProp ?? showStatsState;
   const setShowStats = (show: boolean) => {
     setShowStatsState(show);

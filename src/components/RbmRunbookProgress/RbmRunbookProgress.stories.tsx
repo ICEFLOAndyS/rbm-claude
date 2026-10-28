@@ -26,7 +26,7 @@ export const Active: Story = { args: { items: pick('Application tier startup') }
 export const ActiveAndLate: Story = { args: { items: pick('Core network cutover') } };
 export const Paused: Story = { args: { items: pick('Backup restore test') } };
 export const Scheduled: Story = { args: { items: pick('Customer communications') } };
-export const ZeroIssues: Story = { args: { items: pick('Payments database failover', 'Customer communications') } };
+export const ZeroIssues: Story = { args: { items: pick('Payments database failover', 'Customer communications'), showStats: true } };
 export const Mixed: Story = { args: { items: mockRunbookProgress(6) } };
 
 /** A name too long for the column is cut with an ellipsis; the full name is in the tooltip and the accessible name. */
@@ -43,3 +43,6 @@ export const D1Comfortable: Story = { decorators: [(Story) => <RbmDensity level=
 export const D2Compact: Story = { decorators: [(Story) => <RbmDensity level="compact"><Story /></RbmDensity>] };
 /** One line per runbook: no start time. */
 export const D3Dense: Story = { decorators: [(Story) => <RbmDensity level="dense"><Story /></RbmDensity>] };
+
+/** Stats are hidden by default; shown, the Tasks and Open issues columns come back. */
+export const StatsShown: Story = { args: { showStats: true } };

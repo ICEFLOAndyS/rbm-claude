@@ -1272,6 +1272,7 @@ Not drawn, so I chose (flag, confirm or replace):
 - **Still a fit question:** at a 1,920 px window with the sidebar and Hot-topics panel open the main column is about 1,270 px, so even with both cards' stats hidden they stack. They sit side by side with the sidebar collapsed, or on a wider screen.
 - **Not kept:** the choice lasts for the visit only. It could be saved with the page layout (the Layout panel's preference) if wanted.
 - **Not drawn:** the link (RbmToggleLink, the Collapse link's style without the chevron) and its place.
+- **Default: Hide stats (decided by Andy Smith, 28 Oct 2026).** Both cards open with their task and issue stats hidden, everywhere they are used (`showStats` defaults to false); "Show stats" brings them back for the visit.
 
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.

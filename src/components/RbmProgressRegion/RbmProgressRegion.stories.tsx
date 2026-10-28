@@ -26,8 +26,8 @@ function Toggling(args: Parameters<typeof RbmProgressRegion>[0]) {
   return <RbmProgressRegion {...args} collapsed={collapsed} onCollapsedChange={setCollapsed} />;
 }
 
-/** Wide enough for both cards (2,200 px): side by side. */
-export const SideBySide: Story = { decorators: [(Story) => <Box sx={{ width: 2200 }}><Story /></Box>], render: (args) => <Toggling {...args} /> };
+/** The default, stats hidden: at 1,500 px the two cards fit side by side. "Show stats" on either widens it. */
+export const SideBySide: Story = { decorators: [(Story) => <Box sx={{ width: 1500 }}><Story /></Box>], render: (args) => <Toggling {...args} /> };
 
 /** Narrower than two cards: Runbook progress, then Workstream progress. */
 export const Stacked: Story = { decorators: [(Story) => <Box sx={{ width: 1200 }}><Story /></Box>], render: (args) => <Toggling {...args} /> };
@@ -37,14 +37,14 @@ export const Collapsed: Story = { args: { collapsed: true }, render: (args) => <
 
 export const Loading: Story = { args: { loading: true }, render: (args) => <Toggling {...args} /> };
 
-/** Both cards' stats hidden: each needs less width, so at 1,500 px they sit side by side. */
-export const StatsHidden: Story = {
-  args: { stats: { runbooks: false, workstreams: false } },
-  decorators: [(Story) => <Box sx={{ width: 1500 }}><Story /></Box>],
+/** Both cards' stats shown: each needs its full width, so they sit side by side only at 2,100 px or more. */
+export const StatsShown: Story = {
+  args: { stats: { runbooks: true, workstreams: true } },
+  decorators: [(Story) => <Box sx={{ width: 2200 }}><Story /></Box>],
 };
 
-/** One card's stats hidden: it narrows, the other keeps its columns. */
-export const OneHidden: Story = {
+/** One card's stats shown: it widens, the other stays narrow. */
+export const OneShown: Story = {
   args: { stats: { runbooks: false, workstreams: true } },
   decorators: [(Story) => <Box sx={{ width: 2000 }}><Story /></Box>],
 };

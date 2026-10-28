@@ -18,7 +18,7 @@ export interface RbmProgressRegionProps {
   loading?: boolean;
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
-  /** Each card's task and issue stats, shown or hidden. Both shown by default; without it the region keeps the choice. */
+  /** Each card's task and issue stats, shown or hidden. Both hidden by default; without it the region keeps the choice. */
   stats?: RbmProgressStats;
   onStatsChange?: (stats: RbmProgressStats) => void;
   timeZone?: string;
@@ -40,7 +40,7 @@ const count = (n: number, one: string) => `${n} ${n === 1 ? one : `${one}s`}`;
  */
 export function RbmProgressRegion({ runbooks, workstreams, loading, collapsed = false, onCollapsedChange, stats: statsProp, onStatsChange, timeZone }: RbmProgressRegionProps) {
   const d = useDensity();
-  const [statsState, setStatsState] = useState<RbmProgressStats>({ runbooks: true, workstreams: true });
+  const [statsState, setStatsState] = useState<RbmProgressStats>({ runbooks: false, workstreams: false });
   const stats = statsProp ?? statsState;
   const setStats = (change: Partial<RbmProgressStats>) => {
     const next = { ...stats, ...change };

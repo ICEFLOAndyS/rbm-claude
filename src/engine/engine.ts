@@ -235,6 +235,7 @@ export function computeSnapshot(records: EventRecords, now: Date, currentUserId:
     currentUserId,
     event: records.event,
     people: records.people,
+    workstreams: records.workstreams,
     runbooks,
     stages,
     tasks,

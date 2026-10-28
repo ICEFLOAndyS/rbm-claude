@@ -8,7 +8,6 @@ import { createLocalLayoutStore } from '../data/layoutStore';
 import { createSimClock } from '../engine/clock';
 import { weekendPayrollCutover } from '../fixtures/build';
 import { EXEC_BRIEFING_LAYOUT } from '../components/RbmLayoutPanel/RbmLayoutPanel';
-import { mockWorkstreamProgressFrom } from '../mocks/workstreamProgress';
 import { rbmTheme } from '../theme/theme';
 
 function memoryStorage() {
@@ -22,10 +21,9 @@ function setup(storage = memoryStorage()) {
   const fixture = weekendPayrollCutover();
   const clock = createSimClock(new Date(fixture.startsAt), { speed: 0 });
   const source = createFixtureSource(fixture, clock);
-  const workstreams = mockWorkstreamProgressFrom(new Date(fixture.event.window.start));
   return render(
     <ThemeProvider theme={rbmTheme}>
-      <ExecBriefingCentrePage data={source} layoutStore={createLocalLayoutStore(KEY, storage, EXEC_BRIEFING_LAYOUT)} workstreams={workstreams} timeZone="UTC" />
+      <ExecBriefingCentrePage data={source} layoutStore={createLocalLayoutStore(KEY, storage, EXEC_BRIEFING_LAYOUT)} timeZone="UTC" />
     </ThemeProvider>,
   );
 }
@@ -46,7 +44,7 @@ describe('ExecBriefingCentrePage', () => {
     expect(screen.queryByRole('region', { name: /Task Timeline/ })).toBeNull();
   });
 
-  it('shows Runbook progress, from the event, beside Workstream progress', () => {
+  it('shows Runbook progress and Workstream progress, both from the event', () => {
     setup();
     const progress = screen.getByRole('region', { name: 'Progress, runbooks and workstreams' });
     const cards = within(progress).getByTestId('rbm-progress-cards');
@@ -54,7 +52,9 @@ describe('ExecBriefingCentrePage', () => {
     // The fixture's three runbooks, by start time.
     const runbooks = within(progress).getByRole('region', { name: 'Runbook progress' });
     expect(within(runbooks).getAllByRole('progressbar').map((b) => b.getAttribute('aria-label')!.split(',')[0])).toEqual(['Payroll cutover', 'Interfaces', 'Reporting']);
-    expect(within(progress).getByRole('region', { name: 'Workstream progress' })).toHaveTextContent('+2 more workstreams');
+    const workstreams = within(progress).getByRole('region', { name: 'Workstream progress' });
+    expect(within(workstreams).getAllByRole('progressbar')).toHaveLength(7);
+    expect(within(workstreams).getByRole('progressbar', { name: /^Cutover management/ })).toBeInTheDocument();
   });
 
   it('lists its own regions in the Layout panel: Event ribbon and Progress, no Task Timeline', async () => {

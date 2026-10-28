@@ -50,6 +50,18 @@ export interface Runbook {
   name: string;
   /** Planned end of the runbook. Its forecast end comes from the engine. */
   plannedEnd: IsoTime;
+  /** The person who owns the runbook (Runbook progress's Owner). */
+  ownerId?: string;
+}
+
+/**
+ * A workstream: a team's share of the event, across runbooks (Workstream progress). Every task belongs to one
+ * runbook and one workstream, so the runbooks' counts and the workstreams' counts both add up to the event's.
+ */
+export interface Workstream {
+  id: string;
+  name: string;
+  ownerId: string;
 }
 
 export interface Stage {
@@ -100,6 +112,8 @@ export interface Task {
   dependencies: Dependency[];
   constraints?: Constraints;
   assigneeId?: string;
+  /** The workstream the task belongs to. */
+  workstreamId?: string;
   /** A person flagged the task as at risk, with the reason shown in its tag. */
   atRisk?: { reason: string };
   /** Who paused it and when, shown as "Paused by A. Smith". */
@@ -173,6 +187,7 @@ export interface EventRecords {
   event: CutoverEvent;
   people: Person[];
   runbooks: Runbook[];
+  workstreams: Workstream[];
   stages: Stage[];
   tasks: Task[];
   blockers: Blocker[];
@@ -269,6 +284,7 @@ export interface CommandCentreSnapshot {
   event: CutoverEvent;
   people: Person[];
   runbooks: (Runbook & { forecast: Forecast })[];
+  workstreams: Workstream[];
   stages: StageView[];
   tasks: TaskView[];
   blockers: Blocker[];

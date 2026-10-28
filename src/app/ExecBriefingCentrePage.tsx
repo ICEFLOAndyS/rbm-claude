@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Snackbar } from '@mui/material';
 import type { CommandCentreData, LayoutPreference, LayoutPreferenceStore } from '../data/interfaces';
-import { toAlerts, toEvent, toHotTopics, toRibbon, toRunbookProgress, toVitals } from '../data/adapters';
+import { toAlerts, toEvent, toHotTopics, toRibbon, toRunbookProgress, toVitals, toWorkstreamProgress } from '../data/adapters';
 import { defaultPreference } from '../data/layoutStore';
 import { RbmCommandCentre } from '../components/RbmCommandCentre/RbmCommandCentre';
 import { RbmEventVitals } from '../components/RbmEventVitals/RbmEventVitals';
@@ -11,15 +11,12 @@ import { RbmHotTopicsPanel } from '../components/RbmHotTopicsStrip/RbmHotTopicsP
 import { EXEC_BRIEFING_LAYOUT, type RbmRegion } from '../components/RbmLayoutPanel/RbmLayoutPanel';
 import { RbmBlockers, RbmCollaboration, RbmMilestones, RbmNextCheckpoint, RbmWatchers } from '../components/RbmHotTopicsStrip/cards';
 import { RbmProgressRegion } from '../components/RbmProgressRegion/RbmProgressRegion';
-import type { RbmWorkstreamProgressItem } from '../components/RbmWorkstreamProgress/RbmWorkstreamProgress';
 
 export interface ExecBriefingCentrePageProps {
   /** Read only: the Exec Briefing Centre shows the event and sends no task commands. */
   data: CommandCentreData;
   /** The page's own layout, made with EXEC_BRIEFING_LAYOUT (createLocalLayoutStore(key, storage, EXEC_BRIEFING_LAYOUT)). */
   layoutStore: LayoutPreferenceStore;
-  /** The event's workstreams. The data model has none yet, so the prototype passes a sample (mockWorkstreamProgressFrom). */
-  workstreams: RbmWorkstreamProgressItem[];
   timeZone?: string;
 }
 
@@ -29,7 +26,7 @@ export interface ExecBriefingCentrePageProps {
  * progress side by side) where the Command Centre has the Event ribbon and Task Timeline. With no Task Timeline it
  * has no task actions. It keeps its own layout, and does not know whether the data comes from a fixture or ServiceNow.
  */
-export function ExecBriefingCentrePage({ data, layoutStore, workstreams, timeZone }: ExecBriefingCentrePageProps) {
+export function ExecBriefingCentrePage({ data, layoutStore, timeZone }: ExecBriefingCentrePageProps) {
   const snapshot = useSyncExternalStore(data.subscribe, data.getSnapshot);
   const [pref, setPref] = useState<LayoutPreference>(() => defaultPreference(EXEC_BRIEFING_LAYOUT));
   const [notice, setNotice] = useState<string | undefined>();
@@ -56,7 +53,9 @@ export function ExecBriefingCentrePage({ data, layoutStore, workstreams, timeZon
   const event = useMemo(() => toEvent(snapshot), [snapshot]);
   const vitals = useMemo(() => toVitals(snapshot), [snapshot]);
   const ribbon = useMemo(() => toRibbon(snapshot), [snapshot]);
+  // Every task is in one runbook and one workstream, so both cards add up to the Event vitals.
   const runbooks = useMemo(() => toRunbookProgress(snapshot), [snapshot]);
+  const workstreams = useMemo(() => toWorkstreamProgress(snapshot), [snapshot]);
   const hot = useMemo(() => toHotTopics(snapshot), [snapshot]);
   const notBuilt = (what: string) => () => setNotice(`${what} opens in the slide-in, which is not part of this prototype.`);
   const alerts = useMemo(() => toAlerts(snapshot, (id) => notBuilt(id === 'alert-blockers' ? 'The blocker list' : id === 'alert-failed-check' ? 'The check result' : 'The critical path')()), [snapshot]);

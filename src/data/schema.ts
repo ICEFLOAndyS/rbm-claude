@@ -24,6 +24,7 @@ const task = z.object({
   dependencies: z.array(z.object({ predecessorId: z.string(), type: z.literal('finish_to_start') })),
   constraints: z.object({ notBefore: iso.optional() }).optional(),
   assigneeId: z.string().optional(),
+  workstreamId: z.string().optional(),
   atRisk: z.object({ reason: z.string() }).optional(),
   paused: z.object({ byId: z.string(), at: iso, reason: z.string().optional() }).optional(),
   workedMinutes: z.number().nonnegative().optional(),
@@ -48,7 +49,8 @@ export const fixtureSchema = z.object({
     programme: z.string().optional(),
   }),
   people: z.array(z.object({ id: z.string(), name: z.string(), initials: z.string().optional() })),
-  runbooks: z.array(z.object({ id: z.string(), number: z.string().regex(/^RBK\d{7}$/), wbs: z.string(), name: z.string(), plannedEnd: iso })),
+  runbooks: z.array(z.object({ id: z.string(), number: z.string().regex(/^RBK\d{7}$/), wbs: z.string(), name: z.string(), plannedEnd: iso, ownerId: z.string().optional() })),
+  workstreams: z.array(z.object({ id: z.string(), name: z.string(), ownerId: z.string() })),
   stages: z.array(z.object({ id: z.string(), runbookId: z.string(), wbs: z.string(), name: z.string() })),
   tasks: z.array(task),
   blockers: z.array(z.object({ id: z.string(), number: z.string(), title: z.string(), severity, state: z.enum(['open', 'resolved']), taskIds: z.array(z.string()), raisedAt: iso })),
@@ -95,12 +97,15 @@ export function validateFixture(data: unknown): { fixture?: EventFixture; errors
   const people = ids(f.people, 'person');
   const runbooks = new Map(f.runbooks.map((r) => [r.id, r]));
   ids(f.runbooks, 'runbook');
+  const workstreams = ids(f.workstreams, 'workstream');
   const stages = new Map(f.stages.map((s) => [s.id, s]));
   ids(f.stages, 'stage');
   const tasks = new Map(f.tasks.map((t) => [t.id, t]));
   ids(f.tasks, 'task');
 
   if (!people.has(f.currentUserId)) errors.push(`currentUserId ${f.currentUserId} is not a person`);
+  for (const r of f.runbooks) if (r.ownerId && !people.has(r.ownerId)) errors.push(`runbook ${r.wbs}: unknown owner ${r.ownerId}`);
+  for (const w of f.workstreams) if (!people.has(w.ownerId)) errors.push(`workstream ${w.id}: unknown owner ${w.ownerId}`);
   for (const s of f.stages) {
     const r = runbooks.get(s.runbookId);
     if (!r) errors.push(`stage ${s.wbs}: unknown runbook ${s.runbookId}`);
@@ -114,6 +119,7 @@ export function validateFixture(data: unknown): { fixture?: EventFixture; errors
       if (!t.wbs.startsWith(`${s.wbs}.`)) errors.push(`task ${t.wbs} is not under stage ${s.wbs}`);
     }
     if (t.assigneeId && !people.has(t.assigneeId)) errors.push(`task ${t.wbs}: unknown assignee ${t.assigneeId}`);
+    if (t.workstreamId && !workstreams.has(t.workstreamId)) errors.push(`task ${t.wbs}: unknown workstream ${t.workstreamId}`);
     for (const d of t.dependencies) if (!tasks.has(d.predecessorId)) errors.push(`task ${t.wbs}: unknown predecessor ${d.predecessorId}`);
     if ((t.state === 'active' || t.state === 'paused' || t.state === 'complete') && !t.actual?.start) errors.push(`task ${t.wbs}: ${t.state} without an actual start`);
     if ((t.state === 'complete' || t.state === 'skipped') && !t.actual?.end) errors.push(`task ${t.wbs}: ${t.state} without an actual end`);

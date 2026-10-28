@@ -6,7 +6,7 @@
  *
  * Used by `npm run fixtures` (scripts/fixtures.ts) and by the tests. Pure: no file access.
  */
-import type { Blocker, Call, EventFixture, Issue, Person, Runbook, Stage, Task, TaskKind, Watcher } from '../data/types';
+import type { Blocker, Call, EventFixture, Issue, Person, Runbook, Stage, Task, TaskKind, Watcher, Workstream } from '../data/types';
 import { commandCentreEvent, type CommandCentreEventRef } from './commandCentreEvents';
 
 const MIN = 60_000;
@@ -41,8 +41,10 @@ export interface StageSpec {
   name: string;
   /** Parallel chains of tasks. Each chain runs in order. */
   lanes: (number | LaneTask)[][];
-  /** A milestone or checkpoint after every lane finishes. */
-  closer?: { title: string; kind: 'milestone' | 'checkpoint'; minutes: number };
+  /** A milestone or checkpoint after every lane finishes, in the stage's first workstream unless it names one. */
+  closer?: { title: string; kind: 'milestone' | 'checkpoint'; minutes: number; workstreamId?: string };
+  /** The workstream of each lane's tasks, by lane (repeating when there are more lanes than workstreams). */
+  workstreams?: string[];
   /** Stage indexes (in this runbook) this stage waits for. Defaults to the previous stage. */
   after?: number[];
   /** Stages in earlier runbooks (by WBS, for example "3.6") this stage also waits for: a hand-off between runbooks. */
@@ -55,6 +57,7 @@ export interface RunbookSpec {
   name: string;
   /** Minutes after the event window starts. */
   startOffset: number;
+  ownerId?: string;
   stages: StageSpec[];
 }
 
@@ -133,6 +136,7 @@ export function planEvent(windowStart: number, specs: RunbookSpec[]): Built {
           durationMinutes: x.minutes,
           dependencies: deps.map((p) => ({ predecessorId: p, type: 'finish_to_start' as const })),
           ...(deps.length === 0 ? { constraints: { notBefore: iso(x.start) } } : {}),
+          ...(st.workstreams?.length ? { workstreamId: st.workstreams[x.lane % st.workstreams.length]! } : {}),
         });
         lastOfLane.set(x.lane, id);
       }
@@ -144,6 +148,7 @@ export function planEvent(windowStart: number, specs: RunbookSpec[]): Built {
           id, runbookId: rbId, stageId, wbs: id.slice(2), title: st.closer.title, kind: st.closer.kind, state: 'not_started',
           planned: { start: iso(end), end: iso(end + st.closer.minutes * MIN) }, durationMinutes: st.closer.minutes,
           dependencies: tails.map((p) => ({ predecessorId: p, type: 'finish_to_start' as const })),
+          ...(st.closer.workstreamId ?? st.workstreams?.[0] ? { workstreamId: (st.closer.workstreamId ?? st.workstreams![0])! } : {}),
         });
         tails = [id];
         end += st.closer.minutes * MIN;
@@ -154,7 +159,7 @@ export function planEvent(windowStart: number, specs: RunbookSpec[]): Built {
       endByWbs.set(stageWbs, end);
       rbEnd = Math.max(rbEnd, end);
     });
-    runbooks.push({ id: rbId, number: rb.number, wbs: rb.wbs, name: rb.name, plannedEnd: iso(rbEnd) });
+    runbooks.push({ id: rbId, number: rb.number, wbs: rb.wbs, name: rb.name, plannedEnd: iso(rbEnd), ...(rb.ownerId ? { ownerId: rb.ownerId } : {}) });
   }
   return { runbooks, stages, tasks };
 }
@@ -240,21 +245,36 @@ const at = (hhmm: string) => {
 
 const lanes = (counts: number[], minutes: number) => counts.map((c) => Array.from({ length: c }, () => minutes));
 
+/**
+ * The payroll event's workstreams: the teams doing the work, across the three runbooks. Each lane of a stage is one
+ * team's; the milestones and the Go / No-Go checkpoint belong to Cutover management.
+ */
+const payrollWorkstreams: Workstream[] = [
+  { id: 'ws-app', name: 'Applications', ownerId: 'p-tb' },
+  { id: 'ws-db', name: 'Database', ownerId: 'p-mo' },
+  { id: 'ws-inf', name: 'Infrastructure', ownerId: 'p-kw' },
+  { id: 'ws-int', name: 'Integration', ownerId: 'p-rp' },
+  { id: 'ws-test', name: 'Testing', ownerId: 'p-jn' },
+  { id: 'ws-svc', name: 'Service management', ownerId: 'p-sd' },
+  { id: 'ws-mgmt', name: 'Cutover management', ownerId: 'p-as' },
+];
+const MGMT = 'ws-mgmt';
+
 function payrollPlan(): RunbookSpec[] {
   return [
     {
-      wbs: '1', number: 'RBK0000001', name: 'Payroll cutover', startOffset: 0,
+      wbs: '1', number: 'RBK0000001', name: 'Payroll cutover', startOffset: 0, ownerId: 'p-tb',
       stages: [
-        { name: 'Prepare', lanes: lanes([6, 6, 6, 6], 15) },
-        { name: 'Extract and stop', lanes: lanes([10, 10, 9], 15), closer: { title: 'Data extracted', kind: 'milestone', minutes: 0 } },
-        { name: 'Application failover', lanes: lanes([10, 10, 9], 15), closer: { title: 'Application failover', kind: 'milestone', minutes: 0 } },
-        { name: 'Verify', lanes: lanes([6, 6, 6], 10), closer: { title: 'Validation complete', kind: 'milestone', minutes: 0 } },
-        { name: 'Hand over', lanes: lanes([3, 3, 3], 5), closer: { title: 'Go / No-Go', kind: 'checkpoint', minutes: 15 } },
+        { name: 'Prepare', lanes: lanes([6, 6, 6, 6], 15), workstreams: ['ws-inf', 'ws-db', 'ws-app', 'ws-svc'] },
+        { name: 'Extract and stop', lanes: lanes([10, 10, 9], 15), workstreams: ['ws-db', 'ws-app', 'ws-inf'], closer: { title: 'Data extracted', kind: 'milestone', minutes: 0, workstreamId: MGMT } },
+        { name: 'Application failover', lanes: lanes([10, 10, 9], 15), workstreams: ['ws-app', 'ws-db', 'ws-inf'], closer: { title: 'Application failover', kind: 'milestone', minutes: 0, workstreamId: MGMT } },
+        { name: 'Verify', lanes: lanes([6, 6, 6], 10), workstreams: ['ws-test', 'ws-app', 'ws-db'], closer: { title: 'Validation complete', kind: 'milestone', minutes: 0, workstreamId: MGMT } },
+        { name: 'Hand over', lanes: lanes([3, 3, 3], 5), workstreams: ['ws-svc', 'ws-test', 'ws-app'], closer: { title: 'Go / No-Go', kind: 'checkpoint', minutes: 15, workstreamId: MGMT } },
       ],
     },
-    { wbs: '2', number: 'RBK0000002', name: 'Interfaces', startOffset: 300, stages: [{ name: 'Switch interfaces', lanes: lanes([6], 20) }] },
+    { wbs: '2', number: 'RBK0000002', name: 'Interfaces', startOffset: 300, ownerId: 'p-rp', stages: [{ name: 'Switch interfaces', lanes: lanes([6], 20), workstreams: ['ws-int'] }] },
     // Planned to finish at 05:30 with Verify, because Hand over waits for both (see planPayroll).
-    { wbs: '3', number: 'RBK0000003', name: 'Reporting', startOffset: 350, stages: [{ name: 'Rebuild reporting', lanes: lanes([5], 20) }] },
+    { wbs: '3', number: 'RBK0000003', name: 'Reporting', startOffset: 350, ownerId: 'p-lc', stages: [{ name: 'Rebuild reporting', lanes: lanes([5], 20), workstreams: ['ws-db'] }] },
   ];
 }
 
@@ -275,7 +295,7 @@ const notBefore = (tasks: Task[], wbs: string, minutesLate: number) => {
 };
 
 /** `ref` gives the Event ID and name, shared with the Events list (commandCentreEvents.ts). */
-function baseFixture(ref: CommandCentreEventRef['fixture'], built: Built, now: number): EventFixture {
+function baseFixture(ref: CommandCentreEventRef['fixture'], built: Built, now: number, workstreams: Workstream[] = payrollWorkstreams): EventFixture {
   const { number, name } = commandCentreEvent(ref);
   const end = Math.max(...built.runbooks.map((r) => Date.parse(r.plannedEnd)));
   return {
@@ -284,6 +304,7 @@ function baseFixture(ref: CommandCentreEventRef['fixture'], built: Built, now: n
     event: { id: `ev-${number}`, number, name, state: 'active', owner: 'Cutover Manager Team', window: { start: iso(WINDOW_START), end: iso(end) }, programme: 'Q4 Data Centre Migration' },
     people,
     ...built,
+    workstreams,
     blockers: [],
     issues: [],
     calls: [],
@@ -392,7 +413,12 @@ export function badlyLateEvent(): EventFixture {
 export function largeEvent(seed = 20261021): EventFixture {
   const rng = seeded(seed);
   const pool = Array.from({ length: 40 }, (_, i) => ({ id: `p-${i}`, name: `${rng.pick(['Alex', 'Sam', 'Jo', 'Kai', 'Lin', 'Ravi', 'Mia', 'Tom', 'Ana', 'Ben'])} ${rng.pick(['Baker', 'Chen', 'Patel', 'Nash', 'Wells', 'Dee', 'Okafor', 'Silva', 'Novak', 'Reid'])}` }));
+  // Eight workstreams across the 30 runbooks. Lanes take them in turn, so no extra random numbers are drawn and the
+  // plan is the same as before workstreams were added.
+  const workstreams: Workstream[] = ['Applications', 'Database', 'Infrastructure', 'Network', 'Storage', 'Integration', 'Testing', 'Service management'].map((name, i) => ({ id: `ws-${i + 1}`, name, ownerId: pool[i]!.id }));
+  const wsFor = (r: number, lane: number) => workstreams[(r + lane) % workstreams.length]!.id;
   const specs: RunbookSpec[] = Array.from({ length: 30 }, (_, r) => ({
+    ownerId: pool[(r + 8) % pool.length]!.id,
     wbs: String(r + 1),
     number: `RBK${String(1000 + r).padStart(7, '0')}`,
     name: `${rng.pick(['Payroll', 'Finance', 'HR', 'Billing', 'Identity', 'Network', 'Storage', 'CRM', 'Reporting', 'Logistics'])} ${rng.pick(['cutover', 'migration', 'failover', 'upgrade', 'switch'])} ${r + 1}`,
@@ -402,6 +428,7 @@ export function largeEvent(seed = 20261021): EventFixture {
       const counts = Array.from({ length: laneCount }, () => 0);
       for (let i = 0; i < 49; i++) counts[i % laneCount]!++;
       return {
+        workstreams: counts.map((_c, lane) => wsFor(r + s, lane)),
         name: `${rng.pick(['Prepare', 'Extract', 'Failover', 'Verify', 'Load', 'Switch', 'Test', 'Hand over'])} ${s + 1}`,
         lanes: counts.map((c) => Array.from({ length: c }, () => rng.int(2, 12))),
         closer: { title: `Stage ${r + 1}.${s + 1} complete`, kind: 'milestone' as const, minutes: 0 },
@@ -427,7 +454,7 @@ export function largeEvent(seed = 20261021): EventFixture {
     t.result = { value: 'fail', byId: pool[0]!.id, at: iso(now - 3 * MIN) };
   });
   const severities = ['high', 'medium', 'low'] as const;
-  const fx = baseFixture('large-event', built, now);
+  const fx = baseFixture('large-event', built, now, workstreams);
   return {
     ...fx,
     people: [...people, ...pool],

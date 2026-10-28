@@ -21,9 +21,10 @@ Timestamps are ISO 8601 strings in UTC (`"2026-05-25T03:40:00Z"`) so that fixtur
 | --- | --- | --- |
 | `CutoverEvent` | `number` (REV000001), `name`, `state`, `owner`, `window` | The event's planned end is `window.end`. |
 | `Person` | `name`, `initials?` | Assignees, call participants, who did what. |
-| `Runbook` | `number` (RBK0000001), `wbs` (1), `name`, `plannedEnd` | Its forecast end comes from the engine. |
+| `Runbook` | `number` (RBK0000001), `wbs` (1), `name`, `plannedEnd`, `ownerId?` | Its forecast end comes from the engine. The owner is Runbook progress's Owner. |
+| `Workstream` | `id`, `name`, `ownerId` | A team's share of the event, across runbooks (Workstream progress). Added 28 Oct 2026. |
 | `Stage` | `runbookId`, `wbs` (1.3), `name` | Its times and progress come from its tasks. |
-| `Task` | `wbs` (1.3.5), `kind`, `state`, `planned`, `durationMinutes`, `actual?`, `dependencies`, `constraints?`, `assigneeId?`, `atRisk?`, `paused?`, `workedMinutes?`, `resumedAt?`, `skipped?`, `result?`, `completedAt?` | See below. |
+| `Task` | `wbs` (1.3.5), `kind`, `state`, `planned`, `durationMinutes`, `actual?`, `dependencies`, `constraints?`, `assigneeId?`, `workstreamId?`, `atRisk?`, `paused?`, `workedMinutes?`, `resumedAt?`, `skipped?`, `result?`, `completedAt?` | See below. |
 | `Blocker` | `number` (BLK-102), `title`, `severity`, `state`, `taskIds` | Open blockers block the tasks they hold. |
 | `Issue` | `number` (INC-102), `title`, `severity`, `state`, `taskIds` | Open issues give a task "Has an issue". |
 | `Call` | `checkpointTaskId?`, `opensAt?`, `open`, `participantIds` | A call with a checkpoint id is that checkpoint's Join call; one without is the Collaboration call. |
@@ -37,6 +38,8 @@ Timestamps are ISO 8601 strings in UTC (`"2026-05-25T03:40:00Z"`) so that fixtur
 **Added during the engine build (21 Oct 2026):** `completedAt` (when the user pressed Complete; the 60-second linger and Undo run from it, because the actual end can be back-dated) and `resumedAt` (when a paused task was resumed; with `workedMinutes` it lets the forecast keep the pause).
 
 A **fixture** (`EventFixture`) is `EventRecords` plus `startsAt` (where the clock starts) and `currentUserId` (for "Mine" and the log).
+
+**Every task is in one runbook and one workstream, and every open issue counts once, against its first task.** So Runbook progress and Workstream progress each add up to the Event vitals: tasks complete, total, and open issues by severity. `src/data/reconcile.test.ts` checks this for every fixture.
 
 ## 3. Engine output
 

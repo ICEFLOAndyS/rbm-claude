@@ -36,11 +36,3 @@ export function mockWorkstreamProgress(count = rows.length): RbmWorkstreamProgre
   }));
 }
 
-/**
- * The same sample moved to start at `start` (the board's first workstream starts 24 Oct 22:00), for a page that
- * shows it beside a real event. The data model has no workstreams yet, so the Exec Briefing Centre uses this.
- */
-export function mockWorkstreamProgressFrom(start: Date, count = rows.length): RbmWorkstreamProgressItem[] {
-  const shift = start.getTime() - at(24, '22:00').getTime();
-  return mockWorkstreamProgress(count).map((w) => ({ ...w, start: new Date(w.start.getTime() + shift), end: new Date(w.end.getTime() + shift) }));
-}

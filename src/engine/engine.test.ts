@@ -18,6 +18,7 @@ function event(tasks: Task[], over: Partial<EventRecords> = {}): EventRecords {
     event: { id: 'e', number: 'E1', name: 'Test', state: 'active', owner: 'Team', window: { start: T('10:00'), end: T('11:00') } },
     people: [{ id: 'me', name: 'Andy Smith' }, { id: 'lc', name: 'L. Chen' }],
     runbooks: [{ id: 'rb', number: 'RBK0000001', wbs: '1', name: 'Runbook', plannedEnd: T('11:00') }],
+    workstreams: [],
     stages: [{ id: 'st', runbookId: 'rb', wbs: '1.1', name: 'Stage' }],
     tasks, blockers: [], issues: [], calls: [], watchers: [], log: [], ...over,
   };

@@ -7,12 +7,11 @@ import { createSimClock } from '../engine/clock';
 import { badlyLateEvent, healthyEvent, weekendPayrollCutover } from '../fixtures/build';
 import type { EventFixture } from '../data/types';
 import { EXEC_BRIEFING_LAYOUT } from '../components/RbmLayoutPanel/RbmLayoutPanel';
-import { mockWorkstreamProgressFrom } from '../mocks/workstreamProgress';
 
 /**
  * The Exec Briefing Centre: the Command Centre's template with the Event ribbon and Progress (Runbook progress and
  * Workstream progress side by side) where the Command Centre has its Task Timeline. A JSON fixture run by the fake
- * engine; the runbooks come from the event, the workstreams are a sample (the data model has none yet).
+ * engine; both cards come from the event's tasks and issues, so they add up to the Event vitals.
  */
 const meta: Meta = {
   title: 'Prototype/Exec Briefing Centre',
@@ -26,7 +25,7 @@ function Connected({ fixture, speed }: { fixture: () => EventFixture; speed: num
   const live = useMemo(() => {
     const f = fixture();
     const clock = createSimClock(new Date(f.startsAt), { speed });
-    return { clock, source: createFixtureSource(f, clock), workstreams: mockWorkstreamProgressFrom(new Date(f.event.window.start)) };
+    return { clock, source: createFixtureSource(f, clock) };
     // A new source only when the story changes; speed is set below.
   }, [fixture]);
   useEffect(() => live.clock.setSpeed(speed), [live, speed]);
@@ -34,7 +33,7 @@ function Connected({ fixture, speed }: { fixture: () => EventFixture; speed: num
     live.source.dispose();
     live.clock.dispose();
   }, [live]);
-  return <ExecBriefingCentrePage data={live.source} layoutStore={createLocalLayoutStore('rbm.storybook.execLayout', globalThis.localStorage, EXEC_BRIEFING_LAYOUT)} workstreams={live.workstreams} timeZone="UTC" />;
+  return <ExecBriefingCentrePage data={live.source} layoutStore={createLocalLayoutStore('rbm.storybook.execLayout', globalThis.localStorage, EXEC_BRIEFING_LAYOUT)} timeZone="UTC" />;
 }
 
 const speedArg = { argTypes: { speed: { control: { type: 'select' as const }, options: [0, 1, 10, 60, 300] } }, args: { speed: 0 } };

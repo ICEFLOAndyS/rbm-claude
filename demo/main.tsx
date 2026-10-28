@@ -13,7 +13,6 @@ import { validateFixture } from '../src/data/schema';
 import { CommandCentrePage } from '../src/app/CommandCentrePage';
 import { ExecBriefingCentrePage } from '../src/app/ExecBriefingCentrePage';
 import { EXEC_BRIEFING_LAYOUT } from '../src/components/RbmLayoutPanel/RbmLayoutPanel';
-import { mockWorkstreamProgressFrom } from '../src/mocks/workstreamProgress';
 import { RbmAppShell } from '../src/components/RbmAppShell/RbmAppShell';
 import { useScrollContainer } from '../src/components/RbmAppShell/shellContext';
 import { RbmPageHeader } from '../src/components/RbmPageHeader/RbmPageHeader';
@@ -340,7 +339,7 @@ function Demo() {
               <Box sx={{ p: 8, color: 'text.secondary' }}>Loading {ref.number} · {fixtures[ref.fixture].label}…</Box>
             ) : (
               isExecBriefingCentre(path) ? (
-                <ExecBriefingCentrePage key={`exec-briefing-${ref.fixture}-${run}`} data={live.source} layoutStore={execBriefingLayoutStore} workstreams={mockWorkstreamProgressFrom(new Date(fixture!.event.window.start))} timeZone="UTC" />
+                <ExecBriefingCentrePage key={`exec-briefing-${ref.fixture}-${run}`} data={live.source} layoutStore={execBriefingLayoutStore} timeZone="UTC" />
               ) : (
                 <CommandCentrePage key={`${ref.fixture}-${run}`} data={live.source} layoutStore={layoutStore} timeZone="UTC" loadAllDelayMs={latency} />
               )

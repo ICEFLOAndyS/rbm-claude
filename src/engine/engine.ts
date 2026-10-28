@@ -70,6 +70,27 @@ function remainingMinutes(t: Task, now: number) {
   return Math.max(0, t.durationMinutes - worked);
 }
 
+/**
+ * Work (Event vitals brief, section 3): each task's effective duration, planned before it starts, forecast once
+ * started and actual once Complete. Done is the time worked (paused time is not worked); To do is what is left (the
+ * planned duration, or the forecast remainder of a started task). Skipped tasks and Milestones add nothing. An overrun
+ * grows Done, so the share done can fall. Whole minutes.
+ */
+export function workOf(tasks: Task[], now: number) {
+  let done = 0;
+  let todo = 0;
+  for (const t of tasks) {
+    if (t.kind === 'milestone' || t.state === 'skipped') continue;
+    if (t.state === 'not_started') todo += t.durationMinutes;
+    else if (t.state === 'complete') done += (t.workedMinutes ?? 0) + Math.max(0, ms(t.actual!.end!) - ms(t.resumedAt ?? t.actual!.start!)) / MIN;
+    else {
+      done += (t.workedMinutes ?? 0) + (t.state === 'active' ? Math.max(0, now - ms(t.resumedAt ?? t.actual!.start!)) / MIN : 0);
+      todo += remainingMinutes(t, now);
+    }
+  }
+  return { doneMinutes: Math.round(done), todoMinutes: Math.round(todo) };
+}
+
 /** Works out everything the page shows from the records, at `now`. */
 export function computeSnapshot(records: EventRecords, now: Date, currentUserId: string, s: EngineSettings = DEFAULT_SETTINGS): CommandCentreSnapshot {
   const t0 = now.getTime();
@@ -252,6 +273,7 @@ export function computeSnapshot(records: EventRecords, now: Date, currentUserId:
       blocked: tasks.filter((t) => t.flags.blocked).length,
       total: tasks.length,
     },
+    work: workOf(tasks, t0),
     log: records.log,
   };
 }

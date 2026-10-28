@@ -1,4 +1,4 @@
-import { applyCommand, computeSnapshot, ragFor, settleMilestones, DEFAULT_SETTINGS } from './engine';
+import { applyCommand, computeSnapshot, ragFor, settleMilestones, workOf, DEFAULT_SETTINGS } from './engine';
 import type { EventRecords, Task } from '../data/types';
 import { badlyLateEvent, healthyEvent, weekendPayrollCutover } from '../fixtures/build';
 
@@ -274,5 +274,41 @@ describe('the fixtures', () => {
     expect(s.forecast.rag).toBe('red');
     expect(s.alerts.every((a) => a.severity === 'red')).toBe(true);
     expect(s.alerts.map((a) => a.kind)).toEqual(['blockers', 'failed_check', 'forecast']);
+  });
+});
+
+describe('Work (the Event vitals Work Progress)', () => {
+  const now = Date.parse(T('10:30'));
+
+  it('counts a task not started at its planned duration, all to do', () => {
+    expect(workOf([task('A', '10:40', 20)], now)).toEqual({ doneMinutes: 0, todoMinutes: 20 });
+  });
+
+  it('counts a Complete task at its actual duration, all done, so an overrun grows it', () => {
+    const t = task('A', '10:00', 20, [], { state: 'complete', actual: { start: T('10:00'), end: T('10:25') } });
+    expect(workOf([t], now)).toEqual({ doneMinutes: 25, todoMinutes: 0 });
+  });
+
+  it('splits an active task into the time worked and the forecast left', () => {
+    const t = task('A', '10:20', 30, [], { state: 'active', actual: { start: T('10:20') } });
+    expect(workOf([t], now)).toEqual({ doneMinutes: 10, todoMinutes: 20 });
+  });
+
+  it('does not count paused time as worked', () => {
+    const t = task('A', '10:00', 30, [], { state: 'paused', actual: { start: T('10:00') }, workedMinutes: 12, paused: { byId: 'me', at: T('10:12') } });
+    expect(workOf([t], now)).toEqual({ doneMinutes: 12, todoMinutes: 18 });
+  });
+
+  it('adds nothing for Milestones and skipped tasks', () => {
+    const m = task('M', '10:40', 0, [], { kind: 'milestone' });
+    const s = task('S', '10:00', 15, [], { state: 'skipped', actual: { end: T('10:05') }, skipped: { byId: 'me', at: T('10:05'), reason: 'Not needed' } });
+    expect(workOf([m, s], now)).toEqual({ doneMinutes: 0, todoMinutes: 0 });
+  });
+
+  it('is in the snapshot, from the same tasks', () => {
+    const records = event(plan());
+    const snap = computeSnapshot(records, at('10:00'), 'me');
+    expect(snap.work).toEqual(workOf(snap.tasks, Date.parse(T('10:00'))));
+    expect(snap.work.doneMinutes + snap.work.todoMinutes).toBe(20 + 20 + 20 + 10);
   });
 });

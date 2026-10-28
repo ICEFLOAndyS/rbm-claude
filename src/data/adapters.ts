@@ -45,10 +45,12 @@ const openBySeverity = (s: CommandCentreSnapshot, sev: Severity) => s.issues.fil
 export function toVitals(s: CommandCentreSnapshot): RbmEventVitalsData {
   const start = d(s.event.window.start);
   return {
-    progress: s.progress,
+    work: s.work,
+    eventComplete: s.event.state === 'complete',
+    tasks: s.progress,
     issues: { high: openBySeverity(s, 'high'), medium: openBySeverity(s, 'medium'), low: openBySeverity(s, 'low') },
     start: {
-      at: start,
+      time: start,
       elapsedMinutes: Math.max(0, Math.round((d(s.now).getTime() - start.getTime()) / MIN)),
       plannedMinutes: Math.round((d(s.event.window.end).getTime() - start.getTime()) / MIN),
     },

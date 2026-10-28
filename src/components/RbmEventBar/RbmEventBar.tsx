@@ -71,7 +71,7 @@ export function RbmEventBar({ event, vitals, alerts, visible, timeZone, onOpenPr
   // The bar is a D2 Compact region; it is as tall as its forecast time at the D2 figure size needs.
   const d = useDensity();
   const s = palette.status;
-  const { progress, issues, forecast } = vitals;
+  const { tasks: progress, issues, forecast } = vitals;
   const share = (n: number) => (progress.total > 0 ? (n / progress.total) * 100 : 0);
   const percent = Math.round(share(progress.complete));
   const open = issues.high + issues.medium + issues.low;

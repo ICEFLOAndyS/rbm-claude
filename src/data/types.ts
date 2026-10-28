@@ -295,6 +295,8 @@ export interface CommandCentreSnapshot {
   alerts: Alert[];
   nextCheckpoint?: NextCheckpoint;
   progress: { complete: number; active: number; blocked: number; total: number };
+  /** Work done and to do, in minutes, from the Planning engine (the Event vitals' Work Progress). */
+  work: { doneMinutes: number; todoMinutes: number };
   log: EventLogEntry[];
 }
 

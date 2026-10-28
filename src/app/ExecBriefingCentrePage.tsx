@@ -89,6 +89,7 @@ export function ExecBriefingCentrePage({ data, layoutStore, timeZone }: ExecBrie
           <RbmEventVitals
             data={vitals}
             timeZone={timeZone}
+            onOpenWork={notBuilt('The task list')}
             onOpenProgress={notBuilt('The task list')}
             onOpenIssues={notBuilt('The issue list')}
             onOpenForecast={notBuilt('The late tasks and critical path')}

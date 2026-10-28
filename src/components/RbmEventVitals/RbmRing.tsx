@@ -11,7 +11,10 @@ export interface RbmRingProps {
   total: number;
   /** The figure in the centre, for example "68%". */
   centre: string;
+  /** The ring's width in px: 60 in the five-card Event vitals (was 84). */
   size?: number;
+  /** The centre figure's size in px (16 at 60 px, as drawn; 20 at 84 px). */
+  centreSize?: number;
 }
 
 /**
@@ -30,7 +33,7 @@ export function ringSegments(values: number[], total: number) {
 }
 
 /** The ring from the Column ring, in small form: Rule track, coloured segments, a figure in the centre. */
-export function RbmRing({ segments, total, centre, size = 84 }: RbmRingProps) {
+export function RbmRing({ segments, total, centre, size = 84, centreSize = size >= 84 ? 20 : 16 }: RbmRingProps) {
   const { palette } = useTheme();
   const geometry = ringSegments(segments.map((s) => s.value), total);
   return (
@@ -56,7 +59,7 @@ export function RbmRing({ segments, total, centre, size = 84 }: RbmRingProps) {
           ) : null,
         )}
       </svg>
-      <Box aria-hidden="true" sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 800, color: 'text.primary' }}>
+      <Box aria-hidden="true" sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: centreSize, fontWeight: 800, color: 'text.primary' }}>
         {centre}
       </Box>
     </Box>

@@ -30,7 +30,7 @@ describe.each([
   const fixture = build();
   const s = snapshotOf(fixture);
   const vitals = toVitals(s);
-  const event = { complete: vitals.progress.complete, total: vitals.progress.total, ...vitals.issues };
+  const event = { complete: vitals.tasks.complete, total: vitals.tasks.total, ...vitals.issues };
 
   it('puts every task in one runbook and one known workstream', () => {
     expect(validateFixture(JSON.parse(JSON.stringify(fixture))).errors).toEqual([]);
@@ -59,7 +59,7 @@ describe('Weekend Payroll Cutover, as on the Command board', () => {
 
   it('has 124 tasks, 69 complete and 5 open issues (1 high, 3 medium, 1 low)', () => {
     const v = toVitals(s);
-    expect(v.progress).toMatchObject({ complete: 69, total: 124 });
+    expect(v.tasks).toMatchObject({ complete: 69, total: 124 });
     expect(v.issues).toEqual({ high: 1, medium: 3, low: 1 });
   });
 

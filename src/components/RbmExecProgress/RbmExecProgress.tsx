@@ -106,11 +106,12 @@ export function execProgressSummary(item: RbmExecProgressItem, timeZone?: string
 type ColumnKey = 'bar' | 'owner' | 'done' | 'todo' | 'total' | 'high' | 'medium' | 'low' | 'startEnd' | 'start' | 'end' | 'doneTotal' | 'issues' | 'status';
 interface Column {
   key: ColumnKey;
+  /** The drawn width. The status column grows past it to fit the widest status in the card. */
   width?: number;
   heading: string;
   align?: 'right';
-  /** Task and issue stats: these columns go when the stats are hidden. */
-  stat?: 'tasks' | 'issues';
+  /** The stats: task counts, open issues, and start and end. These columns go when the stats are hidden. */
+  stat?: 'tasks' | 'issues' | 'dates';
 }
 
 /**
@@ -132,7 +133,7 @@ const drawn: Record<DensityLevel, { columns: Column[]; bar: number; percent: num
       { key: 'high', width: 52, heading: 'High', align: 'right', stat: 'issues' },
       { key: 'medium', width: 60, heading: 'Medium', align: 'right', stat: 'issues' },
       { key: 'low', width: 44, heading: 'Low', align: 'right', stat: 'issues' },
-      { key: 'startEnd', width: 104, heading: 'Start / end' },
+      { key: 'startEnd', width: 104, heading: 'Start / end', stat: 'dates' },
       { key: 'status', width: 160, heading: 'Status' },
     ],
     bar: 10, percent: 40, glyph: 20, avatar: 18, title: 18,
@@ -147,8 +148,8 @@ const drawn: Record<DensityLevel, { columns: Column[]; bar: number; percent: num
       { key: 'high', width: 40, heading: 'High', align: 'right', stat: 'issues' },
       { key: 'medium', width: 54, heading: 'Medium', align: 'right', stat: 'issues' },
       { key: 'low', width: 38, heading: 'Low', align: 'right', stat: 'issues' },
-      { key: 'start', width: 78, heading: 'Start' },
-      { key: 'end', width: 78, heading: 'End' },
+      { key: 'start', width: 78, heading: 'Start', stat: 'dates' },
+      { key: 'end', width: 78, heading: 'End', stat: 'dates' },
       { key: 'status', width: 130, heading: 'Status' },
     ],
     bar: 8, percent: 40, glyph: 16, avatar: 24, title: 18,
@@ -159,7 +160,7 @@ const drawn: Record<DensityLevel, { columns: Column[]; bar: number; percent: num
       { key: 'doneTotal', width: 84, heading: 'Done / total', align: 'right', stat: 'tasks' },
       { key: 'issues', width: 140, heading: 'Issues H · M · L', stat: 'issues' },
       { key: 'owner', width: 46, heading: 'Owner' },
-      { key: 'end', width: 96, heading: 'End' },
+      { key: 'end', width: 96, heading: 'End', stat: 'dates' },
       { key: 'status', width: 150, heading: 'Status' },
     ],
     bar: 6, percent: 40, glyph: 14, avatar: 20, title: 18,
@@ -172,26 +173,54 @@ const COMMAND_NAME_WIDTH = 280;
 /** Workstream progress's drawn name widths: the default. */
 export const DEFAULT_NAME_WIDTH: RbmExecProgressNameWidth = { comfortable: 180, compact: 170, dense: 150 };
 
-/** The narrowest the bar may be: below it the card is too narrow for its columns. */
-export const EXEC_PROGRESS_MIN_BAR = 100;
+/** The narrowest the bar itself may be, not counting the percentage beside it. */
+export const EXEC_PROGRESS_MIN_BAR = 120;
 
 const columnsAt = (level: DensityLevel, showStats: boolean) => drawn[level].columns.filter((c) => showStats || !c.stat);
 const nameAt = (level: DensityLevel, nameWidth: RbmExecProgressNameWidth) => (level === 'command' ? COMMAND_NAME_WIDTH : nameWidth[level]);
 
 /**
- * The narrowest the card can be at a density, with or without the task and issue stats: the name, the fixed columns,
- * a 100 px bar, the gaps, and the card's padding and border. A page uses it to decide whether two cards fit side by side.
+ * About how wide a status is: its icon and word, and Late's when late. An estimate (Inter bold at about 0.62 em a
+ * letter), used only to size the card; the Status column itself fits the real text.
  */
-export function execProgressMinWidth(level: DensityLevel, { nameWidth = DEFAULT_NAME_WIDTH, showStats = true }: { nameWidth?: RbmExecProgressNameWidth; showStats?: boolean } = {}) {
+function statusWidth(level: DensityLevel, item: Pick<RbmExecProgressItem, 'state' | 'late'>) {
+  const { glyph } = drawn[level];
+  const fontSize = level === 'dense' ? density[level].caption : density[level].body;
+  const word = (text: string) => glyph + 6 + Math.ceil(text.length * fontSize * 0.62);
+  return word(suiteStates[item.state].label) + (item.late ? 14 + word('Late') : 0);
+}
+
+/**
+ * The narrowest the card can be at a density, with or without the task and issue stats: the name, the fixed columns,
+ * the bar (at least EXEC_PROGRESS_MIN_BAR, plus its percentage), the gaps, and the card's padding and border. Given the
+ * items, the Status column is as wide as their widest status needs (it grows past its drawn width, for example for
+ * "Scheduled" with "Late"). A page uses it to decide whether two cards fit side by side.
+ */
+export function execProgressMinWidth(
+  level: DensityLevel,
+  { nameWidth = DEFAULT_NAME_WIDTH, showStats = true, items = [] }: { nameWidth?: RbmExecProgressNameWidth; showStats?: boolean; items?: readonly RbmExecProgressItem[] } = {},
+) {
   const columns = columnsAt(level, showStats);
   const d = density[level];
-  const fixed = columns.reduce((sum, c) => sum + (c.width ?? EXEC_PROGRESS_MIN_BAR), 0);
+  const shown = [...items].sort(byStart).slice(0, EXEC_PROGRESS_ROW_LIMIT);
+  const width = (c: Column) =>
+    !c.width ? EXEC_PROGRESS_MIN_BAR + 12 + drawn[level].percent : c.key === 'status' ? Math.max(c.width, ...shown.map((i) => statusWidth(level, i))) : c.width;
+  const fixed = columns.reduce((sum, c) => sum + width(c), 0);
   // The name, the columns and the gaps between them; the rows' 4 px inset each side; the card's padding and border.
   return nameAt(level, nameWidth) + fixed + columns.length * d.gap + 2 * 4 + 2 * d.padX + 2;
 }
 
-/** The card's columns at its density, and their template, shared by the headers, rows and loading rows. */
-const ColumnsContext = createContext<{ columns: Column[]; template: string }>({ columns: [], template: '' });
+/** The card's columns at its density, shared by the headers, rows and loading rows. */
+const ColumnsContext = createContext<{ columns: Column[] }>({ columns: [] });
+
+/**
+ * One track per column. The status column is at least its drawn width and grows to fit the widest status shown (for
+ * example "Scheduled" with "Late"), taking the width from the bar, so a status never runs past the card's edge.
+ */
+const trackOf = (c: Column) => (!c.width ? 'minmax(0,1fr)' : c.key === 'status' ? `minmax(${c.width}px,max-content)` : `${c.width}px`);
+
+/** A line of the card's one grid: its columns line up with every other line's (CSS subgrid). */
+const line = { display: 'grid', gridColumn: '1 / -1', gridTemplateColumns: 'subgrid' } as const;
 const useColumns = () => useContext(ColumnsContext);
 
 const capital = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
@@ -208,9 +237,7 @@ function Grid({ header, children }: { header?: boolean; children: ReactNode }) {
   return (
     <Box
       sx={{
-        display: 'grid',
-        gridTemplateColumns: useColumns().template,
-        gap: `${d.gap}px`,
+        ...line,
         alignItems: 'center',
         px: 1,
         ...(header
@@ -225,8 +252,7 @@ function Grid({ header, children }: { header?: boolean; children: ReactNode }) {
 
 /** The two-level header's top line at D1 and D2: Tasks and Open issues over their three columns. */
 function GroupHeader() {
-  const d = useDensity();
-  const { columns, template } = useColumns();
+  const { columns } = useColumns();
   // Grid lines count from 1, and the name column comes first.
   const group = (label: string, stat: Column['stat']) => {
     const first = columns.findIndex((c) => c.stat === stat);
@@ -238,7 +264,7 @@ function GroupHeader() {
     );
   };
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: template, gap: `${d.gap}px`, alignItems: 'center', height: 22, px: 1, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'text.secondary' }}>
+    <Box sx={{ ...line, alignItems: 'center', height: 22, px: 1, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'text.secondary' }}>
       {group('Tasks', 'tasks')}
       {group('Open issues', 'issues')}
     </Box>
@@ -375,10 +401,10 @@ function Row({ item, timeZone }: { item: RbmExecProgressItem; timeZone?: string 
     );
 
   return (
-    <Box component="li" sx={{ position: 'relative', listStyle: 'none' }}>
+    <Box component="li" sx={{ ...line, position: 'relative', listStyle: 'none' }}>
       {/* The progress bar carries the whole row for a screen reader, stats included; the cells are for the eye. */}
       <Box role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label={execProgressSummary(item, timeZone)} sx={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
-      <Box aria-hidden="true">
+      <Box aria-hidden="true" sx={line}>
         <Grid>
           {first}
           {columns.map((c) => (
@@ -397,7 +423,7 @@ function LoadingRow() {
   const { columns } = useColumns();
   const block = (width: number | string, height = 12) => <Box component="span" sx={{ display: 'block', width, height, borderRadius: '6px', bgcolor: 'divider' }} />;
   return (
-    <Box component="li" aria-hidden="true" sx={{ listStyle: 'none' }}>
+    <Box component="li" aria-hidden="true" sx={{ ...line, listStyle: 'none' }}>
       <Grid>
         <span>{block(d.level === 'command' ? 180 : 110)}</span>
         {columns.map((c) => (
@@ -415,9 +441,10 @@ function LoadingRow() {
  * component decided by Andy Smith, 27 Oct 2026). Ordered by start time, ten rows at most, no click-through. Density
  * comes from the region (RbmDensity): D0 shows Essential only; D1 and D2 show all; D3 is one line.
  *
- * The task and issue stats can be hidden (asked by Andy Smith, 28 Oct 2026; the control is not drawn): their columns
- * go, the progress bar takes the width they leave, and the card's narrowest width (execProgressMinWidth) shrinks.
- * Shown, the columns come back and the card needs its full width again. D0 has no stats, so it has no control.
+ * The stats (task counts, open issues, start and end) can be hidden, and are by default (asked by Andy Smith, 28 Oct
+ * 2026; the control is not drawn): their columns go, the progress bar takes the width they leave, and the card's
+ * narrowest width (execProgressMinWidth) shrinks. Shown, the columns come back and the card needs its full width
+ * again. D0 has no stats, so it has no control. The card fills its container's height, so two side by side match.
  */
 export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_WIDTH, loading = false, timeZone, showStats: showStatsProp, onShowStatsChange }: RbmExecProgressProps) {
   const id = useId();
@@ -431,7 +458,7 @@ export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_W
   };
   const hasStats = size.columns.some((c) => c.stat);
   const columns = columnsAt(d.level, showStats);
-  const template = [`${nameAt(d.level, nameWidth)}px`, ...columns.map((c) => (c.width ? `${c.width}px` : 'minmax(0,1fr)'))].join(' ');
+  const template = [`${nameAt(d.level, nameWidth)}px`, ...columns.map(trackOf)].join(' ');
   const sorted = [...items].sort(byStart);
   const shown = sorted.slice(0, EXEC_PROGRESS_ROW_LIMIT);
   const more = sorted.length - shown.length;
@@ -440,13 +467,13 @@ export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_W
   const twoLevel = showStats && (d.level === 'comfortable' || d.level === 'compact');
 
   return (
-    <ColumnsContext.Provider value={{ columns, template }}>
+    <ColumnsContext.Provider value={{ columns }}>
       <Box
         component="section"
         aria-labelledby={id}
         aria-busy={loading || undefined}
         data-stats={hasStats ? (showStats ? 'shown' : 'hidden') : undefined}
-        sx={{ border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', py: '20px', px: `${d.padX}px`, minWidth: 0 }}
+        sx={{ border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', py: '20px', px: `${d.padX}px`, minWidth: 0, height: '100%', boxSizing: 'border-box' }}
       >
         <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 4, mb: 3 }}>
           <Box component="h3" id={id} sx={{ m: 0, fontSize: size.title, lineHeight: 1.2, fontWeight: 800, letterSpacing: '-0.01em', color: 'text.primary' }}>
@@ -457,7 +484,7 @@ export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_W
               {caption}
             </Box>
             {hasStats && !empty && (
-              <RbmToggleLink onClick={() => setShowStats(!showStats)} label={`${showStats ? 'Hide' : 'Show'} task and issue stats`}>
+              <RbmToggleLink onClick={() => setShowStats(!showStats)} label={`${showStats ? 'Hide' : 'Show'} stats: tasks, issues, start and end`}>
                 {showStats ? 'Hide stats' : 'Show stats'}
               </RbmToggleLink>
             )}
@@ -467,8 +494,8 @@ export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_W
         {empty ? (
           <Box sx={{ height: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: d.body, color: 'text.secondary' }}>No {noun.many} yet.</Box>
         ) : (
-          <>
-            <Box aria-hidden="true">
+          <Box data-testid="rbm-progress-grid" sx={{ display: 'grid', gridTemplateColumns: template, columnGap: `${d.gap}px` }}>
+            <Box aria-hidden="true" sx={line}>
               {twoLevel && <GroupHeader />}
               <Grid header>
                 <Box component="span" sx={ellipsis}>
@@ -482,7 +509,7 @@ export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_W
               </Grid>
             </Box>
             {loading ? (
-              <Box component="ul" sx={{ m: 0, p: 0 }}>
+              <Box component="ul" sx={{ ...line, m: 0, p: 0 }}>
                 <Box component="li" sx={visuallyHidden}>
                   Loading {noun.many}
                 </Box>
@@ -491,18 +518,18 @@ export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_W
                 <LoadingRow />
               </Box>
             ) : (
-              <Box component="ul" aria-labelledby={id} sx={{ m: 0, p: 0 }}>
+              <Box component="ul" aria-labelledby={id} sx={{ ...line, m: 0, p: 0 }}>
                 {shown.map((item) => (
                   <Row key={item.id} item={item} timeZone={timeZone} />
                 ))}
               </Box>
             )}
             {!loading && more > 0 && (
-              <Box sx={{ display: 'flex', alignItems: 'center', height: d.row, px: 1, fontSize: d.body, color: 'text.secondary' }}>
+              <Box sx={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', height: d.row, px: 1, fontSize: d.body, color: 'text.secondary' }}>
                 +{more} more {more === 1 ? noun.one : noun.many}
               </Box>
             )}
-          </>
+          </Box>
         )}
       </Box>
     </ColumnsContext.Provider>

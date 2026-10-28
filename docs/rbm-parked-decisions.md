@@ -1274,6 +1274,12 @@ Not drawn, so I chose (flag, confirm or replace):
 - **Not drawn:** the link (RbmToggleLink, the Collapse link's style without the chevron) and its place.
 - **Default: Hide stats (decided by Andy Smith, 28 Oct 2026).** Both cards open with their task and issue stats hidden, everywhere they are used (`showStats` defaults to false); "Show stats" brings them back for the visit.
 
+### 28 Oct 2026: Progress cards, three fixes (asked by Andy Smith, from docs/diags/progress-errors.png)
+- **Status and Late fit inside the card.** "Scheduled" with "Late" was wider than the drawn Status column (130 px at D2) and ran past the card's edge. The card's rows are now one grid (CSS subgrid), and the Status column is at least its drawn width and grows to fit the widest status in the card; every row stays lined up and the bar gives up the width. The card's narrowest width (`execProgressMinWidth`) now allows for its own statuses and keeps a real bar (at least 120 px, plus its percentage), so two cards only sit side by side when everything fits. **Differs from the design:** the Status column can be wider than drawn.
+- **Start and End are stats.** They are hidden with the task and issue counts and come back with "Show stats" (at D1 Start / end; at D3 End). Screen readers hear them in each row's summary either way; the link is named "Show stats: tasks, issues, start and end".
+- **Equal heights.** Side by side, the two cards stretch to the taller one's height.
+- **Sizes now, at D2, stats hidden:** each card is the name, the bar, Owner and Status, so they sit side by side at about a 2,100 px window (sidebar and Hot-topics panel open) and stack at 1,920 px.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

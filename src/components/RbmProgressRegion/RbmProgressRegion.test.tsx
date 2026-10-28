@@ -36,7 +36,10 @@ describe('RbmProgressRegion', () => {
 
   it('gives each card the width its columns need, stats hidden by default, so they sit side by side when both fit and wrap when not', () => {
     renderRegion();
-    expect(minWidths()).toEqual([execProgressMinWidth('compact', { nameWidth: RUNBOOK_NAME_WIDTH, showStats: false }), execProgressMinWidth('compact', { showStats: false })]);
+    expect(minWidths()).toEqual([
+      execProgressMinWidth('compact', { nameWidth: RUNBOOK_NAME_WIDTH, showStats: false, items: mockRunbookProgress(5) }),
+      execProgressMinWidth('compact', { showStats: false, items: mockWorkstreamProgress() }),
+    ]);
     expect(getComputedStyle(screen.getByTestId('rbm-progress-cards')).flexWrap).toBe('wrap');
   });
 
@@ -45,12 +48,12 @@ describe('RbmProgressRegion', () => {
     renderRegion({ onStatsChange });
     const [runbooks] = screen.getAllByRole('region', { name: /progress$/ });
     const before = minWidths();
-    await userEvent.click(within(runbooks!).getByRole('button', { name: 'Show task and issue stats' }));
+    await userEvent.click(within(runbooks!).getByRole('button', { name: 'Show stats: tasks, issues, start and end' }));
     expect(onStatsChange).toHaveBeenLastCalledWith({ runbooks: true, workstreams: false });
-    expect(minWidths()[0]).toBe(execProgressMinWidth('compact', { nameWidth: RUNBOOK_NAME_WIDTH }));
+    expect(minWidths()[0]).toBe(execProgressMinWidth('compact', { nameWidth: RUNBOOK_NAME_WIDTH, items: mockRunbookProgress(5) }));
     expect(minWidths()[0]).toBeGreaterThan(before[0]!);
     expect(minWidths()[1]).toBe(before[1]);
-    await userEvent.click(within(runbooks!).getByRole('button', { name: 'Hide task and issue stats' }));
+    await userEvent.click(within(runbooks!).getByRole('button', { name: 'Hide stats: tasks, issues, start and end' }));
     expect(minWidths()).toEqual(before);
   });
 
@@ -69,6 +72,15 @@ describe('RbmProgressRegion', () => {
     expect(within(summary).getAllByRole('listitem').map((c) => c.getAttribute('aria-label'))).toEqual(['5 runbooks', '12 workstreams', `${late} late`]);
     await userEvent.click(screen.getByRole('button', { name: 'Expand Progress' }));
     expect(onCollapsedChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it('stretches the two cards to the same height when they sit side by side', () => {
+    renderRegion();
+    expect(getComputedStyle(screen.getByTestId('rbm-progress-cards')).alignItems).toBe('stretch');
+    for (const slot of screen.getAllByTestId('rbm-progress-slot')) {
+      expect(getComputedStyle(slot).display).toBe('flex');
+      expect(getComputedStyle(slot.firstElementChild!).height).toBe('100%');
+    }
   });
 
   it('has no Collapse link without a handler', () => {

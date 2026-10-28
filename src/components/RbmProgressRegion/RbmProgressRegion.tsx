@@ -60,9 +60,11 @@ export function RbmProgressRegion({ runbooks, workstreams, loading, collapsed = 
   }
 
   // Each card starts at its narrowest and grows into the width left; below it, it wraps under the other.
-  const slot = (min: number) => ({ flex: `1 1 ${min}px`, minWidth: `min(100%, ${min}px)` });
-  const runbookMin = execProgressMinWidth(d.level, { nameWidth: RUNBOOK_NAME_WIDTH, showStats: stats.runbooks });
-  const workstreamMin = execProgressMinWidth(d.level, { showStats: stats.workstreams });
+  // Side by side, the cards stretch to the taller one's height.
+  const slot = (min: number) => ({ flex: `1 1 ${min}px`, minWidth: `min(100%, ${min}px)`, display: 'flex', flexDirection: 'column' });
+  // The widths allow for each card's own statuses, so Status and Late always fit inside it.
+  const runbookMin = execProgressMinWidth(d.level, { nameWidth: RUNBOOK_NAME_WIDTH, showStats: stats.runbooks, items: runbooks });
+  const workstreamMin = execProgressMinWidth(d.level, { showStats: stats.workstreams, items: workstreams });
 
   return (
     <Box component="section" aria-label={PROGRESS_REGION_LABEL} sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, lineHeight: 'normal' }}>
@@ -70,7 +72,7 @@ export function RbmProgressRegion({ runbooks, workstreams, loading, collapsed = 
         <RbmEyebrow>{NAME}</RbmEyebrow>
         {onCollapsedChange && <RbmRegionToggle region={NAME} collapsed={false} onChange={onCollapsedChange} />}
       </Box>
-      <Box data-testid="rbm-progress-cards" sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: `${d.gap}px` }}>
+      <Box data-testid="rbm-progress-cards" sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'stretch', gap: `${d.gap}px` }}>
         <Box data-testid="rbm-progress-slot" data-min-width={runbookMin} sx={slot(runbookMin)}>
           <RbmRunbookProgress items={runbooks} loading={loading} timeZone={timeZone} showStats={stats.runbooks} onShowStatsChange={(show) => setStats({ runbooks: show })} />
         </Box>

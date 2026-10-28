@@ -159,7 +159,7 @@ describe('RbmRunbookProgress', () => {
   });
 
   it('shows the owner and start over end at D1', () => {
-    renderCard(<RbmRunbookProgress items={[item('Core network cutover')]} timeZone="UTC" />);
+    renderCard(<RbmRunbookProgress showStats items={[item('Core network cutover')]} timeZone="UTC" />);
     expect(screen.getByText('R. Patel')).toBeInTheDocument();
     expect(screen.getByText('24 Oct 22:30')).toBeInTheDocument();
     expect(screen.getByText('25 Oct 03:00')).toBeInTheDocument();
@@ -184,7 +184,7 @@ describe('RbmRunbookProgress', () => {
   it('has no click-through: the only control is the stats button, Show stats by default', () => {
     const { container } = renderCard(<RbmRunbookProgress items={all} />);
     expect(container.querySelectorAll('button, a, [tabindex]')).toHaveLength(1);
-    expect(container.querySelector('button')).toHaveAccessibleName('Show task and issue stats');
+    expect(container.querySelector('button')).toHaveAccessibleName('Show stats: tasks, issues, start and end');
   });
 
   describe('by density', () => {
@@ -199,7 +199,7 @@ describe('RbmRunbookProgress', () => {
     });
 
     it('D2 shows owner initials, and Start and End in their own columns', () => {
-      renderCard(<RbmRunbookProgress items={[item('Core network cutover')]} timeZone="UTC" />, 'compact');
+      renderCard(<RbmRunbookProgress showStats items={[item('Core network cutover')]} timeZone="UTC" />, 'compact');
       expect(screen.getByText('RP')).toBeInTheDocument();
       expect(screen.queryByText('R. Patel')).not.toBeInTheDocument();
       expect(screen.getByText('Start')).toBeInTheDocument();

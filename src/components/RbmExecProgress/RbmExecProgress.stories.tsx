@@ -33,3 +33,14 @@ export const Empty: Story = { args: { items: [], title: 'Team progress', noun: {
 
 /** The task and issue stats shown (hidden is the default): Tasks and Open issues come back and the bar narrows. */
 export const StatsShown: Story = { args: { showStats: true }, decorators: [(Story) => <RbmDensity level="compact"><Story /></RbmDensity>] };
+
+/** The longest states with Late: the Status column is one width for every state, and every Late lines up at its right. */
+export const LongStates: Story = {
+  args: {
+    items: mockRunbookProgress(5).map((r, i) => ({ ...r, state: (['backingOut', 'suspended', 'scheduled', 'active', 'abandoned'] as const)[i]!, late: i !== 3 })),
+    title: 'Runbook progress',
+    noun: { one: 'runbook', many: 'runbooks' },
+    nameWidth: { comfortable: 230, compact: 190, dense: 190 },
+  },
+  decorators: [(Story) => <RbmDensity level="compact"><Box sx={{ maxWidth: 700 }}><Story /></Box></RbmDensity>],
+};

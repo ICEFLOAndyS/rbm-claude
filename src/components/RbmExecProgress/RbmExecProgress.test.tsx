@@ -3,7 +3,8 @@ import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
 import source from './RbmExecProgress.tsx?raw';
 import userEvent from '@testing-library/user-event';
-import { DEFAULT_NAME_WIDTH, RbmExecProgress, execProgressMinWidth, type RbmExecProgressNoun } from './RbmExecProgress';
+import { DEFAULT_NAME_WIDTH, RbmExecProgress, execProgressMinWidth, statusColumnWidth, type RbmExecProgressNoun } from './RbmExecProgress';
+import type { RbmSuiteState } from '../../icons/states';
 import { RbmRunbookProgress } from '../RbmRunbookProgress/RbmRunbookProgress';
 import { RbmWorkstreamProgress } from '../RbmWorkstreamProgress/RbmWorkstreamProgress';
 import { mockWorkstreamProgress } from '../../mocks/workstreamProgress';
@@ -153,20 +154,28 @@ describe('RbmExecProgress', () => {
       ['compact', 130],
       ['dense', 150],
       ['command', 300],
-    ] as const)('at %s is at least its drawn %i px and grows to fit the widest status, such as Scheduled and Late', (level, px) => {
+    ] as const)('at %s is one fixed width, never narrower than the drawn %i px, and fits the longest state with Late', (level, px) => {
       renderCard(<RbmExecProgress items={items} title="T" noun={team} />, level);
-      expect(getComputedStyle(screen.getByTestId('rbm-progress-grid')).gridTemplateColumns).toMatch(new RegExp(`minmax\\(${px}px,max-content\\)$`));
+      const w = statusColumnWidth(level);
+      expect(w).toBeGreaterThanOrEqual(px);
+      expect(getComputedStyle(screen.getByTestId('rbm-progress-grid')).gridTemplateColumns).toMatch(new RegExp(` ${w}px$`));
     });
 
-    it('makes the card wide enough for its widest status: Scheduled with Late needs more than Active', () => {
-      const active = { ...items[1]!, state: 'active' as const, late: false };
-      const scheduledLate = { ...items[1]!, state: 'scheduled' as const, late: true };
-      const plain = execProgressMinWidth('compact', { showStats: false, items: [active] });
-      expect(plain).toBe(execProgressMinWidth('compact', { showStats: false }));
-      expect(execProgressMinWidth('compact', { showStats: false, items: [active, scheduledLate] })).toBeGreaterThan(plain);
+    it('is the same width whatever the states in the card, so a long state never moves it', () => {
+      const one = (state: RbmSuiteState, late: boolean) => [{ ...items[1]!, state, late }];
+      const { unmount } = renderCard(<RbmExecProgress items={one('active', false)} title="T" noun={team} />, 'compact');
+      const short = getComputedStyle(screen.getByTestId('rbm-progress-grid')).gridTemplateColumns;
+      unmount();
+      renderCard(<RbmExecProgress items={one('backingOut', true)} title="T" noun={team} />, 'compact');
+      expect(getComputedStyle(screen.getByTestId('rbm-progress-grid')).gridTemplateColumns).toBe(short);
     });
 
-    it('lines every row up on the one grid, so a wider status widens the column for all of them', () => {
+    it('puts the state at the left and Late at the right of the column, so every Late lines up', () => {
+      renderCard(<RbmExecProgress items={items} title="T" noun={team} />, 'compact');
+      for (const status of screen.getAllByTestId('rbm-status')) expect(getComputedStyle(status).justifyContent).toBe('space-between');
+    });
+
+    it('lines every row up on the one grid', () => {
       renderCard(<RbmExecProgress items={items} title="T" noun={team} />, 'compact');
       const rows = screen.getAllByRole('listitem').filter((li) => li.querySelector('[role="progressbar"]'));
       for (const row of rows) expect(getComputedStyle(row).gridTemplateColumns).toBe('subgrid');

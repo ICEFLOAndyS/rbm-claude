@@ -106,7 +106,7 @@ export function execProgressSummary(item: RbmExecProgressItem, timeZone?: string
 type ColumnKey = 'bar' | 'owner' | 'done' | 'todo' | 'total' | 'high' | 'medium' | 'low' | 'startEnd' | 'start' | 'end' | 'doneTotal' | 'issues' | 'status';
 interface Column {
   key: ColumnKey;
-  /** The drawn width. The status column grows past it to fit the widest status in the card. */
+  /** The drawn width. The status column is wider where the longest state with Late needs more (statusColumnWidth). */
   width?: number;
   heading: string;
   align?: 'right';
@@ -180,31 +180,28 @@ const columnsAt = (level: DensityLevel, showStats: boolean) => drawn[level].colu
 const nameAt = (level: DensityLevel, nameWidth: RbmExecProgressNameWidth) => (level === 'command' ? COMMAND_NAME_WIDTH : nameWidth[level]);
 
 /**
- * About how wide a status is: its icon and word, and Late's when late. An estimate (Inter bold at about 0.62 em a
- * letter), used only to size the card; the Status column itself fits the real text.
+ * The Status column's width at a density: one width for every card and row, whatever its state, so the column never
+ * moves. Wide enough for the longest Icon suite state ("Backing out") with Late beside it, and never narrower than
+ * drawn. The text widths are estimated (Inter bold at about 0.62 em a letter) with 8 px to spare.
  */
-function statusWidth(level: DensityLevel, item: Pick<RbmExecProgressItem, 'state' | 'late'>) {
+export function statusColumnWidth(level: DensityLevel) {
   const { glyph } = drawn[level];
   const fontSize = level === 'dense' ? density[level].caption : density[level].body;
   const word = (text: string) => glyph + 6 + Math.ceil(text.length * fontSize * 0.62);
-  return word(suiteStates[item.state].label) + (item.late ? 14 + word('Late') : 0);
+  const longest = Math.max(...Object.values(suiteStates).map((s) => word(s.label)));
+  const drawnWidth = drawn[level].columns.find((c) => c.key === 'status')!.width!;
+  return Math.max(drawnWidth, longest + 14 + word('Late') + 8);
 }
 
 /**
- * The narrowest the card can be at a density, with or without the task and issue stats: the name, the fixed columns,
- * the bar (at least EXEC_PROGRESS_MIN_BAR, plus its percentage), the gaps, and the card's padding and border. Given the
- * items, the Status column is as wide as their widest status needs (it grows past its drawn width, for example for
- * "Scheduled" with "Late"). A page uses it to decide whether two cards fit side by side.
+ * The narrowest the card can be at a density, with or without the task and issue stats: the name, the fixed columns
+ * (Status at statusColumnWidth), the bar (at least EXEC_PROGRESS_MIN_BAR, plus its percentage), the gaps, and the
+ * card's padding and border. A page uses it to decide whether two cards fit side by side.
  */
-export function execProgressMinWidth(
-  level: DensityLevel,
-  { nameWidth = DEFAULT_NAME_WIDTH, showStats = true, items = [] }: { nameWidth?: RbmExecProgressNameWidth; showStats?: boolean; items?: readonly RbmExecProgressItem[] } = {},
-) {
+export function execProgressMinWidth(level: DensityLevel, { nameWidth = DEFAULT_NAME_WIDTH, showStats = true }: { nameWidth?: RbmExecProgressNameWidth; showStats?: boolean } = {}) {
   const columns = columnsAt(level, showStats);
   const d = density[level];
-  const shown = [...items].sort(byStart).slice(0, EXEC_PROGRESS_ROW_LIMIT);
-  const width = (c: Column) =>
-    !c.width ? EXEC_PROGRESS_MIN_BAR + 12 + drawn[level].percent : c.key === 'status' ? Math.max(c.width, ...shown.map((i) => statusWidth(level, i))) : c.width;
+  const width = (c: Column) => (!c.width ? EXEC_PROGRESS_MIN_BAR + 12 + drawn[level].percent : c.key === 'status' ? statusColumnWidth(level) : c.width);
   const fixed = columns.reduce((sum, c) => sum + width(c), 0);
   // The name, the columns and the gaps between them; the rows' 4 px inset each side; the card's padding and border.
   return nameAt(level, nameWidth) + fixed + columns.length * d.gap + 2 * 4 + 2 * d.padX + 2;
@@ -213,11 +210,8 @@ export function execProgressMinWidth(
 /** The card's columns at its density, shared by the headers, rows and loading rows. */
 const ColumnsContext = createContext<{ columns: Column[] }>({ columns: [] });
 
-/**
- * One track per column. The status column is at least its drawn width and grows to fit the widest status shown (for
- * example "Scheduled" with "Late"), taking the width from the bar, so a status never runs past the card's edge.
- */
-const trackOf = (c: Column) => (!c.width ? 'minmax(0,1fr)' : c.key === 'status' ? `minmax(${c.width}px,max-content)` : `${c.width}px`);
+/** One track per column: the bar takes what is left; Status is one fixed width for every state (statusColumnWidth). */
+const trackOf = (level: DensityLevel) => (c: Column) => (!c.width ? 'minmax(0,1fr)' : c.key === 'status' ? `${statusColumnWidth(level)}px` : `${c.width}px`);
 
 /** A line of the card's one grid: its columns line up with every other line's (CSS subgrid). */
 const line = { display: 'grid', gridColumn: '1 / -1', gridTemplateColumns: 'subgrid' } as const;
@@ -289,7 +283,7 @@ function Bar({ percent, complete }: { percent: number; complete: boolean }) {
   );
 }
 
-/** The state (icon and word, in the suite's colours) with Late beside it as an amber clock and the word. */
+/** The state (icon and word, in the suite's colours) at the left of the column, and Late (an amber clock and the word) at its right, so every Late lines up. */
 function Status({ state, late }: { state: RbmSuiteState; late: boolean }) {
   const { palette } = useTheme();
   const d = useDensity();
@@ -303,7 +297,7 @@ function Status({ state, late }: { state: RbmSuiteState; late: boolean }) {
   );
   const style = suiteStates[state];
   return (
-    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '14px', minWidth: 0 }}>
+    <Box component="span" data-testid="rbm-status" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', minWidth: 0 }}>
       {word(`state.${state}`, style.label, style.text)}
       {/* The suite has no Late icon: the clock is the Pending state's drawing, as on the board. */}
       {late && word('state.pending', 'Late', palette.status.atRisk.text)}
@@ -458,7 +452,7 @@ export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_W
   };
   const hasStats = size.columns.some((c) => c.stat);
   const columns = columnsAt(d.level, showStats);
-  const template = [`${nameAt(d.level, nameWidth)}px`, ...columns.map(trackOf)].join(' ');
+  const template = [`${nameAt(d.level, nameWidth)}px`, ...columns.map(trackOf(d.level))].join(' ');
   const sorted = [...items].sort(byStart);
   const shown = sorted.slice(0, EXEC_PROGRESS_ROW_LIMIT);
   const more = sorted.length - shown.length;

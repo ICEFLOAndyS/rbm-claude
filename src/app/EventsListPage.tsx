@@ -51,10 +51,10 @@ export interface EventsListPageProps {
    */
   onOpenCommandCentre?: (event: { id: string; number: string }) => void;
   /**
-   * Opens an event's Exec Centre, from a second icon (`centre.executiveBriefing`) beside the Command Centre one, on
-   * the same running events. Without it there is no Exec Centre icon.
+   * Opens an event's Exec Briefing Centre, from a second icon (`centre.executiveBriefing`) beside the Command Centre one, on
+   * the same running events. Without it there is no Exec Briefing Centre icon.
    */
-  onOpenExecCentre?: (event: { id: string; number: string }) => void;
+  onOpenExecBriefingCentre?: (event: { id: string; number: string }) => void;
   /**
    * The scenarios: available, the user's profile, and those on show. The Scenario pill shows them (the list has no
    * header control: Andy Smith, 26 Oct 2026), and the list asks only for events in the scenarios shown; without
@@ -111,7 +111,7 @@ export function countLine(total: number, filters: EventFilters, view: EventFilte
  */
 const hasCommandCentre = (row: EventRow) => row.state === 'active' || row.state === 'paused';
 
-export function EventsListPage({ data, preferences, people, timeZone = 'UTC', address = {}, onAddressChange, onNew, onImport, onOpenFull, onPrimaryAction, onOpenCommandCentre, onOpenExecCentre, scenarios, disableVirtualization }: EventsListPageProps) {
+export function EventsListPage({ data, preferences, people, timeZone = 'UTC', address = {}, onAddressChange, onNew, onImport, onOpenFull, onPrimaryAction, onOpenCommandCentre, onOpenExecBriefingCentre, scenarios, disableVirtualization }: EventsListPageProps) {
   const spec = useMemo(() => eventRecordSpec(timeZone), [timeZone]);
   const grid = useRef<RbmDataGridHandle>(null);
   const panel = useRef<RbmRecordHandle>(null);
@@ -409,18 +409,18 @@ export function EventsListPage({ data, preferences, people, timeZone = 'UTC', ad
         openRowId={openId}
         onOpenRow={(r) => void open(r.id)}
         rowLink={
-          onOpenCommandCentre || onOpenExecCentre
+          onOpenCommandCentre || onOpenExecBriefingCentre
             ? (r): RbmGridRowLink[] | null =>
                 hasCommandCentre(r)
                   ? [
                       ...(onOpenCommandCentre ? [{ label: 'Open Command Centre', name: `Open Command Centre, ${r.number}`, icon: 'centre.commandControl' as const, onSelect: () => onOpenCommandCentre(r) }] : []),
-                      ...(onOpenExecCentre ? [{ label: 'Open Exec Centre', name: `Open Exec Centre, ${r.number}`, icon: 'centre.executiveBriefing' as const, onSelect: () => onOpenExecCentre(r) }] : []),
+                      ...(onOpenExecBriefingCentre ? [{ label: 'Open Exec Briefing Centre', name: `Open Exec Briefing Centre, ${r.number}`, icon: 'centre.executiveBriefing' as const, onSelect: () => onOpenExecBriefingCentre(r) }] : []),
                     ]
                   : null
             : undefined
         }
-        rowLinkHeader={onOpenCommandCentre && onOpenExecCentre ? 'Centres' : onOpenExecCentre ? 'Exec Centre' : 'Command Centre'}
-        rowLinkSlots={onOpenCommandCentre && onOpenExecCentre ? 2 : 1}
+        rowLinkHeader={onOpenCommandCentre && onOpenExecBriefingCentre ? 'Centres' : onOpenExecBriefingCentre ? 'Exec Briefing Centre' : 'Command Centre'}
+        rowLinkSlots={onOpenCommandCentre && onOpenExecBriefingCentre ? 2 : 1}
         selectable
         selectedIds={selected}
         onSelectedIdsChange={setSelected}

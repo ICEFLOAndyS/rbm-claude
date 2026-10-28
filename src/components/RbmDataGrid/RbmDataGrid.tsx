@@ -76,7 +76,7 @@ export interface RbmDataGridProps<Row extends { id: string }, F extends string> 
   onSelectedIdsChange?: (ids: string[]) => void;
   /**
    * Icon buttons before the "more" button, for rows that have them: one link, or several side by side in the
-   * same column (Command Centre and Exec Centre), or null for a row without.
+   * same column (Command Centre and Exec Briefing Centre), or null for a row without.
    */
   rowLink?: (row: Row) => RbmGridRowLink | readonly RbmGridRowLink[] | null;
   /** The icon column's name for screen readers (its header is blank, like the "more" column's). */

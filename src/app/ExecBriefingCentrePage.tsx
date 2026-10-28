@@ -15,7 +15,7 @@ import { RbmBlockers, RbmCollaboration, RbmMilestones, RbmNextCheckpoint, RbmWat
 import type { RbmTask } from '../components/RbmTaskRow/RbmTaskRow';
 import type { RbmTaskActionEvent } from '../components/RbmTaskRow/RbmTaskAction';
 
-export interface ExecCentrePageProps {
+export interface ExecBriefingCentrePageProps {
   data: CommandCentreData & CommandCentreActions;
   layoutStore: LayoutPreferenceStore;
   timeZone?: string;
@@ -35,8 +35,8 @@ export interface ExecCentrePageProps {
 const browserPrompt = (q: string, initial?: string) => (typeof window !== 'undefined' && typeof window.prompt === 'function' ? window.prompt(q, initial) : null);
 
 /**
- * The Exec Centre, connected: a copy of CommandCentrePage (Andy Smith, 28 Oct 2026), made to grow apart from it.
- * For now it is the same page, named "Exec Centre" in the breadcrumb, and keeps its own layout (pass it its own
+ * The Exec Briefing Centre, connected: a copy of CommandCentrePage (Andy Smith, 28 Oct 2026), made to grow apart from it.
+ * For now it is the same page, named "Exec Briefing Centre" in the breadcrumb, and keeps its own layout (pass it its own
  * layout store). It reads a CommandCentreSnapshot, sends commands, and does not know whether the data comes from
  * a fixture or ServiceNow.
  */
@@ -50,7 +50,7 @@ const wait = (ms: number, signal: AbortSignal) =>
     });
   });
 
-export function ExecCentrePage({ data, layoutStore, timeZone, lingerSeconds = 60, ask = browserPrompt, loadAllDelayMs = 0 }: ExecCentrePageProps) {
+export function ExecBriefingCentrePage({ data, layoutStore, timeZone, lingerSeconds = 60, ask = browserPrompt, loadAllDelayMs = 0 }: ExecBriefingCentrePageProps) {
   const snapshot = useSyncExternalStore(data.subscribe, data.getSnapshot);
   const [pref, setPref] = useState<LayoutPreference>(DEFAULT_PREFERENCE);
   const [runbookFilter, setRunbookFilter] = useState<string[]>([]);
@@ -132,7 +132,7 @@ export function ExecCentrePage({ data, layoutStore, timeZone, lingerSeconds = 60
 
   return (
     <RbmCommandCentre
-      centreName="Exec Centre"
+      centreName="Exec Briefing Centre"
       event={event}
       alerts={alerts}
       vitalsData={vitals}

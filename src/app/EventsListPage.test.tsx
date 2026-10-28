@@ -84,30 +84,30 @@ describe('EventsListPage', () => {
     expect(screen.getByTestId('address')).toHaveTextContent('{}');
   });
 
-  it('puts the Exec Centre icon beside the Command Centre one, on the same running events, and it opens that event', async () => {
+  it('puts the Exec Briefing Centre icon beside the Command Centre one, on the same running events, and it opens that event', async () => {
     const onOpenCommandCentre = vi.fn();
-    const onOpenExecCentre = vi.fn();
-    render(<Harness over={{ onOpenCommandCentre, onOpenExecCentre }} />);
+    const onOpenExecBriefingCentre = vi.fn();
+    render(<Harness over={{ onOpenCommandCentre, onOpenExecBriefingCentre }} />);
     await waitFor(() => expect(dataRows().length).toBeGreaterThan(0));
     const rows = eventsBoard().rows;
     const running = rows.find((r) => r.state === 'active')!;
     const notRunning = rows.find((r) => r.state !== 'active' && r.state !== 'paused');
-    const exec = await screen.findByRole('button', { name: `Open Exec Centre, ${running.number}` });
+    const exec = await screen.findByRole('button', { name: `Open Exec Briefing Centre, ${running.number}` });
     expect(exec.querySelector('svg')).toHaveAttribute('data-icon', 'centre.executiveBriefing');
     const cell = exec.closest<HTMLElement>('[role="gridcell"]')!;
-    expect(within(cell).getAllByRole('button').map((b) => b.getAttribute('aria-label'))).toEqual([`Open Command Centre, ${running.number}`, `Open Exec Centre, ${running.number}`]);
-    if (notRunning) expect(screen.queryByRole('button', { name: `Open Exec Centre, ${notRunning.number}` })).toBeNull();
+    expect(within(cell).getAllByRole('button').map((b) => b.getAttribute('aria-label'))).toEqual([`Open Command Centre, ${running.number}`, `Open Exec Briefing Centre, ${running.number}`]);
+    if (notRunning) expect(screen.queryByRole('button', { name: `Open Exec Briefing Centre, ${notRunning.number}` })).toBeNull();
     expect(screen.getByText('Centres')).toBeInTheDocument();
     await userEvent.click(exec);
-    expect(onOpenExecCentre).toHaveBeenCalledWith(expect.objectContaining({ id: running.id, number: running.number }));
+    expect(onOpenExecBriefingCentre).toHaveBeenCalledWith(expect.objectContaining({ id: running.id, number: running.number }));
     expect(onOpenCommandCentre).not.toHaveBeenCalled();
     expect(screen.getByTestId('address')).toHaveTextContent('{}');
   });
 
-  it('has no Exec Centre icon without its handler', async () => {
+  it('has no Exec Briefing Centre icon without its handler', async () => {
     render(<Harness over={{ onOpenCommandCentre: vi.fn() }} />);
     await waitFor(() => expect(dataRows().length).toBeGreaterThan(0));
-    expect(screen.queryByRole('button', { name: /Open Exec Centre/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Open Exec Briefing Centre/ })).toBeNull();
   });
 
   it('has no Command Centre icon without a handler', async () => {

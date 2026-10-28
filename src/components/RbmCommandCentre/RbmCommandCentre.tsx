@@ -43,7 +43,7 @@ export interface RbmCommandCentreProps {
   onOpenForecast?: () => void;
   timeZone?: string;
   /**
-   * Another centre on this template, named in the breadcrumb: "Run / Exec Centre / Weekend Payroll Cutover".
+   * Another centre on this template, named in the breadcrumb: "Run / Exec Briefing Centre / Weekend Payroll Cutover".
    * Not drawn (proposed). Left out for the Command Centre, whose breadcrumb is as drawn.
    */
   centreName?: string;

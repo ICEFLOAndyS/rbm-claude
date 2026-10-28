@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useMemo } from 'react';
-import { ExecCentrePage } from './ExecCentrePage';
+import { ExecBriefingCentrePage } from './ExecBriefingCentrePage';
 import { createFixtureSource } from '../data/fixtureSource';
 import { createLocalLayoutStore } from '../data/layoutStore';
 import { createSimClock } from '../engine/clock';
@@ -8,12 +8,12 @@ import { badlyLateEvent, healthyEvent, weekendPayrollCutover } from '../fixtures
 import type { EventFixture } from '../data/types';
 
 /**
- * The Exec Centre: for now a copy of the Command & Control Centre, named in the breadcrumb. The whole page, connected: a JSON fixture run by the fake engine (a stand-in for the RBM
+ * The Exec Briefing Centre: for now a copy of the Command & Control Centre, named in the breadcrumb. The whole page, connected: a JSON fixture run by the fake engine (a stand-in for the RBM
  * planning engine). Actions work; the clock runs at the chosen speed. The large event is in the
  * demo app (npm run demo).
  */
 const meta: Meta = {
-  title: 'Prototype/Exec Centre',
+  title: 'Prototype/Exec Briefing Centre',
   parameters: { layout: 'fullscreen' },
 };
 export default meta;
@@ -32,7 +32,7 @@ function Connected({ fixture, speed }: { fixture: () => EventFixture; speed: num
     live.source.dispose();
     live.clock.dispose();
   }, [live]);
-  return <ExecCentrePage data={live.source} layoutStore={createLocalLayoutStore('rbm.storybook.execLayout')} timeZone="UTC" />;
+  return <ExecBriefingCentrePage data={live.source} layoutStore={createLocalLayoutStore('rbm.storybook.execLayout')} timeZone="UTC" />;
 }
 
 const speedArg = { argTypes: { speed: { control: { type: 'select' as const }, options: [0, 1, 10, 60, 300] } }, args: { speed: 0 } };

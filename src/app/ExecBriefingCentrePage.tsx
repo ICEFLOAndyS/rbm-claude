@@ -82,6 +82,7 @@ export function ExecBriefingCentrePage({ data, layoutStore, timeZone }: ExecBrie
           exportLog: notBuilt('Export event log'),
           settings: notBuilt('Event settings'),
         }}
+        onOpenWork={notBuilt('The task list')}
         onOpenProgress={notBuilt('The task list')}
         onOpenIssues={notBuilt('The issue list')}
         onOpenForecast={notBuilt('The late tasks and critical path')}

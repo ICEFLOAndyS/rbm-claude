@@ -45,6 +45,7 @@ export interface RbmCommandCentreProps {
   /** Only the actions the user may take are shown; permissions come from the platform. Layout is always there. */
   eventActions?: Partial<Record<RbmEventAction, () => void>>;
   /** Links in the compact event bar. */
+  onOpenWork?: () => void;
   onOpenProgress?: () => void;
   onOpenIssues?: () => void;
   onOpenForecast?: () => void;
@@ -161,6 +162,7 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
               alerts={alerts}
               visible={!vitalsOnScreen}
               timeZone={timeZone}
+              onOpenWork={props.onOpenWork}
               onOpenProgress={props.onOpenProgress}
               onOpenIssues={props.onOpenIssues}
               onOpenForecast={props.onOpenForecast}

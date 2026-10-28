@@ -1,9 +1,16 @@
 import { Box } from '@mui/material';
+import { useState } from 'react';
 import { RbmEyebrow, RbmRegionCollapsed, RbmRegionToggle, RbmSummaryChip } from '../RbmRegion/RbmRegion';
-import { RbmRunbookProgress, type RbmRunbookProgressItem } from '../RbmRunbookProgress/RbmRunbookProgress';
+import { RbmRunbookProgress, RUNBOOK_NAME_WIDTH, type RbmRunbookProgressItem } from '../RbmRunbookProgress/RbmRunbookProgress';
 import { RbmWorkstreamProgress, type RbmWorkstreamProgressItem } from '../RbmWorkstreamProgress/RbmWorkstreamProgress';
+import { execProgressMinWidth } from '../RbmExecProgress/RbmExecProgress';
 import { useDensity } from '../../theme/RbmDensity';
-import type { DensityLevel } from '../../theme/tokens';
+
+/** Which card's task and issue stats are shown. */
+export interface RbmProgressStats {
+  runbooks: boolean;
+  workstreams: boolean;
+}
 
 export interface RbmProgressRegionProps {
   runbooks: RbmRunbookProgressItem[];
@@ -11,6 +18,9 @@ export interface RbmProgressRegionProps {
   loading?: boolean;
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
+  /** Each card's task and issue stats, shown or hidden. Both shown by default; without it the region keeps the choice. */
+  stats?: RbmProgressStats;
+  onStatsChange?: (stats: RbmProgressStats) => void;
   timeZone?: string;
 }
 
@@ -18,23 +28,26 @@ const NAME = 'Progress';
 /** The accessible name: the Event vitals already have a region named Progress. */
 export const PROGRESS_REGION_LABEL = 'Progress, runbooks and workstreams';
 
-/**
- * The narrowest each card can be at each density before its drawn columns (name, the fixed columns and their gaps,
- * the side padding and a 100 px bar) no longer fit. Below twice this the cards stack.
- */
-export const PROGRESS_CARD_MIN_WIDTH: Record<DensityLevel, number> = { command: 780, comfortable: 1080, compact: 1080, dense: 870 };
-
 const count = (n: number, one: string) => `${n} ${n === 1 ? one : `${one}s`}`;
 
 /**
  * The Exec Briefing Centre's Progress region, where the Command Centre has its Task Timeline: Runbook progress and
  * Workstream progress side by side, each a card of its own. Not drawn (Proposed, asked by Andy Smith 28 Oct 2026).
- * The cards sit side by side while the region is wide enough for both at their drawn sizes, and stack, Runbook
- * progress first, when it is not. Collapsed, it is the shared 56 px line with counts of runbooks, workstreams and
- * those late.
+ * Each card is as wide as its columns need (execProgressMinWidth) and shares out any width left; when the two do not
+ * fit on one line they stack, Runbook progress first. Hiding a card's task and issue stats narrows it, so the two fit
+ * side by side sooner; showing them widens it again. Collapsed, the region is the shared 56 px line with counts of
+ * runbooks, workstreams and those late.
  */
-export function RbmProgressRegion({ runbooks, workstreams, loading, collapsed = false, onCollapsedChange, timeZone }: RbmProgressRegionProps) {
+export function RbmProgressRegion({ runbooks, workstreams, loading, collapsed = false, onCollapsedChange, stats: statsProp, onStatsChange, timeZone }: RbmProgressRegionProps) {
   const d = useDensity();
+  const [statsState, setStatsState] = useState<RbmProgressStats>({ runbooks: true, workstreams: true });
+  const stats = statsProp ?? statsState;
+  const setStats = (change: Partial<RbmProgressStats>) => {
+    const next = { ...stats, ...change };
+    setStatsState(next);
+    onStatsChange?.(next);
+  };
+
   if (collapsed) {
     const late = [...runbooks, ...workstreams].filter((r) => r.late).length;
     return (
@@ -45,18 +58,25 @@ export function RbmProgressRegion({ runbooks, workstreams, loading, collapsed = 
       </RbmRegionCollapsed>
     );
   }
+
+  // Each card starts at its narrowest and grows into the width left; below it, it wraps under the other.
+  const slot = (min: number) => ({ flex: `1 1 ${min}px`, minWidth: `min(100%, ${min}px)` });
+  const runbookMin = execProgressMinWidth(d.level, { nameWidth: RUNBOOK_NAME_WIDTH, showStats: stats.runbooks });
+  const workstreamMin = execProgressMinWidth(d.level, { showStats: stats.workstreams });
+
   return (
     <Box component="section" aria-label={PROGRESS_REGION_LABEL} sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, lineHeight: 'normal' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 24, px: 1 }}>
         <RbmEyebrow>{NAME}</RbmEyebrow>
         {onCollapsedChange && <RbmRegionToggle region={NAME} collapsed={false} onChange={onCollapsedChange} />}
       </Box>
-      <Box
-        data-testid="rbm-progress-cards"
-        sx={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, ${PROGRESS_CARD_MIN_WIDTH[d.level]}px), 1fr))`, gap: `${d.gap}px`, alignItems: 'start' }}
-      >
-        <RbmRunbookProgress items={runbooks} loading={loading} timeZone={timeZone} />
-        <RbmWorkstreamProgress items={workstreams} loading={loading} timeZone={timeZone} />
+      <Box data-testid="rbm-progress-cards" sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: `${d.gap}px` }}>
+        <Box data-testid="rbm-progress-slot" data-min-width={runbookMin} sx={slot(runbookMin)}>
+          <RbmRunbookProgress items={runbooks} loading={loading} timeZone={timeZone} showStats={stats.runbooks} onShowStatsChange={(show) => setStats({ runbooks: show })} />
+        </Box>
+        <Box data-testid="rbm-progress-slot" data-min-width={workstreamMin} sx={slot(workstreamMin)}>
+          <RbmWorkstreamProgress items={workstreams} loading={loading} timeZone={timeZone} showStats={stats.workstreams} onShowStatsChange={(show) => setStats({ workstreams: show })} />
+        </Box>
       </Box>
     </Box>
   );

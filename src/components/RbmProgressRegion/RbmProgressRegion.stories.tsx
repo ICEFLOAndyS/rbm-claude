@@ -36,3 +36,15 @@ export const Stacked: Story = { decorators: [(Story) => <Box sx={{ width: 1200 }
 export const Collapsed: Story = { args: { collapsed: true }, render: (args) => <Toggling {...args} /> };
 
 export const Loading: Story = { args: { loading: true }, render: (args) => <Toggling {...args} /> };
+
+/** Both cards' stats hidden: each needs less width, so at 1,500 px they sit side by side. */
+export const StatsHidden: Story = {
+  args: { stats: { runbooks: false, workstreams: false } },
+  decorators: [(Story) => <Box sx={{ width: 1500 }}><Story /></Box>],
+};
+
+/** One card's stats hidden: it narrows, the other keeps its columns. */
+export const OneHidden: Story = {
+  args: { stats: { runbooks: false, workstreams: true } },
+  decorators: [(Story) => <Box sx={{ width: 2000 }}><Story /></Box>],
+};

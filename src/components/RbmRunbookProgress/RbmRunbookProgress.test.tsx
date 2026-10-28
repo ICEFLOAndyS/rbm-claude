@@ -181,9 +181,10 @@ describe('RbmRunbookProgress', () => {
     expect(screen.queryByText(/Ordered by start time/)).not.toBeInTheDocument();
   });
 
-  it('has nothing to focus: there is no click-through', () => {
+  it('has no click-through: the only control is the stats button', () => {
     const { container } = renderCard(<RbmRunbookProgress items={all} />);
-    expect(container.querySelectorAll('button, a, [tabindex]')).toHaveLength(0);
+    expect(container.querySelectorAll('button, a, [tabindex]')).toHaveLength(1);
+    expect(container.querySelector('button')).toHaveAccessibleName('Hide task and issue stats');
   });
 
   describe('by density', () => {

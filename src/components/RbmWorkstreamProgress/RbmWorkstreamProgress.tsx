@@ -12,6 +12,9 @@ export interface RbmWorkstreamProgressProps {
   loading?: boolean;
   /** IANA time zone for start and end, for example "Europe/London". Defaults to the browser's. */
   timeZone?: string;
+  /** Shows the task and issue stats; shown by default (RbmExecProgress). */
+  showStats?: boolean;
+  onShowStatsChange?: (show: boolean) => void;
 }
 
 /** Ten rows at most, then "+n more workstreams". */

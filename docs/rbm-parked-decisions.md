@@ -1265,6 +1265,14 @@ Not drawn, so I chose (flag, confirm or replace):
 - **Checked:** `src/data/reconcile.test.ts` checks, for all four events, that Runbook progress and Workstream progress each add up to the Event vitals (tasks complete, total, open issues by severity). Weekend Payroll Cutover: 69 of 124 complete; 1 high, 3 medium, 1 low.
 - **Workstream Late (Proposed):** a workstream is Late when its tasks' latest forecast or actual end is behind their latest planned end. On Weekend Payroll Cutover (+12 min) every workstream is Late, because each has work after the 12-minute slip.
 
+### 28 Oct 2026: Progress cards, task and issue stats shown or hidden (asked by Andy Smith; control Proposed, not drawn)
+- **Asked:** the task and issue stats can be shown or hidden. Hidden, the card uses all the width; shown, it resizes to fit them.
+- **Built:** `RbmExecProgress` (so both Runbook progress and Workstream progress) has `showStats` and `onShowStatsChange`. A "Hide stats" / "Show stats" text link sits in the card header after the caption; screen readers hear "Hide task and issue stats". Hidden, the Tasks and Open issues columns go (at D3, Done / total and Issues) with the two-level header, and the progress bar takes the width. Owner, start, end and status stay. The bar's accessible name still carries every figure. D0 has no stats, so no link; an empty card has none either.
+- **Sizes:** `execProgressMinWidth` gives each card's narrowest width from its columns. At D2: Runbook progress 1,038 px with stats and 714 px without; Workstream progress 1,018 and 694 px. In the Progress region each card starts at that width and shares out what is left, and they wrap (Runbook progress first) when both do not fit, so hiding stats lets them sit side by side sooner: both hidden need 1,420 px, both shown 2,068 px.
+- **Still a fit question:** at a 1,920 px window with the sidebar and Hot-topics panel open the main column is about 1,270 px, so even with both cards' stats hidden they stack. They sit side by side with the sidebar collapsed, or on a wider screen.
+- **Not kept:** the choice lasts for the visit only. It could be saved with the page layout (the Layout panel's preference) if wanted.
+- **Not drawn:** the link (RbmToggleLink, the Collapse link's style without the chevron) and its place.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

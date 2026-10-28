@@ -2,7 +2,9 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import source from './RbmProgressRegion.tsx?raw';
-import { PROGRESS_CARD_MIN_WIDTH, PROGRESS_REGION_LABEL, RbmProgressRegion, type RbmProgressRegionProps } from './RbmProgressRegion';
+import { PROGRESS_REGION_LABEL, RbmProgressRegion, type RbmProgressRegionProps } from './RbmProgressRegion';
+import { execProgressMinWidth } from '../RbmExecProgress/RbmExecProgress';
+import { RUNBOOK_NAME_WIDTH } from '../RbmRunbookProgress/RbmRunbookProgress';
 import { mockRunbookProgress } from '../../mocks/runbookProgress';
 import { mockWorkstreamProgress } from '../../mocks/workstreamProgress';
 import { RbmDensity } from '../../theme/RbmDensity';
@@ -30,11 +32,26 @@ describe('RbmProgressRegion', () => {
     expect(within(cards).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(['Runbook progress', 'Workstream progress']);
   });
 
-  it('sits them side by side when there is room for both at the region density, and stacks them when not', () => {
+  const minWidths = () => screen.getAllByTestId('rbm-progress-slot').map((s) => Number(s.dataset.minWidth));
+
+  it('gives each card the width its columns need, so they sit side by side when both fit and wrap when not', () => {
     renderRegion();
-    expect(screen.getByTestId('rbm-progress-cards').style.gridTemplateColumns || getComputedStyle(screen.getByTestId('rbm-progress-cards')).gridTemplateColumns).toBe(
-      `repeat(auto-fit, minmax(min(100%, ${PROGRESS_CARD_MIN_WIDTH.compact}px), 1fr))`,
-    );
+    expect(minWidths()).toEqual([execProgressMinWidth('compact', { nameWidth: RUNBOOK_NAME_WIDTH }), execProgressMinWidth('compact')]);
+    expect(getComputedStyle(screen.getByTestId('rbm-progress-cards')).flexWrap).toBe('wrap');
+  });
+
+  it('narrows a card when its stats are hidden, and widens it again when they are shown', async () => {
+    const onStatsChange = vi.fn();
+    renderRegion({ onStatsChange });
+    const [runbooks] = screen.getAllByRole('region', { name: /progress$/ });
+    const before = minWidths();
+    await userEvent.click(within(runbooks!).getByRole('button', { name: 'Hide task and issue stats' }));
+    expect(onStatsChange).toHaveBeenLastCalledWith({ runbooks: false, workstreams: true });
+    expect(minWidths()[0]).toBe(execProgressMinWidth('compact', { nameWidth: RUNBOOK_NAME_WIDTH, showStats: false }));
+    expect(minWidths()[0]).toBeLessThan(before[0]!);
+    expect(minWidths()[1]).toBe(before[1]);
+    await userEvent.click(within(runbooks!).getByRole('button', { name: 'Show task and issue stats' }));
+    expect(minWidths()).toEqual(before);
   });
 
   it('collapses to one line with the counts, and expands again', async () => {

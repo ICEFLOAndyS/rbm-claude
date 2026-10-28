@@ -2,7 +2,8 @@ import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
 import source from './RbmExecProgress.tsx?raw';
-import { DEFAULT_NAME_WIDTH, RbmExecProgress, type RbmExecProgressNoun } from './RbmExecProgress';
+import userEvent from '@testing-library/user-event';
+import { DEFAULT_NAME_WIDTH, RbmExecProgress, execProgressMinWidth, type RbmExecProgressNoun } from './RbmExecProgress';
 import { RbmRunbookProgress } from '../RbmRunbookProgress/RbmRunbookProgress';
 import { RbmWorkstreamProgress } from '../RbmWorkstreamProgress/RbmWorkstreamProgress';
 import { mockWorkstreamProgress } from '../../mocks/workstreamProgress';
@@ -80,6 +81,63 @@ describe('RbmExecProgress', () => {
       unmount();
       renderCard(<RbmRunbookProgress items={mockRunbookProgress()} />, level);
       expect(nameColumn()).toBe(runbook);
+    });
+  });
+
+  describe('task and issue stats, shown or hidden', () => {
+    const headings = () => Array.from(screen.getByText('Progress', { selector: 'span' }).parentElement!.children).map((c) => c.textContent);
+    const columnCount = () => getComputedStyle(screen.getByText('Progress', { selector: 'span' }).parentElement!).gridTemplateColumns.split(' ').length;
+
+    it('shows them by default, with the two-level header at D2', () => {
+      renderCard(<RbmExecProgress items={items} title="T" noun={team} />, 'compact');
+      expect(headings()).toEqual(['Team', 'Progress', 'Owner', 'Done', 'To do', 'Total', 'High', 'Medium', 'Low', 'Start', 'End', 'Status']);
+      expect(screen.getByText('Tasks')).toBeInTheDocument();
+      expect(screen.getByText('Open issues')).toBeInTheDocument();
+    });
+
+    it.each([
+      ['comfortable', ['Team and owner', 'Progress', 'Start / end', 'Status']],
+      ['compact', ['Team', 'Progress', 'Owner', 'Start', 'End', 'Status']],
+      ['dense', ['Team', 'Progress', 'Owner', 'End', 'Status']],
+    ] as const)('hidden at %s: the stat columns go and the bar takes their width', (level, expected) => {
+      renderCard(<RbmExecProgress items={items} title="T" noun={team} showStats={false} />, level);
+      expect(headings()).toEqual(expected);
+      expect(columnCount()).toBe(expected.length);
+      expect(screen.queryByText('Tasks')).toBeNull();
+      expect(screen.queryByTestId('rbm-issue-dot-high')).toBeNull();
+      // The bar is the one flexible column.
+      expect(getComputedStyle(screen.getByText('Progress', { selector: 'span' }).parentElement!).gridTemplateColumns).toContain('minmax(0,1fr)');
+    });
+
+    it('keeps every figure for a screen reader when hidden', () => {
+      renderCard(<RbmExecProgress items={items} title="T" noun={team} showStats={false} />, 'compact');
+      expect(screen.getAllByRole('progressbar')[0]).toHaveAccessibleName(/of \d+ tasks, .*(issue|no open issues)/);
+    });
+
+    it('toggles from the header, and keeps the choice itself without showStats', async () => {
+      const onShowStatsChange = vi.fn();
+      renderCard(<RbmExecProgress items={items} title="T" noun={team} onShowStatsChange={onShowStatsChange} />, 'compact');
+      await userEvent.click(screen.getByRole('button', { name: 'Hide task and issue stats' }));
+      expect(onShowStatsChange).toHaveBeenLastCalledWith(false);
+      expect(screen.queryByText('Done')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Show task and issue stats' })).toHaveTextContent('Show stats');
+      await userEvent.click(screen.getByRole('button', { name: 'Show task and issue stats' }));
+      expect(onShowStatsChange).toHaveBeenLastCalledWith(true);
+      expect(screen.getByText('Done')).toBeInTheDocument();
+    });
+
+    it('has no stats and no button at D0, or when there are no rows', () => {
+      const { unmount } = renderCard(<RbmExecProgress items={items} title="T" noun={team} />, 'command');
+      expect(screen.queryByRole('button')).toBeNull();
+      unmount();
+      renderCard(<RbmExecProgress items={[]} title="T" noun={team} />);
+      expect(screen.queryByRole('button')).toBeNull();
+    });
+
+    it('needs less width hidden, by the stat columns and their gaps', () => {
+      // D2: Done, To do, Total (40 each), High 40, Medium 54, Low 38, and six 12 px gaps.
+      expect(execProgressMinWidth('compact') - execProgressMinWidth('compact', { showStats: false })).toBe(40 * 4 + 54 + 38 + 6 * 12);
+      expect(execProgressMinWidth('command', { showStats: false })).toBe(execProgressMinWidth('command'));
     });
   });
 

@@ -20,6 +20,9 @@ export interface RbmRunbookProgressProps {
   loading?: boolean;
   /** IANA time zone for start and end, for example "Europe/London". Defaults to the browser's. */
   timeZone?: string;
+  /** Shows the task and issue stats; shown by default (RbmExecProgress). */
+  showStats?: boolean;
+  onShowStatsChange?: (show: boolean) => void;
 }
 
 /** Ten rows at most, then "+n more runbooks". */
@@ -31,12 +34,12 @@ export const runbookSummary = execProgressSummary;
 const noun: RbmExecProgressNoun = { one: 'runbook', many: 'runbooks' };
 
 /** Runbook names are longer: the name column is drawn wider. */
-const nameWidth: RbmExecProgressNameWidth = { comfortable: 230, compact: 190, dense: 190 };
+export const RUNBOOK_NAME_WIDTH: RbmExecProgressNameWidth = { comfortable: 230, compact: 190, dense: 190 };
 
 /**
  * Runbook progress (Progress board, "Runbook progress", Proposed): RbmExecProgress with the runbook words and the
  * wider name column (230, 190 and 190 px at D1, D2 and D3).
  */
 export function RbmRunbookProgress({ title = 'Runbook progress', ...props }: RbmRunbookProgressProps) {
-  return <RbmExecProgress title={title} noun={noun} nameWidth={nameWidth} {...props} />;
+  return <RbmExecProgress title={title} noun={noun} nameWidth={RUNBOOK_NAME_WIDTH} {...props} />;
 }

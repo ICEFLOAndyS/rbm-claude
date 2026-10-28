@@ -1,10 +1,11 @@
 import { Box, useTheme } from '@mui/material';
-import { createContext, useContext, useId, type ReactNode } from 'react';
-import { colour, hairline, radius, type DensityLevel } from '../../theme/tokens';
+import { Fragment, createContext, useContext, useId, useState, type ReactNode } from 'react';
+import { colour, density, hairline, radius, type DensityLevel } from '../../theme/tokens';
 import { useDensity } from '../../theme/RbmDensity';
 import { RbmIcon } from '../../icons/RbmIcon';
 import { suiteStates, type RbmSuiteState } from '../../icons/states';
 import { RbmAvatar, type RbmAvatarSize } from '../RbmAvatar/RbmAvatar';
+import { RbmToggleLink } from '../RbmRegion/RbmRegion';
 
 /** One row: a workstream, a runbook or the like. Data from the RBM planning engine; ServiceNow attribute names are bound later. */
 export interface RbmExecProgressItem {
@@ -46,6 +47,13 @@ export interface RbmExecProgressProps {
   loading?: boolean;
   /** IANA time zone for start and end, for example "Europe/London". Defaults to the browser's. */
   timeZone?: string;
+  /**
+   * Shows the task and issue stats (Done, To do, Total and the open issues; at D3, Done / total and Issues). Hidden,
+   * the progress bar takes their width. Shown by default; without it the card keeps the choice itself.
+   */
+  showStats?: boolean;
+  /** Called when the user shows or hides the stats from the card's header. */
+  onShowStatsChange?: (show: boolean) => void;
 }
 
 /** Ten rows at most (decided by Andy Smith, 26 Oct 2026), then "+n more workstreams" or "+n more runbooks". */
@@ -94,16 +102,68 @@ export function execProgressSummary(item: RbmExecProgressItem, timeZone?: string
   ].join(', ');
 }
 
+/** A column after the name. `width` is the drawn px; the bar has none and takes the space left. */
+type ColumnKey = 'bar' | 'owner' | 'done' | 'todo' | 'total' | 'high' | 'medium' | 'low' | 'startEnd' | 'start' | 'end' | 'doneTotal' | 'issues' | 'status';
+interface Column {
+  key: ColumnKey;
+  width?: number;
+  heading: string;
+  align?: 'right';
+  /** Task and issue stats: these columns go when the stats are hidden. */
+  stat?: 'tasks' | 'issues';
+}
+
 /**
  * Drawn sizes the density scale does not name (Progress board, "Workstream progress" and "Runbook progress";
  * docs/density.md): the columns after the name, bar height, percentage width, status glyph, owner avatar and title
  * size. Row height, text, dots, gap and side padding come from the density tokens.
  */
-const drawn: Record<DensityLevel, { rest: string; bar: number; percent: number; glyph: number; avatar: RbmAvatarSize; title: number }> = {
-  command: { rest: 'minmax(0,1fr) 300px', bar: 16, percent: 52, glyph: 26, avatar: 20, title: 22 },
-  comfortable: { rest: 'minmax(0,1fr) 52px 52px 52px 52px 60px 44px 104px 160px', bar: 10, percent: 40, glyph: 20, avatar: 18, title: 18 },
-  compact: { rest: 'minmax(0,1fr) 44px 40px 40px 40px 40px 54px 38px 78px 78px 130px', bar: 8, percent: 40, glyph: 16, avatar: 24, title: 18 },
-  dense: { rest: 'minmax(0,1fr) 84px 140px 46px 96px 150px', bar: 6, percent: 40, glyph: 14, avatar: 20, title: 18 },
+const drawn: Record<DensityLevel, { columns: Column[]; bar: number; percent: number; glyph: number; avatar: RbmAvatarSize; title: number }> = {
+  command: {
+    columns: [{ key: 'bar', heading: 'Progress' }, { key: 'status', width: 300, heading: 'Status' }],
+    bar: 16, percent: 52, glyph: 26, avatar: 20, title: 22,
+  },
+  comfortable: {
+    columns: [
+      { key: 'bar', heading: 'Progress' },
+      { key: 'done', width: 52, heading: 'Done', align: 'right', stat: 'tasks' },
+      { key: 'todo', width: 52, heading: 'To do', align: 'right', stat: 'tasks' },
+      { key: 'total', width: 52, heading: 'Total', align: 'right', stat: 'tasks' },
+      { key: 'high', width: 52, heading: 'High', align: 'right', stat: 'issues' },
+      { key: 'medium', width: 60, heading: 'Medium', align: 'right', stat: 'issues' },
+      { key: 'low', width: 44, heading: 'Low', align: 'right', stat: 'issues' },
+      { key: 'startEnd', width: 104, heading: 'Start / end' },
+      { key: 'status', width: 160, heading: 'Status' },
+    ],
+    bar: 10, percent: 40, glyph: 20, avatar: 18, title: 18,
+  },
+  compact: {
+    columns: [
+      { key: 'bar', heading: 'Progress' },
+      { key: 'owner', width: 44, heading: 'Owner' },
+      { key: 'done', width: 40, heading: 'Done', align: 'right', stat: 'tasks' },
+      { key: 'todo', width: 40, heading: 'To do', align: 'right', stat: 'tasks' },
+      { key: 'total', width: 40, heading: 'Total', align: 'right', stat: 'tasks' },
+      { key: 'high', width: 40, heading: 'High', align: 'right', stat: 'issues' },
+      { key: 'medium', width: 54, heading: 'Medium', align: 'right', stat: 'issues' },
+      { key: 'low', width: 38, heading: 'Low', align: 'right', stat: 'issues' },
+      { key: 'start', width: 78, heading: 'Start' },
+      { key: 'end', width: 78, heading: 'End' },
+      { key: 'status', width: 130, heading: 'Status' },
+    ],
+    bar: 8, percent: 40, glyph: 16, avatar: 24, title: 18,
+  },
+  dense: {
+    columns: [
+      { key: 'bar', heading: 'Progress' },
+      { key: 'doneTotal', width: 84, heading: 'Done / total', align: 'right', stat: 'tasks' },
+      { key: 'issues', width: 140, heading: 'Issues H · M · L', stat: 'issues' },
+      { key: 'owner', width: 46, heading: 'Owner' },
+      { key: 'end', width: 96, heading: 'End' },
+      { key: 'status', width: 150, heading: 'Status' },
+    ],
+    bar: 6, percent: 40, glyph: 14, avatar: 20, title: 18,
+  },
 };
 
 /** The name column at D0, the same on both boards. */
@@ -112,29 +172,32 @@ const COMMAND_NAME_WIDTH = 280;
 /** Workstream progress's drawn name widths: the default. */
 export const DEFAULT_NAME_WIDTH: RbmExecProgressNameWidth = { comfortable: 180, compact: 170, dense: 150 };
 
-/** The card's whole column template at its density, shared by the headers, rows and loading rows. */
-const ColumnsContext = createContext('');
+/** The narrowest the bar may be: below it the card is too narrow for its columns. */
+export const EXEC_PROGRESS_MIN_BAR = 100;
+
+const columnsAt = (level: DensityLevel, showStats: boolean) => drawn[level].columns.filter((c) => showStats || !c.stat);
+const nameAt = (level: DensityLevel, nameWidth: RbmExecProgressNameWidth) => (level === 'command' ? COMMAND_NAME_WIDTH : nameWidth[level]);
+
+/**
+ * The narrowest the card can be at a density, with or without the task and issue stats: the name, the fixed columns,
+ * a 100 px bar, the gaps, and the card's padding and border. A page uses it to decide whether two cards fit side by side.
+ */
+export function execProgressMinWidth(level: DensityLevel, { nameWidth = DEFAULT_NAME_WIDTH, showStats = true }: { nameWidth?: RbmExecProgressNameWidth; showStats?: boolean } = {}) {
+  const columns = columnsAt(level, showStats);
+  const d = density[level];
+  const fixed = columns.reduce((sum, c) => sum + (c.width ?? EXEC_PROGRESS_MIN_BAR), 0);
+  // The name, the columns and the gaps between them; the rows' 4 px inset each side; the card's padding and border.
+  return nameAt(level, nameWidth) + fixed + columns.length * d.gap + 2 * 4 + 2 * d.padX + 2;
+}
+
+/** The card's columns at its density, and their template, shared by the headers, rows and loading rows. */
+const ColumnsContext = createContext<{ columns: Column[]; template: string }>({ columns: [], template: '' });
 const useColumns = () => useContext(ColumnsContext);
 
 const capital = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
 
-/** Column headings by density. D0 shows Essential only; D3 is one line. */
-const headingsFor = (noun: RbmExecProgressNoun): Record<DensityLevel, { label: string; align?: 'right' }[]> => ({
-  command: [{ label: capital(noun.one) }, { label: 'Progress' }, { label: 'Status' }],
-  comfortable: [
-    { label: `${capital(noun.one)} and owner` }, { label: 'Progress' },
-    { label: 'Done', align: 'right' }, { label: 'To do', align: 'right' }, { label: 'Total', align: 'right' },
-    { label: 'High', align: 'right' }, { label: 'Medium', align: 'right' }, { label: 'Low', align: 'right' },
-    { label: 'Start / end' }, { label: 'Status' },
-  ],
-  compact: [
-    { label: capital(noun.one) }, { label: 'Progress' }, { label: 'Owner' },
-    { label: 'Done', align: 'right' }, { label: 'To do', align: 'right' }, { label: 'Total', align: 'right' },
-    { label: 'High', align: 'right' }, { label: 'Medium', align: 'right' }, { label: 'Low', align: 'right' },
-    { label: 'Start' }, { label: 'End' }, { label: 'Status' },
-  ],
-  dense: [{ label: capital(noun.one) }, { label: 'Progress' }, { label: 'Done / total', align: 'right' }, { label: 'Issues H · M · L' }, { label: 'Owner' }, { label: 'End' }, { label: 'Status' }],
-});
+/** The name column's heading: D1 shows the owner under the name. */
+const nameHeading = (level: DensityLevel, noun: RbmExecProgressNoun) => (level === 'comfortable' ? `${capital(noun.one)} and owner` : capital(noun.one));
 
 const visuallyHidden = { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' } as const;
 const figures = { fontVariantNumeric: 'tabular-nums' } as const;
@@ -146,7 +209,7 @@ function Grid({ header, children }: { header?: boolean; children: ReactNode }) {
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: useColumns(),
+        gridTemplateColumns: useColumns().template,
         gap: `${d.gap}px`,
         alignItems: 'center',
         px: 1,
@@ -163,16 +226,21 @@ function Grid({ header, children }: { header?: boolean; children: ReactNode }) {
 /** The two-level header's top line at D1 and D2: Tasks and Open issues over their three columns. */
 function GroupHeader() {
   const d = useDensity();
-  const first = d.level === 'compact' ? 4 : 3;
-  const group = (label: string, column: number) => (
-    <Box component="span" sx={{ gridColumn: `${column} / span 3`, textAlign: 'center', borderBottom: `1px solid ${colour.silver}`, pb: '2px' }}>
-      {label}
-    </Box>
-  );
+  const { columns, template } = useColumns();
+  // Grid lines count from 1, and the name column comes first.
+  const group = (label: string, stat: Column['stat']) => {
+    const first = columns.findIndex((c) => c.stat === stat);
+    const span = columns.filter((c) => c.stat === stat).length;
+    return (
+      <Box component="span" sx={{ gridColumn: `${first + 2} / span ${span}`, textAlign: 'center', borderBottom: `1px solid ${colour.silver}`, pb: '2px' }}>
+        {label}
+      </Box>
+    );
+  };
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: useColumns(), gap: `${d.gap}px`, alignItems: 'center', height: 22, px: 1, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'text.secondary' }}>
-      {group('Tasks', first)}
-      {group('Open issues', first + 3)}
+    <Box sx={{ display: 'grid', gridTemplateColumns: template, gap: `${d.gap}px`, alignItems: 'center', height: 22, px: 1, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'text.secondary' }}>
+      {group('Tasks', 'tasks')}
+      {group('Open issues', 'issues')}
     </Box>
   );
 }
@@ -249,6 +317,7 @@ function When({ date, timeZone }: { date: Date; timeZone?: string }) {
 
 function Row({ item, timeZone }: { item: RbmExecProgressItem; timeZone?: string }) {
   const d = useDensity();
+  const { columns } = useColumns();
   const size = drawn[d.level];
   const percent = percentComplete(item.complete, item.total);
   const name = (
@@ -257,104 +326,84 @@ function Row({ item, timeZone }: { item: RbmExecProgressItem; timeZone?: string 
     </Box>
   );
   const owner = <RbmAvatar name={item.owner.name} initials={item.owner.initials} size={size.avatar} decorative />;
-  const counts = (
-    <>
-      <Count value={item.complete} />
-      <Count value={item.total - item.complete} />
-      <Count value={item.total} bold />
-    </>
-  );
-  const issues = (
-    <>
-      <Count value={item.issues.high} severity="high" />
-      <Count value={item.issues.medium} severity="medium" />
-      <Count value={item.issues.low} severity="low" />
-    </>
-  );
-
-  let cells: ReactNode;
-  if (d.level === 'command') {
-    cells = (
-      <>
-        {name}
-        <Bar percent={percent} complete={item.state === 'complete'} />
-        <Status state={item.state} late={item.late} />
-      </>
-    );
-  } else if (d.level === 'comfortable') {
-    cells = (
-      <>
-        <Box component="span" sx={{ display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0 }}>
-          {name}
-          <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: d.caption, color: 'text.secondary', ...ellipsis }}>
-            {owner}
-            {item.owner.name}
-          </Box>
-        </Box>
-        <Bar percent={percent} complete={item.state === 'complete'} />
-        {counts}
-        {issues}
-        <Box component="span" sx={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: 1.2 }}>
-          <When date={item.start} timeZone={timeZone} />
-          <When date={item.end} timeZone={timeZone} />
-        </Box>
-        <Status state={item.state} late={item.late} />
-      </>
-    );
-  } else if (d.level === 'compact') {
-    cells = (
-      <>
-        {name}
-        <Bar percent={percent} complete={item.state === 'complete'} />
-        {owner}
-        {counts}
-        {issues}
+  const issues = {
+    high: <Count value={item.issues.high} severity="high" />,
+    medium: <Count value={item.issues.medium} severity="medium" />,
+    low: <Count value={item.issues.low} severity="low" />,
+  };
+  const cell: Record<ColumnKey, ReactNode> = {
+    bar: <Bar percent={percent} complete={item.state === 'complete'} />,
+    owner,
+    done: <Count value={item.complete} />,
+    todo: <Count value={item.total - item.complete} />,
+    total: <Count value={item.total} bold />,
+    ...issues,
+    startEnd: (
+      <Box component="span" sx={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: 1.2 }}>
         <When date={item.start} timeZone={timeZone} />
         <When date={item.end} timeZone={timeZone} />
-        <Status state={item.state} late={item.late} />
-      </>
-    );
-  } else {
-    cells = (
-      <>
+      </Box>
+    ),
+    start: <When date={item.start} timeZone={timeZone} />,
+    end: <When date={item.end} timeZone={timeZone} />,
+    doneTotal: (
+      <Box component="span" sx={{ textAlign: 'right', fontSize: d.caption, color: 'text.primary', ...figures }}>
+        {item.complete} / {item.total}
+      </Box>
+    ),
+    issues: (
+      <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
+        {issues.high}
+        {issues.medium}
+        {issues.low}
+      </Box>
+    ),
+    status: <Status state={item.state} late={item.late} />,
+  };
+  // D1 shows the owner under the name.
+  const first =
+    d.level === 'comfortable' ? (
+      <Box component="span" sx={{ display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0 }}>
         {name}
-        <Bar percent={percent} complete={item.state === 'complete'} />
-        <Box component="span" sx={{ textAlign: 'right', fontSize: d.caption, color: 'text.primary', ...figures }}>
-          {item.complete} / {item.total}
+        <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: d.caption, color: 'text.secondary', ...ellipsis }}>
+          {owner}
+          {item.owner.name}
         </Box>
-        <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
-          {issues}
-        </Box>
-        {owner}
-        <When date={item.end} timeZone={timeZone} />
-        <Status state={item.state} late={item.late} />
-      </>
+      </Box>
+    ) : (
+      name
     );
-  }
 
   return (
     <Box component="li" sx={{ position: 'relative', listStyle: 'none' }}>
-      {/* The progress bar carries the whole row for a screen reader; the cells are for the eye. */}
+      {/* The progress bar carries the whole row for a screen reader, stats included; the cells are for the eye. */}
       <Box role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label={execProgressSummary(item, timeZone)} sx={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
       <Box aria-hidden="true">
-        <Grid>{cells}</Grid>
+        <Grid>
+          {first}
+          {columns.map((c) => (
+            <Fragment key={c.key}>{cell[c.key]}</Fragment>
+          ))}
+        </Grid>
       </Box>
     </Box>
   );
 }
 
+const loadingWidth: Record<ColumnKey, number | string> = { bar: '100%', owner: 24, done: 24, todo: 24, total: 24, high: 20, medium: 20, low: 20, startEnd: 70, start: 60, end: 60, doneTotal: 50, issues: 80, status: 80 };
+
 function LoadingRow() {
   const d = useDensity();
+  const { columns } = useColumns();
   const block = (width: number | string, height = 12) => <Box component="span" sx={{ display: 'block', width, height, borderRadius: '6px', bgcolor: 'divider' }} />;
-  const widths: Record<DensityLevel, (number | string)[]> = {
-    command: [180, '100%', 120],
-    comfortable: [110, '100%', 24, 24, 24, 20, 20, 20, 70, 90],
-    compact: [110, '100%', 24, 24, 24, 24, 20, 20, 20, 60, 60, 80],
-    dense: [100, '100%', 50, 80, 20, 60, 80],
-  };
   return (
     <Box component="li" aria-hidden="true" sx={{ listStyle: 'none' }}>
-      <Grid>{widths[d.level].map((w, i) => <span key={i}>{block(w, i === 1 ? drawn[d.level].bar : 12)}</span>)}</Grid>
+      <Grid>
+        <span>{block(d.level === 'command' ? 180 : 110)}</span>
+        {columns.map((c) => (
+          <span key={c.key}>{block(loadingWidth[c.key], c.key === 'bar' ? drawn[d.level].bar : 12)}</span>
+        ))}
+      </Grid>
     </Box>
   );
 }
@@ -365,33 +414,53 @@ function LoadingRow() {
  * RbmWorkstreamProgress and RbmRunbookProgress, for the Executive Briefing Centre (Progress board, Proposed; one
  * component decided by Andy Smith, 27 Oct 2026). Ordered by start time, ten rows at most, no click-through. Density
  * comes from the region (RbmDensity): D0 shows Essential only; D1 and D2 show all; D3 is one line.
+ *
+ * The task and issue stats can be hidden (asked by Andy Smith, 28 Oct 2026; the control is not drawn): their columns
+ * go, the progress bar takes the width they leave, and the card's narrowest width (execProgressMinWidth) shrinks.
+ * Shown, the columns come back and the card needs its full width again. D0 has no stats, so it has no control.
  */
-export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_WIDTH, loading = false, timeZone }: RbmExecProgressProps) {
+export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_WIDTH, loading = false, timeZone, showStats: showStatsProp, onShowStatsChange }: RbmExecProgressProps) {
   const id = useId();
   const d = useDensity();
   const size = drawn[d.level];
-  const columns = `${d.level === 'command' ? COMMAND_NAME_WIDTH : nameWidth[d.level]}px ${size.rest}`;
+  const [showStatsState, setShowStatsState] = useState(true);
+  const showStats = showStatsProp ?? showStatsState;
+  const setShowStats = (show: boolean) => {
+    setShowStatsState(show);
+    onShowStatsChange?.(show);
+  };
+  const hasStats = size.columns.some((c) => c.stat);
+  const columns = columnsAt(d.level, showStats);
+  const template = [`${nameAt(d.level, nameWidth)}px`, ...columns.map((c) => (c.width ? `${c.width}px` : 'minmax(0,1fr)'))].join(' ');
   const sorted = [...items].sort(byStart);
   const shown = sorted.slice(0, EXEC_PROGRESS_ROW_LIMIT);
   const more = sorted.length - shown.length;
   const empty = !loading && items.length === 0;
   const caption = loading ? 'Ordered by start time' : empty ? '' : `Ordered by start time · ${shown.length} of ${sorted.length} shown`;
-  const twoLevel = d.level === 'comfortable' || d.level === 'compact';
+  const twoLevel = showStats && (d.level === 'comfortable' || d.level === 'compact');
 
   return (
-    <ColumnsContext.Provider value={columns}>
+    <ColumnsContext.Provider value={{ columns, template }}>
       <Box
         component="section"
         aria-labelledby={id}
         aria-busy={loading || undefined}
+        data-stats={hasStats ? (showStats ? 'shown' : 'hidden') : undefined}
         sx={{ border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', py: '20px', px: `${d.padX}px`, minWidth: 0 }}
       >
         <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 4, mb: 3 }}>
           <Box component="h3" id={id} sx={{ m: 0, fontSize: size.title, lineHeight: 1.2, fontWeight: 800, letterSpacing: '-0.01em', color: 'text.primary' }}>
             {title}
           </Box>
-          <Box component="span" sx={{ fontSize: 12, color: 'text.secondary' }}>
-            {caption}
+          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+            <Box component="span" sx={{ fontSize: 12, color: 'text.secondary' }}>
+              {caption}
+            </Box>
+            {hasStats && !empty && (
+              <RbmToggleLink onClick={() => setShowStats(!showStats)} label={`${showStats ? 'Hide' : 'Show'} task and issue stats`}>
+                {showStats ? 'Hide stats' : 'Show stats'}
+              </RbmToggleLink>
+            )}
           </Box>
         </Box>
 
@@ -402,9 +471,12 @@ export function RbmExecProgress({ items, title, noun, nameWidth = DEFAULT_NAME_W
             <Box aria-hidden="true">
               {twoLevel && <GroupHeader />}
               <Grid header>
-                {headingsFor(noun)[d.level].map((h) => (
-                  <Box component="span" key={h.label} sx={{ textAlign: h.align ?? 'left', ...ellipsis }}>
-                    {h.label}
+                <Box component="span" sx={ellipsis}>
+                  {nameHeading(d.level, noun)}
+                </Box>
+                {columns.map((c) => (
+                  <Box component="span" key={c.key} sx={{ textAlign: c.align ?? 'left', ...ellipsis }}>
+                    {c.heading}
                   </Box>
                 ))}
               </Grid>

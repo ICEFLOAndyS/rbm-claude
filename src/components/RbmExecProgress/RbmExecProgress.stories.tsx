@@ -30,3 +30,6 @@ export const Runbooks: Story = {
 
 export const RunbooksD2: Story = { ...Runbooks, decorators: [(Story) => <RbmDensity level="compact"><Story /></RbmDensity>] };
 export const Empty: Story = { args: { items: [], title: 'Team progress', noun: { one: 'team', many: 'teams' } } };
+
+/** The task and issue stats hidden: the progress bar takes their width. "Show stats" brings them back. */
+export const StatsHidden: Story = { args: { showStats: false }, decorators: [(Story) => <RbmDensity level="compact"><Story /></RbmDensity>] };

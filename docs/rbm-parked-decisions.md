@@ -1238,6 +1238,15 @@ Not drawn, so I chose (flag, confirm or replace):
 - **Still open:** which Icon suite states a workstream or runbook can have, whether a runbook needs the current stage, and where the cards sit in the build order.
 - **Seen in testing:** one Command Centre test ("Loading all tasks" behind Show all) failed once in a full run and passed alone and on the next full run. It is timing-sensitive under load; not related to this change.
 
+### 28 Oct 2026: Exec Centre, a copy of the Command Centre (asked by Andy Smith; launch and breadcrumb Proposed)
+- **Asked:** a new page, the Exec Centre, cloned from the Command Centre and opened from the Events list by a new icon in the same right-hand column.
+- **Page:** `ExecCentrePage` (`src/app/ExecCentrePage.tsx`) is a copy of `CommandCentrePage`, to grow apart from it. For now it is the same page on the same `RbmCommandCentre` template and data. It keeps its own layout (`rbm.execCentre.layout.v1` in the demo), so changing one centre's layout does not change the other's.
+- **Route:** `#/events/REVnnnnnn/exec`, beside the Command Centre's `#/events/REVnnnnnn`. The browser tab reads "REV000009 Weekend Payroll Cutover · Exec Centre".
+- **Icon:** `centre.executiveBriefing` from the Icon suite, after the Command Centre's `centre.commandControl`, on the same running events (Active or Paused). Tooltip "Open Exec Centre"; screen readers hear "Open Exec Centre, REV000009". With both icons the column is named "Centres" for screen readers (its header is blank). `RbmDataGrid`'s `rowLink` can now return several links, and `rowLinkSlots` sizes the column. Enter on the cell follows the first link; Tab reaches each button.
+- **Not drawn (Proposed):** the breadcrumb names the centre, "Run / Exec Centre / Weekend Payroll Cutover" (`centreName` on `RbmCommandCentre`; the Command Centre's breadcrumb is unchanged). The two icons are drawn as a family (the same grid with a crosshair or a star badge) and are hard to tell apart at 20 px; the tooltips name them.
+- **Naming:** the Icon suite calls this centre "Executive Briefing Centre"; the page is named "Exec Centre" as asked. One name should be settled.
+- **Not done:** the record panel has no "Open Exec Centre" action (its primary action stays Open Command Centre). The demo bar's Event switcher opens the Command Centre.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

@@ -74,10 +74,15 @@ export interface RbmDataGridProps<Row extends { id: string }, F extends string> 
   selectable?: boolean;
   selectedIds?: readonly string[];
   onSelectedIdsChange?: (ids: string[]) => void;
-  /** An icon button before the "more" button, for rows that have one (null for a row without). */
-  rowLink?: (row: Row) => RbmGridRowLink | null;
+  /**
+   * Icon buttons before the "more" button, for rows that have them: one link, or several side by side in the
+   * same column (Command Centre and Exec Centre), or null for a row without.
+   */
+  rowLink?: (row: Row) => RbmGridRowLink | readonly RbmGridRowLink[] | null;
   /** The icon column's name for screen readers (its header is blank, like the "more" column's). */
   rowLinkHeader?: string;
+  /** How many icons the column makes room for (1 by default). */
+  rowLinkSlots?: number;
   /** The drawn "more" button at the end of each row. Leave out for no button. */
   rowActions?: (row: Row) => RbmGridRowAction[];
   loading?: boolean;
@@ -93,6 +98,9 @@ export interface RbmDataGridProps<Row extends { id: string }, F extends string> 
 
 const ACTIONS = '__actions';
 const LINK = '__link';
+
+/** A row's links as a list: none, one or several. */
+const linksOf = (link: RbmGridRowLink | readonly RbmGridRowLink[] | null | undefined): readonly RbmGridRowLink[] => (!link ? [] : 'label' in link ? [link] : link);
 
 /**
  * The semantic dot and label at the region's dot size (10 px at D1 and D2), or the Semantic board's
@@ -184,6 +192,7 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
   onSelectedIdsChange,
   rowLink,
   rowLinkHeader = 'Open',
+  rowLinkSlots = 1,
   rowActions,
   loading = false,
   noRowsLabel = 'Nothing to show.',
@@ -220,15 +229,13 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
         sortable: false,
         hideable: false,
         resizable: false,
-        width: d.target + 2 * d.padX,
-        renderCell: (params) => {
-          const link = rowLink(params.row as Row);
-          if (!link) return null;
-          return (
-            <Tooltip title={link.label}>
+        width: rowLinkSlots * d.target + 2 * d.padX,
+        renderCell: (params) =>
+          linksOf(rowLink(params.row as Row)).map((link) => (
+            <Tooltip key={link.label} title={link.label}>
               <IconButton
                 aria-label={link.name}
-                // The grid moves focus between cells; the button takes it only while its cell has it.
+                // The grid moves focus between cells; the buttons take it only while their cell has it.
                 tabIndex={params.hasFocus ? 0 : -1}
                 onClick={(e) => {
                   // The icon goes to its own place; it does not also open the row.
@@ -240,8 +247,7 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
                 <RbmIcon name={link.icon} />
               </IconButton>
             </Tooltip>
-          );
-        },
+          )),
       });
     }
     if (rowActions) {
@@ -258,7 +264,7 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
       });
     }
     return defs;
-  }, [ordered, columnState.widths, rowLink, rowLinkHeader, rowActions, timeZone, d.target, d.padX]);
+  }, [ordered, columnState.widths, rowLink, rowLinkHeader, rowLinkSlots, rowActions, timeZone, d.target, d.padX]);
 
   const visibility = useMemo<GridColumnVisibilityModel>(() => Object.fromEntries(columns.map((c) => [c.field, columnState.visible.includes(c.field)])), [columns, columnState.visible]);
   const sortModel = useMemo<GridSortModel>(() => sort.map((s) => ({ field: s.field, sort: s.direction })), [sort]);
@@ -304,8 +310,8 @@ export function RbmDataGrid<Row extends { id: string }, F extends string>({
         onCellKeyDown={(params, event) => {
           if (event.key !== 'Enter') return;
           if (params.field === LINK) {
-            // Enter on the cell follows the link; on the button itself, the button's own click does.
-            const link = rowLink?.(params.row as Row);
+            // Enter on the cell follows its first link; on a button, the button's own click does.
+            const link = linksOf(rowLink?.(params.row as Row))[0];
             if (link && !(event.target instanceof HTMLButtonElement)) {
               event.preventDefault();
               link.onSelect();

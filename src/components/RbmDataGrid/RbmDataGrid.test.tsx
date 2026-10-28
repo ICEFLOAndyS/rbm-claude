@@ -115,6 +115,47 @@ describe('RbmDataGrid', () => {
       expect(onSelect).toHaveBeenCalledTimes(1);
       expect(onOpenRow).not.toHaveBeenCalled();
     });
+
+    describe('several links in the one column', () => {
+      const two = (command: () => void, exec: () => void) => (r: (typeof rows)[number]) =>
+        r.number === 'REV000002'
+          ? [
+              { label: 'Open Command Centre', name: `Open Command Centre, ${r.number}`, icon: 'centre.commandControl' as const, onSelect: command },
+              { label: 'Open Exec Centre', name: `Open Exec Centre, ${r.number}`, icon: 'centre.executiveBriefing' as const, onSelect: exec },
+            ]
+          : null;
+
+      it('shows them side by side in the same cell, in order, and each follows its own link', async () => {
+        const command = vi.fn();
+        const exec = vi.fn();
+        renderGrid({ rowLink: two(command, exec), rowLinkSlots: 2 });
+        const commandButton = screen.getByRole('button', { name: 'Open Command Centre, REV000002' });
+        const cell = commandButton.closest('[role="gridcell"]')!;
+        expect(within(cell as HTMLElement).getAllByRole('button').map((b) => b.getAttribute('aria-label'))).toEqual(['Open Command Centre, REV000002', 'Open Exec Centre, REV000002']);
+        await userEvent.click(screen.getByRole('button', { name: 'Open Exec Centre, REV000002' }));
+        expect(exec).toHaveBeenCalledTimes(1);
+        expect(command).not.toHaveBeenCalled();
+      });
+
+      it('makes room for each: the column is a target per slot plus the padding', () => {
+        renderGrid({ rowLink: two(vi.fn(), vi.fn()), rowLinkSlots: 2 });
+        const cell = screen.getByRole('button', { name: 'Open Exec Centre, REV000002' }).closest<HTMLElement>('[role="gridcell"]')!;
+        const { target, padX } = density.compact;
+        // MUI X gives each cell its column's width as the --width variable.
+        expect(cell.style.getPropertyValue('--width')).toBe(`${2 * target + 2 * padX}px`);
+      });
+
+      it('Enter on the cell follows the first link', async () => {
+        const command = vi.fn();
+        const exec = vi.fn();
+        renderGrid({ rowLink: two(command, exec), rowLinkSlots: 2 });
+        const cell = screen.getByRole('button', { name: 'Open Command Centre, REV000002' }).closest<HTMLElement>('[role="gridcell"]')!;
+        act(() => cell.focus());
+        await userEvent.keyboard('{Enter}');
+        expect(command).toHaveBeenCalledTimes(1);
+        expect(exec).not.toHaveBeenCalled();
+      });
+    });
   });
 
   it('keeps the approved highlight on the row open in the panel', () => {

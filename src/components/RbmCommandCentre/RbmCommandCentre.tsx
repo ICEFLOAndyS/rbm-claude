@@ -42,6 +42,11 @@ export interface RbmCommandCentreProps {
   onOpenIssues?: () => void;
   onOpenForecast?: () => void;
   timeZone?: string;
+  /**
+   * Another centre on this template, named in the breadcrumb: "Run / Exec Centre / Weekend Payroll Cutover".
+   * Not drawn (proposed). Left out for the Command Centre, whose breadcrumb is as drawn.
+   */
+  centreName?: string;
 }
 
 /**
@@ -163,6 +168,11 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
             <Box component="nav" aria-label="Breadcrumb" sx={{ fontSize: h.caption, fontWeight: 600 }}>
               <Box component="span" sx={{ color: 'primary.main' }}>Run</Box> <Box component="span" aria-hidden="true" sx={{ color: colour.silver }}>/</Box>{' '}
+              {props.centreName && (
+                <>
+                  <Box component="span" sx={{ color: 'primary.main' }}>{props.centreName}</Box> <Box component="span" aria-hidden="true" sx={{ color: colour.silver }}>/</Box>{' '}
+                </>
+              )}
               <Box component="span" aria-current="page" sx={{ color: 'text.secondary' }}>{event.name}</Box>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>

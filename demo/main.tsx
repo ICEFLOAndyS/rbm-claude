@@ -11,6 +11,7 @@ import { createFixtureSource } from '../src/data/fixtureSource';
 import { createLocalLayoutStore } from '../src/data/layoutStore';
 import { validateFixture } from '../src/data/schema';
 import { CommandCentrePage } from '../src/app/CommandCentrePage';
+import { ExecCentrePage } from '../src/app/ExecCentrePage';
 import { RbmAppShell } from '../src/components/RbmAppShell/RbmAppShell';
 import { useScrollContainer } from '../src/components/RbmAppShell/shellContext';
 import { RbmPageHeader } from '../src/components/RbmPageHeader/RbmPageHeader';
@@ -71,6 +72,8 @@ applyMuiXLicence();
 const params = new URLSearchParams(window.location.search);
 const embedded = params.has('embedded');
 const layoutStore = createLocalLayoutStore();
+/** The Exec Centre keeps its own layout. */
+const execLayoutStore = createLocalLayoutStore('rbm.execCentre.layout.v1');
 /** The stub user: the shell is not bound to ServiceNow sign-in yet (app shell brief, section 9). */
 const user: RbmUser = { id: 'a.smith', name: 'Andy Smith', role: 'Cutover Manager', email: 'andy.smith@iceflo.com' };
 const navData = createMockNavData();
@@ -160,6 +163,9 @@ function useScenarios() {
     },
   };
 }
+
+/** #/events/REVnnnnnn/exec is the event's Exec Centre; #/events/REVnnnnnn its Command Centre. */
+const isExecCentre = (path: string) => /^\/events\/REV\d{6}\/exec(?:[/?]|$)/.test(path);
 
 const eventOf = (path: string) => {
   const m = /^\/events\/(REV\d{6})(?:[/?]|$)/.exec(path);
@@ -325,13 +331,17 @@ function Demo() {
           <ScrollOnLoad ready={!!live} />
           {number ? (
             !ref ? (
-              <NotBuilt title={number} text={`${number} has no Command Centre data in the prototype. Events REV000009 to REV000012 do.`} />
+              <NotBuilt title={number} text={`${number} has no ${isExecCentre(path) ? 'Exec' : 'Command'} Centre data in the prototype. Events REV000009 to REV000012 do.`} />
             ) : error ? (
               <Box component="pre" sx={{ p: 8, color: colour.redInner, whiteSpace: 'pre-wrap' }}>{error}</Box>
             ) : !live ? (
               <Box sx={{ p: 8, color: 'text.secondary' }}>Loading {ref.number} · {fixtures[ref.fixture].label}…</Box>
             ) : (
-              <CommandCentrePage key={`${ref.fixture}-${run}`} data={live.source} layoutStore={layoutStore} timeZone="UTC" loadAllDelayMs={latency} />
+              isExecCentre(path) ? (
+                <ExecCentrePage key={`exec-${ref.fixture}-${run}`} data={live.source} layoutStore={execLayoutStore} timeZone="UTC" loadAllDelayMs={latency} />
+              ) : (
+                <CommandCentrePage key={`${ref.fixture}-${run}`} data={live.source} layoutStore={layoutStore} timeZone="UTC" loadAllDelayMs={latency} />
+              )
             )
           ) : route === '/events' ? (
             <EventsRoute path={path} navigate={navigate} scenarios={scenarios.filter} />
@@ -362,7 +372,7 @@ function Demo() {
 /** The page's name for the browser tab. */
 function pageTitleFor(path: string, ref: CommandCentreEventRef | null): string {
   const number = eventOf(path);
-  if (number) return ref ? `${ref.number} ${ref.name}` : number;
+  if (number) return `${ref ? `${ref.number} ${ref.name}` : number}${isExecCentre(path) ? ' · Exec Centre' : ''}`;
   if (path.split('?')[0] === '/events') return 'Events';
   return adminPageAt(path)?.title ?? adminDomainAt(path)?.label ?? navLocation(rbmNav, path)?.item.label ?? 'Page not found';
 }
@@ -402,7 +412,8 @@ function ScrollOnLoad({ ready }: { ready: boolean }) {
 
 /**
  * The Events list, on the mock server. The open record is kept in the address, and the Command Centre icon on
- * a running event (and the record panel's Open Command Centre) opens #/events/REVnnnnnn.
+ * a running event (and the record panel's Open Command Centre) opens #/events/REVnnnnnn; the Exec Centre icon
+ * beside it opens #/events/REVnnnnnn/exec.
  */
 function EventsRoute({ path, navigate, scenarios }: { path: string; navigate: (to: string) => void; scenarios: RbmScenarioFilterProps }) {
   const [server, setServer] = useState<{ data: EventListData; fixture: EventListFixture } | null>(null);
@@ -427,6 +438,7 @@ function EventsRoute({ path, navigate, scenarios }: { path: string; navigate: (t
       address={readAddress(path)}
       onAddressChange={(a) => navigate(writeAddress(a))}
       onOpenCommandCentre={(e) => navigate(`/events/${e.number}`)}
+      onOpenExecCentre={(e) => navigate(`/events/${e.number}/exec`)}
       scenarios={scenarios}
       onNew={() => {}}
       onImport={() => {}}

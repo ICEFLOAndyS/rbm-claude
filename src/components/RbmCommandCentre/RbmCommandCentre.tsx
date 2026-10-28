@@ -22,13 +22,20 @@ export interface RbmCommandCentreProps {
   alerts: RbmAlert[];
   /** The same data the Event vitals show; the compact event bar reads it too. */
   vitalsData: RbmEventVitalsData;
-  /** Typed slots, keyed by region name. The Page header and Event vitals are fixed at the top; hotTopics is the right panel (RbmHotTopicsPanel). */
+  /**
+   * Typed slots, keyed by region name. The Page header and Event vitals are fixed at the top; hotTopics is the right
+   * panel (RbmHotTopicsPanel). The main column shows the regions in `layout`: the Command Centre fills timeline, the
+   * Exec Briefing Centre fills progress instead.
+   */
   vitals: ReactNode;
   ribbon: ReactNode;
-  timeline: ReactNode;
+  timeline?: ReactNode;
+  progress?: ReactNode;
   hotTopics: ReactNode;
-  /** The user's order for the Event ribbon and Task Timeline, saved to their profile by the page. */
+  /** The user's order for the main column's regions, saved to their profile by the page. */
   layout?: RbmMovableRegion[];
+  /** The page's movable regions in their default order: DEFAULT_LAYOUT (the Command Centre) unless given. */
+  defaultLayout?: RbmMovableRegion[];
   onLayoutChange?: (order: RbmMovableRegion[]) => void;
   /** Which movable regions are collapsed. With onCollapsedChange, the Layout panel can open and collapse them. */
   collapsed?: Partial<Record<RbmRegion, boolean>>;
@@ -117,7 +124,7 @@ function useOnScreen<T extends Element>() {
  */
 export function RbmCommandCentre(props: RbmCommandCentreProps) {
   const { event, alerts, vitalsData, vitals, ribbon, timeline, hotTopics, eventActions = {}, timeZone } = props;
-  const [layoutState, setLayoutState] = useState<RbmMovableRegion[]>(DEFAULT_LAYOUT);
+  const [layoutState, setLayoutState] = useState<RbmMovableRegion[]>(props.defaultLayout ?? DEFAULT_LAYOUT);
   const layout = props.layout ?? layoutState;
   const setLayout = (order: RbmMovableRegion[]) => {
     setLayoutState(order);
@@ -134,6 +141,7 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
 
   const regions: Record<RbmMovableRegion, ReactNode> = {
     ribbon,
+    progress: props.progress,
     timeline: props.collapsed?.timeline ? timeline : <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: TIMELINE_MIN_HEIGHT, '& > *': { flex: 1 } }}>{timeline}</Box>,
   };
   const shown = actions.filter((a) => a.key === 'layout' || eventActions[a.key as RbmEventAction]);
@@ -241,7 +249,7 @@ export function RbmCommandCentre(props: RbmCommandCentreProps) {
         slotProps={{ paper: { sx: { mt: 1.5, bgcolor: 'transparent', boxShadow: 'none', overflow: 'visible' } } }}
       >
         <RbmDensity level={COMMAND_CENTRE_DENSITY.regions}>
-          <RbmLayoutPanel order={layout} onChange={setLayout} onClose={() => setLayoutOpen(false)} collapsed={props.collapsed} onCollapsedChange={props.onCollapsedChange} onReset={props.onLayoutReset} />
+          <RbmLayoutPanel order={layout} onChange={setLayout} onClose={() => setLayoutOpen(false)} collapsed={props.collapsed} onCollapsedChange={props.onCollapsedChange} onReset={props.onLayoutReset} defaultOrder={props.defaultLayout} />
         </RbmDensity>
       </Popover>
 

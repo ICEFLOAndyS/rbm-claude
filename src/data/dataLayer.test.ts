@@ -47,6 +47,17 @@ describe('layout order (LayoutPreferenceStore)', () => {
     expect(sanitise({ order: ['ribbon', 'timeline'], collapsed: { timeline: 'yes' } }).collapsed).toEqual({ ribbon: false, timeline: false, hotTopics: false });
   });
 
+  it("keeps a page's own regions: the Exec Briefing Centre's Event ribbon and Progress", async () => {
+    const storage = memoryStorage();
+    const exec = createLocalLayoutStore('e', storage, ['ribbon', 'progress']);
+    expect(await exec.get()).toEqual({ order: ['ribbon', 'progress'], collapsed: { ribbon: false, progress: false, hotTopics: false }, ribbonView: 'all' });
+    await exec.set({ order: ['progress', 'ribbon'], collapsed: { ribbon: true, progress: true, hotTopics: false }, ribbonView: 'all' });
+    expect(await exec.get()).toEqual({ order: ['progress', 'ribbon'], collapsed: { ribbon: true, progress: true, hotTopics: false }, ribbonView: 'all' });
+    // A Command Centre order does not fit: the page's default comes back.
+    expect(sanitise({ order: ['timeline', 'ribbon'] }, ['ribbon', 'progress']).order).toEqual(['ribbon', 'progress']);
+    expect(await exec.reset()).toEqual({ order: ['ribbon', 'progress'], collapsed: { ribbon: false, progress: false, hotTopics: false }, ribbonView: 'all' });
+  });
+
   it('keeps the order of an older preference that still lists the Hot-topics strip, without it', () => {
     expect(sanitise({ order: ['timeline', 'hotTopics', 'ribbon'] }).order).toEqual(['timeline', 'ribbon']);
     expect(sanitise({ order: ['hotTopics', 'ribbon', 'timeline'] }).order).toEqual(['ribbon', 'timeline']);

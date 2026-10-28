@@ -60,7 +60,9 @@ export { mockBlockers, mockNextCheckpoint, mockMilestones, mockPeople, mockWatch
 export { RbmEventBar, barGap } from './components/RbmEventBar/RbmEventBar';
 export type { RbmEventBarProps, RbmEventSummary } from './components/RbmEventBar/RbmEventBar';
 export { mockEvent, mockAlerts } from './mocks/event';
-export { RbmLayoutPanel, DEFAULT_LAYOUT, regionInfo } from './components/RbmLayoutPanel/RbmLayoutPanel';
+export { RbmLayoutPanel, DEFAULT_LAYOUT, EXEC_BRIEFING_LAYOUT, regionInfo } from './components/RbmLayoutPanel/RbmLayoutPanel';
+export { RbmProgressRegion, PROGRESS_CARD_MIN_WIDTH, PROGRESS_REGION_LABEL } from './components/RbmProgressRegion/RbmProgressRegion';
+export type { RbmProgressRegionProps } from './components/RbmProgressRegion/RbmProgressRegion';
 export type { RbmLayoutPanelProps, RbmRegion, RbmMovableRegion } from './components/RbmLayoutPanel/RbmLayoutPanel';
 export { RbmCommandCentre, TIMELINE_MIN_HEIGHT, formatWindow } from './components/RbmCommandCentre/RbmCommandCentre';
 export type { RbmCommandCentreProps, RbmCommandCentreEvent, RbmEventAction } from './components/RbmCommandCentre/RbmCommandCentre';

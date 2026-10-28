@@ -7,17 +7,21 @@ import { colour, elevation, liftTint, radius, stroke } from '../../theme/tokens'
 import { hitTarget, useDensity, type DensityTokens } from '../../theme/RbmDensity';
 
 /** The regions that collapse. The Page header and the Event vitals are fixed and always open. */
-export type RbmRegion = 'ribbon' | 'timeline' | 'hotTopics';
+export type RbmRegion = 'ribbon' | 'timeline' | 'progress' | 'hotTopics';
 
 /** The regions that move, in the main column. The Hot-topics panel stays on the right. */
 export type RbmMovableRegion = Exclude<RbmRegion, 'hotTopics'>;
 
-/** Reset to default puts the order back to Event ribbon, then Task Timeline. */
+/** The Command Centre's movable regions. Reset to default puts the order back to Event ribbon, then Task Timeline. */
 export const DEFAULT_LAYOUT: RbmMovableRegion[] = ['ribbon', 'timeline'];
+
+/** The Exec Briefing Centre's: the Event ribbon, then Progress, where the Command Centre has its Task Timeline. */
+export const EXEC_BRIEFING_LAYOUT: RbmMovableRegion[] = ['ribbon', 'progress'];
 
 export const regionInfo: Record<RbmRegion, { name: string; detail: string }> = {
   ribbon: { name: 'Event ribbon', detail: 'One lane per runbook' },
   timeline: { name: 'Task Timeline', detail: 'The tasks that need attention' },
+  progress: { name: 'Progress', detail: 'Runbook and Workstream progress, side by side' },
   hotTopics: { name: 'Hot-topics panel', detail: 'On the right: blockers, checkpoint, milestones and more' },
 };
 
@@ -37,6 +41,8 @@ export interface RbmLayoutPanelProps {
   onCollapsedChange?: (region: RbmRegion, collapsed: boolean) => void;
   /** Reset to default. Without it, Reset to default only puts the order back, through onChange. */
   onReset?: () => void;
+  /** The page's movable regions in their default order, for Reset to default without onReset. The Command Centre's by default. */
+  defaultOrder?: readonly RbmMovableRegion[];
 }
 
 function Icon({ size: sizeProp, stroke = colour.slate, children }: { size?: number; stroke?: string; children: ReactNode }) {
@@ -129,11 +135,12 @@ function SortableRow({ id, position, total, line, follow, open, onOpenChange }: 
 
 /**
  * The Layout panel, as drawn on the Command board: the Page header and Event vitals fixed at the
- * top, then the Event ribbon and Task Timeline, dragged from the grip into either order. From the
+ * top, then the page's movable regions (the Event ribbon and Task Timeline, or on the Exec Briefing Centre the
+ * Event ribbon and Progress), dragged from the grip into either order. From the
  * keyboard, Space picks a row up, the arrow keys move it and Space drops it. The Hot-topics panel
  * sits on the right and does not move, but opens and collapses from its row (not drawn, flagged).
  */
-export function RbmLayoutPanel({ order, onChange, onClose, collapsed = {}, onCollapsedChange, onReset }: RbmLayoutPanelProps) {
+export function RbmLayoutPanel({ order, onChange, onClose, collapsed = {}, onCollapsedChange, onReset, defaultOrder = DEFAULT_LAYOUT }: RbmLayoutPanelProps) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
   const [active, setActive] = useState<RbmMovableRegion | null>(null);
   const [over, setOver] = useState<RbmMovableRegion | null>(null);
@@ -224,7 +231,7 @@ export function RbmLayoutPanel({ order, onChange, onClose, collapsed = {}, onCol
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 4, mt: 1, borderTop: 1, borderColor: 'divider' }}>
-        <ButtonBase onClick={() => (onReset ? onReset() : onChange([...DEFAULT_LAYOUT]))} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, ...hitTarget(d.target) }}>
+        <ButtonBase onClick={() => (onReset ? onReset() : onChange([...defaultOrder]))} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, fontFamily: 'inherit', fontSize: d.caption, fontWeight: 700, color: 'primary.main', borderRadius: 1, px: 0.5, ...hitTarget(d.target) }}>
           <Icon size={16} stroke={colour.deepBlue}><path d="M9 8L4 13l5 5" /><path d="M4 13h10a6 6 0 000-12" transform="translate(0 6)" /></Icon>
           Reset to default
         </ButtonBase>

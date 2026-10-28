@@ -12,6 +12,8 @@ import { createLocalLayoutStore } from '../src/data/layoutStore';
 import { validateFixture } from '../src/data/schema';
 import { CommandCentrePage } from '../src/app/CommandCentrePage';
 import { ExecBriefingCentrePage } from '../src/app/ExecBriefingCentrePage';
+import { EXEC_BRIEFING_LAYOUT } from '../src/components/RbmLayoutPanel/RbmLayoutPanel';
+import { mockWorkstreamProgressFrom } from '../src/mocks/workstreamProgress';
 import { RbmAppShell } from '../src/components/RbmAppShell/RbmAppShell';
 import { useScrollContainer } from '../src/components/RbmAppShell/shellContext';
 import { RbmPageHeader } from '../src/components/RbmPageHeader/RbmPageHeader';
@@ -72,8 +74,8 @@ applyMuiXLicence();
 const params = new URLSearchParams(window.location.search);
 const embedded = params.has('embedded');
 const layoutStore = createLocalLayoutStore();
-/** The Exec Briefing Centre keeps its own layout. */
-const execBriefingLayoutStore = createLocalLayoutStore('rbm.execBriefingCentre.layout.v1');
+/** The Exec Briefing Centre keeps its own layout, of its own regions (the Event ribbon and Progress). */
+const execBriefingLayoutStore = createLocalLayoutStore('rbm.execBriefingCentre.layout.v1', globalThis.localStorage, EXEC_BRIEFING_LAYOUT);
 /** The stub user: the shell is not bound to ServiceNow sign-in yet (app shell brief, section 9). */
 const user: RbmUser = { id: 'a.smith', name: 'Andy Smith', role: 'Cutover Manager', email: 'andy.smith@iceflo.com' };
 const navData = createMockNavData();
@@ -338,7 +340,7 @@ function Demo() {
               <Box sx={{ p: 8, color: 'text.secondary' }}>Loading {ref.number} · {fixtures[ref.fixture].label}…</Box>
             ) : (
               isExecBriefingCentre(path) ? (
-                <ExecBriefingCentrePage key={`exec-briefing-${ref.fixture}-${run}`} data={live.source} layoutStore={execBriefingLayoutStore} timeZone="UTC" loadAllDelayMs={latency} />
+                <ExecBriefingCentrePage key={`exec-briefing-${ref.fixture}-${run}`} data={live.source} layoutStore={execBriefingLayoutStore} workstreams={mockWorkstreamProgressFrom(new Date(fixture!.event.window.start))} timeZone="UTC" />
               ) : (
                 <CommandCentrePage key={`${ref.fixture}-${run}`} data={live.source} layoutStore={layoutStore} timeZone="UTC" loadAllDelayMs={latency} />
               )

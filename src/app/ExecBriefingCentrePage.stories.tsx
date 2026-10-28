@@ -6,11 +6,13 @@ import { createLocalLayoutStore } from '../data/layoutStore';
 import { createSimClock } from '../engine/clock';
 import { badlyLateEvent, healthyEvent, weekendPayrollCutover } from '../fixtures/build';
 import type { EventFixture } from '../data/types';
+import { EXEC_BRIEFING_LAYOUT } from '../components/RbmLayoutPanel/RbmLayoutPanel';
+import { mockWorkstreamProgressFrom } from '../mocks/workstreamProgress';
 
 /**
- * The Exec Briefing Centre: for now a copy of the Command & Control Centre, named in the breadcrumb. The whole page, connected: a JSON fixture run by the fake engine (a stand-in for the RBM
- * planning engine). Actions work; the clock runs at the chosen speed. The large event is in the
- * demo app (npm run demo).
+ * The Exec Briefing Centre: the Command Centre's template with the Event ribbon and Progress (Runbook progress and
+ * Workstream progress side by side) where the Command Centre has its Task Timeline. A JSON fixture run by the fake
+ * engine; the runbooks come from the event, the workstreams are a sample (the data model has none yet).
  */
 const meta: Meta = {
   title: 'Prototype/Exec Briefing Centre',
@@ -24,7 +26,7 @@ function Connected({ fixture, speed }: { fixture: () => EventFixture; speed: num
   const live = useMemo(() => {
     const f = fixture();
     const clock = createSimClock(new Date(f.startsAt), { speed });
-    return { clock, source: createFixtureSource(f, clock) };
+    return { clock, source: createFixtureSource(f, clock), workstreams: mockWorkstreamProgressFrom(new Date(f.event.window.start)) };
     // A new source only when the story changes; speed is set below.
   }, [fixture]);
   useEffect(() => live.clock.setSpeed(speed), [live, speed]);
@@ -32,7 +34,7 @@ function Connected({ fixture, speed }: { fixture: () => EventFixture; speed: num
     live.source.dispose();
     live.clock.dispose();
   }, [live]);
-  return <ExecBriefingCentrePage data={live.source} layoutStore={createLocalLayoutStore('rbm.storybook.execLayout')} timeZone="UTC" />;
+  return <ExecBriefingCentrePage data={live.source} layoutStore={createLocalLayoutStore('rbm.storybook.execLayout', globalThis.localStorage, EXEC_BRIEFING_LAYOUT)} workstreams={live.workstreams} timeZone="UTC" />;
 }
 
 const speedArg = { argTypes: { speed: { control: { type: 'select' as const }, options: [0, 1, 10, 60, 300] } }, args: { speed: 0 } };

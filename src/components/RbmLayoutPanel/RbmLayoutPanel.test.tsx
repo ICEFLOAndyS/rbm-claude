@@ -2,7 +2,7 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import { useState, type ReactElement } from 'react';
-import { DEFAULT_LAYOUT, RbmLayoutPanel, type RbmMovableRegion } from './RbmLayoutPanel';
+import { DEFAULT_LAYOUT, EXEC_BRIEFING_LAYOUT, RbmLayoutPanel, type RbmMovableRegion } from './RbmLayoutPanel';
 import { rbmTheme } from '../../theme/theme';
 
 const renderUi = (ui: ReactElement) => render(<ThemeProvider theme={rbmTheme}>{ui}</ThemeProvider>);
@@ -140,6 +140,16 @@ describe('RbmLayoutPanel', () => {
     renderUi(<RbmLayoutPanel order={['timeline', 'ribbon']} onChange={onChange} />);
     await userEvent.click(screen.getByRole('button', { name: 'Reset to default' }));
     expect(onChange).toHaveBeenCalledWith(['ribbon', 'timeline']);
+  });
+
+  it("lists the Exec Briefing Centre's regions, Event ribbon and Progress, and resets to them", async () => {
+    const onChange = vi.fn();
+    renderUi(<RbmLayoutPanel order={['progress', 'ribbon']} onChange={onChange} defaultOrder={EXEC_BRIEFING_LAYOUT} onCollapsedChange={() => {}} />);
+    expect(screen.getByRole('button', { name: /^Move Progress/ })).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Progress open' })).toBeChecked();
+    expect(screen.queryByText('Task Timeline')).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Reset to default' }));
+    expect(onChange).toHaveBeenCalledWith(['ribbon', 'progress']);
   });
 
   it('closes with Done or the close button', async () => {

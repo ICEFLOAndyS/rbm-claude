@@ -13,6 +13,9 @@ import type { RbmTagKind } from '../components/RbmTag/RbmTag';
 import type { RbmTaskActionKind } from '../components/RbmTaskRow/RbmTaskAction';
 import type { RbmBlocker, RbmMilestoneItem, RbmNextCheckpointData, RbmWatcher } from '../components/RbmHotTopicsStrip/cards';
 import type { RbmCommandCentreEvent } from '../components/RbmCommandCentre/RbmCommandCentre';
+import type { RbmRunbookProgressItem } from '../components/RbmRunbookProgress/RbmRunbookProgress';
+import type { RbmSuiteState } from '../icons/states';
+import { initialsOf } from '../components/RbmAvatar/RbmAvatar';
 
 const d = (t: string) => new Date(t);
 const MIN = 60_000;
@@ -219,4 +222,50 @@ export function toHotTopics(s: CommandCentreSnapshot, runbookIds: string[] = [])
   const people = (collab?.participantIds ?? []).map((id) => s.people.find((p) => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p).map((p) => ({ name: p.name, ...(p.initials ? { initials: p.initials } : {}) }));
   const watchers: RbmWatcher[] = s.watchers.map((w) => ({ id: w.id, title: w.title, since: d(w.since) }));
   return { blockers, nextCheckpoint, milestones, collaboration: { live: !!collab?.open, people }, watchers };
+}
+
+/**
+ * Runbook progress (RbmRunbookProgress), one row per runbook. Proposed, as the data model has no runbook owner or
+ * runbook state yet:
+ * - owner: the person assigned the most of the runbook's tasks (ties by name);
+ * - state: Complete when every task is complete or skipped, Active while any task is active, Paused while any is
+ *   paused and none active, Scheduled before any task starts, and Active between tasks;
+ * - start and end: the earliest actual or forecast task start and the latest actual or forecast task end, so the
+ *   card shows planned, forecast or actual times as the runbook's state makes them;
+ * - issues: open issues on any of the runbook's tasks; Late: the runbook's forecast end is behind its planned end.
+ */
+export function toRunbookProgress(s: CommandCentreSnapshot): RbmRunbookProgressItem[] {
+  return s.runbooks.map((rb) => {
+    const tasks = s.tasks.filter((t) => t.runbookId === rb.id);
+    const ids = new Set(tasks.map((t) => t.id));
+    const done = tasks.filter((t) => t.state === 'complete' || t.state === 'skipped').length;
+    const counts = new Map<string, number>();
+    for (const t of tasks) if (t.assigneeId) counts.set(t.assigneeId, (counts.get(t.assigneeId) ?? 0) + 1);
+    const owner = [...counts]
+      .map(([id, n]) => ({ person: s.people.find((p) => p.id === id), n }))
+      .filter((o): o is { person: NonNullable<typeof o.person>; n: number } => !!o.person)
+      .sort((a, b) => b.n - a.n || a.person.name.localeCompare(b.person.name))[0]?.person;
+    const state: RbmSuiteState =
+      tasks.length > 0 && done === tasks.length ? 'complete'
+      : tasks.some((t) => t.state === 'active') ? 'active'
+      : tasks.some((t) => t.state === 'paused') ? 'paused'
+      : done === 0 ? 'scheduled'
+      : 'active';
+    const starts = tasks.map((t) => Date.parse(t.actual?.start ?? t.forecast.start));
+    const ends = tasks.map((t) => Date.parse(t.actual?.end ?? t.forecast.end));
+    const issues = { high: 0, medium: 0, low: 0 };
+    for (const i of s.issues) if (i.state === 'open' && i.taskIds.some((id) => ids.has(id))) issues[i.severity] += 1;
+    return {
+      id: rb.id,
+      name: rb.name,
+      owner: owner ? { name: owner.name, initials: owner.initials ?? initialsOf(owner.name) } : { name: 'Unassigned', initials: '–' },
+      start: new Date(starts.length ? Math.min(...starts) : Date.parse(rb.forecast.plannedEnd)),
+      end: new Date(ends.length ? Math.max(...ends) : Date.parse(rb.forecast.forecastEnd)),
+      state,
+      complete: done,
+      total: tasks.length,
+      issues,
+      late: rb.forecast.gapMinutes > 0,
+    };
+  });
 }

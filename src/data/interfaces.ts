@@ -31,10 +31,10 @@ export interface Clock {
 
 /** The user's own page preferences. Personal: they never change the page for anyone else. */
 export interface LayoutPreference {
-  /** Order of the regions in the main column: Event ribbon and Task Timeline. */
+  /** Order of the regions in the main column: Event ribbon and Task Timeline (Command Centre), or Event ribbon and Progress (Exec Briefing Centre). */
   order: RbmMovableRegion[];
-  /** Each region folded: the ribbon and timeline to a 56 px line, the Hot-topics panel to a rail. All open by default. */
-  collapsed: Record<RbmRegion, boolean>;
+  /** Each of the page's regions folded: the main column's to a 56 px line, the Hot-topics panel to a rail. All open by default. */
+  collapsed: Partial<Record<RbmRegion, boolean>>;
   /** What the Event ribbon shows: all stages (the default), critical runbooks, or the critical path. */
   ribbonView: RbmRibbonView;
 }

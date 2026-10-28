@@ -71,19 +71,21 @@ export function RbmSummaryChip({ label, children }: { label: string; children: R
 }
 
 export interface RbmRegionCollapsedProps {
-  /** The region's name: the eyebrow, and the section's accessible name. */
+  /** The region's name: the eyebrow, and the section's accessible name unless `label` is given. */
   title: string;
+  /** The section's accessible name, where the title alone would repeat another region's. */
+  label?: string;
   /** The summary chips (RbmSummaryChip). */
   children: ReactNode;
   onExpand: () => void;
 }
 
 /** A collapsed region: one 56 px line with the eyebrow title, the summary and "Expand". */
-export function RbmRegionCollapsed({ title, children, onExpand }: RbmRegionCollapsedProps) {
+export function RbmRegionCollapsed({ title, label = title, children, onExpand }: RbmRegionCollapsedProps) {
   return (
     <Box
       component="section"
-      aria-label={title}
+      aria-label={label}
       data-collapsed="true"
       sx={{ border: 1, borderColor: 'divider', borderRadius: `${radius.card}px`, bgcolor: 'background.paper', display: 'flex', alignItems: 'center', gap: 3.5, height: 56, px: 4, lineHeight: 'normal', boxSizing: 'border-box', minWidth: 0 }}
     >

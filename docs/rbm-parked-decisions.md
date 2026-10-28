@@ -1247,6 +1247,16 @@ Not drawn, so I chose (flag, confirm or replace):
 - **Naming (decided by Andy Smith, 28 Oct 2026):** the page is the "Exec Briefing Centre", first built as "Exec Centre" and renamed the same day. Its Events list icon is the Icon suite's `centre.executiveBriefing`, which the suite names "Executive Briefing Centre".
 - **Not done:** the record panel has no "Open Exec Briefing Centre" action (its primary action stays Open Command Centre). The demo bar's Event switcher opens the Command Centre.
 
+### 28 Oct 2026: Exec Briefing Centre, Progress in place of the Task Timeline (asked by Andy Smith; region Proposed, not drawn)
+- **Asked:** remove the Task Timeline from the Exec Briefing Centre; add a region named Progress, with Runbook progress and Workstream progress side by side, where the Task Timeline was; update the regions in the Layout panel.
+- **Built:** the Exec Briefing Centre's main column is the Event ribbon, then Progress (`EXEC_BRIEFING_LAYOUT`). The Hot-topics panel, Page header and Event vitals are as on the Command Centre. With no Task Timeline the page sends no task commands; the "not in this prototype" notices that the timeline showed now show in MUI's snackbar (no RBM style is drawn).
+- **Layout panel:** lists Event ribbon and Progress (no Task Timeline), each with its Open switch, and Reset to default puts back Event ribbon, then Progress. The layout store keeps each page's own regions, so a Command Centre layout never applies here. The Command Centre is unchanged.
+- **Progress region (`RbmProgressRegion`):** the eyebrow "Progress" and Collapse, like the Hot-topics panel; collapsed, the shared 56 px line with "n runbooks", "n workstreams" and "n late". Screen readers hear "Progress, runbooks and workstreams", because the Event vitals already have a region named Progress.
+- **Side by side needs room (flag):** at D2 each card needs about 1,080 px for its drawn columns, so the two sit side by side only when the main column is about 2,180 px or wider (a 3,200 px window). Narrower, they stack, Runbook progress first. At 1,920 px they stack. To be side by side on a 1,920 px screen the cards would need fewer or narrower columns there, or the region a denser level: a design decision.
+- **Runbook progress data (Proposed):** from the event (`toRunbookProgress`). The data model has no runbook owner or state, so the owner is the person assigned most of its tasks; the state is Complete, Active, Paused or Scheduled from its tasks; start and end are the earliest and latest actual-or-forecast task times; issues are open issues on its tasks; Late is a forecast end behind the planned end.
+- **Workstream progress data:** the data model has no workstreams, so the page takes them as a prop and the prototype passes the Progress board's sample moved to the event's start (`mockWorkstreamProgressFrom`).
+- **Seen in the check, not new:** a runbook that is both Scheduled and Late ("Scheduled" then "Late") is wider than the drawn 130 px Status column at D2, and "Late" runs past the card's edge.
+
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.
 - Should the collapsed Event ribbon's summary follow the Critical runbooks filter?

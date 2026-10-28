@@ -1,6 +1,6 @@
 # Workstream progress and Runbook progress: the comparison
 
-Prepared 27 Oct 2026 by Claude Code, as asked in `runbook-progress-brief.md` section 3. Both cards were built as independent components (`RbmWorkstreamProgress` and `RbmRunbookProgress`) so this comparison measures what really is the same. Andy Smith decides whether a generic component follows.
+Prepared 27 Oct 2026 by Claude Code, as asked in `docs/briefs/runbook-progress-brief.md` section 3. Both cards were built as independent components (`RbmWorkstreamProgress` and `RbmRunbookProgress`) so this comparison measures what really is the same. Andy Smith decides whether a generic component follows.
 
 ## The numbers
 

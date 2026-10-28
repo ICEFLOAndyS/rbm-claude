@@ -1,4 +1,4 @@
-Read CLAUDE.md, docs/handoff-brief.md and claude/rbm-parked-decisions.md first. The design is the source of truth: https://claude.ai/artifact/GfR1Zo8xXaj9PuLXRWWaCv (Command board). Where the design is silent, ask me, or propose and flag it. Do not invent visual design.
+Read CLAUDE.md, docs/briefs/handoff-brief.md and claude/rbm-parked-decisions.md first. The design is the source of truth: https://claude.ai/artifact/GfR1Zo8xXaj9PuLXRWWaCv (Command board). Where the design is silent, ask me, or propose and flag it. Do not invent visual design.
 
 # Goal
 Build a browser prototype of the Command & Control page from three components: `RbmCommandCentre` (page template), `RbmEventBar` (sticky compact bar) and the Layout panel. Everything is fed by JSON through the same data model the real ServiceNow data will use later. There are no network calls and no back end.

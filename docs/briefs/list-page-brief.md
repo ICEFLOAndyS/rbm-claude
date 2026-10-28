@@ -1,6 +1,6 @@
 # RBM List of records page: brief for Claude Code
 
-Prepared 22 Oct 2026. This brief covers one piece of work: the **List of records page template** (`RbmListPage`) and the record panel it opens (`RbmRecord`). It builds on `docs/handoff-brief.md` and `docs/rbm-parked-decisions.md`. Read those first. Everything there still applies (tokens, naming, working agreement, fallback styles, accessibility). This brief only adds what is specific to the list page. If the two disagree, ask.
+Prepared 22 Oct 2026. This brief covers one piece of work: the **List of records page template** (`RbmListPage`) and the record panel it opens (`RbmRecord`). It builds on `docs/briefs/handoff-brief.md` and `docs/rbm-parked-decisions.md`. Read those first. Everything there still applies (tokens, naming, working agreement, fallback styles, accessibility). This brief only adds what is specific to the list page. If the two disagree, ask.
 
 ## 1. Goal
 Deliver working, tested React code for the List of records page template, as designed, running in a browser against JSON fixtures and a fake server, with no back end. The page is the workhorse of RBM: a toolbar above one grid, and a slide-in for a quick look at a record. Use the Runbooks list as the worked example.
@@ -103,7 +103,7 @@ Build in this order, one piece at a time, each with stories, tests and a check a
 - Wall display use of this page: the board says to use the Dashboard template instead.
 
 ## 11. Order of work
-1. Read this brief, `docs/handoff-brief.md` and `docs/rbm-parked-decisions.md`, then the boards in section 2. Run `npm run check` and tell me what breaks.
+1. Read this brief, `docs/briefs/handoff-brief.md` and `docs/rbm-parked-decisions.md`, then the boards in section 2. Run `npm run check` and tell me what breaks.
 2. Install MUI X Data Grid Pro v9, set up the licence key from configuration, and record decisions D1 to D4.
 3. Write the types, fixtures and mock server, then stop for my review.
 4. Build in the order in section 3.

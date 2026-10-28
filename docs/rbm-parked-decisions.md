@@ -323,7 +323,7 @@ The two stacked filter chips looked untidy (screenshot in `docs/Event Ribbon.png
 - **Design board:** drafted on the Foundations board ("04 · Layout and theme", under Radius and Elevation), tagged Proposed, with a line in the MUI theme mapping and in "Where the guide stops". Needs sign-off.
 
 ### 22 Oct 2026: List of records page, early decisions (decided by Andy Smith)
-Brief: `claude/rbm-list-page-brief.md` (repository copy `docs/list-page-brief.md`).
+Brief: `claude/rbm-list-page-brief.md` (repository copy `docs/briefs/list-page-brief.md`).
 - **D1, grid:** MUI X Data Grid v9 is the grid for `RbmDataGrid`. There is no comparison with AG Grid. A strategic choice to keep the tech stack small: no second grid library.
 - **D2, Peek:** the Peek (a row expanding in place) is not in this release. A row click opens the 480 px slide-in directly. The record pattern board still shows the Peek as an option; the board is unchanged.
 - **D3, density:** D2 Compact is the default density for the page. It settles the board's "For your decision" question.
@@ -546,7 +546,7 @@ Built unattended, so every choice below is a recommendation to review.
 - **Open:** in Edge's headless capture, the grid's header background stops about 30 px short of the card's right edge (the scrollbar filler). Check it in a normal window.
 
 ### 22 Oct 2026: App shell, four-group navigation and new navigation icons (decided by Andy Smith)
-Brief: `claude/rbm-app-shell-brief.md` (repository copy `docs/app-shell-brief.md`). Design version 74.
+Brief: `claude/rbm-app-shell-brief.md` (repository copy `docs/briefs/app-shell-brief.md`). Design version 74.
 - **Navigation:** four groups, in this order. **Events** (List, Folders), **Library** (Templates, Folders, Teams, Workstreams), **Admin** (Setup, Integrations, License Management), **Help** (Training, Support & Versions). It replaces the board's Dashboard, Runbook lifecycle and Library spine. The Shell board is redrawn (anatomy, expanded sidebar, rail, mobile drawer, item states, rules, `rbmNav` sample, decision 6).
 - **Six zones:** sidebar, top bar, page header, content, footer, slide-in region, as drawn. All six are built.
 - **Icons: conform with the design.** Andy first asked for MUI icons, then chose to follow the Icon suite board: icons are drawn from scratch in the RBM style, and nothing outside the icon package imports `@mui/icons-material`.
@@ -703,7 +703,7 @@ Icon suite board, design version 76; the suite is now 73 icons. Objects go from 
 - **No icons from `@mui/icons-material`:** enforced by a test that scans the source (like the MUI X import test), because the repository has no ESLint.
 
 ### 23 Oct 2026: Icon registry and `RbmIcon` (icon suite brief, step 1)
-Brief: `docs/icon-suite-brief.md` (Icon suite board, version 88). Andy Smith asked for the full registry first, then the app shell; the state pill and the transition tables (brief steps 3 and 4) wait for the questions below.
+Brief: `docs/briefs/icon-suite-brief.md` (Icon suite board, version 88). Andy Smith asked for the full registry first, then the app shell; the state pill and the transition tables (brief steps 3 and 4) wait for the questions below.
 - **Registry:** `src/icons/registry.ts`. `rbmIconKeys` lists the groups and keys exactly as the brief's section 4: `object` (22), `role` (8), `state` (14), `construct` (9), `control` (9), `display` (11), `nav` (7), `taskType` (9), 89 icons. Each icon is a file, `src/icons/svg/<group>/<name>.svg`. `RbmIconName` is the typed key (`'nav.list'`), so an unknown key does not compile.
 - **Checked against the board:** all 91 drawings in the brief (89 plus the two badges) match the Icon suite board exactly.
 - **The old `action` group is gone:** the app shell's keys are now `display.previous`, `next`, `widen`, `openFullPage` and `close`.
@@ -876,7 +876,7 @@ Built from the App shell board ("Footer": D1, D2, D3, D0, and the rules).
 - **Visual check:** D1, Reconnecting, UAT and D0 were captured in headless Edge and match the board, apart from the white Live dot.
 
 ### 23 Oct 2026: Icon registry updated to the icon suite brief, rev 2 (asked by Andy Smith)
-Sources: the icon suite brief, rev 2 (now `docs/icon-suite-brief.md`), and the project note's new answers under "state versus action" (merged above from `docs/rbm-parked-decisions-rev2.md`). Icon suite board version 92: all 97 drawings in the brief (95 icons and the two badges) match the board exactly.
+Sources: the icon suite brief, rev 2 (now `docs/briefs/icon-suite-brief.md`), and the project note's new answers under "state versus action" (merged above from `docs/rbm-parked-decisions-rev2.md`). Icon suite board version 92: all 97 drawings in the brief (95 icons and the two badges) match the board exactly.
 - **Registry, now 95 suite icons (plus 7 shell):**
   - **Construction (14):** `duplicate` is retired. Its drawing is now `copy`. New: `clone`, `moveUp`, `moveDown`, `dragHandle` (six filled dots) and `dropTarget` (a dashed slot).
   - **Task types (10):** `manual` is renamed `standard` and redrawn as a plain ring. `checkpoint` is redrawn as a ring with four small circles, replacing the pin. `milestone` is new (a diamond on a baseline).
@@ -968,7 +968,7 @@ Built from the App shell board ("Anatomy" 6, "Responsive behaviour", "React and 
   - the Events list in the demo, the row icon that opens the Command Centre, and the record panel in the slide-in region (next step).
 
 ### 23 Oct 2026: Centre icons in the registry (icon suite brief, v2)
-Source: the icon suite brief, v2 (now `docs/icon-suite-brief.md`), and the project note's new lines (merged above from `docs/rbm-parked-decisions-v2.md`). All 103 drawings in the brief (101 icons and the two badges) match the Icon suite board.
+Source: the icon suite brief, v2 (now `docs/briefs/icon-suite-brief.md`), and the project note's new lines (merged above from `docs/rbm-parked-decisions-v2.md`). All 103 drawings in the brief (101 icons and the two badges) match the Icon suite board.
 - **Registry:** a new group `centre` (6): `base`, `commandControl`, `migration`, `executiveBriefing`, `verification`, `audit`. The suite is 101 icons, plus the 7 shell icons. Proposed.
 - **Tests:** the five badged Centres are drawn exceptions, like the Global and Local objects (the small base at 2.86, the badge at 1.5).
 - **Storybook:** a Centres group story. The Look Alikes story adds the Centre badges side by side and the base against Template.
@@ -1118,7 +1118,7 @@ Scenarios are Planned Change, Disaster Recovery, Cyber Recovery and Service Reco
 - Risk I flagged: it is built from boxes, like the Template and Centre icons. Check it at 16 px against them before the pull request. Updated on the Icon suite board, the Scenarios domain card and the Profile menu (version 112).
 
 ### 24 Oct 2026: Briefs and notes live in `docs/` only (Andy Smith)
-- Every brief and note copy goes straight in `docs/`, with no subfolders. The app shell brief moved from `docs/app-shell/app-shell-brief.md` to `docs/app-shell-brief.md`, which is the path the project notes already give, and the references to it are updated.
+- Every brief and note copy goes straight in `docs/`, with no subfolders. The app shell brief moved from `docs/app-shell/app-shell-brief.md` to `docs/app-shell-brief.md`, which is the path the project notes already give, and the references to it are updated. (Replaced on 28 Oct 2026: briefs now live in `docs/briefs/`.)
 - `docs/14 - Brand Kit/` keeps its subfolders: it holds brand assets, not briefs or notes, and the demo's favicon is copied from it.
 
 ### 26 Oct 2026: Scenarios built into the demo (Claude Code; asked by Andy Smith; the screens are still not approved)
@@ -1212,7 +1212,7 @@ Not drawn, so I chose (flag, confirm or replace):
 - **My proposals, to confirm:** which Icon suite states a workstream or runbook can have (the suite defines Task and Event states only; I used Scheduled, Active, Paused, Complete); whether start and end are planned, forecast or actual; owners shown as initials plus name; Owner, Start and End as one Detail group although Detail allows one field.
 
 ### 27 Oct 2026: RbmWorkstreamProgress built (Claude Code; drawing Proposed)
-- **Built** to `docs/workstream-progress-brief.md` and the Progress board ("Workstream progress", design version 128): `RbmWorkstreamProgress`, the mock `mockWorkstreamProgress` (the board's twelve rows), stories for every state and D0 to D3, and 37 tests. Visual check: D0 to D3 and loading screenshotted against the board.
+- **Built** to `docs/briefs/workstream-progress-brief.md` and the Progress board ("Workstream progress", design version 128): `RbmWorkstreamProgress`, the mock `mockWorkstreamProgress` (the board's twelve rows), stories for every state and D0 to D3, and 37 tests. Visual check: D0 to D3 and loading screenshotted against the board.
 - **New, shared:** `suiteStates` (`src/icons/states.ts`) gives each of the 14 Icon suite states its label, dot colour and text colour, from the icon suite brief section 5.4. Nothing in code mapped them before. `RbmAvatar` gains the drawn 18 px (D1, beside the owner's name) and 24 px (D2 Owner column) sizes.
 - **Differs from the drawing (density rule of 22 Oct):** row height, name and status text, issue dots, column gap and card side padding come from the density tokens. At D1 that is 56 px rows and 16 px names (drawn 52 and 14), 10 px dots (drawn 8), a 16 px gap (drawn 12). Column templates, bars, avatars, glyphs and the header keep their drawn sizes.
 - **My choices, to confirm:**
@@ -1225,7 +1225,7 @@ Not drawn, so I chose (flag, confirm or replace):
 - **Build order:** not in the brief's build order. Built on its own branch, `rbm-workstream-progress`, from `rbm-app-shell`.
 
 ### 27 Oct 2026: RbmRunbookProgress built, and the comparison (Claude Code; drawing Proposed)
-- **Built** to `docs/runbook-progress-brief.md` and the Progress board ("Runbook progress", design version 128): `RbmRunbookProgress`, `mockRunbookProgress` (the board's runbook names), the same 15 stories and 37 tests as Workstream progress. It imports nothing from `RbmWorkstreamProgress`, as the brief asks. Name column 230 px at D1 and 190 px at D2 and D3, as drawn. Visual check: D1, D3 and a long name screenshotted against the board.
+- **Built** to `docs/briefs/runbook-progress-brief.md` and the Progress board ("Runbook progress", design version 128): `RbmRunbookProgress`, `mockRunbookProgress` (the board's runbook names), the same 15 stories and 37 tests as Workstream progress. It imports nothing from `RbmWorkstreamProgress`, as the brief asks. Name column 230 px at D1 and 190 px at D2 and D3, as drawn. Visual check: D1, D3 and a long name screenshotted against the board.
 - **Same choices as Workstream progress** (27 Oct entry above): rounding, ties by name, the caption, the Late glyph, the screen-reader name and the density tokens.
 - **Comparison:** `docs/exec-progress-comparison.md`. Of the component's 410 lines, 30 differ, all words, names and three column widths; the data shapes are identical. **My recommendation:** one generic component (placeholder `RbmExecProgress`) with the title, the noun and the name widths passed in. Not built: Andy Smith to decide.
 - **Branch:** `rbm-runbook-progress`, stacked on `rbm-workstream-progress` (it uses `suiteStates` and the new avatar sizes).
@@ -1279,6 +1279,11 @@ Not drawn, so I chose (flag, confirm or replace):
 - **Start and End are stats.** They are hidden with the task and issue counts and come back with "Show stats" (at D1 Start / end; at D3 End). Screen readers hear them in each row's summary either way; the link is named "Show stats: tasks, issues, start and end".
 - **Equal heights.** Side by side, the two cards stretch to the taller one's height.
 - **Sizes now, at D2, stats hidden:** each card is the name, the bar, Owner and Status, so they sit side by side at about a 2,100 px window (sidebar and Hot-topics panel open) and stack at 1,920 px.
+
+### 28 Oct 2026: Briefs live in `docs/briefs/` (decided by Andy Smith)
+- Application briefing documents live in `docs/briefs/`. This replaces the 24 Oct rule that briefs go straight in `docs/`. Other notes (this log, the data models, the comparison, the prototype guide) stay in `docs/`.
+- Moved: `app-shell-brief.md`, `commandandcontrolbrief.md`, `handoff-brief.md`, `icon-suite-brief.md`, `list-page-brief.md`, `runbook-progress-brief.md`, `workstream-progress-brief.md`, and, on its own branch (`rbm-app-shell`), `task-timeline-brief.md`. The paths to them in CLAUDE.md, the README, the briefs, the notes, this log and the icon registry are updated.
+- The project notes give some briefs as `docs/<name>.md`; those paths now read `docs/briefs/<name>.md`.
 
 ## Open questions
 - Planning engine (Dave): does it write critical-path status on stages and runbooks, or do clients derive it from the tasks? See 22 Oct 2026, Critical runbooks filter.

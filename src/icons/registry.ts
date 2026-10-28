@@ -1,5 +1,5 @@
 /**
- * The RBM icon suite (Icon suite board, 109 icons; docs/icon-suite-brief.md): one typed registry, used
+ * The RBM icon suite (Icon suite board, 109 icons; docs/briefs/icon-suite-brief.md): one typed registry, used
  * through RbmIcon. Each icon is a file in ./svg/<group>/<name>.svg, drawn on the 24 px grid with 2 px round
  * strokes in currentColor; a test checks every file against those rules and against this list.
  *

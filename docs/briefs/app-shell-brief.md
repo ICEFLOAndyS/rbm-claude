@@ -1,6 +1,6 @@
 # RBM app shell: brief for Claude Code
 
-Prepared 22 Oct 2026. This brief covers one piece of work: the **app shell** (`RbmAppShell`) with its six zones and the new five-group navigation. It builds on `docs/handoff-brief.md` and `docs/rbm-parked-decisions.md`. Read those first. Everything there still applies (tokens, naming, working agreement, fallback styles, accessibility). If this brief and the design disagree, the differences are listed in section 9: do not guess, ask.
+Prepared 22 Oct 2026. This brief covers one piece of work: the **app shell** (`RbmAppShell`) with its six zones and the new five-group navigation. It builds on `docs/briefs/handoff-brief.md` and `docs/rbm-parked-decisions.md`. Read those first. Everything there still applies (tokens, naming, working agreement, fallback styles, accessibility). If this brief and the design disagree, the differences are listed in section 9: do not guess, ask.
 
 **Status of this brief:** the navigation structure and the icon rule come from Andy Smith (22 Oct 2026), and the regrouping with Content Packs and the two-item RBM Admin group on 23 Oct 2026. The design is already updated to match (design version 104): the App shell board has the four-group sidebar, and the Icon suite board has the seven new navigation icons. Build what is drawn.
 
@@ -235,7 +235,7 @@ The design was updated on 22 Oct 2026 (version 74) so the sidebar and icons matc
 - **Not drawn:** hover and pressed states beyond the item states, the notifications popover content, the programme switcher menu, the command palette, and the reconnecting footer. Use MUI defaults and flag each.
 
 ## 10. Order of work
-1. Read this brief, `docs/handoff-brief.md` and `docs/rbm-parked-decisions.md`, then the boards in section 2. Run `npm run check` and tell me what breaks.
+1. Read this brief, `docs/briefs/handoff-brief.md` and `docs/rbm-parked-decisions.md`, then the boards in section 2. Run `npm run check` and tell me what breaks.
 2. Check what already exists in the repo (density provider, theme, `RbmStatusPill`, avatar, any icon code) and reuse it.
 3. Stop and show me the plan: the `RbmNavConfig` types, the icon registry design (how the `nav` and `shell` groups fit what already exists), and the questions in section 9 that block you. Wait for my go-ahead.
 4. Build in the order in section 7.

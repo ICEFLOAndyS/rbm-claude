@@ -1,6 +1,6 @@
 # List of records page: data contract
 
-Status: **proposed, for review** (22 Oct 2026). Nothing is built on it yet. Brief: [list-page-brief.md](list-page-brief.md), section 8.
+Status: **proposed, for review** (22 Oct 2026). Nothing is built on it yet. Brief: [list-page-brief.md](briefs/list-page-brief.md), section 8.
 
 **The list is the Page templates board's "1 · List of records", with Runbooks replaced by Events** (Andy Smith, 22 Oct 2026). Keep it simple and faithful to the drawing. The only changes:
 - An **Event ID** column (REVnnnnnn, for example REV000001) is added.

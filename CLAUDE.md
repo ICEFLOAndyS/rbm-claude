@@ -3,8 +3,9 @@
 React, TypeScript, MUI and Storybook components for RBM (Runbook Management), the ICEFLO Limited product on ServiceNow.
 
 ## Read first
-1. `docs/handoff-brief.md` (a copy of the project note `claude/rbm-claude-code-handoff.md` in the "Feature Factory v3.0" project; the project note is the master, so prefer it if you can read it).
+1. `docs/briefs/handoff-brief.md` (a copy of the project note `claude/rbm-claude-code-handoff.md` in the "Feature Factory v3.0" project; the project note is the master, so prefer it if you can read it).
 2. `docs/rbm-parked-decisions.md` (a copy of the project note `claude/rbm-parked-decisions.md`) for agreed rules and open questions.
+3. The brief for the work in hand. **Application briefing documents live in `docs/briefs/`**: look there first for any brief, and put new ones there.
 
 ## Rules
 - **The design is the source of truth.** The "RBM Design System" canvas artifact: https://claude.ai/artifact/GfR1Zo8xXaj9PuLXRWWaCv (open it with the same claude.ai account as its owner). Build what is drawn. If the design is silent, ask, or propose and flag it. Do not invent visual design. Where the design gives no RBM style or token (for example hover and pressed states), use MUI's defaults and flag the gap.

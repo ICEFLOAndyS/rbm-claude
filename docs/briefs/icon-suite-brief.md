@@ -1,6 +1,6 @@
 # RBM icon suite: brief for Claude Code
 
-Prepared 23 Oct 2026. This brief covers one piece of work: the **icon suite** and the state and action rules that depend on it. It builds on `docs/handoff-brief.md`, `docs/rbm-parked-decisions.md`, `docs/app-shell-brief.md` and `docs/list-page-brief.md`. Read those first. If they disagree with this brief, this brief wins for icons and states, and you should say so.
+Prepared 23 Oct 2026. This brief covers one piece of work: the **icon suite** and the state and action rules that depend on it. It builds on `docs/briefs/handoff-brief.md`, `docs/rbm-parked-decisions.md`, `docs/briefs/app-shell-brief.md` and `docs/briefs/list-page-brief.md`. Read those first. If they disagree with this brief, this brief wins for icons and states, and you should say so.
 
 **Status: every icon here is Proposed.** The drawings are first-pass and need Andy Smith's sign-off. Build them, mark them Proposed in Storybook, and do not treat them as final.
 
@@ -322,6 +322,6 @@ One piece per pull request, each with stories, tests and a check against the boa
 - Anything that differs from the board is flagged in `docs/rbm-parked-decisions.md`.
 
 ## 12. Order of work
-1. Read this brief, `docs/handoff-brief.md` and `docs/rbm-parked-decisions.md`, then the Icon suite board. Run `npm run check` and tell me what breaks.
+1. Read this brief, `docs/briefs/handoff-brief.md` and `docs/rbm-parked-decisions.md`, then the Icon suite board. Run `npm run check` and tell me what breaks.
 2. Build in the order in section 8.
 3. Run the acceptance checks. Report what you could not verify.
